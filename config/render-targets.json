@@ -21,7 +21,7 @@
   },
   "fpsTarget": 60,
   "fallbackFpsTarget": 30,
-  "maxInternalDpr": 1,
+  "maxInternalDpr": 2,
   "firstTransferMbTarget": 20,
   "fixedSeed": "atlas-demo-01",
   "fixedTimeSeconds": 0,

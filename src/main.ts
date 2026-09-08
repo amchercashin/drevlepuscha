@@ -1,4 +1,6 @@
 import './style.css';
+import {renderResolution} from './runtime/resolution.ts';
+import type {ResolutionQuality} from './runtime/resolution.ts';
 import {FOREST_BOUNDS} from './domain/forest.ts';
 import {createForest} from './runtime/forest.ts';
 import type { AbstractEngine } from '@babylonjs/core/Engines/abstractEngine.js';
@@ -113,12 +115,21 @@ try {
   canvas.addEventListener('blur',()=>{keys.clear();dragging=false;});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)setPaused(true);});
   engine.onContextLostObservable.add(()=>fail('Графический контекст потерян. Закройте лишние графические приложения и перезагрузите стенд.'));
+  const qualitySelect=document.querySelector<HTMLSelectElement>('#resolution-quality')!;
+  let quality:ResolutionQuality='high';
+  try{const saved=localStorage.getItem('resolution-quality');if(['performance','balanced','high','native'].includes(saved??''))quality=saved as ResolutionQuality;}catch{/* Storage can be unavailable. */}
+  qualitySelect.value=quality;
+  let internalDpr=1;
   function resize() {
-    const w=canvas.clientWidth,h=canvas.clientHeight;
-    const s=Math.min(1,targets.viewport.width/w,targets.viewport.height/h);
-    engine!.setSize(Math.max(1,Math.round(w*s)),Math.max(1,Math.round(h*s)));
+    const size=renderResolution(canvas.clientWidth,canvas.clientHeight,window.devicePixelRatio,quality,Math.min(8192,engine!.getCaps().maxTextureSize));
+    internalDpr=size.scale;engine!.setSize(size.width,size.height);
   }
+  qualitySelect.onchange=()=>{quality=qualitySelect.value as ResolutionQuality;try{localStorage.setItem('resolution-quality',quality);}catch{}resize();};
   window.addEventListener('resize',resize);resize();
+  // Retina density can change when moving a window between monitors without changing its CSS size.
+  let densityQuery:MediaQueryList;
+  function watchDensity(){densityQuery?.removeEventListener('change',densityChanged);densityQuery=matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);densityQuery.addEventListener('change',densityChanged);}
+  function densityChanged(){resize();watchDensity();}watchDensity();
 
   function state() {
     const pos={x:camera.position.x,y:camera.position.y,z:camera.position.z};
@@ -133,7 +144,7 @@ try {
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,webGLVersion:renderer.kind==='webgl2'?2:null,
         triangles:scene.getActiveIndices()/3,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
-        gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr:1},
+        gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,
     };
   }

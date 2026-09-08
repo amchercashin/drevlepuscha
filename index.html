@@ -17,6 +17,7 @@
       <details id="diagnostics">
         <summary>Проверка стенда <span id="fps">— FPS</span></summary>
         <p id="metrics">Подготовка сцены…</p>
+        <label for="resolution-quality">Чёткость изображения</label><select id="resolution-quality"><option value="performance">Экономно · 0,9 Мп</option><option value="balanced">Средняя · 2,1 Мп</option><option value="high" selected>Высокая · 3,7 Мп</option><option value="native">По экрану · Retina до 2×</option></select>
         <label for="preset">Ракурс камеры</label><select id="preset"></select>
         <label for="renderer">Графика · перезапуск стенда</label><select id="renderer"><option value="auto">Авто: WebGPU → WebGL2</option><option value="webgpu">WebGPU</option><option value="webgl2">WebGL2</option></select>
         <button id="reset" type="button">Вернуться ко входу</button>
