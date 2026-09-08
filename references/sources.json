@@ -68,9 +68,46 @@
     {
       "id": "babylon-thin-instances",
       "title": "Babylon.js — Thin Instances",
-      "status": "technical-reference-not-rechecked",
-      "locator": "Consult when implementing instances",
-      "url": "https://doc.babylonjs.com/features/featuresDeepDive/mesh/copies/thinInstances/"
+      "status": "checked-2026-09-08",
+      "locator": "Official documentation source: shared visibility bounds, static instance tradeoffs and custom attributes",
+      "url": "https://github.com/BabylonJS/Documentation/blob/master/content/features/featuresDeepDive/mesh/copies/thinInstances.md",
+      "note": "Supports the proposed spatial batching design; does not establish performance budgets for this Mac."
+    },
+    {
+      "id": "babylon-lod",
+      "title": "Babylon.js — Levels of Detail",
+      "status": "checked-2026-09-08",
+      "locator": "Distance and screen coverage selection; regular instance LOD",
+      "url": "https://github.com/BabylonJS/Documentation/blob/master/content/features/featuresDeepDive/mesh/LOD.md"
+    },
+    {
+      "id": "khronos-ktx2",
+      "title": "Khronos — KTX File Format Specification",
+      "status": "checked-2026-09-08",
+      "locator": "KTX 2.0 format: GPU textures, mip levels and Basis Universal",
+      "url": "https://github.khronos.org/KTX-Specification/ktxspec.v2.html",
+      "note": "The opened page labels revision 5 a draft. The plan relies on established KTX 2.0 capabilities, not new draft features; no decoder has been added."
+    },
+    {
+      "id": "mdn-web-workers",
+      "title": "MDN — Using Web Workers",
+      "status": "checked-2026-09-08",
+      "locator": "Background CPU work; streaming architecture reference",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers"
+    },
+    {
+      "id": "mdn-storage-quotas",
+      "title": "MDN — Storage quotas and eviction criteria",
+      "status": "checked-2026-09-08",
+      "locator": "Browser-managed quotas and eviction; asset cache is not a save backup",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria"
+    },
+    {
+      "id": "github-pages-limits",
+      "title": "GitHub Docs — GitHub Pages limits",
+      "status": "checked-2026-09-08",
+      "locator": "Published site maximum 1 GB; soft bandwidth limit 100 GB per month",
+      "url": "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
     },
     {
       "id": "babylon-camera",
