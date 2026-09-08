@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "note": "Forest production plan. M0 has a procedural traveller proxy and test primitives; M1 forest assets remain planned.",
+  "note": "M0 proxy, M1 authored tree and two generated Meshy trials; route A selected by Alexander as the main concept pipeline; placement variations remain under visual review.",
   "assets": [
     {
       "id": "traveller-proxy",
@@ -82,6 +82,34 @@
       "runtimeFile": null,
       "provenance": "to-be-created",
       "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "meshy-tree-a",
+      "phase": "M1",
+      "status": "prototype",
+      "sourceFile": "assets/trees/meshy-a/source.glb",
+      "runtimeFile": "assets/trees/meshy-a/tree.json",
+      "provenance": "assets/trees/meshy-a/generation.json",
+      "sourceRefs": [
+        "user-tolkien-river-meshy-2026-09-08",
+        "meshy-image-to-3d"
+      ],
+      "releaseClearance": "unreviewed",
+      "note": "Default M1 tree, selected route A; approximate trunk collision, no root walk surface."
+    },
+    {
+      "id": "meshy-tree-b",
+      "phase": "M1",
+      "status": "prototype",
+      "sourceFile": "assets/trees/meshy-b/source.glb",
+      "runtimeFile": "assets/trees/meshy-b/tree.json",
+      "provenance": "assets/trees/meshy-b/generation.json",
+      "sourceRefs": [
+        "user-tolkien-river-meshy-2026-09-08",
+        "meshy-image-to-3d"
+      ],
+      "releaseClearance": "unreviewed",
+      "note": "Opt-in trial; variant b; approximate trunk collision, no root walk surface."
     }
   ]
 }

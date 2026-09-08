@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "id": "meshy-tree-trial-v1",
+  "reference": "references/private/meshy-tree-trial/tolkien-river.jpg",
+  "conceptPrompt": "Use case: stylized-concept. Asset type: single image input for Meshy Smart Topology image-to-3D, game tree for an eye-level third-person ancient forest. Input image 1 is ONLY an artistic style reference, not an edit target and not a scene to reproduce. Create ONE complete standalone ancient deciduous tree inspired by the tall gray trunks, flowing buttress roots and broad teal canopy masses in the reference. Keep the graphic simplicity and restrained watercolor-like color blocks, but describe a coherent three-dimensional object with clearly readable volumes. One tall gently tapered gray-mauve trunk, visibly thick at the base, long clear lower trunk reaching about 55 percent of total height, a few elegant asymmetrical strong branching forks, 5 substantial flowing buttress roots joining the same root base. Crown is 7 to 9 large, sparse, lobed teal-green rounded masses on connected branches, slightly flattened broad upper surfaces and volumetric undersides. Preserve generous visible gaps between branch groups. No individual leaves, tiny twigs, serrated microdetail or tangled branch lattice. Tree approximately 18 m tall in imagined scale, crown width approximately 10 m; no scale ruler. Pale desaturated gray-purple bark near #817B80; dark muted teal canopy near #2D6C61 with #173D3D shadows and small #729784 lighter areas. Bark mostly smooth broad color planes with a few long dark fissures, not photorealistic bark. View: single three-quarter front view, near-orthographic, camera around trunk mid-height, enough underside visibility to understand canopy volume, entire tree including all roots and crown completely inside frame with 8 percent margin. Plain pure white background, sharp uninterrupted silhouette. Diffuse neutral studio lighting, soft form shading, no cast shadows, no dramatic directional light, no baked dark ambient occlusion. Matte painted surfaces. Render as a clean polished stylized 3D asset reference with the reference's artistic language, not a flat watercolor landscape. All branches visibly connected to trunk and crowns supported. No ground, soil island, pedestal, rocks, river, forest, other trees, characters, props, text, borders, labels, signature, watermark, multiple views or collage.",
+  "conceptModel": "nano-banana-2",
+  "conceptAspectRatio": "3:4",
+  "generation": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2",
+    "target_polycount": 5000,
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "2k",
+    "target_formats": [
+      "glb"
+    ],
+    "auto_size": false,
+    "multi_view_thumbnails": true
+  },
+  "runtime": {
+    "heightMeters": 18,
+    "maxTriangles": [
+      6000,
+      1500,
+      300
+    ],
+    "maxMaterials": 2,
+    "maxTextureSize": 2048,
+    "placement": {
+      "widthRange": [
+        0.45,
+        0.78
+      ],
+      "heightRange": [
+        0.6,
+        1.0
+      ],
+      "depthRatioRange": [
+        0.82,
+        1.18
+      ],
+      "maxLeanDegrees": 2,
+      "rootSinkMeters": 0.85
+    }
+  },
+  "estimatedApiCredits": {
+    "concept": 6,
+    "model": 15,
+    "totalTwoRoutes": 36
+  },
+  "outputs": {
+    "a": "assets/trees/meshy-a",
+    "b": "assets/trees/meshy-b"
+  },
+  "preferredRoute": "a"
+}

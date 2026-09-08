@@ -1,0 +1,10 @@
+import {readFile} from 'node:fs/promises';
+import {parseEnv} from 'node:util';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url));
+process.chdir(root);
+const env=parseEnv(await readFile('.env.meshy.local','utf8').catch(()=>''));
+process.env.MESHY_API_KEY=process.env.MESHY_API_KEY||env.MESHY_API_KEY||'';
+if(!process.env.MESHY_API_KEY)throw new Error('Set MESHY_API_KEY in .env.meshy.local');
+process.env.TRANSPORT='stdio';
+await import('./node_modules/@meshy-ai/meshy-mcp-server/dist/index.js');

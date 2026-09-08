@@ -3,13 +3,23 @@ import {groundHeight} from './harness.ts';
 import type {Box} from './harness.ts';
 export const FOREST_VERSION='m1-tree-field-v1';
 export const FOREST_BOUNDS={minE:-256,maxE:256,minN:-256,maxN:384};
-export interface TreePlacement {id:string;e:number;n:number;y:number;yaw:number;width:number;height:number;}
-export function forestPlacements():TreePlacement[]{
+export interface TreePlacement {id:string;e:number;n:number;y:number;yaw:number;width:number;height:number;depth:number;leanX:number;leanZ:number;}
+export interface TreeVariation {widthRange:[number,number];heightRange:[number,number];depthRatioRange:[number,number];maxLeanDegrees:number;rootSinkMeters:number;}
+export function forestPlacements(rootRadiusM=3.8,variation?:TreeVariation):TreePlacement[]{
  const output:TreePlacement[]=[];
- function tree(id:string,e:number,n:number,width?:number,height?:number){const r=createRandom(seedFor(FOREST_VERSION,id,'shape')),yaw=r()*Math.PI*2,w=width??0.8+r()*0.4,h=height??0.75+r()*0.43;
-  // Bury the root base against the downhill ground; shared rigid roots never float over a slope.
-  let y=groundHeight(e,n);for(let i=0;i<12;i++){const a=i*Math.PI/6;y=Math.min(y,groundHeight(e+Math.cos(a)*3.8*w,n+Math.sin(a)*3.8*w));}
-  output.push({id,e,n,y:y-0.08,yaw,width:w,height:h});}
+ function tree(id:string,e:number,n:number,width?:number,height?:number){
+  const r=createRandom(seedFor(FOREST_VERSION,id,'shape')),yaw=r()*Math.PI*2;
+  const range=(pair:[number,number])=>pair[0]+r()*(pair[1]-pair[0]);
+  const w=variation?(width===undefined?range(variation.widthRange):width*0.7):(width??0.8+r()*0.4);
+  const h=variation?(height===undefined?range(variation.heightRange):height*0.85):(height??0.75+r()*0.43);
+  const depth=variation?w*range(variation.depthRatioRange):w;
+  const lean=variation?variation.maxLeanDegrees*Math.PI/180:0,leanX=(r()*2-1)*lean,leanZ=(r()*2-1)*lean;
+  const radius=rootRadiusM*Math.max(w,depth);
+  // Conservative downhill support plus a small burial for raised root tips and tilt.
+  const samples=variation?24:12;let y=groundHeight(e,n);for(let i=0;i<samples;i++){const a=i*Math.PI*2/samples;y=Math.min(y,groundHeight(e+Math.cos(a)*radius,n+Math.sin(a)*radius));}
+  y-=0.08+(variation?variation.rootSinkMeters*h+radius*Math.hypot(leanX,leanZ):0);
+  output.push({id,e,n,y,yaw,width:w,height:h,depth,leanX,leanZ});
+ }
  for(let row=0;row<10;row++)for(let col=0;col<6;col++){
   if(row>=8&&(col===2||col===3))continue;
   const id=`m1-tree-${row}-${col}`,r=createRandom(seedFor(FOREST_VERSION,id,'position'));
@@ -26,8 +36,8 @@ export function forestPlacements():TreePlacement[]{
  tree('camera-trunk',-2.8,5,0.8,1.05);tree('canopy-probe',3.6,7,0.9,1.13);
  return output;
 }
-export function treeCollider(t:TreePlacement):Box{
- const radius=1.18*t.width;
+export function treeCollider(t:TreePlacement,radiusM=1.18):Box{
+ const radius=radiusM*Math.max(t.width,t.depth)+6*t.height*Math.hypot(t.leanX,t.leanZ);
  return {id:t.id,min:{x:t.e-radius,y:t.y,z:-t.n-radius},max:{x:t.e+radius,y:t.y+6*t.height,z:-t.n+radius}};
 }
 /** Distance to crown envelope, with a protected near zone and hysteresis. */

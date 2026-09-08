@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 test('M1 field varies the large shared forest, changes LOD and preserves camera and movement',async({page},info)=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'||/uncaptured error|validationerror|device lost/i.test(m.text()))errors.push(m.text());});
- await page.goto(`/?scene=m1&debug=1&renderer=${info.project.name}`);await page.waitForFunction(()=>window.m0?.state().ready);
+ await page.goto(`/?scene=m1&tree=game&debug=1&renderer=${info.project.name}`);await page.waitForFunction(()=>window.m0?.state().ready);
  await page.getByRole('button',{name:'Начать прогулку'}).click();
  const initial=await page.evaluate(()=>window.m0.state());expect(initial.forest.trees).toBe(4967);expect(initial.forest.trianglesPerLevel).toEqual([4818,1268,268]);expect(initial.forest.geometryBuffers).toBe(6+initial.forest.horizon.cells*2);
  await page.locator('#diagnostics').evaluate(e=>e.open=true);await page.getByLabel('Ближняя область без LOD — сравнение нагрузки').check();

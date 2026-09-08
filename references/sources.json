@@ -168,6 +168,62 @@
       "status": "user-supplied-private",
       "locator": "references/private/tree-multiview-2026-09-08.png",
       "note": "Visual reference for reference-tree-v1; views are not geometrically identical. Approximately 18 m height is an authored assumption. Reference pixels are excluded from runtime and public history."
+    },
+    {
+      "id": "user-tolkien-river-meshy-2026-09-08",
+      "title": "User-supplied river illustration for the Meshy tree trial",
+      "status": "user-supplied-private",
+      "locator": "references/private/meshy-tree-trial/tolkien-river.jpg",
+      "note": "Visual style source supplied on 8 September 2026; not an instruction or canon geometry. Source pixels excluded from public repository and runtime."
+    },
+    {
+      "id": "meshy-image-to-3d",
+      "title": "Meshy Image to 3D API",
+      "status": "checked-2026-09-08",
+      "locator": "Official documentation checked during the two-route tree trial",
+      "url": "https://docs.meshy.ai/en/api/image-to-3d"
+    },
+    {
+      "id": "meshy-multi-image",
+      "title": "Meshy Multi-Image to 3D API",
+      "status": "checked-2026-09-08",
+      "locator": "Official documentation checked during the two-route tree trial",
+      "url": "https://docs.meshy.ai/en/api/multi-image-to-3d"
+    },
+    {
+      "id": "meshy-image-to-image",
+      "title": "Meshy Image to Image API",
+      "status": "checked-2026-09-08",
+      "locator": "Official documentation checked during the two-route tree trial",
+      "url": "https://docs.meshy.ai/en/api/image-to-image"
+    },
+    {
+      "id": "meshy-pricing",
+      "title": "Meshy API Pricing",
+      "status": "checked-2026-09-08",
+      "locator": "Official documentation checked during the two-route tree trial",
+      "url": "https://docs.meshy.ai/en/api/pricing"
+    },
+    {
+      "id": "meshy-ai-integration",
+      "title": "Meshy AI Integration and official MCP",
+      "status": "checked-2026-09-08",
+      "locator": "Official documentation checked during the two-route tree trial",
+      "url": "https://docs.meshy.ai/en/api/ai"
+    },
+    {
+      "id": "meshy-image-help",
+      "title": "Meshy Text to Image plan requirements",
+      "status": "checked-2026-09-08",
+      "locator": "Official documentation checked during the two-route tree trial",
+      "url": "https://help.meshy.ai/en/articles/13696156-how-to-use-the-text-to-image-feature"
+    },
+    {
+      "id": "meshy-retention",
+      "title": "Meshy API Asset Retention",
+      "status": "checked-2026-09-08",
+      "locator": "Official documentation checked during the two-route tree trial",
+      "url": "https://docs.meshy.ai/en/api/asset-retention"
     }
   ]
 }

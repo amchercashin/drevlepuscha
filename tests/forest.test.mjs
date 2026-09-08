@@ -11,7 +11,7 @@ test('game tree derives from current source and meets all three budgets with two
  data.levels.forEach((parts,l)=>{assert.equal(parts.length,2);const total=parts.reduce((n,p)=>n+p.indices.length/3,0);assert.equal(total,data.triangles[l]);assert.ok(total<=[5000,1500,300][l]);for(const p of parts){const n=p.positions.length/3;assert.ok(p.positions.every(Number.isFinite));assert.equal(p.normals.length,n*3);assert.equal(p.uvs.length,n*2);assert.equal(p.colors.length,n*4);assert.ok(p.indices.every(i=>Number.isInteger(i)&&i>=0&&i<n));for(let i=0;i<n;i++)assert.ok(Math.abs(Math.hypot(...p.normals.slice(i*3,i*3+3))-1)<1e-5);}});
 });
 test('seeded large tree field is stable, varies shape, and leaves the centre route walkable',()=>{
- const trees=forestPlacements();assert.deepEqual(trees,forestPlacements());assert.equal(trees.length,4967);assert.equal(new Set(trees.map(t=>t.id)).size,4967);assert.ok(new Set(trees.map(t=>t.height)).size>50);const boxes=trees.map(treeCollider);for(let n=0;n<60;n+=0.1)assert.ok(walkerIsClear({e:0,n},boxes),`blocked at ${n}`);
+ const trees=forestPlacements();assert.deepEqual(trees,forestPlacements());assert.equal(trees.length,4967);assert.equal(new Set(trees.map(t=>t.id)).size,4967);assert.ok(new Set(trees.map(t=>t.height)).size>50);const boxes=trees.map(t=>treeCollider(t));for(let n=0;n<60;n+=0.1)assert.ok(walkerIsClear({e:0,n},boxes),`blocked at ${n}`);
 });
 test('LOD transitions have hysteresis and return to full detail on approach',()=>{
  assert.equal(treeLevel(21,0),0);assert.equal(treeLevel(23,0),1);assert.equal(treeLevel(19,1),1);assert.equal(treeLevel(17,1),0);assert.equal(treeLevel(54,1),2);assert.equal(treeLevel(47,2),2);assert.equal(treeLevel(45,2),1);

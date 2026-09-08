@@ -1,0 +1,11 @@
+{
+  "name": "drevlepuscha-meshy-tools",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@meshy-ai/meshy-mcp-server": "0.5.1",
+    "gltf-validator": "2.0.0-dev.3.10",
+    "jpeg-js": "0.4.4",
+    "meshoptimizer": "1.2.0"
+  }
+}
