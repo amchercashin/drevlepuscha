@@ -110,6 +110,22 @@
       "url": "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
     },
     {
+      "id": "khronos-gltf-art-pipeline",
+      "title": "Khronos — Art Pipeline for glTF",
+      "status": "checked-2026-09-08",
+      "locator": "Runtime triangle budgets, material and submesh consolidation",
+      "url": "https://www.khronos.org/blog/art-pipeline-for-gltf",
+      "note": "General asset preparation principles; the forest-specific numeric budgets are project proposals, not Khronos requirements."
+    },
+    {
+      "id": "babylon-skeleton-performance",
+      "title": "Babylon.js — Bones and Skeletons",
+      "status": "checked-2026-09-08",
+      "locator": "Performance considerations: vertex deformation and bone influence costs",
+      "url": "https://github.com/BabylonJS/Documentation/blob/master/content/features/featuresDeepDive/mesh/bonesSkeletons.md#performance-considerations",
+      "note": "Four influences is the proposed project budget, not a claimed maximum of Babylon.js."
+    },
+    {
       "id": "babylon-camera",
       "title": "Babylon.js — Camera documentation",
       "status": "technical-reference-not-rechecked",
