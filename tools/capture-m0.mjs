@@ -38,6 +38,6 @@ try {
   await writeFile(new URL('traversal-and-look.webm',out),Buffer.from(video));
   const final=await page.evaluate(()=>window.m0.state());
   await writeFile(new URL('capture.json',out),JSON.stringify({date:new Date().toISOString(),browser:browser.version(),snapshots,final,errors},null,2)+'\n');
-  if(errors.length||final.collisionCount)throw new Error(JSON.stringify({errors,collisionCount:final.collisionCount}));
+  if(errors.length||final.camera.followError>0.000001)throw new Error(JSON.stringify({errors,followError:final.camera.followError}));
   console.log('Captured six real browser views and continuous traversal/look-up video.');
 } finally {await browser.close();}

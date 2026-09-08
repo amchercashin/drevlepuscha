@@ -20,7 +20,7 @@ try {
     const sorted=[...samples].sort((a,b)=>a-b);
     const percentile=p=>sorted[Math.min(sorted.length-1,Math.floor((sorted.length-1)*p))];
     const result={run,frames:samples.length,elapsedMs:samples.reduce((a,b)=>a+b,0),medianMs:percentile(.5),p95Ms:percentile(.95),p99Ms:percentile(.99),over33ms:samples.filter(x=>x>33.34).length,state};
-    if(samples.length<100||state.paused||state.collisionCount||errors.length)throw new Error(`Invalid run: ${JSON.stringify(result)}`);
+    if(samples.length<100||state.paused||state.camera.followError>0.000001||errors.length)throw new Error(`Invalid run: ${JSON.stringify(result)}`);
     runs.push(result);console.log(JSON.stringify({run,medianMs:result.medianMs,p95Ms:result.p95Ms,p99Ms:result.p99Ms}));
   }
   const backend=initial.render.backend||(initial.render.webGLVersion===2?'webgl2':'unknown');

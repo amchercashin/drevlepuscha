@@ -102,6 +102,8 @@ export function createWorld(scene: Scene) {
   for(let i=0;i<10;i++) box(`edge-stone-${i}`,(i%2?-1:1)*(3.2+rng()),4+i*4.5,0.5+rng()*0.5,0.2+rng()*0.3,0.65);
   for(const m of scene.meshes) {m.freezeWorldMatrix();m.isPickable=false;}
 
+  const occluders=scene.meshes.filter(m=>m!==mesh);
+
   const player=new TransformNode('traveller',scene);
   const coat=CreateCylinder('coat',{height:0.67,diameterTop:0.27,diameterBottom:0.48,tessellation:8},scene);
   coat.parent=player;coat.position.y=0.44;coat.material=warm;
@@ -114,5 +116,5 @@ export function createWorld(scene: Scene) {
   const shadow=CreateCylinder('contact',{height:0.003,diameter:0.65,tessellation:20},scene);
   const shadowMat=material('contact-color',new Color3(0.16,0.22,0.16));shadowMat.alpha=0.3;
   shadow.material=shadowMat;
-  return { boxes, player, shadow };
+  return { boxes, player, shadow, occluders, ground:mesh };
 }

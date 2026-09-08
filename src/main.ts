@@ -6,8 +6,7 @@ import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera.js';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector.js';
 import { SceneInstrumentation } from '@babylonjs/core/Instrumentation/sceneInstrumentation.js';
 import { createWorld, CHECKPOINTS } from './runtime/world.ts';
-import { groundHeight, moveWalker, safeCameraFraction, cameraIsClear, walkerIsClear } from './domain/harness.ts';
-import type { Point3 } from './domain/harness.ts';
+import { groundHeight, moveWalker, occludesTraveller, terrainOccludesTraveller, fadeOpacity, walkerIsClear } from './domain/harness.ts';
 import { cameraOffset, normalizeAzimuth, shortestAngleDelta } from './domain/coordinates.ts';
 import config from '../config/camera-presets.json';
 import targets from '../config/render-targets.json';
@@ -42,9 +41,7 @@ try {
   const world=createWorld(scene), instrumentation=new SceneInstrumentation(scene);
   const player={e:0,n:0,heading:0};
   let yaw=0,yawTarget=0,pitch=config.travel.pitchDefaultDeg,distance=config.travel.distanceM;
-  let currentDistance=distance, frameCount=0,previousTime=performance.now(),uiTime=0,collisionCount=0;
-  let lastCamera: Point3 | null=null;
-  let lastAnchor: Point3 | null=null;
+  let frameCount=0,previousTime=performance.now(),uiTime=0;
   const samples: number[]=[],maxSamples=60*60*5;
   let collect=false;
   let demo=false,demoTime=0;
@@ -60,7 +57,7 @@ try {
   function reset(checkpoint:keyof typeof CHECKPOINTS='entrance') {
     const c=CHECKPOINTS[checkpoint];player.e=c.e;player.n=c.n;player.heading=0;
     yaw=yawTarget=0;pitch=config.travel.pitchDefaultDeg;distance=config.travel.distanceM;
-    currentDistance=distance;lastCamera=null;keys.clear();demo=false;
+    keys.clear();demo=false;
   }
   const labels=['Тропа прямо','Осмотр слева','Осмотр справа','Взгляд в кроны','Рядом со стволом','Широкий проход'];
   const select=document.querySelector<HTMLSelectElement>('#preset')!;
@@ -68,8 +65,8 @@ try {
   function preset(id:string) {
     const p=config.visualReviewPresets.find(x=>x.id===id);
     if(!p)throw new Error(`Unknown preset ${id}`);
-    yaw=yawTarget=normalizeAzimuth(p.yawDeg);pitch=p.pitchDeg;distance=p.distanceM;currentDistance=distance;
-    lastCamera=null;select.value=id;
+    yaw=yawTarget=normalizeAzimuth(p.yawDeg);pitch=p.pitchDeg;distance=p.distanceM;
+    select.value=id;
   }
   select.onchange=()=>{preset(select.value);focusScene();};
   document.querySelector('#reset')!.addEventListener('click',()=>{reset();focusScene();});
@@ -116,14 +113,19 @@ try {
 
   function state() {
     const pos={x:camera.position.x,y:camera.position.y,z:camera.position.z};
+    const anchor={x:player.e,y:groundHeight(player.e,player.n)+config.travel.targetHeightM,z:-player.n};
+    const offset=cameraOffset(yaw+180,Math.max(0,pitch),distance);
+    const currentDistance=Math.hypot(pos.x-anchor.x,pos.y-anchor.y,pos.z-anchor.z);
+    const followError=Math.hypot(pos.x-anchor.x-offset.x,pos.y-anchor.y-offset.y,pos.z-anchor.z-offset.z);
     return {
       ready:frameCount>2,frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},
-      camera:{...pos,yaw,pitch,distance,currentDistance,clear:cameraIsClear(pos,world.boxes,config.travel.collisionProbeRadiusM)},
-      playerClear:walkerIsClear(player,world.boxes),collisionCount,
+      camera:{...pos,yaw,pitch,distance,currentDistance,followError},
+      playerClear:walkerIsClear(player,world.boxes),
+      faded:[...world.occluders,world.ground].filter(m=>m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,webGLVersion:renderer.kind==='webgl2'?2:null,
         triangles:scene.getActiveIndices()/3,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr:1},
-      errors:[...errors],seed:targets.fixedSeed,sceneVersion:'m0-2',demo,
+      errors:[...errors],seed:targets.fixedSeed,sceneVersion:'m0-3',demo,
     };
   }
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
@@ -133,7 +135,7 @@ try {
       teleport:(e:number,n:number,heading=0)=>{
         if(![e,n,heading].every(Number.isFinite)||e<-23||e>23||n<-11||n>63)throw new Error('Outside harness');
         if(!walkerIsClear({e,n},world.boxes))throw new Error('Position intersects obstacle');
-        player.e=e;player.n=n;player.heading=heading;lastCamera=null;keys.clear();
+        player.e=e;player.n=n;player.heading=heading;keys.clear();
       },
       setCamera:(y:number,p:number,d:number)=>{
         if(![y,p,d].every(Number.isFinite))throw new Error('Finite camera values required');
@@ -180,29 +182,22 @@ try {
       world.player.position.set(player.e,h,-player.n);world.player.rotation.y=-player.heading*Math.PI/180;
       world.shadow.position.set(player.e,h+0.015,-player.n);
       const anchor={x:player.e,y:h+config.travel.targetHeightM,z:-player.n};
-      const offset=cameraOffset(yaw+180,pitch,distance);
+      const offset=cameraOffset(yaw+180,Math.max(0,pitch),distance);
       const desired={x:anchor.x+offset.x,y:anchor.y+offset.y,z:anchor.z+offset.z};
-      const fraction=safeCameraFraction(anchor,desired,world.boxes,config.travel.collisionProbeRadiusM);
-      const safeDistance=distance*fraction;
-      if(safeDistance<currentDistance)currentDistance=safeDistance;
-      else currentDistance+=(safeDistance-currentDistance)*(1-Math.exp(-dt/config.travel.returnLagSeconds));
-      const r=currentDistance/distance;
-      let next={x:anchor.x+offset.x*r,y:anchor.y+offset.y*r,z:anchor.z+offset.z*r};
-      const anchorMoved=lastAnchor===null||Math.hypot(anchor.x-lastAnchor.x,anchor.y-lastAnchor.y,anchor.z-lastAnchor.z)>0.00001;
-      // During walking the boom sweep from the player owns collision resolution.
-      // A temporal sweep can trap the camera on the far side of a lintel indefinitely.
-      if(!anchorMoved&&lastCamera&&cameraIsClear(lastCamera,world.boxes,config.travel.collisionProbeRadiusM)){
-        const motion=safeCameraFraction(lastCamera,next,world.boxes,config.travel.collisionProbeRadiusM);
-        if(motion<1){
-          // Do not cut through a trunk during a fast orbit. Move along the free segment.
-          next={x:lastCamera.x+(next.x-lastCamera.x)*motion,y:lastCamera.y+(next.y-lastCamera.y)*motion,z:lastCamera.z+(next.z-lastCamera.z)*motion};
-        }
+      // Follow translation only. Geometry never changes the user's orbit or zoom.
+      camera.position.set(desired.x,desired.y,desired.z);
+      // Looking up tilts the view from traveller height instead of orbiting below the floor.
+      const lookUp=Math.tan(Math.max(0,-pitch)*Math.PI/180)*distance;
+      camera.setTarget(new Vector3(anchor.x,anchor.y+lookUp,anchor.z));
+      const feet={x:player.e,y:h,z:-player.n};
+      for(const mesh of [...world.occluders,world.ground]) {
+        const bounds=mesh.getBoundingInfo().boundingBox;
+        const blocked=mesh===world.ground?terrainOccludesTraveller(desired,feet):
+          occludesTraveller(desired,feet,{id:mesh.id,min:bounds.minimumWorld,max:bounds.maximumWorld},config.travel.occlusionMarginM);
+        const target=blocked?config.travel.occluderOpacity:1;
+        // Per-mesh visibility preserves shared bark/stone materials on other objects.
+        mesh.visibility=fadeOpacity(mesh.visibility,target,dt,blocked?config.travel.fadeOutSeconds:config.travel.fadeInSeconds);
       }
-      lastAnchor=anchor;lastCamera=next;camera.position.set(next.x,next.y,next.z);
-      camera.setTarget(new Vector3(anchor.x,anchor.y,anchor.z));
-      if(!cameraIsClear(next,world.boxes,config.travel.collisionProbeRadiusM))collisionCount++;
-      // Hide the proxy only if the camera must occupy its immediate space.
-      world.player.setEnabled(Vector3.Distance(camera.position,world.player.position)>0.65);
       scene.render();frameCount++;
       if(now-uiTime>400){
         uiTime=now;const s=state();

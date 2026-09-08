@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "version": {
-      "const": 2
+      "const": 3
     },
     "status": {
       "const": "proposed-not-visually-approved"
@@ -60,13 +60,22 @@
           "type": "number",
           "exclusiveMinimum": 0
         },
-        "collisionProbeRadiusM": {
+        "occlusionMarginM": {
           "type": "number",
           "exclusiveMinimum": 0
         },
-        "returnLagSeconds": {
+        "occluderOpacity": {
           "type": "number",
-          "minimum": 0
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "fadeOutSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "fadeInSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
         }
       },
       "required": [
@@ -80,8 +89,10 @@
         "pitchMaxDeg",
         "yawUnlimited",
         "nearClipM",
-        "collisionProbeRadiusM",
-        "returnLagSeconds"
+        "occlusionMarginM",
+        "occluderOpacity",
+        "fadeOutSeconds",
+        "fadeInSeconds"
       ],
       "additionalProperties": false
     },

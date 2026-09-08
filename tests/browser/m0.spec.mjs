@@ -39,17 +39,17 @@ test('mouse orbit, pitch clamp, zoom clamp, recenter and resize work through act
   s=await page.evaluate(()=>window.m0.state());expect(Math.min(s.camera.yaw,360-s.camera.yaw)).toBeLessThan(1);expect(s.camera.pitch).toBe(12);
   await page.setViewportSize({width:900,height:620});await page.waitForTimeout(100);
   s=await page.evaluate(()=>window.m0.state());expect(s.render.width).toBe(900);expect(s.render.height).toBe(620);
-  expect(s.camera.clear).toBe(true);expect(s.errors).toEqual([]);
+  expect(s.camera.followError).toBeLessThan(0.000001);expect(s.errors).toEqual([]);
 });
 
-test('walks through narrow trunks and low arch, then climbs slope without camera penetration',async({page})=>{
+test('walks through obstacles and slope without changing the user camera',async({page})=>{
   await start(page);
   for(const [n,duration] of [[12,2200],[23,2200],[40,1300]]){
     await page.evaluate(n=>window.m0.teleport(0,n),n);
     await move(page,'KeyW',duration);
     const s=await page.evaluate(()=>window.m0.state());
     expect(s.player.n).toBeGreaterThan(n+1.5);expect(s.playerClear).toBe(true);
-    expect(s.camera.clear).toBe(true);expect(s.collisionCount).toBe(0);
+    expect(s.camera.followError).toBeLessThan(0.000001);expect(s.camera.currentDistance).toBeCloseTo(s.camera.distance,6);
   }
   expect((await page.evaluate(()=>window.m0.state())).player.h).toBeGreaterThan(2);
   // Check actual following distance after clearing the arch, not only the boom's requested length.
@@ -57,10 +57,10 @@ test('walks through narrow trunks and low arch, then climbs slope without camera
   const after=await page.evaluate(()=>window.m0.state());
   const followDistance=Math.hypot(after.camera.x-after.player.e,after.camera.y-after.player.h-0.95,after.camera.z+after.player.n);
   expect(after.player.n).toBeGreaterThan(32);expect(followDistance).toBeLessThanOrEqual(5.6);
-  expect(after.collisionCount).toBe(0);
+  expect(after.camera.followError).toBeLessThan(0.000001);
 });
 
-test('blocked player slides, camera survives full orbit near trunk and returns after obstruction',async({page})=>{
+test('blocked player slides and full camera orbit retains the user distance',async({page})=>{
   await start(page);
   await page.evaluate(()=>window.m0.teleport(-1,12));
   await move(page,'KeyW',1400);
@@ -70,19 +70,20 @@ test('blocked player slides, camera survives full orbit near trunk and returns a
   await page.evaluate(()=>window.m0.teleport(-2.8,3.6));
   for(let yaw=0;yaw<=360;yaw+=30){
     await page.evaluate(y=>window.m0.setCamera(y,12,5.5),yaw);await page.waitForTimeout(120);
-    expect((await page.evaluate(()=>window.m0.state())).camera.clear).toBe(true);
+    expect((await page.evaluate(()=>window.m0.state())).camera.followError).toBeLessThan(0.000001);
   }
   await page.evaluate(()=>{window.m0.teleport(0,0);window.m0.setCamera(0,12,5.5);});
   await page.waitForTimeout(1200);s=await page.evaluate(()=>window.m0.state());
-  expect(s.camera.currentDistance).toBeGreaterThan(5.3);expect(s.collisionCount).toBe(0);
+  expect(s.camera.currentDistance).toBeGreaterThan(5.3);expect(s.camera.currentDistance).toBeCloseTo(s.camera.distance,6);
 });
 
-test('all six review views render, look-up stays above ground, UI does not move player',async({page})=>{
+test('all six review views retain the user camera and UI does not move player',async({page})=>{
   await start(page);
   for(const preset of ['trail_forward','trail_left','trail_right','look_up_canopy','close_trunk','wide_path']){
-    await page.evaluate(id=>window.m0.preset(id),preset);await page.waitForTimeout(100);
-    const s=await page.evaluate(()=>window.m0.state());expect(s.camera.clear).toBe(true);
-    if(preset==='look_up_canopy')expect(s.camera.pitch).toBe(-20);
+    const frame=await page.evaluate(id=>{window.m0.preset(id);return window.m0.state().frameCount;},preset);
+    await page.waitForFunction(frame=>window.m0.state().frameCount>frame+1,frame);
+    const s=await page.evaluate(()=>window.m0.state());expect(s.camera.followError).toBeLessThan(0.000001);
+    if(preset==='look_up_canopy'){expect(s.camera.pitch).toBe(-20);expect(s.camera.y).toBeGreaterThanOrEqual(s.player.h+0.94);expect(s.faded.some(m=>m.id==='ground')).toBe(false);}
   }
   await page.locator('#diagnostics summary').click();await page.locator('#preset').focus();
   const n=(await page.evaluate(()=>window.m0.state())).player.n;
@@ -109,4 +110,41 @@ test('explicit unsupported WebGPU offers a working WebGL2 recovery button',async
   await page.getByRole('button',{name:'Открыть WebGL2'}).click();
   await page.waitForFunction(()=>window.m0?.state().ready);
   expect((await page.evaluate(()=>window.m0.state())).render.backend).toBe('webgl2');
+});
+
+
+test('arch fades smoothly while every frame keeps the chosen orbit and shared stone stays opaque',async({page})=>{
+  await start(page);
+  await page.evaluate(()=>{
+    window.m0.teleport(0,24);
+    window.cameraSamples=[];window.sampleCamera=true;
+    const sample=()=>{if(!window.sampleCamera)return;window.cameraSamples.push(window.m0.state());requestAnimationFrame(sample);};
+    requestAnimationFrame(sample);
+  });
+  await move(page,'KeyW',5500);await page.waitForTimeout(1200);
+  const samples=await page.evaluate(()=>{window.sampleCamera=false;return window.cameraSamples;});
+  expect(samples.length).toBeGreaterThan(100);
+  for(const s of samples){
+    expect(s.camera.followError).toBeLessThan(0.000001);
+    expect(s.camera.currentDistance).toBeCloseTo(5.5,6);
+    expect(s.camera.yaw).toBe(0);expect(s.camera.pitch).toBe(12);
+    expect(s.faded.some(m=>m.id==='wall')).toBe(false);
+  }
+  const alphas=samples.map(s=>s.faded.find(m=>m.id==='arch-lintel')?.opacity??1);
+  expect(Math.min(...alphas)).toBeLessThan(.25);
+  expect(alphas.some(a=>a>.3&&a<.9)).toBe(true);
+  expect(alphas.at(-1)).toBeGreaterThan(.99);
+});
+
+test('only the occluding trunk fades and it returns when the camera is turned away',async({page})=>{
+  await start(page);
+  await page.evaluate(()=>window.m0.teleport(-2.8,7));await page.waitForTimeout(500);
+  let s=await page.evaluate(()=>window.m0.state());
+  expect(s.faded.find(m=>m.id==='camera-trunk')?.opacity).toBeLessThan(.25);
+  expect(s.faded.some(m=>m.id==='narrow-right')).toBe(false);
+  expect(s.camera.currentDistance).toBeCloseTo(5.5,6);
+  await page.evaluate(()=>window.m0.setCamera(180,12,5.5));await page.waitForTimeout(2000);
+  s=await page.evaluate(()=>window.m0.state());
+  expect(s.faded.some(m=>m.id==='camera-trunk')).toBe(false);
+  expect(s.camera.currentDistance).toBeCloseTo(5.5,6);
 });

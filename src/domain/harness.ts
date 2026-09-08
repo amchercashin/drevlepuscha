@@ -2,7 +2,7 @@
 export interface Point3 { x: number; y: number; z: number }
 export interface Box { id: string; min: Point3; max: Point3 }
 export interface Walker { e: number; n: number }
-// A conservative horizontal hull leaves room for the 0.25 m camera probe at its target.
+// Conservative horizontal hull for player movement.
 export const PLAYER_RADIUS = 0.28;
 export const PLAYER_HEIGHT = 1.1;
 export const BOUNDS = { minE: -24, maxE: 24, minN: -12, maxN: 64 };
@@ -17,8 +17,7 @@ export function groundHeight(e: number, n: number): number {
 }
 export function pathCentre(n: number): number { return Math.sin(n * 0.075) * 1.3; }
 
-/** Expanded AABB is a conservative sphere sweep, including near-plane clearance.
- * A box corner can stop the camera early; it can never admit the sphere into a box. */
+/** Segment intersection with a padded obstacle box. */
 export function segmentBoxFraction(start: Point3, end: Point3, box: Box, radius: number): number | null {
   let enter = 0, leave = 1;
   for (const axis of ['x', 'y', 'z'] as const) {
@@ -34,38 +33,26 @@ export function segmentBoxFraction(start: Point3, end: Point3, box: Box, radius:
   return enter;
 }
 
-export function cameraIsClear(p: Point3, boxes: readonly Box[], radius: number): boolean {
-  if (p.y < groundHeight(p.x, -p.z) + radius + 0.03) return false;
-  return !boxes.some(box => ['x', 'y', 'z'].every(axis => {
-    const k = axis as keyof Point3;
-    return p[k] > box.min[k] - radius && p[k] < box.max[k] + radius;
-  }));
+/** Fade every obstacle intersecting a padded view of the traveller, including the camera inside it. */
+export function occludesTraveller(camera: Point3, feet: Point3, box: Box, margin: number): boolean {
+  return [0.2, 0.6, 1.05].some(height =>
+    segmentBoxFraction(camera, {x:feet.x,y:feet.y+height,z:feet.z}, box, margin) !== null);
 }
 
-export function safeCameraFraction(start: Point3, end: Point3, boxes: readonly Box[], radius: number): number {
-  let fraction = 1;
-  const length = Math.hypot(end.x - start.x, end.y - start.y, end.z - start.z);
-  if (length < 1e-9) return 1;
-  for (const box of boxes) {
-    const t = segmentBoxFraction(start, end, box, radius);
-    if (t !== null) fraction = Math.min(fraction, Math.max(0, t - 0.025 / length));
+/** Terrain is one synthetic mesh in M0; sample its actual height, not its very broad AABB. */
+export function terrainOccludesTraveller(camera: Point3, feet: Point3): boolean {
+  const target = {...feet, y:feet.y+0.6};
+  const steps = Math.max(1, Math.ceil(Math.hypot(target.x-camera.x,target.y-camera.y,target.z-camera.z)/0.1));
+  for(let i=0;i<steps;i++) {
+    const t=i/steps,x=camera.x+(target.x-camera.x)*t,z=camera.z+(target.z-camera.z)*t;
+    if(camera.y+(target.y-camera.y)*t < groundHeight(x,-z)+0.03)return true;
   }
-  // Terrain is smooth with bounded slope. Short steps plus bisection find its first crossing.
-  const steps = Math.ceil(length / 0.06);
-  const clearance = (t: number) => {
-    const x = start.x + (end.x - start.x) * t, z = start.z + (end.z - start.z) * t;
-    return start.y + (end.y - start.y) * t - groundHeight(x, -z) - radius - 0.04;
-  };
-  for (let i = 1; i <= steps; i++) {
-    const t = Math.min(i / steps, fraction);
-    if (clearance(t) < 0) {
-      let lo = (i - 1) / steps, hi = t;
-      for (let j = 0; j < 12; j++) { const m = (lo + hi) / 2; if (clearance(m) >= 0) lo = m; else hi = m; }
-      fraction = Math.min(fraction, lo); break;
-    }
-    if (t >= fraction) break;
-  }
-  return fraction;
+  return false;
+}
+
+export function fadeOpacity(current: number, target: number, dt: number, seconds: number): number {
+  const next=target+(current-target)*Math.exp(-Math.max(0,dt)/seconds);
+  return Math.abs(next-target)<0.001?target:next;
 }
 
 export function walkerIsClear(p: Walker, boxes: readonly Box[]): boolean {

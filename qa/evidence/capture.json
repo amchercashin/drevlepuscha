@@ -1,12 +1,12 @@
 {
-  "date": "2026-09-08T10:02:24.201Z",
+  "date": "2026-09-08T10:52:41.915Z",
   "browser": "151.0.7922.109",
   "snapshots": [
     {
       "id": "trail_forward",
       "state": {
         "ready": true,
-        "frameCount": 284,
+        "frameCount": 290,
         "paused": false,
         "player": {
           "e": 0,
@@ -21,11 +21,11 @@
           "yaw": 0,
           "pitch": 10,
           "distance": 5.5,
-          "currentDistance": 5.5,
-          "clear": true
+          "currentDistance": 5.499999999999999,
+          "followError": 0
         },
         "playerClear": true,
-        "collisionCount": 0,
+        "faded": [],
         "render": {
           "width": 1280,
           "height": 720,
@@ -45,7 +45,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-2",
+        "sceneVersion": "m0-3",
         "demo": false
       }
     },
@@ -53,7 +53,7 @@
       "id": "trail_left",
       "state": {
         "ready": true,
-        "frameCount": 322,
+        "frameCount": 326,
         "paused": false,
         "player": {
           "e": 0,
@@ -62,24 +62,29 @@
           "h": 0
         },
         "camera": {
-          "x": 2.3327086299629944,
-          "y": 1.6512130825996312,
-          "z": -7.667291370037006,
+          "x": 3.804101408141241,
+          "y": 2.0935142994976763,
+          "z": -6.195898591858759,
           "yaw": 315,
           "pitch": 12,
           "distance": 5.5,
-          "currentDistance": 3.3726486463633503,
-          "clear": true
+          "currentDistance": 5.500000000000001,
+          "followError": 4.965068306494546e-16
         },
         "playerClear": true,
-        "collisionCount": 0,
+        "faded": [
+          {
+            "id": "canopy-probe",
+            "opacity": 0.18
+          }
+        ],
         "render": {
           "width": 1280,
           "height": 720,
           "backend": "webgpu",
           "webGLVersion": null,
-          "triangles": 11468,
-          "drawCalls": 44,
+          "triangles": 11516,
+          "drawCalls": 46,
           "meshes": 112,
           "gpu": {
             "vendor": "apple",
@@ -92,7 +97,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-2",
+        "sceneVersion": "m0-3",
         "demo": false
       }
     },
@@ -100,7 +105,7 @@
       "id": "trail_right",
       "state": {
         "ready": true,
-        "frameCount": 358,
+        "frameCount": 362,
         "paused": false,
         "player": {
           "e": 0,
@@ -115,11 +120,16 @@
           "yaw": 45,
           "pitch": 12,
           "distance": 5.5,
-          "currentDistance": 5.5,
-          "clear": true
+          "currentDistance": 5.500000000000002,
+          "followError": 1.3506446028928517e-15
         },
         "playerClear": true,
-        "collisionCount": 0,
+        "faded": [
+          {
+            "id": "canopy-probe",
+            "opacity": 0.9302509123615963
+          }
+        ],
         "render": {
           "width": 1280,
           "height": 720,
@@ -139,7 +149,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-2",
+        "sceneVersion": "m0-3",
         "demo": false
       }
     },
@@ -147,7 +157,7 @@
       "id": "look_up_canopy",
       "state": {
         "ready": true,
-        "frameCount": 394,
+        "frameCount": 398,
         "paused": false,
         "player": {
           "e": 1.8,
@@ -156,24 +166,29 @@
           "h": 0.05266130839686671
         },
         "camera": {
-          "x": 1.8000000000000003,
-          "y": 0.3319093727242517,
-          "z": -5.1571242026840105,
+          "x": 1.8000000000000005,
+          "y": 1.0026613083968667,
+          "z": -2.5,
           "yaw": 0,
           "pitch": -20,
           "distance": 4.5,
-          "currentDistance": 1.9611474609375,
-          "clear": true
+          "currentDistance": 4.5,
+          "followError": 1.0700184976624634e-16
         },
         "playerClear": true,
-        "collisionCount": 0,
+        "faded": [
+          {
+            "id": "canopy-probe",
+            "opacity": 0.9936876733043664
+          }
+        ],
         "render": {
           "width": 1280,
           "height": 720,
           "backend": "webgpu",
           "webGLVersion": null,
-          "triangles": 16840,
-          "drawCalls": 81,
+          "triangles": 17028,
+          "drawCalls": 83,
           "meshes": 112,
           "gpu": {
             "vendor": "apple",
@@ -186,7 +201,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-2",
+        "sceneVersion": "m0-3",
         "demo": false
       }
     },
@@ -194,7 +209,7 @@
       "id": "close_trunk",
       "state": {
         "ready": true,
-        "frameCount": 431,
+        "frameCount": 436,
         "paused": false,
         "player": {
           "e": -2.8,
@@ -210,10 +225,10 @@
           "pitch": 5,
           "distance": 3.8,
           "currentDistance": 3.8,
-          "clear": true
+          "followError": 2.482534153247273e-16
         },
         "playerClear": true,
-        "collisionCount": 0,
+        "faded": [],
         "render": {
           "width": 1280,
           "height": 720,
@@ -233,7 +248,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-2",
+        "sceneVersion": "m0-3",
         "demo": false
       }
     },
@@ -241,7 +256,7 @@
       "id": "wide_path",
       "state": {
         "ready": true,
-        "frameCount": 468,
+        "frameCount": 472,
         "paused": false,
         "player": {
           "e": 0,
@@ -257,10 +272,10 @@
           "pitch": 15,
           "distance": 7.5,
           "currentDistance": 7.5,
-          "clear": true
+          "followError": 2.220446049250313e-16
         },
         "playerClear": true,
-        "collisionCount": 0,
+        "faded": [],
         "render": {
           "width": 1280,
           "height": 720,
@@ -280,40 +295,40 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-2",
+        "sceneVersion": "m0-3",
         "demo": false
       }
     }
   ],
   "final": {
     "ready": true,
-    "frameCount": 2756,
+    "frameCount": 2863,
     "paused": false,
     "player": {
       "e": 0,
-      "n": 49.918919999867555,
+      "n": 49.94389499986757,
       "heading": 0,
       "h": 3.2
     },
     "camera": {
-      "x": 6.6642811543483245e-15,
-      "y": 3.4900048280073315,
-      "z": -48.10559816786863,
+      "x": 2.02134809729338e-14,
+      "y": 4.15,
+      "z": -44.44389499986757,
       "yaw": 359.9999999999998,
       "pitch": -20,
       "distance": 5.5,
-      "currentDistance": 1.9296967879585591,
-      "clear": true
+      "currentDistance": 5.5,
+      "followError": 0
     },
     "playerClear": true,
-    "collisionCount": 0,
+    "faded": [],
     "render": {
       "width": 1280,
       "height": 720,
       "backend": "webgpu",
       "webGLVersion": null,
-      "triangles": 8784,
-      "drawCalls": 13,
+      "triangles": 9408,
+      "drawCalls": 17,
       "meshes": 112,
       "gpu": {
         "vendor": "apple",
@@ -326,7 +341,7 @@
     },
     "errors": [],
     "seed": "atlas-demo-01",
-    "sceneVersion": "m0-2",
+    "sceneVersion": "m0-3",
     "demo": false
   },
   "errors": []
