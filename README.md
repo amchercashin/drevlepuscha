@@ -8,6 +8,8 @@
 
 [Открыть лес M1](https://amchercashin.github.io/drevlepuscha/?scene=m1) · [Открыть опубликованный стенд M0](https://amchercashin.github.io/drevlepuscha/) · [GitHub](https://github.com/amchercashin/drevlepuscha)
 
+Удержание **Shift + WASD** включает тестовую скорость **15 м/с (54 км/ч)**; отпускание Shift возвращает ходьбу 1,85 м/с. Работают оба Shift, скорость по диагонали не увеличивается. Проверено в M1 на WebGPU: за секунду около 15 м с каждым Shift и 1,85 м после отпускания; ошибок сцены и отклонения камеры нет. `npm run check` и сборка прошли.
+
 ## Первая сцена M1
 
 [Открыть лес M1](https://amchercashin.github.io/drevlepuscha/?scene=m1) · [Осмотреть игровое дерево и LOD](https://amchercashin.github.io/drevlepuscha/tree.html?model=game) · [Игровой GLB](assets/trees/game/tree.glb).

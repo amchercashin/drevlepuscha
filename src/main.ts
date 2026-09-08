@@ -103,7 +103,7 @@ try {
   window.addEventListener('keydown',e=>{
     if(e.code==='Escape'){e.preventDefault();if(paused)focusScene();else setPaused(true);return;}
     if(paused||document.activeElement!==canvas)return;
-    if(['KeyW','KeyA','KeyS','KeyD','Space'].includes(e.code)){
+    if(['KeyW','KeyA','KeyS','KeyD','Space','ShiftLeft','ShiftRight'].includes(e.code)){
       e.preventDefault();keys.add(e.code);demo=false;
       if(e.code==='Space'){yawTarget=player.heading;pitch=config.travel.pitchDefaultDeg;distance=config.travel.distanceM;}
     }
@@ -180,7 +180,8 @@ try {
           forward*=scale;right*=scale;
           de=forward*Math.sin(a)+right*Math.cos(a);dn=forward*Math.cos(a)-right*Math.sin(a);
         }
-        const before={...player},next=moveWalker(player,de*1.85*dt,dn*1.85*dt,world.boxes,forest?FOREST_BOUNDS:undefined);
+        const speedMps=keys.has('ShiftLeft')||keys.has('ShiftRight')?15:1.85;
+        const before={...player},next=moveWalker(player,de*speedMps*dt,dn*speedMps*dt,world.boxes,forest?FOREST_BOUNDS:undefined);
         player.e=next.e;player.n=next.n;
         const movedE=player.e-before.e,movedN=player.n-before.n;
         if(Math.hypot(movedE,movedN)>0.0001){
