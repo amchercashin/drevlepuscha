@@ -138,6 +138,13 @@
       "status": "technical-reference-not-rechecked",
       "locator": "Consult during browser evidence setup",
       "url": "https://playwright.dev/docs/test-snapshots"
+    },
+    {
+      "id": "user-tree-multiview-2026-09-08",
+      "title": "User-supplied multiview tree reference",
+      "status": "user-supplied-private",
+      "locator": "references/private/tree-multiview-2026-09-08.png",
+      "note": "Visual reference for reference-tree-v1; views are not geometrically identical. Approximately 18 m height is an authored assumption. Reference pixels are excluded from runtime and public history."
     }
   ]
 }

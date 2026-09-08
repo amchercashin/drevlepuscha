@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#e7e5dc"><link rel="icon" href="data:,"><title>Древлепуща — первое дерево</title></head>
+<body>
+<canvas id="tree-canvas" tabindex="0" aria-label="Объёмное дерево. Потяните мышью для осмотра, колесо — приближение."></canvas>
+<header><p class="eyebrow">Древлепуща · исследование формы 01</p><h1>Серый великан</h1><p class="intro">Первое дерево по референсу.<br>Корни, открытые развилки, ярусная крона.</p></header>
+<aside><span class="eyebrow">Модель в пространстве</span><p id="tree-stats">Подготовка…</p><p class="small">Высота — около 18 м.<br>Путник у корней — 1,1 м.</p><button id="download" disabled>Скачать GLB</button><label><input id="wireframe" type="checkbox"> Показать сетку</label><a href="./">Вернуться к прогулке M0</a></aside>
+<footer><nav aria-label="Ракурсы дерева"><button data-view="front" aria-pressed="true">Спереди</button><button data-view="right">Справа</button><button data-view="back">Сзади</button><button data-view="left">Слева</button><button data-view="top">Сверху</button><button data-view="roots">Корни</button><button data-view="traveller">Взгляд путника</button></nav><p>Потяните мышью — осмотр · колесо — дистанция · правая кнопка — смещение</p></footer>
+<div id="error" role="alert" hidden></div>
+<script type="module" src="/src/tree-preview.ts"></script>
+</body></html>
