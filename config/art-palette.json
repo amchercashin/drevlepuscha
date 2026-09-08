@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "status": "proposed",
+  "colorSpace": "sRGB",
+  "note": "Art-direction proposal, not exact extracted pixels.",
+  "colors": [
+    {
+      "id": "warm-light",
+      "name": "Тёплый свет",
+      "hex": "#EAE2C5"
+    },
+    {
+      "id": "forest-shadow",
+      "name": "Хвойная тень",
+      "hex": "#173D3D"
+    },
+    {
+      "id": "canopy-main",
+      "name": "Бирюзовая крона",
+      "hex": "#2D6C61"
+    },
+    {
+      "id": "canopy-light",
+      "name": "Светлая листва",
+      "hex": "#729784"
+    },
+    {
+      "id": "distant-forest",
+      "name": "Дальний лес",
+      "hex": "#9CB7B8"
+    },
+    {
+      "id": "river-base",
+      "name": "Речной свет",
+      "hex": "#BDDAE1"
+    },
+    {
+      "id": "river-lines",
+      "name": "Рисунок течения",
+      "hex": "#739FB6"
+    },
+    {
+      "id": "stone-trunk",
+      "name": "Камень / ствол",
+      "hex": "#817B80"
+    },
+    {
+      "id": "path",
+      "name": "Тропа",
+      "hex": "#BDA272"
+    },
+    {
+      "id": "traveller-accent",
+      "name": "Акцент путника",
+      "hex": "#9A583F"
+    }
+  ]
+}

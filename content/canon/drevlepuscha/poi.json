@@ -1,0 +1,175 @@
+{
+  "regionId": "old-forest",
+  "coordinateSystem": "normalized-0-1",
+  "warning": "Positions are a project constraint scaffold, not Tolkien-surveyed coordinates.",
+  "features": [
+    {
+      "id": "west_high_hay",
+      "kind": "boundary",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            0.08,
+            0.12
+          ],
+          [
+            0.08,
+            0.9
+          ]
+        ]
+      },
+      "existence": {
+        "status": "reported-canonical",
+        "verification": "pending-primary-verification",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      }
+    },
+    {
+      "id": "hay_gate",
+      "kind": "entrance",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.08,
+          0.66
+        ]
+      },
+      "existence": {
+        "status": "reported-canonical",
+        "verification": "pending-primary-verification",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      }
+    },
+    {
+      "id": "bonfire_glade",
+      "kind": "poi",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.2,
+          0.62
+        ]
+      },
+      "existence": {
+        "status": "reported-canonical",
+        "verification": "pending-primary-verification",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      }
+    },
+    {
+      "id": "withywindle",
+      "kind": "river",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            0.88,
+            0.7
+          ],
+          [
+            0.72,
+            0.58
+          ],
+          [
+            0.56,
+            0.43
+          ],
+          [
+            0.38,
+            0.31
+          ],
+          [
+            0.18,
+            0.2
+          ],
+          [
+            0.02,
+            0.15
+          ]
+        ]
+      },
+      "existence": {
+        "status": "reported-canonical",
+        "verification": "pending-primary-verification",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      }
+    },
+    {
+      "id": "old_man_willow",
+      "kind": "landmark_tree",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.5,
+          0.36
+        ]
+      },
+      "existence": {
+        "status": "reported-canonical",
+        "verification": "pending-primary-verification",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      }
+    },
+    {
+      "id": "tom_house",
+      "kind": "dwelling",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.88,
+          0.68
+        ]
+      },
+      "existence": {
+        "status": "reported-canonical",
+        "verification": "pending-primary-verification",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch7"
+        ]
+      }
+    },
+    {
+      "id": "barrow_edge",
+      "kind": "boundary",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            0.94,
+            0.08
+          ],
+          [
+            0.94,
+            0.92
+          ]
+        ]
+      },
+      "existence": {
+        "status": "reported-canonical",
+        "verification": "pending-primary-verification",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch8"
+        ]
+      }
+    }
+  ],
+  "schemaVersion": 2,
+  "geometryProvenance": {
+    "status": "authored",
+    "sourceRefs": [
+      "kit-v0.3-authored-layout"
+    ],
+    "note": "All normalized coordinates are authored layout proposals from the kit, not geographic measurements or verified canonical positions."
+  }
+}

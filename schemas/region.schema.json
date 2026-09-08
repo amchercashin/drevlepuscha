@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/middle-earth-atlas/region.schema.json",
+  "title": "Synthetic engineering region in E/N/H metres",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "units": {
+      "const": "m"
+    },
+    "coordinateFrame": {
+      "const": "sandbox-local-enh"
+    },
+    "contentRevision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generatorVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seed": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "bounds": {
+      "$ref": "#/$defs/bounds"
+    },
+    "artFocus": {
+      "$ref": "#/$defs/point"
+    },
+    "rivers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "minLength": 1
+          },
+          "stations": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "$ref": "#/$defs/station"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "stations"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "paths": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "minLength": 1
+          },
+          "surface": {
+            "enum": [
+              "terrain",
+              "bridge"
+            ]
+          },
+          "widthM": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "points": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "$ref": "#/$defs/point"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "surface",
+          "widthM",
+          "points"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "places": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "start",
+              "crossing",
+              "landmark",
+              "viewpoint"
+            ]
+          },
+          "position": {
+            "$ref": "#/$defs/point"
+          },
+          "provenance": {
+            "$ref": "#/$defs/provenance"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "position",
+          "provenance"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "units",
+    "coordinateFrame",
+    "contentRevision",
+    "generatorVersion",
+    "seed",
+    "provenance",
+    "bounds",
+    "artFocus",
+    "rivers",
+    "paths",
+    "places"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "point": {
+      "type": "object",
+      "properties": {
+        "e": {
+          "type": "number"
+        },
+        "n": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "e",
+        "n",
+        "h"
+      ],
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "canonical",
+            "interpreted",
+            "invented"
+          ]
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "status",
+        "sourceId",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "bounds": {
+      "type": "object",
+      "properties": {
+        "minE": {
+          "type": "number"
+        },
+        "minN": {
+          "type": "number"
+        },
+        "maxE": {
+          "type": "number"
+        },
+        "maxN": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "minE",
+        "minN",
+        "maxE",
+        "maxN"
+      ],
+      "additionalProperties": false
+    },
+    "station": {
+      "type": "object",
+      "properties": {
+        "e": {
+          "type": "number"
+        },
+        "n": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        },
+        "widthM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "e",
+        "n",
+        "h",
+        "widthM"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

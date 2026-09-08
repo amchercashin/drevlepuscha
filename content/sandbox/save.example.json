@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "worldId": "sandbox-riverbend",
+  "contentRevision": "sandbox-v01",
+  "generatorVersion": "domain-v01",
+  "worldSeed": "atlas-demo-01",
+  "position": {
+    "e": 160,
+    "n": 500,
+    "h": 28
+  },
+  "camera": {
+    "mode": "travel-third-person",
+    "yawDeg": 225,
+    "pitchDeg": 12,
+    "distanceM": 5.5
+  },
+  "discoveredIds": [
+    "start-west"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "version": 2,
+  "status": "proposed-not-visually-approved",
+  "primaryMode": "travel-third-person",
+  "projection": "perspective",
+  "travel": {
+    "fovVerticalDeg": 50,
+    "distanceM": 5.5,
+    "distanceMinM": 3.5,
+    "distanceMaxM": 8.0,
+    "targetHeightM": 0.95,
+    "pitchDefaultDeg": 12,
+    "pitchMinDeg": -25,
+    "pitchMaxDeg": 35,
+    "yawUnlimited": true,
+    "nearClipM": 0.1,
+    "collisionProbeRadiusM": 0.25,
+    "returnLagSeconds": 0.22
+  },
+  "visualReviewPresets": [
+    {
+      "id": "trail_forward",
+      "yawDeg": 0,
+      "pitchDeg": 10,
+      "distanceM": 5.5
+    },
+    {
+      "id": "trail_left",
+      "yawDeg": -45,
+      "pitchDeg": 12,
+      "distanceM": 5.5
+    },
+    {
+      "id": "trail_right",
+      "yawDeg": 45,
+      "pitchDeg": 12,
+      "distanceM": 5.5
+    },
+    {
+      "id": "look_up_canopy",
+      "yawDeg": 0,
+      "pitchDeg": -20,
+      "distanceM": 4.5
+    },
+    {
+      "id": "close_trunk",
+      "yawDeg": 25,
+      "pitchDeg": 5,
+      "distanceM": 3.8
+    },
+    {
+      "id": "wide_path",
+      "yawDeg": 0,
+      "pitchDeg": 15,
+      "distanceM": 7.5
+    }
+  ],
+  "atlas": {
+    "separateCamera": true,
+    "projection": "orthographic-or-weak-perspective",
+    "note": "Atlas is a map/navigation representation, not the normal exploration camera."
+  }
+}

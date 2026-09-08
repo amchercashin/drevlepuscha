@@ -1,0 +1,333 @@
+{
+  "date": "2026-09-08T10:02:24.201Z",
+  "browser": "151.0.7922.109",
+  "snapshots": [
+    {
+      "id": "trail_forward",
+      "state": {
+        "ready": true,
+        "frameCount": 284,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 0,
+          "heading": 0,
+          "h": 0
+        },
+        "camera": {
+          "x": 6.633229143760437e-16,
+          "y": 1.9050649771681167,
+          "z": 5.416442641567144,
+          "yaw": 0,
+          "pitch": 10,
+          "distance": 5.5,
+          "currentDistance": 5.5,
+          "clear": true
+        },
+        "playerClear": true,
+        "collisionCount": 0,
+        "render": {
+          "width": 1280,
+          "height": 720,
+          "backend": "webgpu",
+          "webGLVersion": null,
+          "triangles": 16652,
+          "drawCalls": 86,
+          "meshes": 112,
+          "gpu": {
+            "vendor": "apple",
+            "renderer": "metal-3",
+            "version": "unknown version"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m0-2",
+        "demo": false
+      }
+    },
+    {
+      "id": "trail_left",
+      "state": {
+        "ready": true,
+        "frameCount": 322,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 10,
+          "heading": 0,
+          "h": 0
+        },
+        "camera": {
+          "x": 2.3327086299629944,
+          "y": 1.6512130825996312,
+          "z": -7.667291370037006,
+          "yaw": 315,
+          "pitch": 12,
+          "distance": 5.5,
+          "currentDistance": 3.3726486463633503,
+          "clear": true
+        },
+        "playerClear": true,
+        "collisionCount": 0,
+        "render": {
+          "width": 1280,
+          "height": 720,
+          "backend": "webgpu",
+          "webGLVersion": null,
+          "triangles": 11468,
+          "drawCalls": 44,
+          "meshes": 112,
+          "gpu": {
+            "vendor": "apple",
+            "renderer": "metal-3",
+            "version": "unknown version"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m0-2",
+        "demo": false
+      }
+    },
+    {
+      "id": "trail_right",
+      "state": {
+        "ready": true,
+        "frameCount": 358,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 21,
+          "heading": 0,
+          "h": 0
+        },
+        "camera": {
+          "x": -3.8041014081412405,
+          "y": 2.0935142994976763,
+          "z": -17.195898591858757,
+          "yaw": 45,
+          "pitch": 12,
+          "distance": 5.5,
+          "currentDistance": 5.5,
+          "clear": true
+        },
+        "playerClear": true,
+        "collisionCount": 0,
+        "render": {
+          "width": 1280,
+          "height": 720,
+          "backend": "webgpu",
+          "webGLVersion": null,
+          "triangles": 10380,
+          "drawCalls": 36,
+          "meshes": 112,
+          "gpu": {
+            "vendor": "apple",
+            "renderer": "metal-3",
+            "version": "unknown version"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m0-2",
+        "demo": false
+      }
+    },
+    {
+      "id": "look_up_canopy",
+      "state": {
+        "ready": true,
+        "frameCount": 394,
+        "paused": false,
+        "player": {
+          "e": 1.8,
+          "n": 7,
+          "heading": 0,
+          "h": 0.05266130839686671
+        },
+        "camera": {
+          "x": 1.8000000000000003,
+          "y": 0.3319093727242517,
+          "z": -5.1571242026840105,
+          "yaw": 0,
+          "pitch": -20,
+          "distance": 4.5,
+          "currentDistance": 1.9611474609375,
+          "clear": true
+        },
+        "playerClear": true,
+        "collisionCount": 0,
+        "render": {
+          "width": 1280,
+          "height": 720,
+          "backend": "webgpu",
+          "webGLVersion": null,
+          "triangles": 16840,
+          "drawCalls": 81,
+          "meshes": 112,
+          "gpu": {
+            "vendor": "apple",
+            "renderer": "metal-3",
+            "version": "unknown version"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m0-2",
+        "demo": false
+      }
+    },
+    {
+      "id": "close_trunk",
+      "state": {
+        "ready": true,
+        "frameCount": 431,
+        "paused": false,
+        "player": {
+          "e": -2.8,
+          "n": 3.6,
+          "heading": 0,
+          "h": -0.04617482863167084
+        },
+        "camera": {
+          "x": -4.39983827231877,
+          "y": 1.2350169938094302,
+          "z": -0.16913575331634023,
+          "yaw": 25,
+          "pitch": 5,
+          "distance": 3.8,
+          "currentDistance": 3.8,
+          "clear": true
+        },
+        "playerClear": true,
+        "collisionCount": 0,
+        "render": {
+          "width": 1280,
+          "height": 720,
+          "backend": "webgpu",
+          "webGLVersion": null,
+          "triangles": 16544,
+          "drawCalls": 83,
+          "meshes": 112,
+          "gpu": {
+            "vendor": "apple",
+            "renderer": "metal-3",
+            "version": "unknown version"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m0-2",
+        "demo": false
+      }
+    },
+    {
+      "id": "wide_path",
+      "state": {
+        "ready": true,
+        "frameCount": 468,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 34,
+          "heading": 0,
+          "h": 0.15549629629629633
+        },
+        "camera": {
+          "x": 8.871884785340024e-16,
+          "y": 3.0466391345652015,
+          "z": -26.755556302831987,
+          "yaw": 0,
+          "pitch": 15,
+          "distance": 7.5,
+          "currentDistance": 7.5,
+          "clear": true
+        },
+        "playerClear": true,
+        "collisionCount": 0,
+        "render": {
+          "width": 1280,
+          "height": 720,
+          "backend": "webgpu",
+          "webGLVersion": null,
+          "triangles": 9696,
+          "drawCalls": 29,
+          "meshes": 112,
+          "gpu": {
+            "vendor": "apple",
+            "renderer": "metal-3",
+            "version": "unknown version"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m0-2",
+        "demo": false
+      }
+    }
+  ],
+  "final": {
+    "ready": true,
+    "frameCount": 2756,
+    "paused": false,
+    "player": {
+      "e": 0,
+      "n": 49.918919999867555,
+      "heading": 0,
+      "h": 3.2
+    },
+    "camera": {
+      "x": 6.6642811543483245e-15,
+      "y": 3.4900048280073315,
+      "z": -48.10559816786863,
+      "yaw": 359.9999999999998,
+      "pitch": -20,
+      "distance": 5.5,
+      "currentDistance": 1.9296967879585591,
+      "clear": true
+    },
+    "playerClear": true,
+    "collisionCount": 0,
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "backend": "webgpu",
+      "webGLVersion": null,
+      "triangles": 8784,
+      "drawCalls": 13,
+      "meshes": 112,
+      "gpu": {
+        "vendor": "apple",
+        "renderer": "metal-3",
+        "version": "unknown version"
+      },
+      "fallbackReason": null,
+      "devicePixelRatio": 1,
+      "internalDpr": 1
+    },
+    "errors": [],
+    "seed": "atlas-demo-01",
+    "sceneVersion": "m0-2",
+    "demo": false
+  },
+  "errors": []
+}

@@ -1,0 +1,87 @@
+{
+  "version": 2,
+  "note": "Forest production plan. M0 has a procedural traveller proxy and test primitives; M1 forest assets remain planned.",
+  "assets": [
+    {
+      "id": "traveller-proxy",
+      "phase": "M0",
+      "status": "prototype",
+      "sourceFile": "src/runtime/world.ts",
+      "runtimeFile": null,
+      "provenance": "authored-procedural-m0",
+      "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "tree-young-a",
+      "phase": "M1",
+      "status": "planned",
+      "sourceFile": null,
+      "runtimeFile": null,
+      "provenance": "to-be-created",
+      "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "tree-old-wide-a",
+      "phase": "M1",
+      "status": "planned",
+      "sourceFile": null,
+      "runtimeFile": null,
+      "provenance": "to-be-created",
+      "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "tree-crooked-a",
+      "phase": "M1",
+      "status": "planned",
+      "sourceFile": null,
+      "runtimeFile": null,
+      "provenance": "to-be-created",
+      "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "forest-ground-path",
+      "phase": "M1",
+      "status": "planned",
+      "sourceFile": null,
+      "runtimeFile": null,
+      "provenance": "to-be-created",
+      "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "root-log-family",
+      "phase": "M1",
+      "status": "planned",
+      "sourceFile": null,
+      "runtimeFile": null,
+      "provenance": "to-be-created",
+      "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "high-hay-gate",
+      "phase": "M2",
+      "status": "planned",
+      "sourceFile": null,
+      "runtimeFile": null,
+      "provenance": "to-be-created",
+      "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "traveller-idle-walk",
+      "phase": "M2",
+      "status": "planned",
+      "sourceFile": null,
+      "runtimeFile": null,
+      "provenance": "to-be-created",
+      "releaseClearance": "unreviewed"
+    },
+    {
+      "id": "forest-ambience",
+      "phase": "M2",
+      "status": "planned",
+      "sourceFile": null,
+      "runtimeFile": null,
+      "provenance": "to-be-created",
+      "releaseClearance": "unreviewed"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "drevlepuscha-preproduction",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "M0 third-person camera and movement harness for Drevlepuscha.",
+  "engines": {
+    "node": ">=22.23.1 <23"
+  },
+  "scripts": {
+    "validate": "node tools/validate-content.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "check": "npm run typecheck && npm run validate && npm test",
+    "typecheck": "tsc --noEmit",
+    "doctor": "node tools/doctor.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test:browser": "npm run build && playwright test",
+    "qa:capture": "node tools/capture-m0.mjs",
+    "qa:performance": "node tools/performance-m0.mjs"
+  },
+  "packageManager": "npm@10.9.8",
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "typescript": "5.8.3",
+    "vite": "8.2.2"
+  },
+  "dependencies": {
+    "@babylonjs/core": "9.25.0"
+  }
+}

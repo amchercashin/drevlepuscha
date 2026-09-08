@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "worldId": "middle-earth-atlas",
+  "name": "Средиземье · источник ожидается",
+  "contentRevision": "unmapped-v01",
+  "generatorVersion": "domain-v01",
+  "coverage": "unmapped",
+  "scopeNote": "Proposed: north-western Middle-earth as covered by the general Lord of the Rings map. Exact edition/bounds pending.",
+  "epochNote": "Proposed: late Third Age; exact date pending.",
+  "sourceStatus": "pending",
+  "source": null,
+  "bounds": null,
+  "regionFiles": [],
+  "releaseAllowed": false
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "worldId": "sandbox-riverbend",
+  "name": "Синтетический стенд",
+  "contentRevision": "sandbox-v01",
+  "generatorVersion": "domain-v01",
+  "coverage": "unmapped",
+  "scopeNote": "Synthetic 1024 m square kept only as regression fixture for domain and schema tests; not the Drevlepuscha design plan.",
+  "epochNote": "Not applicable; synthetic fixture.",
+  "sourceStatus": "synthetic",
+  "source": {
+    "id": "sandbox-design-v01",
+    "description": "Authored for this internal preproduction package."
+  },
+  "bounds": {
+    "minE": 0,
+    "minN": 0,
+    "maxE": 1024,
+    "maxN": 1024
+  },
+  "regionFiles": [
+    "content/sandbox/riverbend.region.json"
+  ],
+  "releaseAllowed": false
+}

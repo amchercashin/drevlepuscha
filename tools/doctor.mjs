@@ -1,0 +1,15 @@
+import { statfsSync } from 'node:fs';
+import { totalmem, platform, arch } from 'node:os';
+import { fileURLToPath } from 'node:url';
+const root = fileURLToPath(new URL('../', import.meta.url));
+const gib = bytes => (bytes / 1024 ** 3).toFixed(1);
+const disk = statfsSync(root);
+const free = disk.bavail * disk.bsize;
+console.log(`Node: ${process.version} (project pin: 22.23.1)`);
+console.log(`Platform: ${platform()} ${arch()}`);
+console.log(`RAM: ${gib(totalmem())} GiB total`);
+console.log(`Disk: ${gib(free)} GiB available at project location`);
+if (process.versions.node !== '22.23.1') console.warn('WARNING: use Node 22.23.1 to reproduce the checked baseline.');
+if (free < 10 * 1024 ** 3) console.warn('WARNING: less than 10 GiB free; review storage before adding assets or tools.');
+if (totalmem() < 8 * 1024 ** 3) console.warn('WARNING: less than 8 GiB RAM; runtime performance needs a smaller budget.');
+console.log('Read-only environment check; this command does not benchmark the renderer. See qa/M0.md for recorded measurements.');

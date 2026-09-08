@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "regionId": {
+      "const": "old-forest"
+    },
+    "coordinateSystem": {
+      "const": "normalized-0-1"
+    },
+    "warning": {
+      "type": "string",
+      "minLength": 1
+    },
+    "geometryProvenance": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "const": "authored"
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "status",
+        "sourceRefs",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "boundary",
+              "entrance",
+              "poi",
+              "river",
+              "landmark_tree",
+              "dwelling"
+            ]
+          },
+          "geometry": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "Point"
+                  },
+                  "coordinates": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "type",
+                  "coordinates"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "LineString"
+                  },
+                  "coordinates": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "minItems": 2
+                  }
+                },
+                "required": [
+                  "type",
+                  "coordinates"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "existence": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "const": "reported-canonical"
+              },
+              "verification": {
+                "const": "pending-primary-verification"
+              },
+              "sourceRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9._-]*$",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "status",
+              "verification",
+              "sourceRefs"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "geometry",
+          "existence"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "regionId",
+    "coordinateSystem",
+    "warning",
+    "geometryProvenance",
+    "features"
+  ],
+  "additionalProperties": false
+}

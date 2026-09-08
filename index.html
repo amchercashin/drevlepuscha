@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#192820" />
+    <link rel="icon" href="data:," />
+    <title>Древлепуща — прогулка M0</title>
+  </head>
+  <body>
+    <canvas id="world" tabindex="0" aria-label="Трёхмерный стенд Древлепущи. WASD — движение, правая кнопка мыши — осмотр."></canvas>
+    <header class="masthead">
+      <div><p class="eyebrow">Древлепуща / полевой стенд</p><h1>По ту сторону изгороди</h1></div>
+      <div class="badge"><span class="dot"></span>M0 · движение и камера</div>
+    </header>
+    <aside class="diagnostics">
+      <details id="diagnostics">
+        <summary>Проверка стенда <span id="fps">— FPS</span></summary>
+        <p id="metrics">Подготовка сцены…</p>
+        <label for="preset">Ракурс камеры</label><select id="preset"></select>
+        <label for="renderer">Графика · перезапуск стенда</label><select id="renderer"><option value="auto">Авто: WebGPU → WebGL2</option><option value="webgpu">WebGPU</option><option value="webgl2">WebGL2</option></select>
+        <button id="reset" type="button">Вернуться ко входу</button>
+        <p class="muted">Условные формы и синтетическая местность. Художественный лес — следующий этап.</p>
+      </details>
+    </aside>
+    <section class="pause" id="pause" aria-label="Пауза">
+      <div class="pause-card">
+        <p class="eyebrow">Первая прогулка</p><h2 id="pause-title">Почувствовать масштаб</h2>
+        <p id="pause-description">Пройдите между стволами, под низкой аркой и поднимитесь по склону. Остановитесь и посмотрите в кроны.</p>
+        <button id="resume" type="button" disabled>Подготовка сцены…</button>
+        <p class="small">Клавиатура и мышь · Esc — пауза</p>
+      </div>
+    </section>
+    <footer>
+      <div class="location"><span class="eyebrow">Сейчас</span><strong id="location">Западный вход</strong></div>
+      <nav aria-label="Участки проверки">
+        <button data-checkpoint="entrance" type="button">01 Вход</button><button data-checkpoint="trunks" type="button">02 Стволы</button><button data-checkpoint="arch" type="button">03 Арка</button><button data-checkpoint="slope" type="button">04 Склон</button>
+      </nav>
+      <div class="controls"><span><kbd>W A S D</kbd> идти</span><span><kbd>ПКМ</kbd> осмотр</span><span><kbd>Колесо</kbd> дистанция</span><span><kbd>Space</kbd> камера за спину</span></div>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

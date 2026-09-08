@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "status": "targets-not-measurements",
+  "baselineHardware": {
+    "chip": "Apple M3",
+    "memoryGiB": 8,
+    "status": "observed-local-hardware",
+    "model": "MacBook Air",
+    "modelIdentifier": "Mac15,13"
+  },
+  "runtime": "WebGPU",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "devicePixelRatio": 1
+  },
+  "screenshotViewport": {
+    "width": 1600,
+    "height": 900,
+    "devicePixelRatio": 1
+  },
+  "fpsTarget": 60,
+  "fallbackFpsTarget": 30,
+  "maxInternalDpr": 1,
+  "firstTransferMbTarget": 20,
+  "fixedSeed": "atlas-demo-01",
+  "fixedTimeSeconds": 0,
+  "visibleTrianglesAdvisory": 300000,
+  "drawCallsAdvisory": 150,
+  "measurementNote": "Unmeasured starting budgets: 30 FPS floor and 60 FPS aim. Verify on this Mac and the destination Windows PC before increasing quality.",
+  "fallbackRuntime": "WebGL2"
+}

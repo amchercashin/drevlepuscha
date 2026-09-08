@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "tolkien-lotr-book1-ch6",
+      "title": "J. R. R. Tolkien, The Fellowship of the Ring, Book I, chapter 6: The Old Forest",
+      "status": "pending-primary-verification",
+      "locator": "Book I, chapter 6; edition, page and map not selected",
+      "note": "Source locator retained from supplied kit; original book was not consulted in this preparation."
+    },
+    {
+      "id": "tolkien-lotr-book1-ch7",
+      "title": "J. R. R. Tolkien, The Fellowship of the Ring, Book I, chapter 7: In the House of Tom Bombadil",
+      "status": "pending-primary-verification",
+      "locator": "Book I, chapter 7; edition, page and map not selected",
+      "note": "Source locator retained from supplied kit; original book was not consulted in this preparation."
+    },
+    {
+      "id": "tolkien-lotr-book1-ch8",
+      "title": "J. R. R. Tolkien, The Fellowship of the Ring, Book I, chapter 8: Fog on the Barrow-downs",
+      "status": "pending-primary-verification",
+      "locator": "Book I, chapter 8; edition, page and map not selected",
+      "note": "Source locator retained from supplied kit; original book was not consulted in this preparation."
+    },
+    {
+      "id": "sandbox-design-v01",
+      "title": "Synthetic riverbend regression fixture",
+      "status": "authored",
+      "locator": "content/sandbox/riverbend.region.json",
+      "note": "Invented test data, not Tolkien geography and not an active production milestone."
+    },
+    {
+      "id": "kit-v0.3-authored-layout",
+      "title": "Drevlepuscha Codex Kit v0.3, normalized constraint scaffold",
+      "status": "authored",
+      "locator": "content/canon/drevlepuscha/poi.json",
+      "note": "Coordinates supplied in the kit are authored and provisional. Not a surveyed or digitized Tolkien map."
+    },
+    {
+      "id": "tolkiengateway-old-forest",
+      "title": "Tolkien Gateway — Old Forest",
+      "status": "secondary-not-rechecked",
+      "locator": "Background lead supplied in kit; not primary evidence",
+      "url": "https://tolkiengateway.net/wiki/Old_Forest"
+    },
+    {
+      "id": "arda-old-forest",
+      "title": "The Encyclopedia of Arda — Old Forest",
+      "status": "secondary-not-rechecked",
+      "locator": "Background lead supplied in kit; not primary evidence",
+      "url": "https://www.encyclopedia-of-arda.com/o/oldforest.php"
+    },
+    {
+      "id": "vite-guide",
+      "title": "Vite — Getting Started",
+      "status": "checked-2026-09-08",
+      "locator": "Compatibility note",
+      "url": "https://vite.dev/guide/",
+      "note": "Published minimum includes Node 22.12+. Check engines for actual pinned packages during M0."
+    },
+    {
+      "id": "node-releases",
+      "title": "Node.js Releases",
+      "status": "checked-2026-09-08",
+      "locator": "Release schedule",
+      "url": "https://nodejs.org/en/about/previous-releases"
+    },
+    {
+      "id": "babylon-thin-instances",
+      "title": "Babylon.js — Thin Instances",
+      "status": "technical-reference-not-rechecked",
+      "locator": "Consult when implementing instances",
+      "url": "https://doc.babylonjs.com/features/featuresDeepDive/mesh/copies/thinInstances/"
+    },
+    {
+      "id": "babylon-camera",
+      "title": "Babylon.js — Camera documentation",
+      "status": "technical-reference-not-rechecked",
+      "locator": "A camera class is an implementation option, not a design constraint",
+      "url": "https://doc.babylonjs.com/features/featuresDeepDive/cameras/"
+    },
+    {
+      "id": "playwright-snapshots",
+      "title": "Playwright — Visual comparisons",
+      "status": "technical-reference-not-rechecked",
+      "locator": "Consult during browser evidence setup",
+      "url": "https://playwright.dev/docs/test-snapshots"
+    }
+  ]
+}

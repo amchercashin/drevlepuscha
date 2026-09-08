@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pre-runtime save contract v2: third-person travel or atlas",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "worldId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "minLength": 1
+    },
+    "contentRevision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generatorVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "worldSeed": {
+      "type": "string",
+      "minLength": 1
+    },
+    "position": {
+      "type": "object",
+      "properties": {
+        "e": {
+          "type": "number"
+        },
+        "n": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "e",
+        "n",
+        "h"
+      ],
+      "additionalProperties": false
+    },
+    "camera": {
+      "type": "object",
+      "description": "Yaw is normalized to [0,360); positive pitch looks down and negative pitch looks up. Distance is camera-to-target metres. Preset ranges are runtime tuning, not file-format limits.",
+      "properties": {
+        "mode": {
+          "enum": [
+            "travel-third-person",
+            "atlas"
+          ]
+        },
+        "yawDeg": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 360
+        },
+        "pitchDeg": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "distanceM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "mode",
+        "yawDeg",
+        "pitchDeg",
+        "distanceM"
+      ],
+      "additionalProperties": false
+    },
+    "discoveredIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]*$",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "worldId",
+    "contentRevision",
+    "generatorVersion",
+    "worldSeed",
+    "position",
+    "camera",
+    "discoveredIds"
+  ],
+  "additionalProperties": false
+}

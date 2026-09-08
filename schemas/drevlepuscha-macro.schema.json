@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "regionId": {
+      "const": "old-forest"
+    },
+    "worldSeed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "chunks": {
+      "type": "object",
+      "properties": {
+        "grid": {
+          "const": "normalized"
+        },
+        "suggestedRuntimeChunkSizeM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "grid",
+        "suggestedRuntimeChunkSizeM"
+      ],
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "wholeForest": {
+          "const": "L1-L2 target"
+        },
+        "firstSlice": {
+          "const": "L4 target"
+        }
+      },
+      "required": [
+        "wholeForest",
+        "firstSlice"
+      ],
+      "additionalProperties": false
+    },
+    "firstSlice": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "boundsNormalized": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "[minE, minN, maxE, maxN], normalized authored layout only."
+        }
+      },
+      "required": [
+        "name",
+        "boundsNormalized"
+      ],
+      "additionalProperties": false
+    },
+    "communities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]*$",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "const": "authored"
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "status",
+        "sourceRefs",
+        "note"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "regionId",
+    "worldSeed",
+    "chunks",
+    "coverage",
+    "firstSlice",
+    "communities",
+    "provenance"
+  ],
+  "additionalProperties": false
+}

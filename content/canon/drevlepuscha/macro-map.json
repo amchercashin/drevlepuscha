@@ -1,0 +1,37 @@
+{
+  "regionId": "old-forest",
+  "worldSeed": 30180926,
+  "chunks": {
+    "grid": "normalized",
+    "suggestedRuntimeChunkSizeM": 128
+  },
+  "coverage": {
+    "wholeForest": "L1-L2 target",
+    "firstSlice": "L4 target"
+  },
+  "firstSlice": {
+    "name": "West Gate to Bonfire Glade",
+    "boundsNormalized": [
+      0.06,
+      0.45,
+      0.38,
+      0.78
+    ]
+  },
+  "communities": [
+    "ancient_broadleaf_core",
+    "western_edge_regrowth",
+    "bonfire_margin",
+    "withywindle_riparian",
+    "slope_tangle",
+    "eastern_opening"
+  ],
+  "schemaVersion": 1,
+  "provenance": {
+    "status": "authored",
+    "sourceRefs": [
+      "kit-v0.3-authored-layout"
+    ],
+    "note": "Normalized layout, ecological groupings and coverage goals are project proposals. Runtime scale and canonical relations remain unverified."
+  }
+}

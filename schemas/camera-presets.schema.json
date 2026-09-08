@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 2
+    },
+    "status": {
+      "const": "proposed-not-visually-approved"
+    },
+    "primaryMode": {
+      "const": "travel-third-person"
+    },
+    "projection": {
+      "const": "perspective"
+    },
+    "travel": {
+      "type": "object",
+      "properties": {
+        "fovVerticalDeg": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 180
+        },
+        "distanceM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "distanceMinM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "distanceMaxM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "targetHeightM": {
+          "type": "number",
+          "minimum": 0
+        },
+        "pitchDefaultDeg": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "pitchMinDeg": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "pitchMaxDeg": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "yawUnlimited": {
+          "const": true
+        },
+        "nearClipM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "collisionProbeRadiusM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "returnLagSeconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "fovVerticalDeg",
+        "distanceM",
+        "distanceMinM",
+        "distanceMaxM",
+        "targetHeightM",
+        "pitchDefaultDeg",
+        "pitchMinDeg",
+        "pitchMaxDeg",
+        "yawUnlimited",
+        "nearClipM",
+        "collisionProbeRadiusM",
+        "returnLagSeconds"
+      ],
+      "additionalProperties": false
+    },
+    "visualReviewPresets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "minLength": 1
+          },
+          "yawDeg": {
+            "type": "number"
+          },
+          "pitchDeg": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "distanceM": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "yawDeg",
+          "pitchDeg",
+          "distanceM"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "atlas": {
+      "type": "object",
+      "properties": {
+        "separateCamera": {
+          "const": true
+        },
+        "projection": {
+          "const": "orthographic-or-weak-perspective"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "separateCamera",
+        "projection",
+        "note"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "status",
+    "primaryMode",
+    "projection",
+    "travel",
+    "visualReviewPresets",
+    "atlas"
+  ],
+  "additionalProperties": false
+}

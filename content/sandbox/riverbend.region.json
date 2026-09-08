@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "id": "sandbox-riverbend",
+  "name": "Речная излучина · технический участок",
+  "units": "m",
+  "coordinateFrame": "sandbox-local-enh",
+  "contentRevision": "sandbox-v01",
+  "generatorVersion": "domain-v01",
+  "seed": "atlas-demo-01",
+  "provenance": {
+    "status": "invented",
+    "sourceId": "sandbox-design-v01",
+    "note": "Synthetic engineering fixture, not a canonical Tolkien location."
+  },
+  "bounds": {
+    "minE": 0,
+    "minN": 0,
+    "maxE": 1024,
+    "maxN": 1024
+  },
+  "artFocus": {
+    "e": 448,
+    "n": 640,
+    "h": 25
+  },
+  "rivers": [
+    {
+      "id": "river-main",
+      "stations": [
+        {
+          "e": 480,
+          "n": 1024,
+          "h": 24,
+          "widthM": 22
+        },
+        {
+          "e": 470,
+          "n": 800,
+          "h": 23,
+          "widthM": 26
+        },
+        {
+          "e": 448,
+          "n": 640,
+          "h": 22,
+          "widthM": 24
+        },
+        {
+          "e": 540,
+          "n": 420,
+          "h": 20,
+          "widthM": 32
+        },
+        {
+          "e": 650,
+          "n": 180,
+          "h": 18,
+          "widthM": 36
+        },
+        {
+          "e": 690,
+          "n": 0,
+          "h": 16,
+          "widthM": 40
+        }
+      ]
+    }
+  ],
+  "paths": [
+    {
+      "id": "path-west",
+      "surface": "terrain",
+      "widthM": 4,
+      "points": [
+        {
+          "e": 160,
+          "n": 500,
+          "h": 28
+        },
+        {
+          "e": 220,
+          "n": 570,
+          "h": 27
+        },
+        {
+          "e": 300,
+          "n": 640,
+          "h": 26
+        },
+        {
+          "e": 424,
+          "n": 640,
+          "h": 25
+        }
+      ]
+    },
+    {
+      "id": "bridge-deck",
+      "surface": "bridge",
+      "widthM": 5,
+      "points": [
+        {
+          "e": 424,
+          "n": 640,
+          "h": 25
+        },
+        {
+          "e": 472,
+          "n": 640,
+          "h": 25
+        }
+      ]
+    },
+    {
+      "id": "path-east",
+      "surface": "terrain",
+      "widthM": 4,
+      "points": [
+        {
+          "e": 472,
+          "n": 640,
+          "h": 25
+        },
+        {
+          "e": 600,
+          "n": 650,
+          "h": 28
+        },
+        {
+          "e": 690,
+          "n": 730,
+          "h": 35
+        },
+        {
+          "e": 800,
+          "n": 800,
+          "h": 42
+        }
+      ]
+    }
+  ],
+  "places": [
+    {
+      "id": "start-west",
+      "name": "Западная тропа",
+      "kind": "start",
+      "position": {
+        "e": 160,
+        "n": 500,
+        "h": 28
+      },
+      "provenance": {
+        "status": "invented",
+        "sourceId": "sandbox-design-v01",
+        "note": "Synthetic engineering fixture, not a canonical Tolkien location."
+      }
+    },
+    {
+      "id": "crossing-main",
+      "name": "Переправа",
+      "kind": "crossing",
+      "position": {
+        "e": 448,
+        "n": 640,
+        "h": 25
+      },
+      "provenance": {
+        "status": "invented",
+        "sourceId": "sandbox-design-v01",
+        "note": "Synthetic engineering fixture, not a canonical Tolkien location."
+      }
+    },
+    {
+      "id": "waymark-east",
+      "name": "Дорожный знак",
+      "kind": "landmark",
+      "position": {
+        "e": 600,
+        "n": 650,
+        "h": 28
+      },
+      "provenance": {
+        "status": "invented",
+        "sourceId": "sandbox-design-v01",
+        "note": "Synthetic engineering fixture, not a canonical Tolkien location."
+      }
+    },
+    {
+      "id": "view-hill",
+      "name": "Обзорный холм",
+      "kind": "viewpoint",
+      "position": {
+        "e": 800,
+        "n": 800,
+        "h": 42
+      },
+      "provenance": {
+        "status": "invented",
+        "sourceId": "sandbox-design-v01",
+        "note": "Synthetic engineering fixture, not a canonical Tolkien location."
+      }
+    }
+  ]
+}

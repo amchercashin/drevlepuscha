@@ -1,0 +1,19 @@
+* text=auto
+*.md text eol=lf
+*.ts text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.png binary
+*.jpeg binary
+*.pdf binary
+*.docx binary
+*.yml text eol=lf
+*.yaml text eol=lf
+*.ps1 text eol=crlf
+*.jpg binary
+*.blend binary
+*.glb binary
+*.webp binary
+
+*.webm binary
+*.sh text eol=lf

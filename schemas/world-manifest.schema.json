@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Preproduction world manifest",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "worldId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contentRevision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generatorVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "coverage": {
+      "enum": [
+        "unmapped",
+        "atlas",
+        "terrain",
+        "playable",
+        "reviewed"
+      ]
+    },
+    "scopeNote": {
+      "type": "string",
+      "minLength": 1
+    },
+    "epochNote": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceStatus": {
+      "enum": [
+        "pending",
+        "synthetic",
+        "calibrated"
+      ]
+    },
+    "source": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "id",
+            "description"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "bounds": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "minE": {
+              "type": "number"
+            },
+            "minN": {
+              "type": "number"
+            },
+            "maxE": {
+              "type": "number"
+            },
+            "maxN": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "minE",
+            "minN",
+            "maxE",
+            "maxN"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "regionFiles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "releaseAllowed": {
+      "const": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "worldId",
+    "name",
+    "contentRevision",
+    "generatorVersion",
+    "coverage",
+    "scopeNote",
+    "epochNote",
+    "sourceStatus",
+    "source",
+    "bounds",
+    "regionFiles",
+    "releaseAllowed"
+  ],
+  "additionalProperties": false
+}
