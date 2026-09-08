@@ -1,3 +1,4 @@
+import {SoilPattern} from './soil-pattern.ts';
 import {soilTexture} from './forest-floor.ts';
 import { Scene } from '@babylonjs/core/scene.js';
 import { Mesh } from '@babylonjs/core/Meshes/mesh.js';
@@ -63,7 +64,7 @@ export function createWorld(scene: Scene, forestMode=false) {
     const soil=forestMode?Color3.Lerp(Color3.FromHexString('#686049'),Color3.FromHexString('#65724a'),0.5+0.3*Math.sin(e*0.31+n*0.17)+0.2*Math.sin(n*0.61-e*0.23)):earth;
     const c = Color3.Lerp(soil, path, blend);
     const shade = 0.96 + 0.04 * Math.sin(e * 0.72 + n * 0.33);
-    colors.push(c.r * shade, c.g * shade, c.b * shade, 1);
+    colors.push(...(forestMode?[1,1,1,1]:[c.r * shade, c.g * shade, c.b * shade, 1]));
     if (i < cols - 1 && j < rows - 1) {
       const k = j * cols + i;
       indices.push(k, k + 1, k + cols, k + 1, k + cols + 1, k + cols);
@@ -72,7 +73,7 @@ export function createWorld(scene: Scene, forestMode=false) {
   VertexData.ComputeNormals(pos, indices, normals, { useRightHandedSystem: true });
   data.uvs=uvs;data.positions = pos; data.indices = indices; data.normals = normals; data.colors = colors; data.applyToMesh(mesh);
   const earthMaterial = material('earth', Color3.White()); earthMaterial.backFaceCulling = false;
-  if(forestMode){earthMaterial.diffuseTexture=soilTexture(scene);mesh.receiveShadows=true;}
+  if(forestMode){earthMaterial.diffuseTexture=soilTexture(scene);new SoilPattern(earthMaterial);mesh.receiveShadows=true;}
   mesh.material = earthMaterial;
 
   function box(id: string, e: number, n: number, width: number, height: number, depth: number, bottom = groundHeight(e, n)) {
@@ -106,6 +107,7 @@ export function createWorld(scene: Scene, forestMode=false) {
     tree(`forest-${i}`,e,n,0.35+rng()*0.5,7+rng()*7);
   }
   }
+  if(!forestMode){
   box('arch-left',-1.65,25,0.65,2.4,1.1);
   box('arch-right',1.65,25,0.65,2.4,1.1);
   box('arch-lintel',0,25,3.95,0.6,1.1,groundHeight(0,25)+1.75);
@@ -113,6 +115,19 @@ export function createWorld(scene: Scene, forestMode=false) {
   box('slope-rock',3,40,1.8,2.1,2.3);
   box('end-marker',0,55,1.1,2.8,0.85);
   for(let i=0;i<10;i++) box(`edge-stone-${i}`,(i%2?-1:1)*(3.2+rng()),4+i*4.5,0.5+rng()*0.5,0.2+rng()*0.3,0.65);
+  }
+  if(forestMode){
+   const woodMaterial=material('fallen-wood',Color3.White());
+   for(const [index,p] of [[-4.7,9,2.8,0.18,0.3],[4.8,30,3.2,0.24,-0.4],[-5.5,49,2.6,0.2,0.7],[7,57,3.6,0.25,0.2]].entries()){
+    const [e,n,length,radius,yaw]=p;
+    const log=CreateCylinder(`fallen-wood-${index}`,{height:length,diameterBottom:radius*2,diameterTop:radius*1.5,tessellation:9,faceColors:[new Color4(0.55,0.49,0.35,1),new Color4(0.36,0.38,0.34,1),new Color4(0.62,0.55,0.40,1)]},scene);
+    log.material=woodMaterial;log.rotation.set(0,yaw,Math.PI/2);log.position.set(e,groundHeight(e,n)+radius*0.65,-n);log.receiveShadows=true;
+    const points=log.getVerticesData('position')!,colours=log.getVerticesData('color')!;
+    for(let v=0;v<points.length/3;v++)if(points[v*3]>radius*0.25&&Math.abs(points[v*3+1])<length*0.36){colours[v*4]=0.29;colours[v*4+1]=0.42;colours[v*4+2]=0.29;}
+    log.setVerticesData('color',colours);log.computeWorldMatrix(true);const b=log.getBoundingInfo().boundingBox;
+    boxes.push({id:log.id,min:b.minimumWorld.clone(),max:b.maximumWorld.clone()});
+   }
+  }
   for(const m of scene.meshes) {m.freezeWorldMatrix();m.isPickable=false;}
 
   const occluders=scene.meshes.filter(m=>m!==mesh);

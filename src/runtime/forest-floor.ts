@@ -28,12 +28,14 @@ export function soilTexture(scene:Scene){
  const ctx=texture.getContext(),r=createRandom(seedFor('m1-soil-v1'));
  ctx.fillStyle='#c1bcaa';ctx.fillRect(0,0,256,256);
  for(let i=0;i<7000;i++){const v=140+Math.floor(r()*65);ctx.fillStyle=`rgba(${v+12},${v+8},${v},0.28)`;ctx.fillRect(r()*256,r()*256,1+r()*4,1+r()*2);}
+ // Small leaf litter is baked into the soil, not individual transparent meshes.
+ for(let i=0;i<95;i++){const x=r()*256,y=r()*256,a=r()*Math.PI;ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle=i%3?'rgba(111,100,67,0.6)':'rgba(211,195,143,0.6)';ctx.beginPath();ctx.moveTo(-3,0);ctx.quadraticCurveTo(0,-2,4,0);ctx.quadraticCurveTo(0,2,-3,0);ctx.fill();ctx.restore();}
  texture.update();return texture;
 }
 
 /** Opaque tapered blades, batched by cell. Only a bounded neighbourhood exists. */
 export function createForestFloor(scene:Scene,boxes:Box[]){
- const material=new StandardMaterial('grass',scene);material.diffuseColor=Color3.White();material.specularColor=Color3.Black();material.backFaceCulling=false;
+ const material=new StandardMaterial('grass',scene);material.diffuseColor=Color3.White();material.specularColor=Color3.Black();material.backFaceCulling=false;material.twoSidedLighting=true;
  const distance=new GrassDistance(material);
  const cells=new Map<string,Mesh>();let lastE=Infinity,lastN=Infinity;
  function cell(cx:number,cz:number){
@@ -54,6 +56,34 @@ export function createForestFloor(scene:Scene,boxes:Box[]){
     positions.push(x-dz*w,y,z+dx*w,x+dz*w,y,z-dx*w,x+dx*top*0.35,y+top,z+dz*top*0.35);
     indices.push(k,k+1,k+2);uvs.push(0,0,0,0,top+0.03,0);
     for(let v=0;v<3;v++){const light=v===2?1.2:0.76;colors.push((0.27+tint*0.12)*light,(0.35+tint*0.13)*light,(0.12+tint*0.09)*light,1);}
+   }
+  }
+  // Ferns share the opaque cell mesh: no additional material or draw call.
+  for(let fern=0;fern<3;fern++){
+   const e=cx*8+random()*8,n=cz*8+random()*8;
+   if(e<FOREST_BOUNDS.minE||e>FOREST_BOUNDS.maxE||n<FOREST_BOUNDS.minN||n>FOREST_BOUNDS.maxN||Math.abs(e-pathCentre(n))<2.1)continue;
+   if(nearby.some(b=>e>b.min.x-0.5&&e<b.max.x+0.5&&-n>b.min.z-0.5&&-n<b.max.z+0.5))continue;
+   const y=groundHeight(e,n)-0.01,length=0.5+random()*0.3,rotation=random()*Math.PI*2;
+   function vertex(x:number,h:number,z:number,tip=false){positions.push(x,y+h,z);uvs.push(h+0.025,0);colors.push(tip?0.43:0.24,tip?0.57:0.39,tip?0.31:0.26,1);}
+   for(let frond=0;frond<7;frond++){
+    const a=rotation+frond*Math.PI*2/7,dx=Math.cos(a),dz=Math.sin(a),len=length*(0.8+random()*0.25);
+    for(let segment=0;segment<7;segment++){
+     const a=segment/7,b=(segment+1)/7,k=positions.length/3;
+     const ha=Math.sin(a*Math.PI*0.8)*len*0.48,hb=Math.sin(b*Math.PI*0.8)*len*0.48;
+     vertex(e+dx*len*a-dz*0.006,ha,-n+dz*len*a+dx*0.006);vertex(e+dx*len*a+dz*0.006,ha,-n+dz*len*a-dx*0.006);
+     vertex(e+dx*len*b-dz*0.006,hb,-n+dz*len*b+dx*0.006);vertex(e+dx*len*b+dz*0.006,hb,-n+dz*len*b-dx*0.006);
+     indices.push(k,k+1,k+2,k+1,k+3,k+2);
+    }
+    for(let j=1;j<=6;j++){
+     const t=j/7,cx=e+dx*len*t,cz=-n+dz*len*t,h=Math.sin(t*Math.PI*0.8)*len*0.48;
+     const width=len*0.24*(1-t)+0.025;
+     for(const side of [-1,1]){
+      const k=positions.length/3;
+      vertex(cx-dx*0.035,h,cz-dz*0.035);vertex(cx-dz*width*side+dx*0.04,h+0.015,cz+dx*width*side+dz*0.04,true);
+      vertex(cx+dx*0.06,h+0.025,cz+dz*0.06);vertex(cx-dz*width*side*0.38,h+0.018,cz+dx*width*side*0.38);
+      indices.push(k,k+1,k+3,k+1,k+2,k+3);
+     }
+    }
    }
   }
   VertexData.ComputeNormals(positions,indices,normals);
