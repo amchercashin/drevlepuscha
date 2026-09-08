@@ -9,11 +9,16 @@ try {
  if(backend==='webgpu')await page.screenshot({path:`qa/evidence/m1-light-floor-${backend}.png`});
  const initial=await page.evaluate(()=>window.m0.state());assert.ok(initial.floor.cells<=49&&initial.floor.triangles>0);assert.equal(initial.render.width,1920);
  await page.evaluate(()=>window.m0.beginMeasurement());
- await page.keyboard.down('KeyW');await page.waitForTimeout(8000);await page.keyboard.up('KeyW');
+ await page.keyboard.down('KeyW');
+ const phases=[];for(let i=0;i<40;i++){await page.waitForTimeout(200);phases.push((await page.evaluate(()=>window.m0.state())).lighting);}
+ await page.keyboard.up('KeyW');
+ let maxShadowPhaseError=0;
+ for(const sample of phases)for(let axis=0;axis<2;axis++){const delta=(sample.probe[axis]-phases[0].probe[axis])*sample.mapSize/2;maxShadowPhaseError=Math.max(maxShadowPhaseError,Math.abs(delta-Math.round(delta)));}
+ assert.ok(maxShadowPhaseError<0.01,`Shadow map drift: ${maxShadowPhaseError} texels`);
  await page.evaluate(()=>window.m0.teleport(0,160));await page.waitForTimeout(2000);
  await page.keyboard.down('KeyW');await page.waitForTimeout(8000);await page.keyboard.up('KeyW');
  const samples=await page.evaluate(()=>window.m0.endMeasurement());samples.sort((a,b)=>a-b);
- const result={state:await page.evaluate(()=>window.m0.state()),errors,frames:samples.length,median:samples[Math.floor(samples.length*.5)],p95:samples[Math.floor(samples.length*.95)],over33:samples.filter(x=>x>33.34).length};
+ const result={maxShadowPhaseErrorTexels:maxShadowPhaseError,state:await page.evaluate(()=>window.m0.state()),errors,frames:samples.length,median:samples[Math.floor(samples.length*.5)],p95:samples[Math.floor(samples.length*.95)],over33:samples.filter(x=>x>33.34).length};
  await page.evaluate(()=>window.m0.setCamera(30,-25,5.5));await page.waitForTimeout(700);if(backend==='webgpu')await page.screenshot({path:`qa/evidence/m1-rays-${backend}.png`});
  assert.deepEqual(errors,[]);assert.deepEqual(result.state.errors,[]);assert.ok(result.state.camera.followError<1e-5);assert.ok(result.state.playerClear);assert.ok(result.state.player.n>170);assert.ok(result.state.floor.cells<=49);
  await page.evaluate(()=>window.m0.teleport(0,0));await page.waitForTimeout(500);const returned=await page.evaluate(()=>window.m0.state());assert.deepEqual(returned.floor,initial.floor);

@@ -50,12 +50,17 @@ try {
   camera.fov=config.travel.fovVerticalDeg*Math.PI/180;scene.activeCamera=camera;
   const forestMode=new URLSearchParams(location.search).get('scene')==='m1';
   const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
-  const forest=forestMode?await createForest(scene):null;
+  const forest=forestMode?await createForest(scene,world.sun):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
   if(forest){document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
   const floor=forest?createForestFloor(scene,world.boxes):null;
-  const sunlight=forest?new ShadowGenerator(1024,world.sun):null;
-  if(sunlight){sunlight.setDarkness(0.28);sunlight.useBlurExponentialShadowMap=true;sunlight.useKernelBlur=true;sunlight.blurKernel=24;sunlight.depthScale=30;world.sun.shadowOrthoScale=0;sunlight.bias=0.001;sunlight.normalBias=0.04;world.sun.autoUpdateExtends=false;world.sun.autoCalcShadowZBounds=false;world.sun.shadowMinZ=1;world.sun.shadowMaxZ=110;world.sun.orthoLeft=-28;world.sun.orthoRight=28;world.sun.orthoTop=28;world.sun.orthoBottom=-28;}
+  const sunlight=forest?new ShadowGenerator(512,world.sun):null;
+  if(sunlight){
+   sunlight.setDarkness(0.18);sunlight.usePercentageCloserFiltering=true;sunlight.filteringQuality=ShadowGenerator.QUALITY_HIGH;
+   sunlight.frustumEdgeFalloff=0.12;sunlight.bias=0.001;sunlight.normalBias=0.025;
+   world.sun.shadowOrthoScale=0;world.sun.autoUpdateExtends=false;world.sun.autoCalcShadowZBounds=false;
+   world.sun.shadowMinZ=1;world.sun.shadowMaxZ=110;world.sun.orthoLeft=-32;world.sun.orthoRight=32;world.sun.orthoTop=32;world.sun.orthoBottom=-32;
+  }
   const rays=forest?new VolumetricLightScatteringPostProcess('forest-sun-rays',{postProcessRatio:1,passRatio:0.35},camera,undefined,48):null;
   if(rays){rays.exposure=0.14;rays.weight=0.28;rays.decay=0.96;rays.density=0.85;rays.mesh.scaling.setAll(24);rays.mesh.layerMask=0;rays.mesh.isPickable=false;const m=rays.mesh.material as StandardMaterial;m.emissiveColor.set(1,0.88,0.62);
    const glow=new DynamicTexture('sun-glow',128,scene,false),ctx=glow.getContext(),gradient=ctx.createRadialGradient(64,64,0,64,64,64);
@@ -164,6 +169,7 @@ try {
         triangles:scene.getActiveIndices()/3,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,
+      lighting:sunlight?{filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
@@ -243,7 +249,7 @@ try {
       forest?.update(desired,feet,dt);
       floor?.update(feet);
       if(sunlight&&forest){
-       const origin=new Vector3(feet.x,feet.y,feet.z).subtract(lightDirection.scale(60)),texel=56/1024;
+       const origin=new Vector3(feet.x,feet.y,feet.z).subtract(lightDirection.scale(60)),texel=64/512;
        // Quantize in the light's own plane so the shadow texels stay anchored in the world.
        for(const axis of [lightRight,lightUp]){const p=Vector3.Dot(origin,axis);origin.addInPlace(axis.scale(Math.round(p/texel)*texel-p));}
        world.sun.position.copyFrom(origin);

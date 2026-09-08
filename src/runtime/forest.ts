@@ -1,3 +1,5 @@
+import {LeafTransmission} from './leaf-transmission.ts';
+import type {DirectionalLight} from '@babylonjs/core/Lights/directionalLight.js';
 import {treeTone,TREE_TONE_VERSION} from '../domain/tree-tone.ts';
 import {TreeTone} from './tree-tone.ts';
 import {treeAsset} from './tree-assets.ts';
@@ -24,13 +26,14 @@ import dataURL from '../../assets/trees/game/tree.json?url';
 import barkURL from '../../assets/trees/bark.png';
 import canopyURL from '../../assets/trees/canopy.png';
 
-export async function createForest(scene:Scene){
+export async function createForest(scene:Scene,sun:DirectionalLight){
  const selected=treeAsset(new URLSearchParams(location.search).get('tree')??'meshy-a');
  const response=await fetch(selected?.dataURL??dataURL);if(!response.ok)throw new Error('Game tree could not load');
  const data=await response.json() as TreeAssetData;
  const textureURLs:Record<string,string>=selected?selected.textures:{bark:barkURL,canopy:canopyURL};
  const materials=data.levels[0].map(({name})=>{const m=new StandardMaterial(`forest-${name}`,scene);m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.diffuseTexture=new Texture(textureURLs[name],scene,false,false);m.backFaceCulling=!(data.doubleSided?.[name]??false);new LodDither(m);return m;});
  const bakedMaterials=data.bakedColorFromLevel===undefined?materials:materials.map(m=>{const copy=new StandardMaterial(m.name+'-baked',scene);copy.diffuseColor=Color3.White();copy.specularColor=Color3.Black();copy.backFaceCulling=m.backFaceCulling;new LodDither(copy);return copy;});
+ for(const m of new Set([...materials,...bakedMaterials]))new LeafTransmission(m,sun);
  const tonePlugins=selected?.id==='meshy-a'?[...new Set([...materials,...bakedMaterials])].map(m=>new TreeTone(m)):[];
  const templates=data.levels.map((parts,level)=>parts.map((p,i)=>{const m=new Mesh(`source-${level}-${p.name}`,scene);m.sideOrientation=1;const v=new VertexData();Object.assign(v,p);v.applyToMesh(m);m.material=level>=(data.bakedColorFromLevel??Infinity)?bakedMaterials[i]:materials[i];if(tonePlugins.length){m.registerInstancedBuffer('treeTone',3);m.instancedBuffers.treeTone=Vector3.Zero();}m.setEnabled(false);return m;}));
  const placements=forestPlacements(data.rootRadius,data.placement);
@@ -47,7 +50,7 @@ export async function createForest(scene:Scene){
   const e=Math.floor(feet.x/8)*8+4,n=Math.floor(-feet.z/8)*8+4,key=`${e}:${n}`;
   if(key!==shadowCell){
    shadowCell=key;shadowMesh?.dispose();const parts:Mesh[]=[];
-   for(const p of placements)if(Math.hypot(p.e-e,p.n-n)<42){
+   for(const p of placements)if(Math.hypot(p.e-e,p.n-n)<56){
     for(const template of templates[1]){const m=new Mesh('shadow-part',scene);template.geometry!.applyToMesh(m);m.material=shadowMaterial;transform(m,p);parts.push(m);}
    }
    shadowMesh=Mesh.MergeMeshes(parts,true,true,undefined,false,false);

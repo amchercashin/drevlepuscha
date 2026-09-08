@@ -43,9 +43,9 @@ export function createWorld(scene: Scene, forestMode=false) {
   scene.fogMode = Scene.FOGMODE_EXP2; scene.fogDensity = forestMode ? 0.004 : 0.023;
   scene.fogColor = new Color3(0.65, 0.73, 0.68);
   const fill = new HemisphericLight('ambient', new Vector3(0, 1, 0), scene);
-  fill.intensity = forestMode ? 0.62 : 0.75; fill.groundColor = new Color3(0.2, 0.26, 0.2);
+  fill.intensity = forestMode ? 0.46 : 0.75; fill.groundColor = new Color3(0.2, 0.26, 0.2);if(forestMode)fill.diffuse=new Color3(0.78,0.87,1);
   const sun = new DirectionalLight('sun', forestMode?new Vector3(-0.35,-0.65,0.6):new Vector3(-0.5, -1, 0.3), scene);
-  sun.intensity = forestMode ? 1.05 : 0.85; sun.diffuse = new Color3(1, 0.94, 0.78);
+  sun.intensity = forestMode ? 1.05 : 0.85; sun.diffuse = forestMode?new Color3(1,0.88,0.66):new Color3(1, 0.94, 0.78);
 
   // One fixed grid and a continuous height function shared with collision queries.
   const mesh = new Mesh('ground', scene), data = new VertexData();
