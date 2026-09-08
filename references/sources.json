@@ -81,6 +81,29 @@
       "url": "https://github.com/BabylonJS/Documentation/blob/master/content/features/featuresDeepDive/mesh/LOD.md"
     },
     {
+      "id": "babylon-auto-lod",
+      "title": "Babylon.js — Simplifying Meshes With Auto-LOD",
+      "status": "checked-2026-09-08",
+      "locator": "mesh.simplify, asynchronous quadratic simplification and limitations",
+      "url": "https://github.com/BabylonJS/Documentation/blob/master/content/features/featuresDeepDive/mesh/simplifyingMeshes.md",
+      "note": "Also inspected the pinned 9.25.0 meshSimplification.js implementation and ran a Node/NullEngine numeric probe on reference-tree-v1; no visual or FPS acceptance."
+    },
+    {
+      "id": "meshoptimizer-js",
+      "title": "meshoptimizer — JavaScript modules",
+      "status": "checked-2026-09-08",
+      "locator": "JavaScript/WebAssembly modules for geometry processing; candidate for a future worker",
+      "url": "https://github.com/zeux/meshoptimizer/blob/master/js/README.md",
+      "note": "Not installed or integrated. Existence of simplification primitives does not provide the project's budgeted HLOD renderer."
+    },
+    {
+      "id": "babylon-scene-optimization",
+      "title": "Babylon.js — Optimizing Your Scene",
+      "status": "checked-2026-09-08",
+      "locator": "Conservative mesh culling, depth prepass and rendering costs",
+      "url": "https://github.com/BabylonJS/Documentation/blob/master/content/features/featuresDeepDive/scene/optimize_your_scene.md"
+    },
+    {
       "id": "khronos-ktx2",
       "title": "Khronos — KTX File Format Specification",
       "status": "checked-2026-09-08",
