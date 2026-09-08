@@ -12,7 +12,7 @@ try{
  for(const trial of (process.argv.includes('--orbit-only')?[{nearOnly:false,n:160,orbit:true}]:(process.argv.includes('--comparison')?[{nearOnly:false,n:160,orbit:false},{nearOnly:true,n:160,orbit:false}]:[{nearOnly:false,n:160,orbit:false}]))){
   const {nearOnly,n,orbit}=trial;
   await page.locator('#diagnostics').evaluate(e=>e.open=true);
-  await page.getByLabel('Все деревья без LOD — сравнение нагрузки').setChecked(nearOnly);
+  await page.getByLabel('Ближняя область без LOD — сравнение нагрузки').setChecked(nearOnly);
   await page.evaluate(n=>window.m0.startTraversal(0,n),n);await page.waitForTimeout(1500);
   await page.evaluate(n=>{window.m0.startTraversal(0,n);window.m0.beginMeasurement();},n);
   if(orbit)await page.evaluate(()=>window.m0.stopTraversal());

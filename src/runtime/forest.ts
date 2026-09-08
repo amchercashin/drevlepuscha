@@ -1,3 +1,4 @@
+import {forestHorizon} from './forest-horizon.ts';
 import {LodDither} from './lod-dither.ts';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
 import '@babylonjs/core/Meshes/instancedMesh.js';
@@ -25,6 +26,7 @@ export async function createForest(scene:Scene){
  const materials=['bark','canopy'].map((name,i)=>{const m=new StandardMaterial(`forest-${name}`,scene);m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.diffuseTexture=new Texture(i?canopyURL:barkURL,scene,false,false);new LodDither(m);return m;});
  const templates=data.levels.map((parts,level)=>parts.map((p,i)=>{const m=new Mesh(`source-${level}-${p.name}`,scene);m.sideOrientation=1;const v=new VertexData();Object.assign(v,p);v.applyToMesh(m);m.material=materials[i];m.setEnabled(false);return m;}));
  const placements=forestPlacements();
+ const horizon=forestHorizon(placements,templates[2]);
  interface ActiveTree {placement:TreePlacement;level:number;instances:InstancedMesh[];fades:Map<number,Mesh[]>;previous:number;transition:number;opacity:number[];}
  const active=new Map<string,ActiveTree>();
  function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.width);m.rotation.y=t.yaw;m.freezeWorldMatrix();m.isPickable=false;}
@@ -32,12 +34,12 @@ export async function createForest(scene:Scene){
  function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
  let lockNear=false,forceSwitch=false;
  function update(camera:Point3,feet:Point3,dt:number){
+  horizon.update(camera,feet);
   for(const p of placements){
    const centreDistance=Math.min(Math.hypot(camera.x-p.e,camera.z+p.n),Math.hypot(feet.x-p.e,feet.z+p.n));
    let t=active.get(p.id);
-   // Retain a 20 m safety band beyond the camera far plane. Data and IDs persist after GPU retirement.
-   if(centreDistance>180){if(t){t.instances.forEach(m=>m.dispose());for(const pair of t.fades.values())pair.forEach(m=>m.dispose());active.delete(p.id);}continue;}
-   if(!t&&centreDistance>160)continue;
+   // Whole cells hand off to identical far-LOD batches, without alpha overlap or gaps.
+   if(!horizon.detailed(p.id)){if(t){t.instances.forEach(m=>m.dispose());for(const pair of t.fades.values())pair.forEach(m=>m.dispose());active.delete(p.id);}continue;}
    if(!t){const level=lockNear?0:centreDistance<32?0:centreDistance<58?1:2;t={placement:p,level,instances:instances(p,level),fades:new Map(),previous:-1,transition:1,opacity:[1,1]};active.set(p.id,t);}
    const distance=Math.max(0,centreDistance-6*p.width),next=lockNear?0:treeLevel(distance,t.level);
    if(next!==t.level&&(t.previous<0||forceSwitch)){if(forceSwitch){for(const pair of t.fades.values())pair.forEach(m=>m.setEnabled(false));t.previous=-1;t.transition=1;}else{t.previous=t.level;t.transition=0;}t.instances.forEach(m=>m.dispose());t.instances=instances(p,next);t.level=next;}
@@ -59,5 +61,5 @@ export async function createForest(scene:Scene){
   }
   forceSwitch=false;
  }
- return {boxes:placements.map(treeCollider),update,stats:()=>({version:FOREST_VERSION,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:2,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:6}),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
+ return {boxes:placements.map(treeCollider),update,stats:()=>({version:FOREST_VERSION,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:2,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:6+horizon.stats().cells*2,horizon:horizon.stats()}),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
 }
