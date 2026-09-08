@@ -1,3 +1,9 @@
+import {DynamicTexture} from '@babylonjs/core/Materials/Textures/dynamicTexture.js';
+import {VolumetricLightScatteringPostProcess} from '@babylonjs/core/PostProcesses/volumetricLightScatteringPostProcess.js';
+import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
+import {createForestFloor} from './runtime/forest-floor.ts';
+import {ShadowGenerator} from '@babylonjs/core/Lights/Shadows/shadowGenerator.js';
+import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent.js';
 import './style.css';
 import {renderResolution} from './runtime/resolution.ts';
 import type {ResolutionQuality} from './runtime/resolution.ts';
@@ -47,6 +53,15 @@ try {
   const forest=forestMode?await createForest(scene):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
   if(forest){document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
+  const floor=forest?createForestFloor(scene,world.boxes):null;
+  const sunlight=forest?new ShadowGenerator(1024,world.sun):null;
+  if(sunlight){sunlight.setDarkness(0.28);sunlight.useBlurExponentialShadowMap=true;sunlight.useKernelBlur=true;sunlight.blurKernel=24;sunlight.depthScale=30;world.sun.shadowOrthoScale=0;sunlight.bias=0.001;sunlight.normalBias=0.04;world.sun.autoUpdateExtends=false;world.sun.autoCalcShadowZBounds=false;world.sun.shadowMinZ=1;world.sun.shadowMaxZ=110;world.sun.orthoLeft=-28;world.sun.orthoRight=28;world.sun.orthoTop=28;world.sun.orthoBottom=-28;}
+  const rays=forest?new VolumetricLightScatteringPostProcess('forest-sun-rays',{postProcessRatio:1,passRatio:0.35},camera,undefined,48):null;
+  if(rays){rays.exposure=0.14;rays.weight=0.28;rays.decay=0.96;rays.density=0.85;rays.mesh.scaling.setAll(24);rays.mesh.layerMask=0;rays.mesh.isPickable=false;const m=rays.mesh.material as StandardMaterial;m.emissiveColor.set(1,0.88,0.62);
+   const glow=new DynamicTexture('sun-glow',128,scene,false),ctx=glow.getContext(),gradient=ctx.createRadialGradient(64,64,0,64,64,64);
+   gradient.addColorStop(0,'rgba(255,255,255,1)');gradient.addColorStop(0.3,'rgba(255,255,255,0.65)');gradient.addColorStop(1,'rgba(255,255,255,0)');ctx.clearRect(0,0,128,128);ctx.fillStyle=gradient;ctx.fillRect(0,0,128,128);glow.hasAlpha=true;glow.update();m.opacityTexture=glow;
+  }
+  const lightDirection=world.sun.direction.normalizeToNew(),lightRight=Vector3.Cross(Vector3.Up(),lightDirection).normalize(),lightUp=Vector3.Cross(lightDirection,lightRight).normalize();
   const forestControls=document.querySelector<HTMLElement>('#forest-controls')!;forestControls.hidden=!forest;
   const weatherSelect=document.querySelector<HTMLSelectElement>('#forest-weather')!;
   weatherSelect.onchange=()=>{if(forest)scene.fogDensity=weatherSelect.value==='mist'?0.023:0.004;};
@@ -148,7 +163,7 @@ try {
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,webGLVersion:renderer.kind==='webgl2'?2:null,
         triangles:scene.getActiveIndices()/3,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
-      errors:[...errors],seed:targets.fixedSeed,sceneVersion:forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,
+      errors:[...errors],seed:targets.fixedSeed,sceneVersion:forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,
     };
   }
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
@@ -226,6 +241,17 @@ try {
         mesh.visibility=fadeOpacity(mesh.visibility,target,dt,blocked?config.travel.fadeOutSeconds:config.travel.fadeInSeconds);
       }
       forest?.update(desired,feet,dt);
+      floor?.update(feet);
+      if(sunlight&&forest){
+       const origin=new Vector3(feet.x,feet.y,feet.z).subtract(lightDirection.scale(60)),texel=56/1024;
+       // Quantize in the light's own plane so the shadow texels stay anchored in the world.
+       for(const axis of [lightRight,lightUp]){const p=Vector3.Dot(origin,axis);origin.addInPlace(axis.scale(Math.round(p/texel)*texel-p));}
+       world.sun.position.copyFrom(origin);
+       const casters=forest.shadowCasters(feet);
+       sunlight.getShadowMap()!.renderList=[...casters,...world.occluders,...world.player.getChildMeshes()];
+       if(rays){rays.exposure=0.14*Math.max(0,Math.min(1,(-Vector3.Dot(camera.getForwardRay().direction,lightDirection)-0.2)/0.3));rays.mesh.position.copyFrom(new Vector3(feet.x,feet.y,feet.z).subtract(lightDirection.scale(160)));rays.getPass().renderList=[rays.mesh,...casters,world.ground,...world.occluders];}
+      }
+
       scene.render();frameCount++;
       if(now-uiTime>400){
         uiTime=now;const s=state();

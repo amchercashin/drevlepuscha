@@ -1,3 +1,4 @@
+import {soilTexture} from './forest-floor.ts';
 import { Scene } from '@babylonjs/core/scene.js';
 import { Mesh } from '@babylonjs/core/Meshes/mesh.js';
 import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData.js';
@@ -42,12 +43,13 @@ export function createWorld(scene: Scene, forestMode=false) {
   scene.fogMode = Scene.FOGMODE_EXP2; scene.fogDensity = forestMode ? 0.004 : 0.023;
   scene.fogColor = new Color3(0.65, 0.73, 0.68);
   const fill = new HemisphericLight('ambient', new Vector3(0, 1, 0), scene);
-  fill.intensity = 0.75; fill.groundColor = new Color3(0.2, 0.26, 0.2);
-  const sun = new DirectionalLight('sun', new Vector3(-0.5, -1, 0.3), scene);
-  sun.intensity = 0.85; sun.diffuse = new Color3(1, 0.94, 0.78);
+  fill.intensity = forestMode ? 0.62 : 0.75; fill.groundColor = new Color3(0.2, 0.26, 0.2);
+  const sun = new DirectionalLight('sun', forestMode?new Vector3(-0.35,-0.65,0.6):new Vector3(-0.5, -1, 0.3), scene);
+  sun.intensity = forestMode ? 1.05 : 0.85; sun.diffuse = new Color3(1, 0.94, 0.78);
 
   // One fixed grid and a continuous height function shared with collision queries.
   const mesh = new Mesh('ground', scene), data = new VertexData();
+  const uvs:number[]=[];
   const pos: number[] = [], indices: number[] = [], normals: number[] = [], colors: number[] = [];
   const bounds=forestMode?FOREST_BOUNDS:BOUNDS,step=forestMode?4:1;
   const north=Array.from({length:(bounds.maxN-bounds.minN)/step+1},(_,i)=>bounds.minN+i*step);
@@ -56,9 +58,10 @@ export function createWorld(scene: Scene, forestMode=false) {
   const path = color('path'), earth = Color3.FromHexString('#63735b');
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
     const e = bounds.minE + i*step, n = north[j];
-    pos.push(e, groundHeight(e, n), -n);
+    pos.push(e, groundHeight(e, n), -n);uvs.push(e/5,n/5);
     const blend = Math.max(0, 1 - Math.max(0, Math.abs(e - pathCentre(n)) - 0.75) / 1.4);
-    const c = Color3.Lerp(earth, path, blend);
+    const soil=forestMode?Color3.Lerp(Color3.FromHexString('#686049'),Color3.FromHexString('#65724a'),0.5+0.3*Math.sin(e*0.31+n*0.17)+0.2*Math.sin(n*0.61-e*0.23)):earth;
+    const c = Color3.Lerp(soil, path, blend);
     const shade = 0.96 + 0.04 * Math.sin(e * 0.72 + n * 0.33);
     colors.push(c.r * shade, c.g * shade, c.b * shade, 1);
     if (i < cols - 1 && j < rows - 1) {
@@ -67,8 +70,9 @@ export function createWorld(scene: Scene, forestMode=false) {
     }
   }
   VertexData.ComputeNormals(pos, indices, normals, { useRightHandedSystem: true });
-  data.positions = pos; data.indices = indices; data.normals = normals; data.colors = colors; data.applyToMesh(mesh);
+  data.uvs=uvs;data.positions = pos; data.indices = indices; data.normals = normals; data.colors = colors; data.applyToMesh(mesh);
   const earthMaterial = material('earth', Color3.White()); earthMaterial.backFaceCulling = false;
+  if(forestMode){earthMaterial.diffuseTexture=soilTexture(scene);mesh.receiveShadows=true;}
   mesh.material = earthMaterial;
 
   function box(id: string, e: number, n: number, width: number, height: number, depth: number, bottom = groundHeight(e, n)) {
@@ -125,5 +129,5 @@ export function createWorld(scene: Scene, forestMode=false) {
   const shadow=CreateCylinder('contact',{height:0.003,diameter:0.65,tessellation:20},scene);
   const shadowMat=material('contact-color',new Color3(0.16,0.22,0.16));shadowMat.alpha=0.3;
   shadow.material=shadowMat;
-  return { boxes, player, shadow, occluders, ground:mesh };
+  return { boxes, player, shadow, occluders, ground:mesh, sun };
 }

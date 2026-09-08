@@ -38,9 +38,23 @@ export async function createForest(scene:Scene){
  const horizon=forestHorizon(placements,templates[2],tones);
  interface ActiveTree {placement:TreePlacement;level:number;instances:InstancedMesh[];fades:Map<number,Mesh[]>;previous:number;transition:number;opacity:number[];}
  const active=new Map<string,ActiveTree>();
- function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix();m.isPickable=false;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
+ function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix();m.isPickable=false;m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
  function instances(t:TreePlacement,level:number){return templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
  function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
+ let shadowCell='',shadowMesh:Mesh|null=null;
+ const shadowMaterial=new StandardMaterial('forest-shadow-only',scene);
+ function shadowCasters(feet:Point3){
+  const e=Math.floor(feet.x/8)*8+4,n=Math.floor(-feet.z/8)*8+4,key=`${e}:${n}`;
+  if(key!==shadowCell){
+   shadowCell=key;shadowMesh?.dispose();const parts:Mesh[]=[];
+   for(const p of placements)if(Math.hypot(p.e-e,p.n-n)<42){
+    for(const template of templates[1]){const m=new Mesh('shadow-part',scene);template.geometry!.applyToMesh(m);m.material=shadowMaterial;transform(m,p);parts.push(m);}
+   }
+   shadowMesh=Mesh.MergeMeshes(parts,true,true,undefined,false,false);
+   if(shadowMesh){shadowMesh.name='forest-shadow-batch';shadowMesh.layerMask=0;shadowMesh.isPickable=false;shadowMesh.freezeWorldMatrix();}
+  }
+  return shadowMesh?[shadowMesh]:[];
+ }
  let lockNear=false,forceSwitch=false;
  function update(camera:Point3,feet:Point3,dt:number){
   horizon.update(camera,feet);
@@ -70,5 +84,5 @@ export async function createForest(scene:Scene){
   }
   forceSwitch=false;
  }
- return {boxes:placements.map(p=>treeCollider(p,data.trunkRadius)),update,stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:selected?.label,colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:materials.length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:templates.length*materials.length+horizon.stats().cells*materials.length,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
+ return {shadowCasters,boxes:placements.map(p=>treeCollider(p,data.trunkRadius)),update,stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:selected?.label,colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:materials.length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:templates.length*materials.length+horizon.stats().cells*materials.length,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
 }
