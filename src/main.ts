@@ -1,4 +1,6 @@
 import './style.css';
+import {FOREST_BOUNDS} from './domain/forest.ts';
+import {createForest} from './runtime/forest.ts';
 import type { AbstractEngine } from '@babylonjs/core/Engines/abstractEngine.js';
 import { createRenderer } from './runtime/engine.ts';
 import { Scene } from '@babylonjs/core/scene.js';
@@ -38,7 +40,13 @@ try {
   const camera=new FreeCamera('travel',new Vector3(0,2,5),scene);
   camera.inputs.clear();camera.minZ=config.travel.nearClipM;camera.maxZ=100;
   camera.fov=config.travel.fovVerticalDeg*Math.PI/180;scene.activeCamera=camera;
-  const world=createWorld(scene), instrumentation=new SceneInstrumentation(scene);
+  const forestMode=new URLSearchParams(location.search).get('scene')==='m1';
+  const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
+  const forest=forestMode?await createForest(scene):null;
+  if(forest){camera.maxZ=140;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent='M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
+  if(forest){document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
+  const forestControls=document.querySelector<HTMLElement>('#forest-controls')!;forestControls.hidden=!forest;
+  document.querySelector<HTMLInputElement>('#near-only')!.onchange=e=>forest?.setNearOnly((e.target as HTMLInputElement).checked);
   const player={e:0,n:0,heading:0};
   let yaw=0,yawTarget=0,pitch=config.travel.pitchDefaultDeg,distance=config.travel.distanceM;
   let frameCount=0,previousTime=performance.now(),uiTime=0;
@@ -55,6 +63,7 @@ try {
   }
   function focusScene() {setPaused(false);canvas.focus({preventScroll:true});}
   function reset(checkpoint:keyof typeof CHECKPOINTS='entrance') {
+    if(checkpoint==='outer'&&!forest)return;
     const c=CHECKPOINTS[checkpoint];player.e=c.e;player.n=c.n;player.heading=0;
     yaw=yawTarget=0;pitch=config.travel.pitchDefaultDeg;distance=config.travel.distanceM;
     keys.clear();demo=false;
@@ -121,11 +130,11 @@ try {
       ready:frameCount>2,frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},
       camera:{...pos,yaw,pitch,distance,currentDistance,followError},
       playerClear:walkerIsClear(player,world.boxes),
-      faded:[...world.occluders,world.ground].filter(m=>m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
+      faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,webGLVersion:renderer.kind==='webgl2'?2:null,
         triangles:scene.getActiveIndices()/3,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr:1},
-      errors:[...errors],seed:targets.fixedSeed,sceneVersion:'m0-4',demo,
+      errors:[...errors],seed:targets.fixedSeed,sceneVersion:forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,
     };
   }
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
@@ -134,7 +143,7 @@ try {
       state,reset,preset,setPaused,
       obstacles:()=>world.boxes.map(box=>({...box,min:{...box.min},max:{...box.max}})),
       teleport:(e:number,n:number,heading=0)=>{
-        if(![e,n,heading].every(Number.isFinite)||e<-23||e>23||n<-11||n>63)throw new Error('Outside harness');
+        if(![e,n,heading].every(Number.isFinite)||e<(forest?FOREST_BOUNDS.minE+1:-23)||e>(forest?FOREST_BOUNDS.maxE-1:23)||n<(forest?FOREST_BOUNDS.minN+1:-11)||n>(forest?FOREST_BOUNDS.maxN-1:63))throw new Error('Outside harness');
         if(!walkerIsClear({e,n},world.boxes))throw new Error('Position intersects obstacle');
         player.e=e;player.n=n;player.heading=heading;keys.clear();
       },
@@ -145,7 +154,7 @@ try {
       },
       beginMeasurement:()=>{samples.length=0;collect=true;},
       endMeasurement:()=>{collect=false;return [...samples];},
-      startTraversal:()=>{reset();demo=true;demoTime=0;setPaused(false);canvas.focus();},
+      startTraversal:(e=0,n=0)=>{reset();if(![e,n].every(Number.isFinite)||e<(forest?-255:-23)||e>(forest?255:23)||n<(forest?-255:-11)||n>(forest?383:63)||!walkerIsClear({e,n},world.boxes))throw new Error('Invalid traversal start');player.e=e;player.n=n;demo=true;demoTime=0;setPaused(false);canvas.focus();},
       stopTraversal:()=>{demo=false;},
     }});
   }
@@ -171,7 +180,7 @@ try {
           forward*=scale;right*=scale;
           de=forward*Math.sin(a)+right*Math.cos(a);dn=forward*Math.cos(a)-right*Math.sin(a);
         }
-        const before={...player},next=moveWalker(player,de*1.85*dt,dn*1.85*dt,world.boxes);
+        const before={...player},next=moveWalker(player,de*1.85*dt,dn*1.85*dt,world.boxes,forest?FOREST_BOUNDS:undefined);
         player.e=next.e;player.n=next.n;
         const movedE=player.e-before.e,movedN=player.n-before.n;
         if(Math.hypot(movedE,movedN)>0.0001){
@@ -190,6 +199,8 @@ try {
       // Looking up tilts the view from traveller height instead of orbiting below the floor.
       const lookUp=Math.tan(Math.max(0,-pitch)*Math.PI/180)*distance;
       camera.setTarget(new Vector3(anchor.x,anchor.y+lookUp,anchor.z));
+      // Babylon setTarget nudges equal-Z positions by Epsilon at cardinal angles. Keep the chosen orbit exact.
+      camera.position.set(desired.x,desired.y,desired.z);
       const feet={x:player.e,y:h,z:-player.n};
       for(const mesh of [...world.occluders,world.ground]) {
         const bounds=mesh.getBoundingInfo().boundingBox;
@@ -199,12 +210,14 @@ try {
         // Per-mesh visibility preserves shared bark/stone materials on other objects.
         mesh.visibility=fadeOpacity(mesh.visibility,target,dt,blocked?config.travel.fadeOutSeconds:config.travel.fadeInSeconds);
       }
+      forest?.update(desired,feet,dt);
       scene.render();frameCount++;
       if(now-uiTime>400){
         uiTime=now;const s=state();
         document.querySelector('#fps')!.textContent=`${Math.round(engine!.getFps())} FPS`;
         metrics.textContent=`${s.render.width} × ${s.render.height} · ${renderer.kind==='webgpu'?'WebGPU':'WebGL2'}\n${Math.round(s.render.triangles).toLocaleString('ru-RU')} треугольников · ${s.render.drawCalls} вызовов\nКамера ${Vector3.Distance(camera.position,new Vector3(anchor.x,anchor.y,anchor.z)).toFixed(2)} м · наклон ${pitch.toFixed(0)}°${renderer.fallbackReason?'\nWebGPU недоступен — включён WebGL2.':''}`;
-        document.querySelector('#location')!.textContent=player.n<10?'Западный вход':player.n<19?'Между стволами':player.n<30?'Низкая арка':player.n<47?'Подъём к свету':'Верхняя поляна';
+        if(forest)metrics.textContent+=`\nДеревья: ${forest.stats().trees} · LOD ${forest.stats().lodCounts.join(' / ')}`;
+        document.querySelector('#location')!.textContent=forest&&(Math.abs(player.e)>24||player.n<-12||player.n>64)?'Большой лес':player.n<10?'Западный вход':player.n<19?'Между стволами':player.n<30?'Низкая арка':player.n<47?'Подъём к свету':'Верхняя поляна';
       }
     }catch(error){engine!.stopRenderLoop();fail(String(error));}
   });

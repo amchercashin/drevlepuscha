@@ -1,0 +1,1604 @@
+{
+  "date": "2026-09-08T17:57:11.916Z",
+  "scene": "m1-1",
+  "backend": "webgl2",
+  "gpu": {
+    "vendor": "Google Inc. (Apple)",
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+  },
+  "os": "darwin",
+  "arch": "arm64",
+  "ramBytes": 8589934592,
+  "browser": "151.0.7922.109",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "warmupSeconds": 30,
+  "runs": [
+    {
+      "nearOnly": false,
+      "frames": 3605,
+      "elapsedMs": 60070.700000047684,
+      "medianMs": 16.699999928474426,
+      "p95Ms": 17.800000071525574,
+      "p99Ms": 18.199999928474426,
+      "over33ms": 0,
+      "maxTriangles": 207192,
+      "maxDrawCalls": 132,
+      "states": [
+        {
+          "ready": true,
+          "frameCount": 2217,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 9.25777000008822,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -3.8779581960522886,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 189560,
+            "drawCalls": 123,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              42,
+              17,
+              1
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 2517,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 18.51036000004411,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -13.130548196008178,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 168590,
+            "drawCalls": 100,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              50,
+              10,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 2817,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 27.757954999911775,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -22.378143195875843,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 148820,
+            "drawCalls": 80,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              54,
+              6,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 3118,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 37.040514999955825,
+            "heading": 0,
+            "h": 0.8411771154556604
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.9346914149533365,
+            "z": -31.660703195919893,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [
+            {
+              "id": "m1-tree-1-1-lod0-0.source-0-bark",
+              "opacity": 0.8672000002861022
+            },
+            {
+              "id": "m1-tree-1-1-lod0-1.source-0-canopy",
+              "opacity": 0.8672000002861022
+            },
+            {
+              "id": "m1-tree-1-1-lod1-0.source-1-bark",
+              "opacity": 0.13279999971389772
+            },
+            {
+              "id": "m1-tree-1-1-lod1-1.source-1-canopy",
+              "opacity": 0.13279999971389772
+            },
+            {
+              "id": "m1-tree-9-5-lod0-0.source-0-bark",
+              "opacity": 0.9971999998092651
+            },
+            {
+              "id": "m1-tree-9-5-lod0-1.source-0-canopy",
+              "opacity": 0.9971999998092651
+            },
+            {
+              "id": "m1-tree-9-5-lod1-0.source-1-bark",
+              "opacity": 0.002800000190734897
+            },
+            {
+              "id": "m1-tree-9-5-lod1-1.source-1-canopy",
+              "opacity": 0.002800000190734897
+            }
+          ],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 120542,
+            "drawCalls": 59,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              51,
+              9,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 2,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 3418,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 46.28884999999979,
+            "heading": 0,
+            "h": 3.179104010822522
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 5.2726183103201985,
+            "z": -40.90903819596386,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [
+            {
+              "id": "m1-tree-3-5-lod0-0.source-0-bark",
+              "opacity": 0.6055999999046325
+            },
+            {
+              "id": "m1-tree-3-5-lod0-1.source-0-canopy",
+              "opacity": 0.6055999999046325
+            },
+            {
+              "id": "m1-tree-3-5-lod1-0.source-1-bark",
+              "opacity": 0.39440000009536746
+            },
+            {
+              "id": "m1-tree-3-5-lod1-1.source-1-canopy",
+              "opacity": 0.39440000009536746
+            }
+          ],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 80520,
+            "drawCalls": 37,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              39,
+              21,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 1,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 3719,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 49.83603999995565,
+            "heading": 289.06639777309033,
+            "h": 3.2
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 5.2935142994976765,
+            "z": -44.45622819591972,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 70884,
+            "drawCalls": 33,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              36,
+              24,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 4019,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 40.58807499999985,
+            "heading": 180.00000000000023,
+            "h": 1.945741229354125
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 4.039255528851801,
+            "z": -35.208263195963916,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 106974,
+            "drawCalls": 51,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              39,
+              21,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 4320,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 31.30662499999989,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -25.92681319596396,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [
+            {
+              "id": "m1-tree-1-1-lod0-0.source-0-bark",
+              "opacity": 0.3995999999046326
+            },
+            {
+              "id": "m1-tree-1-1-lod0-1.source-0-canopy",
+              "opacity": 0.3995999999046326
+            },
+            {
+              "id": "m1-tree-1-1-lod1-0.source-1-bark",
+              "opacity": 0.6004000000953674
+            },
+            {
+              "id": "m1-tree-1-1-lod1-1.source-1-canopy",
+              "opacity": 0.6004000000953674
+            }
+          ],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 138570,
+            "drawCalls": 67,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              52,
+              8,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 1,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 4620,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 22.05643999995576,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -16.67662819591983,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 170444,
+            "drawCalls": 91,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              54,
+              6,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 4920,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 12.808474999999875,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -7.428663195963944,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 197348,
+            "drawCalls": 113,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              50,
+              10,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 5220,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 3.5582899999557496,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": 1.8215218040801817,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 207192,
+            "drawCalls": 131,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              42,
+              18,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 5521,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0.13227499999985762,
+            "heading": 280.95977894572957,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": 5.2475368040360735,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 194320,
+            "drawCalls": 132,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              38,
+              21,
+              1
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        }
+      ]
+    },
+    {
+      "nearOnly": true,
+      "frames": 3607,
+      "elapsedMs": 60107,
+      "medianMs": 16.699999928474426,
+      "p95Ms": 17.799999952316284,
+      "p99Ms": 18.300000071525574,
+      "over33ms": 0,
+      "maxTriangles": 273420,
+      "maxDrawCalls": 132,
+      "states": [
+        {
+          "ready": true,
+          "frameCount": 5917,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 9.23390500013233,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -3.8540931960963984,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 254460,
+            "drawCalls": 123,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 6218,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 18.51424500008825,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -13.134433196052317,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 204090,
+            "drawCalls": 100,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 6518,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 27.764430000132382,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -22.38461819609645,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 163020,
+            "drawCalls": 80,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 6818,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 37.01480000000006,
+            "heading": 0,
+            "h": 0.8338425164955812
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.9273568159932575,
+            "z": -31.634988195964127,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 119274,
+            "drawCalls": 57,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 7119,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 46.29532499999993,
+            "heading": 0,
+            "h": 3.1794766961728906
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 5.2729909956705665,
+            "z": -40.915513195963996,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 80520,
+            "drawCalls": 37,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 7419,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 49.869154999911665,
+            "heading": 308.2468407137487,
+            "h": 3.2
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 5.2935142994976765,
+            "z": -44.48934319587573,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 70884,
+            "drawCalls": 33,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 7720,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 40.58844500008814,
+            "heading": 180.00000000000023,
+            "h": 1.9458571365411637
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 4.03937143603884,
+            "z": -35.20863319605221,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 106974,
+            "drawCalls": 51,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 8020,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 31.339370000088223,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -25.959558196052292,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 138570,
+            "drawCalls": 67,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 8320,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 22.08770499991178,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -16.707893195875847,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 184644,
+            "drawCalls": 91,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 8621,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 12.806810000044091,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -7.42699819600816,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 232848,
+            "drawCalls": 113,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 8922,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 3.526099999999958,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": 1.8537118040359735,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 271092,
+            "drawCalls": 131,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 9223,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0.16483499982352998,
+            "heading": 293.5827473628492,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": 5.214976804212402,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgl2",
+            "webGLVersion": 2,
+            "triangles": 273420,
+            "drawCalls": 132,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "Google Inc. (Apple)",
+              "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "note": "Preliminary 60-second runs in visible hardware Chrome. Full-scene frame intervals, not isolated GPU time. Not a 30-minute thermal/streaming acceptance or a Windows playtest."
+}

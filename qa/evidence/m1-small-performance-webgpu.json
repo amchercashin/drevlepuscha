@@ -1,0 +1,1609 @@
+{
+  "date": "2026-09-08T17:54:33.652Z",
+  "scene": "m1-1",
+  "backend": "webgpu",
+  "gpu": {
+    "vendor": "apple",
+    "renderer": "metal-3",
+    "version": "unknown version"
+  },
+  "os": "darwin",
+  "arch": "arm64",
+  "ramBytes": 8589934592,
+  "browser": "151.0.7922.109",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "warmupSeconds": 30,
+  "runs": [
+    {
+      "nearOnly": false,
+      "frames": 3607,
+      "elapsedMs": 60103.5,
+      "medianMs": 16.699999928474426,
+      "p95Ms": 17.899999976158142,
+      "p99Ms": 18.5,
+      "over33ms": 0,
+      "maxTriangles": 207192,
+      "maxDrawCalls": 132,
+      "states": [
+        {
+          "ready": true,
+          "frameCount": 2213,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 9.25536500017643,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -3.8755531961404994,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 189560,
+            "drawCalls": 123,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              42,
+              17,
+              1
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 2513,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 18.507030000132353,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -13.127218196096422,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 168590,
+            "drawCalls": 100,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              50,
+              10,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 2814,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 27.788110000044163,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -22.408298196008232,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 148820,
+            "drawCalls": 80,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              54,
+              6,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 3114,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 37.03663000013236,
+            "heading": 0,
+            "h": 0.840067819231993
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.933582118729669,
+            "z": -31.65681819609643,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [
+            {
+              "id": "m1-tree-1-1-lod0-0.source-0-bark",
+              "opacity": 0.8664000000953674
+            },
+            {
+              "id": "m1-tree-1-1-lod0-1.source-0-canopy",
+              "opacity": 0.8664000000953674
+            },
+            {
+              "id": "m1-tree-1-1-lod1-0.source-1-bark",
+              "opacity": 0.13359999990463256
+            },
+            {
+              "id": "m1-tree-1-1-lod1-1.source-1-canopy",
+              "opacity": 0.13359999990463256
+            },
+            {
+              "id": "m1-tree-9-5-lod0-0.source-0-bark",
+              "opacity": 0.9975999999046328
+            },
+            {
+              "id": "m1-tree-9-5-lod0-1.source-0-canopy",
+              "opacity": 0.9975999999046328
+            },
+            {
+              "id": "m1-tree-9-5-lod1-0.source-1-bark",
+              "opacity": 0.0024000000953672274
+            },
+            {
+              "id": "m1-tree-9-5-lod1-1.source-1-canopy",
+              "opacity": 0.0024000000953672274
+            }
+          ],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 120542,
+            "drawCalls": 59,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              51,
+              9,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 2,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 3414,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 46.28607500000002,
+            "heading": 0,
+            "h": 3.1789432969962887
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 5.272457596493965,
+            "z": -40.90626319596409,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [
+            {
+              "id": "m1-tree-3-5-lod0-0.source-0-bark",
+              "opacity": 0.6036000003814697
+            },
+            {
+              "id": "m1-tree-3-5-lod0-1.source-0-canopy",
+              "opacity": 0.6036000003814697
+            },
+            {
+              "id": "m1-tree-3-5-lod1-0.source-1-bark",
+              "opacity": 0.39639999961853034
+            },
+            {
+              "id": "m1-tree-3-5-lod1-1.source-1-canopy",
+              "opacity": 0.39639999961853034
+            }
+          ],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 80520,
+            "drawCalls": 37,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              39,
+              21,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 1,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 3715,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 49.83345000022053,
+            "heading": 288.7396889399813,
+            "h": 3.2
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 5.2935142994976765,
+            "z": -44.4536381961846,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 70884,
+            "drawCalls": 33,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              36,
+              24,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 4016,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 40.5538500002206,
+            "heading": 180.00000000000023,
+            "h": 1.9350125642212497
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 4.028526863718926,
+            "z": -35.17403819618467,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 106974,
+            "drawCalls": 51,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              39,
+              21,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 4316,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 31.303665000176597,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -25.923853196140666,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [
+            {
+              "id": "m1-tree-1-1-lod0-0.source-0-bark",
+              "opacity": 0.4004000000953674
+            },
+            {
+              "id": "m1-tree-1-1-lod0-1.source-0-canopy",
+              "opacity": 0.4004000000953674
+            },
+            {
+              "id": "m1-tree-1-1-lod1-0.source-1-bark",
+              "opacity": 0.5995999999046326
+            },
+            {
+              "id": "m1-tree-1-1-lod1-1.source-1-canopy",
+              "opacity": 0.5995999999046326
+            }
+          ],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 138570,
+            "drawCalls": 67,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              52,
+              8,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 1,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 4617,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 22.022585000264783,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -16.642773196228852,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 170444,
+            "drawCalls": 91,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              54,
+              6,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 4917,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 12.773325000220664,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -7.393513196184733,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 197348,
+            "drawCalls": 113,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              50,
+              10,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 5218,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 3.4922450000883316,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": 1.8875668039475997,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 207192,
+            "drawCalls": 131,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              42,
+              18,
+              0
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 5518,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0.1613200000883333,
+            "heading": 293.914004792342,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": 5.218491803947598,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 194320,
+            "drawCalls": 132,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              38,
+              21,
+              1
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        }
+      ]
+    },
+    {
+      "nearOnly": true,
+      "frames": 3621,
+      "elapsedMs": 60380.300000071526,
+      "medianMs": 16.699999928474426,
+      "p95Ms": 17.799999952316284,
+      "p99Ms": 18.100000023841858,
+      "over33ms": 1,
+      "maxTriangles": 273420,
+      "maxDrawCalls": 132,
+      "states": [
+        {
+          "ready": true,
+          "frameCount": 5920,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 9.250555000132335,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -3.870743196096404,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 254460,
+            "drawCalls": 123,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 6221,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 18.525530000132328,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -13.145718196096396,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 204090,
+            "drawCalls": 100,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 6534,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 28.176610000044114,
+            "heading": 0,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -22.796798196008183,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 160518,
+            "drawCalls": 78,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 6837,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 37.54482500022045,
+            "heading": 0,
+            "h": 0.9885170430149568
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 3.082031342512633,
+            "z": -32.16501319618452,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 114282,
+            "drawCalls": 54,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 7137,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 46.795010000043945,
+            "heading": 0,
+            "h": 3.198223442702149
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 5.2917377421998255,
+            "z": -41.415198196008014,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 80520,
+            "drawCalls": 37,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 7438,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 49.354670000308566,
+            "heading": 187.6519219483838,
+            "h": 3.2
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 5.2935142994976765,
+            "z": -43.974858196272635,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 70884,
+            "drawCalls": 33,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 7738,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 40.10596500017627,
+            "heading": 180.00000000000023,
+            "h": 1.793486861882983
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 3.8870011613806588,
+            "z": -34.72615319614034,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 0
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 106974,
+            "drawCalls": 51,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 8039,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 30.823590000176313,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -25.443778196140382,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [
+            {
+              "id": "arch-lintel",
+              "opacity": 0.5366676300861357
+            }
+          ],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 141060,
+            "drawCalls": 68,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 8340,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 21.543805000132224,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -16.163993196096293,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 189300,
+            "drawCalls": 93,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 8640,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 12.293065000176334,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": -6.913253196140403,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 235176,
+            "drawCalls": 114,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 8940,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 3.041215000176314,
+            "heading": 180.00000000000023,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": 2.3385968038596174,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 271092,
+            "drawCalls": 131,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        },
+        {
+          "ready": true,
+          "frameCount": 9240,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0.6406550003527451,
+            "heading": 354.5861696788986,
+            "h": 0
+          },
+          "camera": {
+            "x": 6.588369305827751e-16,
+            "y": 2.0935142994976763,
+            "z": 4.739156803683186,
+            "yaw": 0,
+            "pitch": 12,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16
+          },
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 273420,
+            "drawCalls": 132,
+            "meshes": 388,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "m1-1",
+          "demo": true,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "trees": 60,
+            "trianglesPerLevel": [
+              4818,
+              1268,
+              268
+            ],
+            "materialsPerTree": 2,
+            "lodCounts": [
+              60,
+              0,
+              0
+            ],
+            "lockNear": true,
+            "transitions": 0,
+            "geometryBuffers": 6
+          }
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "note": "Preliminary 60-second runs in visible hardware Chrome. Full-scene frame intervals, not isolated GPU time. Not a 30-minute thermal/streaming acceptance or a Windows playtest."
+}

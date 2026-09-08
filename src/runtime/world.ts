@@ -11,6 +11,7 @@ import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight.js';
 import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode.js';
 import { groundHeight, pathCentre, BOUNDS } from '../domain/harness.ts';
+import {FOREST_BOUNDS} from '../domain/forest.ts';
 import type { Box } from '../domain/harness.ts';
 import { createRandom, seedFor } from '../domain/seed.ts';
 import palette from '../../config/art-palette.json';
@@ -21,9 +22,10 @@ export const CHECKPOINTS = {
   trunks: { e: 0, n: 10, label: 'Узкий проход' },
   arch: { e: 0, n: 21, label: 'Низкая арка' },
   slope: { e: 0, n: 34, label: 'Подъём' },
+  outer: { e: 0, n: 160, label: 'Большой лес' },
 };
 
-export function createWorld(scene: Scene) {
+export function createWorld(scene: Scene, forestMode=false) {
   const boxes: Box[] = [];
   const color = (id: string) => Color3.FromHexString(palette.colors.find(c => c.id === id)!.hex);
   function material(name: string, c: Color3): StandardMaterial {
@@ -47,10 +49,13 @@ export function createWorld(scene: Scene) {
   // One fixed grid and a continuous height function shared with collision queries.
   const mesh = new Mesh('ground', scene), data = new VertexData();
   const pos: number[] = [], indices: number[] = [], normals: number[] = [], colors: number[] = [];
-  const cols = BOUNDS.maxE - BOUNDS.minE + 1, rows = BOUNDS.maxN - BOUNDS.minN + 1;
+  const bounds=forestMode?FOREST_BOUNDS:BOUNDS,step=forestMode?4:1;
+  const north=Array.from({length:(bounds.maxN-bounds.minN)/step+1},(_,i)=>bounds.minN+i*step);
+  if(forestMode)for(let n=28;n<=52;n++)if(!north.includes(n))north.push(n);north.sort((a,b)=>a-b);
+  const cols = (bounds.maxE - bounds.minE)/step + 1, rows = north.length;
   const path = color('path'), earth = Color3.FromHexString('#63735b');
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
-    const e = BOUNDS.minE + i, n = BOUNDS.minN + j;
+    const e = bounds.minE + i*step, n = north[j];
     pos.push(e, groundHeight(e, n), -n);
     const blend = Math.max(0, 1 - Math.max(0, Math.abs(e - pathCentre(n)) - 0.75) / 1.4);
     const c = Color3.Lerp(earth, path, blend);
@@ -84,14 +89,18 @@ export function createWorld(scene: Scene) {
     }
   }
   // Purposeful test obstacles, separate from seeded background trees.
+  if(!forestMode){
   tree('narrow-left',-1,14,0.55,10);
   tree('narrow-right',1,14,0.55,12);
   tree('camera-trunk',-2.8,5,0.9,14);
   tree('canopy-probe',3.6,7,1,15);
+  }
   const rng=createRandom(seedFor(targets.fixedSeed,'m0-trees'));
+  if(!forestMode){
   for(let i=0;i<26;i++) {
     const n=-7+i*2.5,e=(i%2?-1:1)*(5+rng()*12);
     tree(`forest-${i}`,e,n,0.35+rng()*0.5,7+rng()*7);
+  }
   }
   box('arch-left',-1.65,25,0.65,2.4,1.1);
   box('arch-right',1.65,25,0.65,2.4,1.1);

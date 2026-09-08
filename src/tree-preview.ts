@@ -16,6 +16,7 @@ import { createReferenceTree, TREE_VERSION } from './domain/reference-tree.ts';
 import { Texture } from '@babylonjs/core/Materials/Textures/texture.js';
 import barkURL from '../assets/trees/bark.png';
 import canopyURL from '../assets/trees/canopy.png';
+import gameURL from '../assets/trees/game/tree.json?url';
 import { treeGLB } from './domain/tree-glb.ts';
 
 try {
@@ -29,7 +30,11 @@ try {
   camera.attachControl(canvas,true);scene.activeCamera=camera;
   const ambient=new HemisphericLight('sky',new Vector3(0,1,0),scene);ambient.intensity=0.85;ambient.groundColor=new Color3(0.5,0.54,0.48);
   const sun=new DirectionalLight('soft daylight',new Vector3(-0.5,-0.8,-0.5),scene);sun.intensity=0.6;sun.diffuse=new Color3(1,0.96,0.87);
-  const parts=createReferenceTree(),meshes:Mesh[]=[];
+  const params=new URLSearchParams(location.search),game=params.get('model')==='game';
+  const lod=Math.max(0,Math.min(2,Number(params.get('lod'))||0));
+  const parts=game?(await (await fetch(gameURL)).json()).levels[lod] as ReturnType<typeof createReferenceTree>:createReferenceTree(),meshes:Mesh[]=[];
+  const version=game?`game-tree-v1-lod${lod}`:TREE_VERSION;
+  if(game){document.querySelector('.intro')!.textContent=`Игровое дерево · уровень ${lod}. Общая геометрия для вариаций леса.`;document.querySelector<HTMLElement>('#lod-links')!.hidden=false;const back=document.querySelector<HTMLAnchorElement>('aside > a')!;back.href='./?scene=m1';back.textContent='Вернуться в лес M1';}
   const barkTexture=new Texture(barkURL,scene,false,false),canopyTexture=new Texture(canopyURL,scene,false,false);
   const textureBytes={bark:new Uint8Array(await (await fetch(barkURL)).arrayBuffer()),canopy:new Uint8Array(await (await fetch(canopyURL)).arrayBuffer())};
   parts.forEach(p=>{
@@ -59,12 +64,12 @@ try {
   document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(b=>b.onclick=()=>preset(b.dataset.view!));preset('front');
   document.querySelector<HTMLInputElement>('#wireframe')!.onchange=e=>meshes.forEach(m=>(m.material as StandardMaterial).wireframe=(e.target as HTMLInputElement).checked);
   const download=document.querySelector<HTMLButtonElement>('#download')!;download.disabled=false;
-  download.onclick=()=>{const url=URL.createObjectURL(new Blob([treeGLB(parts,textureBytes)],{type:'model/gltf-binary'}));const a=document.createElement('a');a.href=url;a.download=`${TREE_VERSION}.glb`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  download.onclick=()=>{const url=URL.createObjectURL(new Blob([treeGLB(parts,textureBytes,version)],{type:'model/gltf-binary'}));const a=document.createElement('a');a.href=url;a.download=`${version}.glb`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   function resize(){const scale=Math.min(1,1280/canvas.clientWidth,720/canvas.clientHeight);engine.setSize(Math.round(canvas.clientWidth*scale),Math.round(canvas.clientHeight*scale));}resize();window.addEventListener('resize',resize);
   const triangles=parts.reduce((s,p)=>s+p.indices.length/3,0),vertices=parts.reduce((s,p)=>s+p.positions.length/3,0);
   document.querySelector('#tree-stats')!.textContent=`${triangles.toLocaleString('ru-RU')} треугольников\n${parts.length} материалов · ${renderer.kind==='webgpu'?'WebGPU':'WebGL2'}\nНастоящая объёмная геометрия`;
   let frames=0;const times:number[]=[];let last=performance.now();
   engine.runRenderLoop(()=>{scene.render();frames++;const now=performance.now();if(frames>60){times.push(now-last);if(times.length>3600)times.shift();}last=now;});
-  if(new URLSearchParams(location.search).has('debug'))Object.defineProperty(window,'treePreview',{value:{preset,stats:()=>({version:TREE_VERSION,triangles,vertices,materials:parts.length,renderer:renderer.kind,frames,camera:camera.position.asArray(),frameTimes:[...times]}),orbit:(angle:number)=>{camera.alpha=angle;},exportGLB:()=>Array.from(new Uint8Array(treeGLB(parts,textureBytes)))}});
+  if(new URLSearchParams(location.search).has('debug'))Object.defineProperty(window,'treePreview',{value:{preset,stats:()=>({version:TREE_VERSION,triangles,vertices,materials:parts.length,renderer:renderer.kind,frames,camera:camera.position.asArray(),frameTimes:[...times]}),orbit:(angle:number)=>{camera.alpha=angle;},exportGLB:()=>Array.from(new Uint8Array(treeGLB(parts,textureBytes,version)))}});
   window.addEventListener('pagehide',()=>{scene.dispose();engine.dispose();},{once:true});
 } catch(error){const el=document.querySelector<HTMLElement>('#error')!;el.hidden=false;el.textContent=`Не удалось открыть дерево: ${String(error)}\nПопробуйте добавить ?renderer=webgl2 к адресу.`;console.error(error);}

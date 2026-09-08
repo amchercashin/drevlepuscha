@@ -1,0 +1,21 @@
+import {test,expect} from '@playwright/test';
+test('M1 field varies the large shared forest, changes LOD and preserves camera and movement',async({page},info)=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.goto(`/?scene=m1&debug=1&renderer=${info.project.name}`);await page.waitForFunction(()=>window.m0?.state().ready);
+ await page.getByRole('button',{name:'Начать прогулку'}).click();
+ const initial=await page.evaluate(()=>window.m0.state());expect(initial.forest.trees).toBe(4967);expect(initial.forest.trianglesPerLevel).toEqual([4818,1268,268]);expect(initial.forest.geometryBuffers).toBe(6);
+ await page.locator('#diagnostics').evaluate(e=>e.open=true);await page.getByLabel('Все деревья без LOD — сравнение нагрузки').check();
+ await expect.poll(()=>page.evaluate(()=>window.m0.state().forest.lodCounts.slice(1))).toEqual([0,0]);
+ await page.getByLabel('Все деревья без LOD — сравнение нагрузки').uncheck();await page.locator('#world').focus();
+ await page.evaluate(()=>{window.m0.teleport(0,14);window.m0.setCamera(160,12,5.5);});await page.waitForTimeout(650);
+ const orbit=await page.evaluate(()=>window.m0.state());expect(orbit.camera.followError).toBeLessThan(1e-5);expect(orbit.playerClear).toBe(true);
+ await page.evaluate(()=>window.m0.setCamera(0,12,5.5));await page.waitForTimeout(650);await page.keyboard.down('KeyW');await page.waitForTimeout(1200);await page.keyboard.up('KeyW');
+ const moved=await page.evaluate(()=>window.m0.state());expect(moved.player.n).toBeGreaterThan(15.5);expect(moved.playerClear).toBe(true);expect(moved.camera.followError).toBeLessThan(1e-5);expect(moved.errors).toEqual([]);expect(errors).toEqual([]);
+ await page.evaluate(()=>{window.m0.teleport(0,5);window.m0.setCamera(90,12,5.5);});
+ await expect.poll(()=>page.evaluate(()=>window.m0.state().faded.some(m=>m.id.startsWith('camera-trunk-lod0-')))).toBe(true);
+ await page.evaluate(()=>{window.m0.teleport(0,160);window.m0.setCamera(0,12,5.5);});await page.waitForTimeout(700);
+ const distant=await page.evaluate(()=>window.m0.state());expect(distant.player.n).toBe(160);expect(distant.forest.activeTrees).toBeGreaterThan(1000);expect(distant.forest.activeTrees).toBeLessThan(distant.forest.trees);expect(distant.forest.lodCounts[0]).toBeGreaterThan(0);
+ await page.keyboard.down('KeyW');await page.waitForTimeout(1000);await page.keyboard.up('KeyW');expect((await page.evaluate(()=>window.m0.state())).player.n).toBeGreaterThan(161);
+ await page.evaluate(()=>window.m0.setCamera(90,-20,5.5));await page.waitForTimeout(5000);
+ const blocked=await page.evaluate(()=>window.m0.state());expect(blocked.camera.followError).toBeLessThan(1e-5);
+});

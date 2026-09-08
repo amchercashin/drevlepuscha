@@ -36,7 +36,7 @@ export function segmentBoxFraction(start: Point3, end: Point3, box: Box, radius:
 /** Sample the near surface of the head and torso, without inflating the obstacle.
  * Endpoints face the camera so a touching wall behind the player cannot count as a blocker.
  * Feet and limbs alone are deliberately not sufficient reason to fade an object. */
-export function occludesTraveller(camera: Point3, feet: Point3, box: Box, alreadyFaded = false): boolean {
+export function occludesTraveller(camera: Point3, feet: Point3, box: Box, alreadyFaded = false, preciseHit?: (start:Point3,end:Point3)=>boolean): boolean {
   const length=Math.hypot(camera.x-feet.x,camera.z-feet.z)||1;
   const towardX=(camera.x-feet.x)/length,towardZ=(camera.z-feet.z)/length;
   let head=0,body=0;
@@ -45,7 +45,7 @@ export function occludesTraveller(camera: Point3, feet: Point3, box: Box, alread
     for(const side of [-width,0,width]) {
       const target={x:feet.x+towardX*0.15+towardZ*side,y:feet.y+height,z:feet.z+towardZ*0.15-towardX*side};
       const hit=segmentBoxFraction(camera,target,box,0);
-      if(hit!==null&&hit<1-1e-6){if(height===0.95)head++;else body++;}
+      if(hit!==null&&hit<1-1e-6&&(!preciseHit||preciseHit(camera,target))){if(height===0.95)head++;else body++;}
     }
   }
   // Small hysteresis prevents flicker at the edge; a clear head always restores opacity.
@@ -78,14 +78,14 @@ export function walkerIsClear(p: Walker, boxes: readonly Box[]): boolean {
 }
 
 /** Substeps prevent tunnelling; separated axes permit wall sliding. */
-export function moveWalker(p: Walker, de: number, dn: number, boxes: readonly Box[]): Walker {
+export function moveWalker(p: Walker, de: number, dn: number, boxes: readonly Box[], bounds=BOUNDS): Walker {
   if (![p.e, p.n, de, dn].every(Number.isFinite)) throw new RangeError('Finite movement required');
   const steps = Math.max(1, Math.ceil(Math.hypot(de, dn) / 0.06));
   const next = { ...p };
   for (let i = 0; i < steps; i++) {
-    const e = clamp(next.e + de / steps, BOUNDS.minE + 1, BOUNDS.maxE - 1);
+    const e = clamp(next.e + de / steps, bounds.minE + 1, bounds.maxE - 1);
     if (walkerIsClear({ e, n: next.n }, boxes)) next.e = e;
-    const n = clamp(next.n + dn / steps, BOUNDS.minN + 1, BOUNDS.maxN - 1);
+    const n = clamp(next.n + dn / steps, bounds.minN + 1, bounds.maxN - 1);
     if (walkerIsClear({ e: next.e, n }, boxes)) next.n = n;
   }
   return next;
