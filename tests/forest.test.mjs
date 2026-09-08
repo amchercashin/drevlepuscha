@@ -1,14 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createHash} from 'node:crypto';
+import {treeSourceHash} from '../tools/tree-source-hash.mjs';
 import {forestPlacements,treeCollider,treeLevel} from '../src/domain/forest.ts';
 import {walkerIsClear,occludesTraveller} from '../src/domain/harness.ts';
 import {treeGLB} from '../src/domain/tree-glb.ts';
-import {createReferenceTree} from '../src/domain/reference-tree.ts';
 const data=JSON.parse(readFileSync('assets/trees/game/tree.json','utf8'));
 test('game tree derives from current source and meets all three budgets with two materials',()=>{
- assert.equal(data.sourceHash,createHash('sha256').update(JSON.stringify(createReferenceTree())).digest('hex'));
+ assert.equal(data.sourceHash,treeSourceHash());
  data.levels.forEach((parts,l)=>{assert.equal(parts.length,2);const total=parts.reduce((n,p)=>n+p.indices.length/3,0);assert.equal(total,data.triangles[l]);assert.ok(total<=[5000,1500,300][l]);for(const p of parts){const n=p.positions.length/3;assert.ok(p.positions.every(Number.isFinite));assert.equal(p.normals.length,n*3);assert.equal(p.uvs.length,n*2);assert.equal(p.colors.length,n*4);assert.ok(p.indices.every(i=>Number.isInteger(i)&&i>=0&&i<n));for(let i=0;i<n;i++)assert.ok(Math.abs(Math.hypot(...p.normals.slice(i*3,i*3+3))-1)<1e-5);}});
 });
 test('seeded large tree field is stable, varies shape, and leaves the centre route walkable',()=>{

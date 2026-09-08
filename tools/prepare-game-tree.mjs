@@ -1,6 +1,6 @@
 /** Reproducible build-time cache. One authored source, no runtime decimation or new dependency. */
 import {readFileSync,writeFileSync} from 'node:fs';
-import {createHash} from 'node:crypto';
+import {treeSourceHash} from './tree-source-hash.mjs';
 import {NullEngine} from '@babylonjs/core/Engines/nullEngine.js';
 import {Scene} from '@babylonjs/core/scene.js';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
@@ -21,7 +21,7 @@ const middle=[...(await simplify([near[0]],0.24)),canopyProxy(canopy,14,8,4)];
 const far=[...(await simplify([near[0]],0.05)),canopyProxy(canopy,6,6,3)];
 const levels=[near,middle,far];
 if(count(near)>5000||count(middle)>1500||count(far)>300)throw new Error('Tree exceeds its budget');
-const cache={version:'game-tree-v1',algorithm:'babylon-9.25.0-qem-crown-clusters-v2',sourceHash:createHash('sha256').update(JSON.stringify(source)).digest('hex'),triangles:levels.map(count),levels};
+const cache={version:'game-tree-v1',algorithm:'babylon-9.25.0-qem-crown-clusters-v2',sourceHash:treeSourceHash(),triangles:levels.map(count),levels};
 writeFileSync('assets/trees/game/tree.json',JSON.stringify(cache));
 const textures=Object.fromEntries(['bark','canopy'].map(n=>[n,new Uint8Array(readFileSync(`assets/trees/${n}.png`))]));
 writeFileSync('assets/trees/game/tree.glb',new Uint8Array(treeGLB(near,textures,cache.version)));
