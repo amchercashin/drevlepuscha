@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "version": {
-      "const": 3
+      "const": 4
     },
     "status": {
       "const": "proposed-not-visually-approved"
@@ -60,10 +60,6 @@
           "type": "number",
           "exclusiveMinimum": 0
         },
-        "occlusionMarginM": {
-          "type": "number",
-          "exclusiveMinimum": 0
-        },
         "occluderOpacity": {
           "type": "number",
           "exclusiveMinimum": 0,
@@ -89,7 +85,6 @@
         "pitchMaxDeg",
         "yawUnlimited",
         "nearClipM",
-        "occlusionMarginM",
         "occluderOpacity",
         "fadeOutSeconds",
         "fadeInSeconds"

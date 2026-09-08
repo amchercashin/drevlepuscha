@@ -33,10 +33,23 @@ export function segmentBoxFraction(start: Point3, end: Point3, box: Box, radius:
   return enter;
 }
 
-/** Fade every obstacle intersecting a padded view of the traveller, including the camera inside it. */
-export function occludesTraveller(camera: Point3, feet: Point3, box: Box, margin: number): boolean {
-  return [0.2, 0.6, 1.05].some(height =>
-    segmentBoxFraction(camera, {x:feet.x,y:feet.y+height,z:feet.z}, box, margin) !== null);
+/** Sample the near surface of the head and torso, without inflating the obstacle.
+ * Endpoints face the camera so a touching wall behind the player cannot count as a blocker.
+ * Feet and limbs alone are deliberately not sufficient reason to fade an object. */
+export function occludesTraveller(camera: Point3, feet: Point3, box: Box, alreadyFaded = false): boolean {
+  const length=Math.hypot(camera.x-feet.x,camera.z-feet.z)||1;
+  const towardX=(camera.x-feet.x)/length,towardZ=(camera.z-feet.z)/length;
+  let head=0,body=0;
+  for(const height of [0.95,0.7,0.45]) {
+    const width=height===0.95?0.09:0.16;
+    for(const side of [-width,0,width]) {
+      const target={x:feet.x+towardX*0.15+towardZ*side,y:feet.y+height,z:feet.z+towardZ*0.15-towardX*side};
+      const hit=segmentBoxFraction(camera,target,box,0);
+      if(hit!==null&&hit<1-1e-6){if(height===0.95)head++;else body++;}
+    }
+  }
+  // Small hysteresis prevents flicker at the edge; a clear head always restores opacity.
+  return alreadyFaded?head>=1&&body>=2:head>=2&&body>=3;
 }
 
 /** Terrain is one synthetic mesh in M0; sample its actual height, not its very broad AABB. */

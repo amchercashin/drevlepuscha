@@ -148,3 +148,28 @@ test('only the occluding trunk fades and it returns when the camera is turned aw
   expect(s.faded.some(m=>m.id==='camera-trunk')).toBe(false);
   expect(s.camera.currentDistance).toBeCloseTo(5.5,6);
 });
+
+
+test('touching the front of the wall does not fade the wall behind the traveller',async({page})=>{
+  await start(page);
+  await page.evaluate(()=>{window.m0.teleport(-4.43,19);window.m0.setCamera(270,12,5.5);});
+  await page.waitForTimeout(2000);
+  const s=await page.evaluate(()=>window.m0.state());
+  expect(s.playerClear).toBe(true);expect(s.faded.some(m=>m.id==='wall')).toBe(false);
+  expect(s.camera.currentDistance).toBeCloseTo(5.5,6);
+});
+
+
+test('small stone near the wall stays opaque when it covers only the lower body',async({page})=>{
+  await start(page);
+  await page.evaluate(()=>{
+    const stone=window.m0.obstacles().find(b=>b.id==='edge-stone-3');
+    window.m0.teleport((stone.min.x+stone.max.x)/2,-stone.max.z+1);
+  });
+  await page.waitForTimeout(800);
+  const s=await page.evaluate(()=>window.m0.state());
+  expect(s.playerClear).toBe(true);
+  expect(s.faded.some(m=>m.id==='edge-stone-3')).toBe(false);
+  expect(s.faded.some(m=>m.id==='wall')).toBe(false);
+  expect(s.camera.currentDistance).toBeCloseTo(5.5,6);
+});

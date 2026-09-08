@@ -125,13 +125,14 @@ try {
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,webGLVersion:renderer.kind==='webgl2'?2:null,
         triangles:scene.getActiveIndices()/3,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr:1},
-      errors:[...errors],seed:targets.fixedSeed,sceneVersion:'m0-3',demo,
+      errors:[...errors],seed:targets.fixedSeed,sceneVersion:'m0-4',demo,
     };
   }
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
   if(new URLSearchParams(location.search).get('debug')==='1') {
     Object.assign(window,{m0:{
       state,reset,preset,setPaused,
+      obstacles:()=>world.boxes.map(box=>({...box,min:{...box.min},max:{...box.max}})),
       teleport:(e:number,n:number,heading=0)=>{
         if(![e,n,heading].every(Number.isFinite)||e<-23||e>23||n<-11||n>63)throw new Error('Outside harness');
         if(!walkerIsClear({e,n},world.boxes))throw new Error('Position intersects obstacle');
@@ -193,7 +194,7 @@ try {
       for(const mesh of [...world.occluders,world.ground]) {
         const bounds=mesh.getBoundingInfo().boundingBox;
         const blocked=mesh===world.ground?terrainOccludesTraveller(desired,feet):
-          occludesTraveller(desired,feet,{id:mesh.id,min:bounds.minimumWorld,max:bounds.maximumWorld},config.travel.occlusionMarginM);
+          occludesTraveller(desired,feet,{id:mesh.id,min:bounds.minimumWorld,max:bounds.maximumWorld},mesh.visibility<0.99);
         const target=blocked?config.travel.occluderOpacity:1;
         // Per-mesh visibility preserves shared bark/stone materials on other objects.
         mesh.visibility=fadeOpacity(mesh.visibility,target,dt,blocked?config.travel.fadeOutSeconds:config.travel.fadeInSeconds);

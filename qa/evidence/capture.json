@@ -1,12 +1,12 @@
 {
-  "date": "2026-09-08T10:52:41.915Z",
+  "date": "2026-09-08T12:28:25.101Z",
   "browser": "151.0.7922.109",
   "snapshots": [
     {
       "id": "trail_forward",
       "state": {
         "ready": true,
-        "frameCount": 290,
+        "frameCount": 292,
         "paused": false,
         "player": {
           "e": 0,
@@ -45,7 +45,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-3",
+        "sceneVersion": "m0-4",
         "demo": false
       }
     },
@@ -53,7 +53,7 @@
       "id": "trail_left",
       "state": {
         "ready": true,
-        "frameCount": 326,
+        "frameCount": 328,
         "paused": false,
         "player": {
           "e": 0,
@@ -97,7 +97,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-3",
+        "sceneVersion": "m0-4",
         "demo": false
       }
     },
@@ -105,7 +105,7 @@
       "id": "trail_right",
       "state": {
         "ready": true,
-        "frameCount": 362,
+        "frameCount": 365,
         "paused": false,
         "player": {
           "e": 0,
@@ -127,7 +127,7 @@
         "faded": [
           {
             "id": "canopy-probe",
-            "opacity": 0.9302509123615963
+            "opacity": 0.9304459366256711
           }
         ],
         "render": {
@@ -149,7 +149,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-3",
+        "sceneVersion": "m0-4",
         "demo": false
       }
     },
@@ -157,7 +157,7 @@
       "id": "look_up_canopy",
       "state": {
         "ready": true,
-        "frameCount": 398,
+        "frameCount": 400,
         "paused": false,
         "player": {
           "e": 1.8,
@@ -179,7 +179,7 @@
         "faded": [
           {
             "id": "canopy-probe",
-            "opacity": 0.9936876733043664
+            "opacity": 0.9932516074198037
           }
         ],
         "render": {
@@ -201,7 +201,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-3",
+        "sceneVersion": "m0-4",
         "demo": false
       }
     },
@@ -248,7 +248,7 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-3",
+        "sceneVersion": "m0-4",
         "demo": false
       }
     },
@@ -256,7 +256,7 @@
       "id": "wide_path",
       "state": {
         "ready": true,
-        "frameCount": 472,
+        "frameCount": 473,
         "paused": false,
         "player": {
           "e": 0,
@@ -295,25 +295,25 @@
         },
         "errors": [],
         "seed": "atlas-demo-01",
-        "sceneVersion": "m0-3",
+        "sceneVersion": "m0-4",
         "demo": false
       }
     }
   ],
   "final": {
     "ready": true,
-    "frameCount": 2863,
+    "frameCount": 2866,
     "paused": false,
     "player": {
       "e": 0,
-      "n": 49.94389499986757,
+      "n": 49.922989999955696,
       "heading": 0,
       "h": 3.2
     },
     "camera": {
       "x": 2.02134809729338e-14,
       "y": 4.15,
-      "z": -44.44389499986757,
+      "z": -44.422989999955696,
       "yaw": 359.9999999999998,
       "pitch": -20,
       "distance": 5.5,
@@ -341,7 +341,7 @@
     },
     "errors": [],
     "seed": "atlas-demo-01",
-    "sceneVersion": "m0-3",
+    "sceneVersion": "m0-4",
     "demo": false
   },
   "errors": []

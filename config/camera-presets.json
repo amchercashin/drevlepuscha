@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "status": "proposed-not-visually-approved",
   "primaryMode": "travel-third-person",
   "projection": "perspective",
@@ -14,7 +14,6 @@
     "pitchMaxDeg": 35,
     "yawUnlimited": true,
     "nearClipM": 0.1,
-    "occlusionMarginM": 0.35,
     "occluderOpacity": 0.18,
     "fadeOutSeconds": 0.08,
     "fadeInSeconds": 0.25
