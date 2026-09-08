@@ -48,6 +48,8 @@ try {
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent='M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
   if(forest){document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
   const forestControls=document.querySelector<HTMLElement>('#forest-controls')!;forestControls.hidden=!forest;
+  const weatherSelect=document.querySelector<HTMLSelectElement>('#forest-weather')!;
+  weatherSelect.onchange=()=>{if(forest)scene.fogDensity=weatherSelect.value==='mist'?0.023:0.004;};
   document.querySelector<HTMLInputElement>('#near-only')!.onchange=e=>forest?.setNearOnly((e.target as HTMLInputElement).checked);
   const player={e:0,n:0,heading:0};
   let yaw=0,yawTarget=0,pitch=config.travel.pitchDefaultDeg,distance=config.travel.distanceM;

@@ -39,7 +39,7 @@ export function createWorld(scene: Scene, forestMode=false) {
   const hood = material('hood', Color3.FromHexString('#9fa68a'));
   const skin = material('face', Color3.FromHexString('#d8bb91'));
   scene.clearColor = new Color4(0.72, 0.78, 0.74, 1);
-  scene.fogMode = Scene.FOGMODE_EXP2; scene.fogDensity = 0.023;
+  scene.fogMode = Scene.FOGMODE_EXP2; scene.fogDensity = forestMode ? 0.004 : 0.023;
   scene.fogColor = new Color3(0.65, 0.73, 0.68);
   const fill = new HemisphericLight('ambient', new Vector3(0, 1, 0), scene);
   fill.intensity = 0.75; fill.groundColor = new Color3(0.2, 0.26, 0.2);
