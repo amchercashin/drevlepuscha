@@ -85,16 +85,9 @@ try {
   const forestControls=document.querySelector<HTMLElement>('#forest-controls')!;forestControls.hidden=!forest;
   const weatherSelect=document.querySelector<HTMLSelectElement>('#forest-weather')!;
   weatherSelect.value=showcaseEnabled?'mist':'clear';
-  const updateWeather=()=>{if(forest)scene.fogDensity=weatherSelect.value==='mist'?0.023:showcaseEnabled?0:0.004;};
+  const updateWeather=()=>{if(forest&&!showcaseEnabled)scene.fogDensity=weatherSelect.value==='mist'?0.023:0.004;};
   weatherSelect.onchange=updateWeather;
-  if(showcaseEnabled){
-    const weatherLabel=document.querySelector<HTMLLabelElement>('label[for="forest-weather"]')!;
-    const fogToggle=document.createElement('input');
-    fogToggle.type='checkbox';fogToggle.id='showcase-fog';fogToggle.checked=true;
-    weatherLabel.htmlFor=fogToggle.id;weatherLabel.replaceChildren(fogToggle,' Туман');
-    weatherSelect.hidden=true;
-    fogToggle.onchange=()=>{weatherSelect.value=fogToggle.checked?'mist':'clear';updateWeather();};
-  }
+  if(showcaseEnabled){document.querySelector<HTMLLabelElement>('label[for="forest-weather"]')!.hidden=true;weatherSelect.hidden=true;}
   const treeColor=document.querySelector<HTMLInputElement>('#tree-color')!;document.querySelector<HTMLElement>('#tree-color-label')!.hidden=!forest?.stats().colorVersion;treeColor.onchange=()=>forest?.setColorVariation(treeColor.checked);
   document.querySelector<HTMLInputElement>('#near-only')!.onchange=e=>forest?.setNearOnly((e.target as HTMLInputElement).checked);
   const player={e:0,n:0,heading:0};
@@ -211,7 +204,7 @@ try {
   if(new URLSearchParams(location.search).get('debug')==='1') {
     Object.assign(window,{m0:{
       state,reset,preset,setPaused,
-      setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),
+      setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
       inspect:()=>({scene,engine,world,forest}),
       obstacles:()=>world.boxes.map(box=>({...box,min:{...box.min},max:{...box.max}})),
       teleport:(e:number,n:number,heading=0)=>{
@@ -291,7 +284,9 @@ try {
       floor?.update(feet);
       if(sunlight&&forest){
        if(daylight){
-        lightDirection.copyFrom(world.sun.direction).normalize();
+        const d=world.sun.direction.normalizeToNew(),az=Math.atan2(d.x,d.z),el=Math.asin(Math.max(-1,Math.min(1,d.y)));
+        const q=0.35*Math.PI/180,qAz=Math.round(az/q)*q,qEl=Math.round(el/q)*q,ce=Math.cos(qEl);
+        lightDirection.set(Math.sin(qAz)*ce,Math.sin(qEl),Math.cos(qAz)*ce);
         lightRight.set(lightDirection.z,0,-lightDirection.x);
         if(lightRight.lengthSquared()<1e-8)lightRight.set(1,0,0);else lightRight.normalize();
         Vector3.CrossToRef(lightDirection,lightRight,lightUp);lightUp.normalize();
