@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto';
 import {createGeography,nearestOnLine,sampleRaster,placementSeed} from '../src/domain/geography.mjs';
 import {validateGeography} from '../tools/geography/validate.mjs';
@@ -22,7 +23,7 @@ test('geography: seeded repeatability and protected placement',()=>{
  assert.equal(m.zoneAt(-8000,0),null);assert.equal(m.exclusion(2600,27300),'bonfire_glade');assert.equal(m.exclusion(17460,19160),'old_man_willow');assert.equal(m.zoneAt(15000,34000).id,'north_dry_conifers');
 });
 test('geography: export revision, hashes, byte ranges, imported heights and tile seams',()=>{
- const directory=new URL('generated/',url).pathname,hm=openHeightmap(directory),v=hm.manifest;
+ const directory=fileURLToPath(new URL('generated/',url)),hm=openHeightmap(directory),v=hm.manifest;
  try{
   for(const [p,hash]of Object.entries(v.generatorInputs))assert.equal(sha(readFileSync(new URL('../'+p,import.meta.url))),hash);
   assert.equal(v.inputSha256,sha(source));assert.equal(v.contentRevision,g.contentRevision);assert.equal(v.generatorVersion,g.generatorVersion);
