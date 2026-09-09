@@ -1,9 +1,9 @@
 import {test,expect} from '@playwright/test';
 
 test.use({hasTouch:true,viewport:{width:390,height:844}});
-test('touch movement and look coexist, release and pause clear movement',async({page})=>{
+for(const scene of ['m0','m1']) test(`touch movement and look coexist, release and pause clear movement (${scene})`,async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('/?debug=1&renderer=webgl2');
+  await page.goto(`/?debug=1&renderer=webgl2&scene=${scene}`);
   await page.waitForFunction(()=>window.m0?.state().ready);
   await expect(page.locator('.touch-controls')).toBeHidden();
   await page.getByRole('button',{name:'Начать прогулку'}).tap();

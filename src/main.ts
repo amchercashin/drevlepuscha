@@ -1,7 +1,5 @@
 import {createTouchControls} from './runtime/touch-controls.ts';
-import {DynamicTexture} from '@babylonjs/core/Materials/Textures/dynamicTexture.js';
-import {VolumetricLightScatteringPostProcess} from '@babylonjs/core/PostProcesses/volumetricLightScatteringPostProcess.js';
-import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
+import {createForestAir} from './runtime/forest-air.ts';
 import {createForestFloor} from './runtime/forest-floor.ts';
 import {ShadowGenerator} from '@babylonjs/core/Lights/Shadows/shadowGenerator.js';
 import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent.js';
@@ -53,7 +51,7 @@ try {
   const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
   const forest=forestMode?await createForest(scene,world.sun):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
-  if(forest){document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
+  if(forest){for(const [id,label] of [['entrance','01 Вход'],['trunks','02 Папоротники'],['arch','03 Просвет'],['slope','04 К поляне']])document.querySelector(`[data-checkpoint="${id}"]`)!.textContent=label;document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
   const floor=forest?createForestFloor(scene,world.boxes):null;
   const sunlight=forest?new ShadowGenerator(512,world.sun):null;
   if(sunlight){
@@ -62,11 +60,9 @@ try {
    world.sun.shadowOrthoScale=0;world.sun.autoUpdateExtends=false;world.sun.autoCalcShadowZBounds=false;
    world.sun.shadowMinZ=1;world.sun.shadowMaxZ=110;world.sun.orthoLeft=-32;world.sun.orthoRight=32;world.sun.orthoTop=32;world.sun.orthoBottom=-32;
   }
-  const rays=forest?new VolumetricLightScatteringPostProcess('forest-sun-rays',{postProcessRatio:1,passRatio:0.35},camera,undefined,48):null;
-  if(rays){rays.exposure=0.14;rays.weight=0.28;rays.decay=0.96;rays.density=0.85;rays.mesh.scaling.setAll(24);rays.mesh.layerMask=0;rays.mesh.isPickable=false;const m=rays.mesh.material as StandardMaterial;m.emissiveColor.set(1,0.88,0.62);
-   const glow=new DynamicTexture('sun-glow',128,scene,false),ctx=glow.getContext(),gradient=ctx.createRadialGradient(64,64,0,64,64,64);
-   gradient.addColorStop(0,'rgba(255,255,255,1)');gradient.addColorStop(0.3,'rgba(255,255,255,0.65)');gradient.addColorStop(1,'rgba(255,255,255,0)');ctx.clearRect(0,0,128,128);ctx.fillStyle=gradient;ctx.fillRect(0,0,128,128);glow.hasAlpha=true;glow.update();m.opacityTexture=glow;
-  }
+  let shadowPassTriangles=0,shadowPassStart=0;
+  if(sunlight){sunlight.getShadowMap()!.onBeforeRenderObservable.add(()=>{shadowPassStart=scene.getActiveIndices();});sunlight.getShadowMap()!.onAfterRenderObservable.add(()=>{shadowPassTriangles=(scene.getActiveIndices()-shadowPassStart)/3;});}
+  const air=sunlight&&new URLSearchParams(location.search).get('air')!=='0'?createForestAir(scene,camera,sunlight,world.sun):null;
   const lightDirection=world.sun.direction.normalizeToNew(),lightRight=Vector3.Cross(Vector3.Up(),lightDirection).normalize(),lightUp=Vector3.Cross(lightDirection,lightRight).normalize();
   const forestControls=document.querySelector<HTMLElement>('#forest-controls')!;forestControls.hidden=!forest;
   const weatherSelect=document.querySelector<HTMLSelectElement>('#forest-weather')!;
@@ -174,10 +170,10 @@ try {
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,webGLVersion:renderer.kind==='webgl2'?2:null,
-        triangles:scene.getActiveIndices()/3,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
+        triangles:scene.getActiveIndices()/3,shadowTriangles:shadowPassTriangles,mainTriangles:scene.getActiveIndices()/3-shadowPassTriangles,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,
-      lighting:sunlight?{filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
+      lighting:sunlight?{air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
@@ -263,16 +259,16 @@ try {
        world.sun.position.copyFrom(origin);
        const casters=forest.shadowCasters(feet);
        sunlight.getShadowMap()!.renderList=[...casters,...world.occluders,...world.player.getChildMeshes()];
-       if(rays){rays.exposure=0.14*Math.max(0,Math.min(1,(-Vector3.Dot(camera.getForwardRay().direction,lightDirection)-0.2)/0.3));rays.mesh.position.copyFrom(new Vector3(feet.x,feet.y,feet.z).subtract(lightDirection.scale(160)));rays.getPass().renderList=[rays.mesh,...casters,world.ground,...world.occluders];}
+
       }
 
       scene.render();frameCount++;
       if(now-uiTime>400){
         uiTime=now;const s=state();
         document.querySelector('#fps')!.textContent=`${Math.round(engine!.getFps())} FPS`;
-        metrics.textContent=`${s.render.width} × ${s.render.height} · ${renderer.kind==='webgpu'?'WebGPU':'WebGL2'}\n${Math.round(s.render.triangles).toLocaleString('ru-RU')} треугольников · ${s.render.drawCalls} вызовов\nКамера ${Vector3.Distance(camera.position,new Vector3(anchor.x,anchor.y,anchor.z)).toFixed(2)} м · наклон ${pitch.toFixed(0)}°${renderer.fallbackReason?'\nWebGPU недоступен — включён WebGL2.':''}`;
+        metrics.textContent=`${s.render.width} × ${s.render.height} · ${renderer.kind==='webgpu'?'WebGPU':'WebGL2'}\n${Math.round(s.render.mainTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(s.render.shadowTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(s.render.triangles).toLocaleString('ru-RU')}\n${s.render.drawCalls} вызовов отрисовки\nКамера ${Vector3.Distance(camera.position,new Vector3(anchor.x,anchor.y,anchor.z)).toFixed(2)} м · наклон ${pitch.toFixed(0)}°${renderer.fallbackReason?'\nWebGPU недоступен — включён WebGL2.':''}`;
         if(forest)metrics.textContent+=`\nДеревья: ${forest.stats().trees} · LOD ${forest.stats().lodCounts.join(' / ')}`;
-        document.querySelector('#location')!.textContent=forest&&(Math.abs(player.e)>24||player.n<-12||player.n>64)?'Большой лес':player.n<10?'Западный вход':player.n<19?'Между стволами':player.n<30?'Низкая арка':player.n<47?'Подъём к свету':'Верхняя поляна';
+        document.querySelector('#location')!.textContent=forest&&(Math.abs(player.e)>24||player.n<-12||player.n>64)?'Большой лес':player.n<10?'Западный вход':player.n<19?'Между стволами':player.n<30?(forest?'Лесная тропа':'Низкая арка'):player.n<47?'Подъём к свету':'Верхняя поляна';
       }
     }catch(error){engine!.stopRenderLoop();fail(String(error));}
   });

@@ -2,18 +2,18 @@
   "maxShadowPhaseErrorTexels": 0,
   "state": {
     "ready": true,
-    "frameCount": 1345,
+    "frameCount": 3213,
     "paused": false,
     "player": {
       "e": 0,
-      "n": 174.8320049999113,
+      "n": 174.8122100000422,
       "heading": 0,
       "h": 3.2
     },
     "camera": {
       "x": 6.588369305827751e-16,
       "y": 5.2935142994976765,
-      "z": -169.45219319587537,
+      "z": -169.43239819600626,
       "yaw": 0,
       "pitch": 12,
       "distance": 5.5,
@@ -27,9 +27,11 @@
       "height": 1080,
       "backend": "webgl2",
       "webGLVersion": 2,
-      "triangles": 841396,
-      "drawCalls": 79,
-      "meshes": 1776,
+      "triangles": 588275,
+      "shadowTriangles": 219859,
+      "mainTriangles": 368416,
+      "drawCalls": 50,
+      "meshes": 1763,
       "gpu": {
         "vendor": "Google Inc. (Apple)",
         "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
@@ -64,7 +66,7 @@
         1128
       ],
       "lockNear": false,
-      "transitions": 1,
+      "transitions": 3,
       "geometryBuffers": 83,
       "horizon": {
         "cells": 80,
@@ -74,23 +76,30 @@
     },
     "floor": {
       "cells": 49,
-      "triangles": 19855
+      "triangles": 50711
     },
     "lighting": {
+      "air": {
+        "method": "shadowed-air",
+        "steps": 24,
+        "maxDistanceM": 32,
+        "scale": 0.5,
+        "extraGeometryPasses": 0
+      },
       "filter": 6,
       "mapSize": 512,
       "probe": [
         2.596446555107832,
         2.967909451574087,
-        2.0302196759730577
+        2.0299907941371202
       ]
     }
   },
   "errors": [],
-  "frames": 1095,
-  "median": 16.699999928474426,
-  "p95": 17.600000023841858,
-  "over33": 2,
-  "date": "2026-09-08T21:03:32.135Z",
+  "frames": 2621,
+  "median": 6.900000095367432,
+  "p95": 7.700000047683716,
+  "over33": 1,
+  "date": "2026-09-08T21:36:25.668Z",
   "note": "Short 18-second sample including teleport; 4-second warmup, 1920x1080. Not thermal acceptance."
 }
