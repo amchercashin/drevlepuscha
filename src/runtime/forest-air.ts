@@ -111,14 +111,15 @@ export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerato
  // enter scatter, whose output goes directly into composite's half-size input.
  scatter.onSizeChangedObservable.add(()=>scatter.inputTexture.createDepthStencilTexture(0,false,false,1));
  const inverse=Matrix.Identity();
+ const airDensity=()=>scene.fogDensity<=0?0:scene.fogDensity>0.01?0.035:0.018;
  scatter.onApply=effect=>{
   scene.getTransformMatrix().invertToRef(inverse);
   effect.setMatrix('inverseViewProjection',inverse);effect.setMatrix('sunMatrix',shadows.getTransformMatrix());
   effect.setVector3('eye',camera.globalPosition);effect.setVector3('sunDirection',sun.direction.normalizeToNew().negate());
   effect.setFloat3('sunColor',sun.diffuse.r*sun.intensity,sun.diffuse.g*sun.intensity,sun.diffuse.b*sun.intensity);
-  effect.setFloat('halfZ',engine.isNDCHalfZRange?1:0);effect.setFloat('airDensity',scene.fogDensity>0.01?0.035:0.018);
+  effect.setFloat('halfZ',engine.isNDCHalfZRange?1:0);effect.setFloat('airDensity',airDensity());
   effect._bindTexture('sceneDepth',scatter.inputTexture.depthStencilTexture);effect.setDepthStencilTexture('sunDepth',shadows.getShadowMap());
  };
  composite.onApply=effect=>effect.setTextureFromPostProcess('sceneColor',scatter);
- return {stats:()=>({method:'shadowed-air',steps:16,maxDistanceM:32,scale:0.5,extraGeometryPasses:0})};
+ return {stats:()=>({method:'shadowed-air',density:airDensity(),steps:16,maxDistanceM:32,scale:0.5,extraGeometryPasses:0})};
 }

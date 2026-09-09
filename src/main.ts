@@ -76,7 +76,17 @@ try {
   const lightDirection=world.sun.direction.normalizeToNew(),lightRight=Vector3.Cross(Vector3.Up(),lightDirection).normalize(),lightUp=Vector3.Cross(lightDirection,lightRight).normalize();
   const forestControls=document.querySelector<HTMLElement>('#forest-controls')!;forestControls.hidden=!forest;
   const weatherSelect=document.querySelector<HTMLSelectElement>('#forest-weather')!;
-  weatherSelect.onchange=()=>{if(forest)scene.fogDensity=weatherSelect.value==='mist'?0.023:0.004;};
+  weatherSelect.value=showcaseEnabled?'mist':'clear';
+  const updateWeather=()=>{if(forest)scene.fogDensity=weatherSelect.value==='mist'?0.023:showcaseEnabled?0:0.004;};
+  weatherSelect.onchange=updateWeather;
+  if(showcaseEnabled){
+    const weatherLabel=document.querySelector<HTMLLabelElement>('label[for="forest-weather"]')!;
+    const fogToggle=document.createElement('input');
+    fogToggle.type='checkbox';fogToggle.id='showcase-fog';fogToggle.checked=true;
+    weatherLabel.htmlFor=fogToggle.id;weatherLabel.replaceChildren(fogToggle,' Туман');
+    weatherSelect.hidden=true;
+    fogToggle.onchange=()=>{weatherSelect.value=fogToggle.checked?'mist':'clear';updateWeather();};
+  }
   const treeColor=document.querySelector<HTMLInputElement>('#tree-color')!;document.querySelector<HTMLElement>('#tree-color-label')!.hidden=!forest?.stats().colorVersion;treeColor.onchange=()=>forest?.setColorVariation(treeColor.checked);
   document.querySelector<HTMLInputElement>('#near-only')!.onchange=e=>forest?.setNearOnly((e.target as HTMLInputElement).checked);
   const player={e:0,n:0,heading:0};

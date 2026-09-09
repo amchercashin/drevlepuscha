@@ -1,0 +1,54 @@
+import {test,expect} from '@playwright/test';
+
+test('showcase starts with fog and the checkbox switches it off and back on',async({page},info)=>{
+  test.setTimeout(60_000);
+  const errors=[];
+  page.on('pageerror',e=>errors.push(String(e)));
+  page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+  const density=()=>page.evaluate(()=>window.m0.inspect().scene.fogDensity);
+  await page.goto(`/?debug=1&renderer=${info.project.name}`);
+  await page.waitForFunction(()=>window.m0?.state().ready);
+  await page.getByRole('button',{name:'Начать прогулку'}).click();
+  await page.locator('#diagnostics').evaluate(e=>e.open=true);
+  const fog=page.getByRole('checkbox',{name:'Туман',exact:true});
+  await expect(fog).toBeVisible();
+  await expect(fog).toBeChecked();
+  await expect(page.locator('#forest-weather')).toBeHidden();
+  expect(await density()).toBe(0.023);
+  expect(await page.evaluate(()=>window.m0.state().lighting.air.density)).toBe(0.035);
+  await page.screenshot({path:info.outputPath('fog-on.png')});
+  await fog.uncheck();
+  expect(await density()).toBe(0);
+  expect(await page.evaluate(()=>window.m0.state().lighting.air.density)).toBe(0);
+  await page.screenshot({path:info.outputPath('fog-off.png')});
+  await fog.check();
+  expect(await density()).toBe(0.023);
+  expect(await page.evaluate(()=>window.m0.state().lighting.air.density)).toBe(0.035);
+  await page.locator('#diagnostics').evaluate(e=>e.open=false);
+  const before=await page.evaluate(()=>window.m0.state().player.n);
+  await page.locator('#world').focus();
+  await page.keyboard.down('KeyW');await page.waitForTimeout(600);await page.keyboard.up('KeyW');
+  expect((await page.evaluate(()=>window.m0.state().player.n))).toBeGreaterThan(before);
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('#diagnostics').evaluate(e=>e.open=true);
+  await expect(fog).toBeVisible();
+  await fog.uncheck();expect(await density()).toBe(0);
+  await page.reload();
+  await page.waitForFunction(()=>window.m0?.state().ready);
+  await page.getByRole('button',{name:'Начать прогулку'}).click();
+  await page.locator('#diagnostics').evaluate(e=>e.open=true);
+  await expect(fog).toBeChecked();expect(await density()).toBe(0.023);
+  const state=await page.evaluate(()=>window.m0.state());
+  expect(state.render.backend).toBe(info.project.name);
+  expect(state.errors).toEqual([]);expect(errors).toEqual([]);
+});
+
+test('M1 retains its clear default and existing weather selector',async({page},info)=>{
+  await page.goto(`/?scene=m1&debug=1&renderer=${info.project.name}`);
+  await page.waitForFunction(()=>window.m0?.state().ready);
+  await page.getByRole('button',{name:'Начать прогулку'}).click();
+  await page.locator('#diagnostics').evaluate(e=>e.open=true);
+  await expect(page.locator('#showcase-fog')).toHaveCount(0);
+  await expect(page.getByLabel('Атмосфера леса')).toHaveValue('clear');
+  expect(await page.evaluate(()=>window.m0.inspect().scene.fogDensity)).toBe(0.004);
+});
