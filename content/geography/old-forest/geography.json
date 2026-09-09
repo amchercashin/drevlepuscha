@@ -1779,7 +1779,8 @@
         "status": "inferred",
         "sourceRefs": [
           "tolkien-lotr-book1-ch6",
-          "old-forest-reconstruction-v1"
+          "old-forest-reconstruction-v1",
+          "user-terrain-photos-2026-09-09"
         ],
         "uncertaintyM": 1500
       },
@@ -1813,6 +1814,18 @@
           "east_eaves",
           "approach_knoll",
           "tom_house"
+        ],
+        "hollowDepthM": 1.5,
+        "hollowHalfWidthM": 14,
+        "hollowSegments": [
+          [
+            4,
+            8
+          ],
+          [
+            17,
+            23
+          ]
         ]
       }
     },
@@ -2848,7 +2861,6 @@
     }
   ],
   "gaps": [
-    "No user photograph received.",
     "Original print copies and publisher-authenticated scans not inspected; reproduction hosts identified.",
     "Fonstad text inspected; original map contour geometry not digitized.",
     "Tolkien drawings give no complete surveyed forest boundary or numeric heights.",
@@ -2869,8 +2881,21 @@
       "ardacraft-old-forest",
       "tolkien-estate-maps",
       "wisconsin-surface-roots",
-      "ecosys-1998"
+      "ecosys-1998",
+      "user-terrain-photos-2026-09-09"
     ],
     "scope": "Primary narrative and published-map reproductions; secondary cartographic reconciliation; ecology. See each registry status; adaptations do not establish coordinates."
+  },
+  "photoInterpretation": {
+    "sourceRefs": [
+      "user-terrain-photos-2026-09-09"
+    ],
+    "status": "authored",
+    "note": "Three private photos visually inspected: exposed roots on convex shoulder, dry sunken track, localized understory pockets. No height or geographic measurement extracted.",
+    "dryTrailHollows": {
+      "depthM": 1.5,
+      "halfWidthM": 14,
+      "measurementStatus": "authored-not-measured"
+    }
   }
 }

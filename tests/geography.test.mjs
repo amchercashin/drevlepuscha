@@ -36,6 +36,7 @@ test('geography: export revision, hashes, byte ranges, imported heights and tile
    for(const p of [[a.origin[0]+256,a.origin[1]+256],[a.origin[0]+128,a.origin[1]+128]])assert.ok(Math.abs(hm.sample(...p)-m.height(...p))<.02,'Interior sample differs from model');
   }assert.equal(offset,bytes.length);assert.equal(raw,v.detail.decodedByteLength);
   for(const f of g.features.filter(f=>f.water&&f.id!=='brandywine')){const p=f.water.stations;for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],count=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/64);for(let j=0;j<count;j++){const e=a[0]+(b[0]-a[0])*j/count,n=a[1]+(b[1]-a[1])*j/count,water=a[2]+(b[2]-a[2])*j/count;assert.ok(hm.sample(e,n)<water+.35,'Exported bed above water '+f.id+' at '+e+','+n);}}}
+  const patch=hm.patch128(22272,19200);assert.equal(patch.values.length,65*65);assert.equal(patch.values[64],hm.sample(22400,19200));assert.throws(()=>hm.patch128(1,0));
   assert.throws(()=>hm.sample(g.bounds.minE-1,g.bounds.minN),RangeError);
   // Read actual exported detail at named terrain points, rather than testing generator alone.
   for(const id of ['bald_hill','old_man_willow','tom_house','approach_knoll','tom_hill_brow']){const p=m.features.get(id).geometry.coordinates;assert.ok(Math.abs(hm.sample(...p)-m.height(...p))<.15,id);}

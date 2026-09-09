@@ -14,5 +14,10 @@ export function openHeightmap(directory){
   const values=decodeFloat32LE(gunzipSync(buf));if(values.length!==t.columns*t.rows)throw Error('Invalid detail dimensions');
   const grid={...t,stepM:manifest.detail.stepM,values};if(cache.size>=8)cache.delete(cache.keys().next().value);cache.set(id,grid);return grid;
  }
- return {manifest,base,tile,sample(e,n){if(closed)throw Error('Heightmap closed');const coarse=sampleRaster(base,e,n),s=manifest.detail.tileSizeM,t=tile(Math.floor(e/s)+','+Math.floor(n/s));return t?sampleRaster(t,e,n):coarse;},close(){if(!closed){closed=true;closeSync(fd);cache.clear();}}};
+ const api={manifest,base,tile,sample(e,n){if(closed)throw Error('Heightmap closed');const coarse=sampleRaster(base,e,n),s=manifest.detail.tileSizeM,t=tile(Math.floor(e/s)+','+Math.floor(n/s));return t?sampleRaster(t,e,n):coarse;},close(){if(!closed){closed=true;closeSync(fd);cache.clear();}}};
+ api.patch128=(e,n)=>{
+  if(e%128||n%128)throw new Error('Patch origin must align to 128 m');
+  const values=new Float32Array(65*65);for(let y=0;y<65;y++)for(let x=0;x<65;x++)values[y*65+x]=api.sample(e+2*x,n+2*y);
+  return {origin:[e,n],stepM:2,columns:65,rows:65,values};
+ };return api;
 }

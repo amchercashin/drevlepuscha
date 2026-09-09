@@ -50,7 +50,7 @@ export function createGeography(g) {
   const features=new Map(g.features.map(f=>[f.id,f]));
   const waters=g.features.filter(f=>f.water), routes=g.features.filter(f=>f.route);
   const waterIndex=makeIndex(waters,f=>f.water.floodplainHalfWidthM+f.water.blendWidthM);
-  const routeIndex=makeIndex(routes,()=>12), forest=features.get('forest_boundary').geometry.coordinates[0];
+  const routeIndex=makeIndex(routes,()=>20), forest=features.get('forest_boundary').geometry.coordinates[0];
   const zones=[...g.zones].sort((a,b)=>b.priority-a.priority);
   function nearbyWater(e,n) {
     const found=new Map();
@@ -98,7 +98,8 @@ export function createGeography(g) {
       for(const s of routeIndex(e,n)) {
         const r=s.f.route;if(!r.cutSegments.some(([a,b])=>s.i>=a&&s.i<b))continue;
         const p=segmentNearest(e,n,s),width=r.widthM/2;
-        cut=Math.max(cut,r.cutDepthM*(1-smooth((p.distance-width)/4)));
+        const hollow=(r.hollowSegments??[]).some(([a,b])=>s.i>=a&&s.i<b)?r.hollowDepthM*(1-smooth(p.distance/r.hollowHalfWidthM)):0;
+        cut=Math.max(cut,hollow+r.cutDepthM*(1-smooth((p.distance-width)/4)));
       }h-=cut;
     }
     return h;
