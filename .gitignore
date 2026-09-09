@@ -16,3 +16,9 @@ Thumbs.db
 *.blend2
 # Local-only references; never add with git add -f.
 references/private/
+
+# Reproducible streaming pack from versioned authoring data.
+public/world/
+
+# Worktree links are files, so also match without a trailing slash.
+node_modules

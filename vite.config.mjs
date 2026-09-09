@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   base: './',
-  publicDir: false,
+  publicDir: 'public',
   server: {
     host: '127.0.0.1', port: 5173, strictPort: true,
     fs: { deny: ['.env', '.env.*', '**/.git/**', '**/references/**', '**/qa/**'] },

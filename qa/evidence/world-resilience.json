@@ -1,0 +1,277 @@
+{
+  "checks": [
+    "Map load failure, retry, no 3D fetch for map",
+    "Cancelled slow fast travel retains old playable pose",
+    "Travel succeeds after cancellation",
+    "Corrupt cached tile verified and refetched",
+    "Saved pose restored, warm cache reused",
+    "All nine biomes have walkable loaded terrain",
+    "Desktop and mobile map layout"
+  ],
+  "biomes": [
+    {
+      "id": "ancient_broadleaf_core",
+      "pose": {
+        "e": 512,
+        "n": 512,
+        "heading": 90,
+        "h": 3.40625
+      },
+      "forest": {
+        "near": 0,
+        "batchQueue": 0,
+        "batches": 0,
+        "trees": 0,
+        "lastBuildMs": 0.10000002384185791,
+        "maxBuildMs": 2.3000000715255737
+      },
+      "resources": {
+        "geometryBytes": 25882372,
+        "textureBytes": 148747114.66666678,
+        "instanceBytes": 1184768,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 36559776,
+        "gpuEstimateBytes": 258758254.66666678,
+        "knownTotalBytes": 295318030.66666675,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    },
+    {
+      "id": "withywindle_riparian",
+      "pose": {
+        "e": 520,
+        "n": 1024,
+        "heading": 90,
+        "h": 1.875
+      },
+      "forest": {
+        "near": 20,
+        "batchQueue": 0,
+        "batches": 47,
+        "trees": 1051,
+        "lastBuildMs": 0.5,
+        "maxBuildMs": 2.3000000715255737
+      },
+      "resources": {
+        "geometryBytes": 27094248,
+        "textureBytes": 237963456.00000057,
+        "instanceBytes": 2989568,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 35917652,
+        "gpuEstimateBytes": 350991272.0000006,
+        "knownTotalBytes": 386908924.0000006,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    },
+    {
+      "id": "brook_hollows",
+      "pose": {
+        "e": 16384,
+        "n": 12800,
+        "heading": 90,
+        "h": 120.765625
+      },
+      "forest": {
+        "near": 28,
+        "batchQueue": 0,
+        "batches": 59,
+        "trees": 1478,
+        "lastBuildMs": 0.9000000953674316,
+        "maxBuildMs": 2.3000000715255737
+      },
+      "resources": {
+        "geometryBytes": 29843580,
+        "textureBytes": 239274176.00000072,
+        "instanceBytes": 3450368,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 46124348,
+        "gpuEstimateBytes": 355512124.0000007,
+        "knownTotalBytes": 401636472.0000007,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    },
+    {
+      "id": "slope_tangle",
+      "pose": {
+        "e": 14336,
+        "n": 16896,
+        "heading": 90,
+        "h": 107.921875
+      },
+      "forest": {
+        "near": 11,
+        "batchQueue": 0,
+        "batches": 63,
+        "trees": 2062,
+        "lastBuildMs": 1.1999999284744263,
+        "maxBuildMs": 2.8000000715255737
+      },
+      "resources": {
+        "geometryBytes": 28413156,
+        "textureBytes": 238225600.0000006,
+        "instanceBytes": 3603968,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 43160192,
+        "gpuEstimateBytes": 353186724.0000006,
+        "knownTotalBytes": 396346916.0000006,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    },
+    {
+      "id": "eastern_opening",
+      "pose": {
+        "e": 22528,
+        "n": 18432,
+        "heading": 90,
+        "h": 112.609375
+      },
+      "forest": {
+        "near": 28,
+        "batchQueue": 0,
+        "batches": 64,
+        "trees": 1979,
+        "lastBuildMs": 1,
+        "maxBuildMs": 2.8000000715255737
+      },
+      "resources": {
+        "geometryBytes": 28442964,
+        "textureBytes": 238225600.0000006,
+        "instanceBytes": 3642368,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 41722352,
+        "gpuEstimateBytes": 353254932.0000006,
+        "knownTotalBytes": 394977284.0000006,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    },
+    {
+      "id": "western_edge_regrowth",
+      "pose": {
+        "e": 1024,
+        "n": 24064,
+        "heading": 90,
+        "h": 114.65625
+      },
+      "forest": {
+        "near": 83,
+        "batchQueue": 0,
+        "batches": 57,
+        "trees": 2625,
+        "lastBuildMs": 1.1999999284744263,
+        "maxBuildMs": 2.8000000715255737
+      },
+      "resources": {
+        "geometryBytes": 26128920,
+        "textureBytes": 237439168.0000005,
+        "instanceBytes": 3373568,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 33568388,
+        "gpuEstimateBytes": 349885656.0000005,
+        "knownTotalBytes": 383454044.0000005,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    },
+    {
+      "id": "entry_root_floor",
+      "pose": {
+        "e": 1024,
+        "n": 25600,
+        "heading": 90,
+        "h": 124.671875
+      },
+      "forest": {
+        "near": 83,
+        "batchQueue": 0,
+        "batches": 57,
+        "trees": 2625,
+        "lastBuildMs": 1.100000023841858,
+        "maxBuildMs": 2.8000000715255737
+      },
+      "resources": {
+        "geometryBytes": 27935400,
+        "textureBytes": 238225600.0000006,
+        "instanceBytes": 3373568,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 39424580,
+        "gpuEstimateBytes": 352478568.0000006,
+        "knownTotalBytes": 391903148.0000006,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    },
+    {
+      "id": "north_dry_conifers",
+      "pose": {
+        "e": 13312,
+        "n": 32256,
+        "heading": 90,
+        "h": 245.65625
+      },
+      "forest": {
+        "near": 58,
+        "batchQueue": 0,
+        "batches": 62,
+        "trees": 2494,
+        "lastBuildMs": 1.4000000953674316,
+        "maxBuildMs": 2.8000000715255737
+      },
+      "resources": {
+        "geometryBytes": 27086352,
+        "textureBytes": 238225600.0000006,
+        "instanceBytes": 3565568,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 44621648,
+        "gpuEstimateBytes": 351821520.0000006,
+        "knownTotalBytes": 396443168.0000006,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    },
+    {
+      "id": "bonfire_margin",
+      "pose": {
+        "e": 2600,
+        "n": 27420,
+        "heading": 90,
+        "h": 168.1875
+      },
+      "forest": {
+        "near": 35,
+        "batchQueue": 0,
+        "batches": 63,
+        "trees": 1932,
+        "lastBuildMs": 0.9000000953674316,
+        "maxBuildMs": 2.8000000715255737
+      },
+      "resources": {
+        "geometryBytes": 27636492,
+        "textureBytes": 238225600.0000006,
+        "instanceBytes": 3603968,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 39829136,
+        "gpuEstimateBytes": 352410060.0000006,
+        "knownTotalBytes": 392239196.0000006,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      }
+    }
+  ],
+  "errors": [],
+  "resources": {
+    "geometryBytes": 23393756,
+    "textureBytes": 125591061.33333308,
+    "instanceBytes": 1184768,
+    "framebufferEstimateBytes": 82944000,
+    "knownCPUBytes": 31045576,
+    "gpuEstimateBytes": 233113585.33333308,
+    "knownTotalBytes": 264159161.33333308,
+    "reserveBytes": 268435456,
+    "budgetBytes": 1073741824
+  }
+}

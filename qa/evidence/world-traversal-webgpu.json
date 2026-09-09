@@ -1,0 +1,73 @@
+{
+  "coverageComplete": true,
+  "continuousSingleRun": false,
+  "routeDistanceM": 42980.97366978875,
+  "measuredMinutes": 50,
+  "parts": [
+    "world-traversal-segment1.json",
+    "world-traversal-tail.json"
+  ],
+  "note": "The first automated path cut away from the literary corridor after the willow detour and hit tree 552/598/3 at E17691 N19138. Collision and streaming behaved correctly. The QA path now rejoins the corridor locally. The remaining 5.13 km were walked in a second warm-machine run; the original failed assertion is retained in segment1. Later map/meadow/cache corrections were checked separately. Final parent-cutout shader cache identity and deferred resize were validated separately in world-final-performance.json; long-run GPU numbers describe the earlier material.",
+  "firstMeasuredBuild": {
+    "game-DEBXeEUU.js": "05567564eee20e4cb757f7fcba54173e1dd83d49f2a92af9e89a74d5ad89f5ba"
+  },
+  "viewport": [
+    2560,
+    1440
+  ],
+  "network": {
+    "mbps": 20,
+    "latencyMs": 80
+  },
+  "coldReadyMs": 5570,
+  "coldWireBytes": 10178011,
+  "runtimeErrors": [],
+  "summary": {
+    "frameCount": 180166,
+    "frameP95RangeMs": [
+      17.199999928474426,
+      17.699999928474426
+    ],
+    "frameP99RangeMs": [
+      17.600000023841858,
+      17.899999976158142
+    ],
+    "cpuP95RangeMs": [
+      3.5,
+      4.799999952316284
+    ],
+    "gpuP95RangeMs": [
+      8.257536,
+      10.223616
+    ],
+    "framesOver33Percent": 0.001110087363875537,
+    "jsHeapMiBRange": [
+      104.36113262176514,
+      322.70760440826416
+    ],
+    "decodedTileRange": [
+      9,
+      15
+    ],
+    "terrainPatchRange": [
+      54,
+      71
+    ],
+    "drawCallSnapshotRange": [
+      65,
+      281
+    ],
+    "maxTerrainActivationMs": 4.199999928474426,
+    "finalKnownResources": {
+      "geometryBytes": 28134816,
+      "textureBytes": 238924650.66666734,
+      "instanceBytes": 1184768,
+      "framebufferEstimateBytes": 147456000,
+      "knownCPUBytes": 36198680,
+      "gpuEstimateBytes": 415700234.66666734,
+      "knownTotalBytes": 451898914.66666734,
+      "reserveBytes": 268435456,
+      "budgetBytes": 1073741824
+    }
+  }
+}

@@ -55,7 +55,7 @@ for(const scene of ['m0','m1']) test(`touch movement and look coexist, release a
 
 test('desktop keeps keyboard controls without the touch overlay',async({browser})=>{
   const context=await browser.newContext({hasTouch:false});const page=await context.newPage();
-  await page.goto('/?debug=1&renderer=webgl2');await page.waitForFunction(()=>window.m0?.state().ready);
+  await page.goto('/?scene=m0&debug=1&renderer=webgl2');await page.waitForFunction(()=>window.m0?.state().ready);
   await page.getByRole('button',{name:'Начать прогулку'}).click();
   await expect(page.locator('.touch-controls')).toBeHidden();
   await expect(page.locator('footer nav')).toBeVisible();
