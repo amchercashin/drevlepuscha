@@ -1,3 +1,4 @@
+import {waitForTextures} from './runtime/texture-ready.ts';
 import {showcaseEnabled,terrainCameraLift,showcasePath} from './domain/showcase.ts';
 import {createShowcaseMap} from './runtime/showcase-map.ts';
 import './showcase.css';
@@ -113,6 +114,7 @@ try {
   for(const button of document.querySelectorAll<HTMLButtonElement>('[data-checkpoint]')) {
     button.onclick=()=>{reset(button.dataset.checkpoint as keyof typeof CHECKPOINTS);focusScene();};
   }
+  await waitForTextures(scene.textures.filter(t=>!t.isRenderTarget),(ready,total)=>{resume.textContent=`Материалы леса · ${ready}/${total}`;});
   resume.disabled=false;resume.textContent='Начать прогулку';resume.onclick=focusScene;
   let cameraLift=0;
   const atlas=showcaseEnabled?createShowcaseMap(()=>({...player,yaw}),setPaused,(e,n)=>{player.e=e;player.n=n;keys.clear();demo=false;}):null;
@@ -280,7 +282,7 @@ try {
       if(now-uiTime>400){
         uiTime=now;const s=state();
         document.querySelector('#fps')!.textContent=`${Math.round(engine!.getFps())} FPS`;
-        metrics.textContent=`${s.render.width} × ${s.render.height} · ${renderer.kind==='webgpu'?'WebGPU':'WebGL2'}\n${Math.round(s.render.mainTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(s.render.shadowTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(s.render.triangles).toLocaleString('ru-RU')}\n${s.render.drawCalls} вызовов отрисовки\nКамера ${Vector3.Distance(camera.position,new Vector3(anchor.x,anchor.y,anchor.z)).toFixed(2)} м · наклон ${pitch.toFixed(0)}°${renderer.fallbackReason?'\nWebGPU недоступен — включён WebGL2.':''}`;
+        metrics.textContent=`${s.render.width} × ${s.render.height} · ${renderer.kind==='webgpu'?'WebGPU':'WebGL2'}\n${Math.round(s.render.mainTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(s.render.shadowTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(s.render.triangles).toLocaleString('ru-RU')}\n${s.render.drawCalls} вызовов отрисовки\nКамера ${Vector3.Distance(camera.position,new Vector3(anchor.x,anchor.y,anchor.z)).toFixed(2)} м · наклон ${pitch.toFixed(0)}°${renderer.fallbackReason?'\nАвтоматически включён WebGL2: '+renderer.fallbackReason:''}`;
         if(forest)metrics.textContent+=`\nДеревья: ${forest.stats().trees} · LOD ${forest.stats().lodCounts.join(' / ')}`;
         document.querySelector('#location')!.textContent=forest&&(Math.abs(player.e)>24||player.n<-12||player.n>64)?'Большой лес':player.n<10?'Западный вход':player.n<19?'Между стволами':player.n<30?(forest?'Лесная тропа':'Низкая арка'):player.n<47?'Подъём к свету':'Верхняя поляна';
       }

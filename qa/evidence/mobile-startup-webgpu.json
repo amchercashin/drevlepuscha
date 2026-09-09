@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:4181/",
+  "backend": "webgpu",
+  "errors": [],
+  "delayedTextureBlocksEntry": true,
+  "ground": {
+    "enabled": true,
+    "visible": true,
+    "opacity": 1,
+    "textureReady": true,
+    "shaderReady": true
+  }
+}
