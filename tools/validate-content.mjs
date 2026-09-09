@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolve, dirname, relative, isAbsolute, sep } from 'node:path';
 import { validate } from './schema-validator.mjs';
+import { validateGeography } from './geography/validate.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const record = x => x !== null && typeof x === 'object' && !Array.isArray(x);
 const nonempty = x => typeof x === 'string' && x.length > 0;
@@ -109,6 +110,7 @@ export function runValidation(baseDir = root) {
       sourceIds.add(source.id);
     }
   } catch (error) { errors.push(`references/sources.json: ${error.message}`); }
+  try { errors.push(...validateGeography(read('content/geography/old-forest/geography.json'), sourceIds).map(e => 'old-forest geography: ' + e)); } catch (e) { errors.push('old-forest geography: ' + e.message); }
   for (const [file, value] of loaded) errors.push(...provenanceErrors(value, sourceIds).map(error => `${file}: ${error}`));
   const regionSchema = read('schemas/region.schema.json');
   const checkedRegions = new Set();
