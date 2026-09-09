@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "provider": "Meshy",
+  "type": "image-to-3d",
+  "taskId": "01a0850d-2054-7598-a1fa-89bddfb5f01d",
+  "createdAt": "2026-09-09T07:23:44.417Z",
+  "downloadedAt": "2026-09-09T07:26:22.805Z",
+  "request": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2",
+    "target_polycount": 600,
+    "topology": "triangle",
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "2k",
+    "target_formats": [
+      "glb"
+    ],
+    "auto_size": false
+  },
+  "inputs": [
+    {
+      "path": "assets/rocks/moss-boulder/concept.png",
+      "sha256": "ae6fcb77cdb4f8516ee8c45229f585c34587e29641510ef0c92cbcdfcbcd86b8"
+    }
+  ],
+  "consumedCredits": 15,
+  "estimatedCredits": 15,
+  "files": [
+    {
+      "path": "assets/rocks/moss-boulder/source.glb",
+      "bytes": 3283252,
+      "sha256": "f254e21a5c13294f951670110519b0d47e7162534f1f478f9cd3b8e126a5dfb9"
+    }
+  ]
+}

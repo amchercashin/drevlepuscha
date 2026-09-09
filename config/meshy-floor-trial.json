@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "meshy-floor-boulder-v1",
+  "generation": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2",
+    "target_polycount": 600,
+    "topology": "triangle",
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "2k",
+    "target_formats": [
+      "glb"
+    ],
+    "auto_size": false
+  },
+  "estimatedApiCredits": {
+    "model": 15
+  },
+  "outputs": {
+    "a": "assets/rocks/moss-boulder"
+  }
+}

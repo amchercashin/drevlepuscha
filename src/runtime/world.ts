@@ -1,3 +1,4 @@
+import {createFloorRocks} from './floor-rocks.ts';
 import {SoilPattern} from './soil-pattern.ts';
 import {soilTexture} from './forest-floor.ts';
 import { Scene } from '@babylonjs/core/scene.js';
@@ -128,6 +129,7 @@ export function createWorld(scene: Scene, forestMode=false) {
     boxes.push({id:log.id,min:b.minimumWorld.clone(),max:b.maximumWorld.clone()});
    }
   }
+  if(forestMode)createFloorRocks(scene,boxes);
   for(const m of scene.meshes) {m.freezeWorldMatrix();m.isPickable=false;}
 
   const occluders=scene.meshes.filter(m=>m!==mesh);

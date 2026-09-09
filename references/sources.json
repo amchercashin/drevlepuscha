@@ -224,6 +224,20 @@
       "status": "checked-2026-09-08",
       "locator": "Official documentation checked during the two-route tree trial",
       "url": "https://docs.meshy.ai/en/api/asset-retention"
+    },
+    {
+      "id": "user-terrain-photos-2026-09-09",
+      "title": "Three user photographs: roots, gully slopes and undergrowth pockets",
+      "status": "user-supplied-private",
+      "locator": "references/private/terrain-2026-09-09/",
+      "note": "Observed as terrain and ecological reference, not instructions or measured elevation data. Originals and reference copies excluded from public history and runtime."
+    },
+    {
+      "id": "floor-art-generated-2026-09-09",
+      "title": "Generated painted floor atlas, soil and boulder concept",
+      "status": "authored",
+      "locator": "assets/floor/generation.json",
+      "note": "Built-in imagegen assets from authored text prompts. Boulder converted via Meshy Smart Topology; receipt in assets/rocks/moss-boulder/generation.json."
     }
   ]
 }
