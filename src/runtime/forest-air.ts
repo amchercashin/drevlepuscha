@@ -1,3 +1,5 @@
+import './height-air.ts';
+import {showcaseEnabled} from '../domain/showcase.ts';
 import {ShaderStore} from '@babylonjs/core/Engines/shaderStore.js';
 import {PostProcess} from '@babylonjs/core/PostProcesses/postProcess.js';
 import {Texture} from '@babylonjs/core/Materials/Textures/texture.js';
@@ -105,7 +107,7 @@ fn main(input: FragmentInputs)->FragmentOutputs {
 
 export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerator,sun:DirectionalLight){
  const engine=scene.getEngine(),shaderLanguage=engine.isWebGPU?1:0;
- const scatter=new PostProcess('forest-air','forestAir',{uniforms:['inverseViewProjection','sunMatrix','eye','sunDirection','sunColor','halfZ','airDensity'],samplers:['sceneDepth','sunDepth'],size:1,camera,samplingMode:Texture.BILINEAR_SAMPLINGMODE,shaderLanguage});
+ const scatter=new PostProcess('forest-air',showcaseEnabled?'heightAir':'forestAir',{uniforms:['inverseViewProjection','sunMatrix','eye','sunDirection','sunColor','halfZ','airDensity'],samplers:showcaseEnabled?['sceneDepth']:['sceneDepth','sunDepth'],size:1,camera,samplingMode:Texture.BILINEAR_SAMPLINGMODE,shaderLanguage});
  const composite=new PostProcess('forest-air-composite','forestAirComposite',{samplers:['sceneColor'],size:0.5,camera,samplingMode:Texture.BILINEAR_SAMPLINGMODE,shaderLanguage});
  // Post-process sizes describe INPUT targets: full-resolution scene colour/depth
  // enter scatter, whose output goes directly into composite's half-size input.
@@ -114,12 +116,12 @@ export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerato
  const airDensity=()=>scene.fogDensity<=0?0:scene.fogDensity>0.01?0.035:0.018;
  scatter.onApply=effect=>{
   scene.getTransformMatrix().invertToRef(inverse);
-  effect.setMatrix('inverseViewProjection',inverse);effect.setMatrix('sunMatrix',shadows.getTransformMatrix());
+  effect.setMatrix('inverseViewProjection',inverse);if(!showcaseEnabled)effect.setMatrix('sunMatrix',shadows.getTransformMatrix());
   effect.setVector3('eye',camera.globalPosition);effect.setVector3('sunDirection',sun.direction.normalizeToNew().negate());
   effect.setFloat3('sunColor',sun.diffuse.r*sun.intensity,sun.diffuse.g*sun.intensity,sun.diffuse.b*sun.intensity);
   effect.setFloat('halfZ',engine.isNDCHalfZRange?1:0);effect.setFloat('airDensity',airDensity());
-  effect._bindTexture('sceneDepth',scatter.inputTexture.depthStencilTexture);effect.setDepthStencilTexture('sunDepth',shadows.getShadowMap());
+  effect._bindTexture('sceneDepth',scatter.inputTexture.depthStencilTexture);if(!showcaseEnabled)effect.setDepthStencilTexture('sunDepth',shadows.getShadowMap());
  };
  composite.onApply=effect=>effect.setTextureFromPostProcess('sceneColor',scatter);
- return {stats:()=>({method:'shadowed-air',density:airDensity(),steps:16,maxDistanceM:32,scale:0.5,extraGeometryPasses:0})};
+ return {stats:()=>({method:showcaseEnabled?'stable-height-haze':'shadowed-air',density:airDensity(),steps:showcaseEnabled?0:16,heightOriginM:showcaseEnabled?4:null,maxDistanceM:32,scale:0.5,extraGeometryPasses:0})};
 }

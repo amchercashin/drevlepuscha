@@ -125,6 +125,7 @@ try {
     button.onclick=()=>{reset(button.dataset.checkpoint as keyof typeof CHECKPOINTS);focusScene();};
   }
   await waitForTextures(scene.textures.filter(t=>!t.isRenderTarget),(ready,total)=>{resume.textContent=`Материалы леса · ${ready}/${total}`;});
+  if(showcaseEnabled&&floor)await floor.prepare({x:player.e,y:groundHeight(player.e,player.n),z:-player.n},ready=>{resume.textContent=`Растительность · ${ready}`;});
   resume.disabled=false;resume.textContent='Начать прогулку';resume.onclick=focusScene;
   let cameraLift=0;
   const atlas=showcaseEnabled?createShowcaseMap(()=>({...player,yaw}),setPaused,(e,n)=>{player.e=e;player.n=n;keys.clear();demo=false;}):null;
@@ -216,7 +217,7 @@ try {
       },
       beginMeasurement:()=>{samples.length=0;collect=true;},
       endMeasurement:()=>{collect=false;return [...samples];},
-      startTraversal:(e=0,n=0)=>{reset();if(![e,n].every(Number.isFinite)||e<(forest?-255:-23)||e>(forest?255:23)||n<(forest?-255:-11)||n>(forest?383:63)||!walkerIsClear({e,n},world.boxes))throw new Error('Invalid traversal start');player.e=e;player.n=n;demo=true;demoTime=0;setPaused(false);canvas.focus();},
+      startTraversal:(e=0,n=0,running=false)=>{reset();if(![e,n].every(Number.isFinite)||e<(forest?-255:-23)||e>(forest?255:23)||n<(forest?-255:-11)||n>(forest?383:63)||!walkerIsClear({e,n},world.boxes))throw new Error('Invalid traversal start');player.e=e;player.n=n;demo=true;demoTime=0;setPaused(false);canvas.focus();if(running)keys.add('ShiftLeft');},
       stopTraversal:()=>{demo=false;},
     }});
   }
