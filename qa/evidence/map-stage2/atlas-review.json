@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "checks": [
+    "zone dressing",
+    "house vegetation exception",
+    "overview",
+    "house zoom",
+    "layers",
+    "search",
+    "SVG click",
+    "profile",
+    "JSON download",
+    "390px layout",
+    "no page errors"
+  ],
+  "fonts": {
+    "regular": [
+      {
+        "familyName": "PT Sans",
+        "postScriptName": "PTSans-Regular",
+        "isCustomFont": false,
+        "glyphCount": 123
+      }
+    ],
+    "bold": [
+      {
+        "familyName": "PT Sans",
+        "postScriptName": "PTSans-Bold",
+        "isCustomFont": false,
+        "glyphCount": 123
+      }
+    ]
+  },
+  "errors": []
+}

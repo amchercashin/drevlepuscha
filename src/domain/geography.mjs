@@ -27,10 +27,10 @@ function noise(e,n,scale,seed) {
   return 2*((a+(b-a)*u)*(1-v)+(c+(d-c)*u)*v)-1;
 }
 /** Small spatial bins make offline raster generation bounded per sample. */
-function makeIndex(features,marginFor) {
-  const bins=new Map(),size=1024;
+function makeIndex(features,marginFor,size=256) {
+  const bins=new Map();
   for(const f of features) {
-    const pts=f.water?.stations??f.geometry.coordinates,m=marginFor(f);
+    const pts=f.water?.stations??f.route?.surface?.stations??f.geometry.coordinates,m=marginFor(f);
     for(let i=0;i<pts.length-1;i++) {
       const a=pts[i],b=pts[i+1];
       for(let x=Math.floor((Math.min(a[0],b[0])-m)/size);x<=Math.floor((Math.max(a[0],b[0])+m)/size);x++)
@@ -49,9 +49,46 @@ function segmentNearest(e,n,s) {
 export function createGeography(g) {
   const features=new Map(g.features.map(f=>[f.id,f]));
   const waters=g.features.filter(f=>f.water), routes=g.features.filter(f=>f.route);
-  const waterIndex=makeIndex(waters,f=>f.water.floodplainHalfWidthM+f.water.blendWidthM);
-  const routeIndex=makeIndex(routes,()=>20), forest=features.get('forest_boundary').geometry.coordinates[0];
+  const waterIndex=makeIndex(waters,f=>(f.water.floodplainHalfWidthM+f.water.blendWidthM)*(1+(f.water.terrainVariation??0)));
+  const routeIndex=makeIndex(routes,f=>Math.max(20,(f.route.surface?.halfWidthM??0)+(f.route.surface?.blendM??0))), forest=features.get('forest_boundary').geometry.coordinates[0];
   const zones=[...g.zones].sort((a,b)=>b.priority-a.priority);
+  // Narrow winding floors, asymmetric shoulders; indexed only near authored paths.
+  const ribbons=(g.terrain.sculpt?.ribbons??[]).map(l=>{
+    const points=l.points.filter((_,i)=>i%3===0||i===l.points.length-1);let distance=0;
+    const stations=points.map((p,i)=>{if(i)distance+=Math.hypot(p[0]-points[i-1][0],p[1]-points[i-1][1]);return [...p,distance];});
+    return {geometry:{coordinates:stations},sculpt:l,length:distance};
+  });
+  const sculptIndex=makeIndex(ribbons,f=>f.sculpt.outerWidthM*2,128);
+  const protectedPlaces=(g.terrain.sculpt?.protectIds??[]).map(id=>features.get(id)).filter(Boolean);
+  function sculptHeight(e,n) {
+    const segments=sculptIndex(e,n);if(!segments.length)return 0;
+    let protect=1;
+    for(const f of protectedPlaces){const p=f.geometry.coordinates;protect=Math.min(protect,smooth((Math.hypot(e-p[0],n-p[1])-f.placement.reserveM)/60));}
+    if(!protect)return 0;
+    const groups=new Map();
+    for(const s of segments){const p=segmentNearest(e,n,s),id=s.f.sculpt.id;
+      if(!groups.has(id))groups.set(id,{f:s.f,min:Infinity,segments:[]});
+      const group=groups.get(id);group.min=Math.min(group.min,p.distance);group.segments.push({s,p});
+    }
+    let delta=0;
+    for(const group of groups.values()) {
+      const l=group.f.sculpt,d=group.min,seed=l.seed;
+      const edge=1-smooth((d-l.outerWidthM*1.5)/(l.outerWidthM*.5));if(!edge)continue;
+      let weight=0,width=0,variation=0;const radius=l.halfWidthM*2;
+      for(const {s,p} of group.segments){
+        const cutoff=1-smooth((p.distance-l.outerWidthM*1.5)/(l.outerWidthM*.5));
+        const dx=s.b[0]-s.a[0],dy=s.b[1]-s.a[1],w=Math.exp(-(p.distance*p.distance-d*d)/(radius*radius))*cutoff*Math.hypot(dx,dy);
+        if(w<1e-8)continue;const u=p.h,side=Math.sign(dx*(n-s.a[1])-dy*(e-s.a[0]));
+        const ends=smooth(u/l.endFadeM)*smooth((group.f.length-u)/l.endFadeM);
+        weight+=w;width+=w*l.halfWidthM*(.83+.17*Math.sin(u*.013+seed));
+        variation+=w*ends*(.85+.18*Math.sin(u*.019+seed)+.12*Math.sin(u*.037+seed*1.71)+side*.19*Math.sin(u*.009+seed*.7));
+      }
+      if(weight>0){width/=weight;const chamber=(1-Math.exp(-((d/width)**2)))*Math.exp(-((d/l.outerWidthM)**2));
+        delta+=l.bankHeightM*chamber*edge*variation/weight;
+      }
+    }
+    return delta*protect;
+  }
   function nearbyWater(e,n) {
     const found=new Map();
     for(const s of waterIndex(e,n)) {
@@ -62,17 +99,21 @@ export function createGeography(g) {
   function naturalHeight(e,n) {
     const t=g.terrain;let h=t.basePlane.h0+e*t.basePlane.eSlope+n*t.basePlane.nSlope;
     for(const l of t.landforms) {
-      let x=(e-l.center[0])/l.radiusM[0],y=(n-l.center[1])/l.radiusM[1];
+      const a=(l.rotationDeg??0)*Math.PI/180,dx=e-l.center[0],dy=n-l.center[1];
+      let x=(dx*Math.cos(a)+dy*Math.sin(a))/l.radiusM[0],y=(-dx*Math.sin(a)+dy*Math.cos(a))/l.radiusM[1];
       if(l.id==='bald-hill-rise') {const asymmetry=1+0.45*smooth(x)*smooth(-y);x*=asymmetry;y*=asymmetry;}
       const q=x*x+y*y;if(q<18)h+=l.amplitudeM*Math.exp(-q);
     }
     for(let i=0;i<t.noise.amplitudesM.length;i++) h+=t.noise.amplitudesM[i]*noise(e,n,t.noise.wavelengthsM[i],g.worldSeed+i*101);
-    return h;
+    return h+sculptHeight(e,n);
   }
-  function height(e,n) {
+  function height(e,n,applySurface=true) {
     let h=naturalHeight(e,n),core=null;
-    for(const p of nearbyWater(e,n)) {
+    const nearWater=nearbyWater(e,n);
+    for(const p of nearWater) {
       const w=p.feature.water,d=p.distance;
+      const variation=1+(w.terrainVariation??0)*(.6*Math.sin(e*.005+n*.009)+.4*Math.sin(e*.011-n*.004));
+      const flood=w.floodplainHalfWidthM*variation,blend=w.blendWidthM*variation;
       let width=w.widthM,depth=w.depthM;
       for(const pool of w.pools??[]) {const a=1-smooth(Math.hypot(e-pool.center[0],n-pool.center[1])/pool.radiusM);width+=(pool.widthM-w.widthM)*a;depth+=(pool.depthM-w.depthM)*a;}
       const half=width/2;
@@ -81,9 +122,9 @@ export function createGeography(g) {
         const bed=p.h-depth*(1-Math.pow(clamp(d/half),2));
         const target=d<=half?bed:p.h+w.bankHeightM*bank;
         if(!core||d/(half+6)<core.rank)core={h:target,rank:d/(half+6)};
-      } else if(d<w.floodplainHalfWidthM+w.blendWidthM) {
+      } else if(d<flood+blend) {
         const floor=p.h+w.bankHeightM+0.003*Math.max(0,d-half-6);
-        const influence=1-smooth((d-w.floodplainHalfWidthM)/w.blendWidthM);
+        const influence=1-smooth((d-flood)/blend);
         h=Math.min(h,h+(floor-h)*influence);
       }
     }
@@ -101,6 +142,23 @@ export function createGeography(g) {
         const hollow=(r.hollowSegments??[]).some(([a,b])=>s.i>=a&&s.i<b)?r.hollowDepthM*(1-smooth(p.distance/r.hollowHalfWidthM)):0;
         cut=Math.max(cut,hollow+r.cutDepthM*(1-smooth((p.distance-width)/4)));
       }h-=cut;
+    }
+    // Graded foot shelf; preserve the water bed even beside a narrow stream.
+    if(applySurface) {
+      const candidates=new Map();let waterFade=1;
+      for(const p of nearWater){const w=p.feature.water;let width=w.widthM;
+        for(const pool of w.pools??[])width+=(pool.widthM-w.widthM)*(1-smooth(Math.hypot(e-pool.center[0],n-pool.center[1])/pool.radiusM));
+        waterFade=Math.min(waterFade,smooth((p.distance-width/2-.3)/3));
+      }
+      if(waterFade>0)for(const s of routeIndex(e,n)) {
+        const surface=s.f.route.surface;if(!surface)continue;const p=segmentNearest(e,n,s);
+        const weight=1-smooth((p.distance-surface.halfWidthM)/surface.blendM);
+        const old=candidates.get(s.f.id);if(weight>0&&(!old||p.distance<old.distance))candidates.set(s.f.id,{distance:p.distance,h:p.h,weight});
+      }
+      if(candidates.size){const ds=Math.min(...[...candidates.values()].map(p=>p.distance));let sum=0,total=0,envelope=0;
+        for(const p of candidates.values()){const w=Math.exp(-(p.distance*p.distance-ds*ds)/36)*p.weight;sum+=p.h*w;total+=w;envelope=Math.max(envelope,p.weight);}
+        h+=(sum/total-h)*envelope*waterFade;
+      }
     }
     return h;
   }
@@ -127,7 +185,7 @@ export function createGeography(g) {
     // Western arrival is explicitly root-dominated with little understory.
     return null;
   }
-  return {height,naturalHeight,slope,zoneAt,exclusion,nearbyWater,features};
+  return {height,naturalHeight,sculptHeight,slope,zoneAt,exclusion,nearbyWater,features};
 }
 /** Bilinear read of SOUTH-first raster, inclusive end nodes, no out-of-range clamping. */
 export function sampleRaster(grid,e,n) {

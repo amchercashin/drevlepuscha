@@ -4,7 +4,7 @@ const browser=await chromium.launch({channel:'chrome',headless:true});const page
 try{
  await page.goto(pathToFileURL(resolve(root,'content/geography/old-forest/generated/atlas.html')).href);await page.evaluate(()=>document.fonts.ready);
  await page.screenshot({path:resolve(out,'overview.png'),fullPage:true});
- assert.equal(await page.locator('#places button').count(),27);
+ assert.equal(await page.locator('#places button').count(),await page.evaluate(()=>window.atlas.data.geography.features.length));
  assert.equal(await page.locator('#zoneSelect option').count(),10);
  await page.locator('#zoneSelect').selectOption('entry_root_floor');assert.match(await page.locator('#details').innerText(),/переплетённые корни/);assert.match(await page.locator('#details').innerText(),/Ограничения/);
  await page.screenshot({path:resolve(out,'dressing.png'),fullPage:true});await page.locator('#zones').uncheck();
@@ -12,6 +12,7 @@ try{
  await page.locator('#water').uncheck();assert.equal(await page.locator('path[data-feature="withywindle"]').count(),0);await page.locator('#water').check();
  await page.locator('#uncertainty').check();await page.locator('#zones').check();await page.screenshot({path:resolve(out,'layers.png'),fullPage:true});await page.locator('#uncertainty').uncheck();await page.locator('#zones').uncheck();
  await page.locator('#search').fill('Ив');await page.locator('#places button').filter({hasText:'Старый Ив'}).click();assert.match(await page.locator('#details').innerText(),/Старый Ив/);
+ await page.evaluate(()=>window.atlas.viewPlace('quiet_amphitheatre',650));await page.locator('[data-local-relief]').waitFor();await page.screenshot({path:resolve(out,'hidden-amphitheatre.png'),fullPage:true});
  await page.locator('#profileSelect').selectOption('house-approach');assert.match(await page.locator('#profileStats').innerText(),/Длина/);
  // Actual SVG point click, not merely calling the exposed selection function.
  await page.locator('#house').click();await page.locator('circle[data-feature="approach_knoll"]').click();assert.match(await page.locator('#details').innerText(),/Бугор перед домом/);

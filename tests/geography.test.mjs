@@ -16,11 +16,11 @@ test('geography: no underwater route, no abrupt steps; preserved local up/down/u
  }assert.ok(max<.45,`Route maximum grade ${(max*100).toFixed(1)}% exceeds 45% (24°); no claim about in-game walkability`);
 });
 test('geography: seeded repeatability and protected placement',()=>{
- const other=createGeography(g),points=[[4500,27000],[10000,33700],[17460,19160],[22400,19350],[16000,25000]];
+ const other=createGeography(g),points=['bonfire_glade','bald_hill','old_man_willow','tom_house','gully_mouth'].map(id=>m.features.get(id).geometry.coordinates);
  assert.equal(placementSeed(30180926,'ancient_broadleaf_core',-3,7,0),37558526);assert.notEqual(placementSeed(30180926,'ancient_broadleaf_core',-3,7,0),placementSeed(30180926,'ancient_broadleaf_core',-3,7,1));
  const reverse=[...points].reverse().map(p=>other.height(...p)).reverse();assert.deepEqual(points.map(p=>m.height(...p)),reverse);
  const hill=m.features.get('bald_hill'),[he,hn]=hill.geometry.coordinates;for(let i=0;i<16;i++){const a=i*Math.PI/8;assert.ok(m.height(he,hn)>m.height(he+Math.cos(a)*hill.placement.reserveM,hn+Math.sin(a)*hill.placement.reserveM)+18,'Bare crown must rise above a tree ring');}
- assert.equal(m.zoneAt(-8000,0),null);assert.equal(m.exclusion(2600,27300),'bonfire_glade');assert.equal(m.exclusion(17460,19160),'old_man_willow');assert.equal(m.zoneAt(15000,34000).id,'north_dry_conifers');
+ assert.equal(m.zoneAt(-8000,0),null);assert.equal(m.exclusion(...m.features.get('bonfire_glade').geometry.coordinates),'bonfire_glade');assert.equal(m.exclusion(...m.features.get('old_man_willow').geometry.coordinates),'old_man_willow');const ring=g.zones.find(z=>z.id==='north_dry_conifers').selector.coordinates.slice(0,-1),centre=[0,1].map(k=>ring.reduce((a,p)=>a+p[k],0)/ring.length);assert.equal(m.zoneAt(...centre).id,'north_dry_conifers');
 });
 test('geography: export revision, hashes, byte ranges, imported heights and tile seams',()=>{
  const directory=fileURLToPath(new URL('generated/',url)),hm=openHeightmap(directory),v=hm.manifest;
@@ -37,7 +37,7 @@ test('geography: export revision, hashes, byte ranges, imported heights and tile
    for(const p of [[a.origin[0]+256,a.origin[1]+256],[a.origin[0]+128,a.origin[1]+128]])assert.ok(Math.abs(hm.sample(...p)-m.height(...p))<.02,'Interior sample differs from model');
   }assert.equal(offset,bytes.length);assert.equal(raw,v.detail.decodedByteLength);
   for(const f of g.features.filter(f=>f.water&&f.id!=='brandywine')){const p=f.water.stations;for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],count=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/64);for(let j=0;j<count;j++){const e=a[0]+(b[0]-a[0])*j/count,n=a[1]+(b[1]-a[1])*j/count,water=a[2]+(b[2]-a[2])*j/count;assert.ok(hm.sample(e,n)<water+.35,'Exported bed above water '+f.id+' at '+e+','+n);}}}
-  const patch=hm.patch128(22272,19200);assert.equal(patch.values.length,65*65);assert.equal(patch.values[64],hm.sample(22400,19200));assert.throws(()=>hm.patch128(1,0));
+  const house=m.features.get('tom_house').geometry.coordinates,pe=Math.floor(house[0]/128)*128,pn=Math.floor(house[1]/128)*128,patch=hm.patch128(pe,pn);assert.equal(patch.values.length,65*65);assert.equal(patch.values[64],hm.sample(pe+128,pn));assert.throws(()=>hm.patch128(1,0));
   assert.throws(()=>hm.sample(g.bounds.minE-1,g.bounds.minN),RangeError);
   // Read actual exported detail at named terrain points, rather than testing generator alone.
   for(const id of ['bald_hill','old_man_willow','tom_house','approach_knoll','tom_hill_brow']){const p=m.features.get(id).geometry.coordinates;assert.ok(Math.abs(hm.sample(...p)-m.height(...p))<.15,id);}
