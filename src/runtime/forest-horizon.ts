@@ -13,7 +13,7 @@ export function forestHorizon(placements:TreePlacement[],templates:Mesh[],tones?
   const matrices=new Float32Array(cell.trees.length*16);
   cell.trees.forEach((p,i)=>Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n)).copyToArray(matrices,i*16));
   const colors=tones?new Float32Array(cell.trees.flatMap(p=>tones.get(p.id)!.asArray())):undefined;
-  cell.meshes=templates.map((source,i)=>{const mesh=new Mesh(`horizon-${key}-${i}`,source.getScene());source.geometry!.copy(`horizon-geometry-${key}-${i}`).applyToMesh(mesh);mesh.material=source.material;mesh.sideOrientation=source.sideOrientation;mesh.isPickable=false;mesh.thinInstanceSetBuffer('matrix',matrices,16,true);if(colors)mesh.thinInstanceSetBuffer('treeTone',colors,3,true);mesh.thinInstanceRefreshBoundingInfo();mesh.freezeWorldMatrix();return mesh;});
+  cell.meshes=templates.map((source,i)=>{const mesh=new Mesh(`horizon-${key}-${i}`,source.getScene());source.geometry!.copy(`horizon-geometry-${key}-${i}`).applyToMesh(mesh);mesh.material=source.material;mesh.sideOrientation=source.sideOrientation;mesh.isPickable=false;mesh.receiveShadows=true;mesh.thinInstanceSetBuffer('matrix',matrices,16,true);if(colors)mesh.thinInstanceSetBuffer('treeTone',colors,3,true);mesh.thinInstanceRefreshBoundingInfo();mesh.freezeWorldMatrix();return mesh;});
  }
  function distance(p:Point3,c:{e:number;n:number}){return Math.hypot(Math.max(c.e-p.x,0,p.x-c.e-64),Math.max(c.n+p.z,0,-p.z-c.n-64));}
  return {

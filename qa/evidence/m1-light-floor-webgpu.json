@@ -2,18 +2,18 @@
   "maxShadowPhaseErrorTexels": 0,
   "state": {
     "ready": true,
-    "frameCount": 3245,
+    "frameCount": 1314,
     "paused": false,
     "player": {
       "e": 0,
-      "n": 174.81294999999892,
+      "n": 175.080829999912,
       "heading": 0,
       "h": 3.2
     },
     "camera": {
       "x": 6.588369305827751e-16,
       "y": 5.2935142994976765,
-      "z": -169.43313819596298,
+      "z": -169.70101819587606,
       "yaw": 0,
       "pitch": 12,
       "distance": 5.5,
@@ -27,11 +27,11 @@
       "height": 1080,
       "backend": "webgpu",
       "webGLVersion": null,
-      "triangles": 588275,
+      "triangles": 588051,
       "shadowTriangles": 219859,
-      "mainTriangles": 368416,
-      "drawCalls": 50,
-      "meshes": 1763,
+      "mainTriangles": 368192,
+      "drawCalls": 48,
+      "meshes": 1764,
       "gpu": {
         "vendor": "apple",
         "renderer": "metal-3",
@@ -61,12 +61,12 @@
       ],
       "materialsPerTree": 1,
       "lodCounts": [
-        33,
-        115,
+        32,
+        116,
         1128
       ],
       "lockNear": false,
-      "transitions": 3,
+      "transitions": 1,
       "geometryBuffers": 83,
       "horizon": {
         "cells": 80,
@@ -89,17 +89,17 @@
       "filter": 6,
       "mapSize": 512,
       "probe": [
-        2.596446555107832,
-        2.967909451574087,
-        1.5149995693936944
+        2.600352805107832,
+        2.971815701574087,
+        1.5165496477857232
       ]
     }
   },
   "errors": [],
-  "frames": 2616,
-  "median": 6.900000095367432,
-  "p95": 7.799999952316284,
-  "over33": 1,
-  "date": "2026-09-08T21:43:00.681Z",
+  "frames": 1058,
+  "median": 16.699999928474426,
+  "p95": 18,
+  "over33": 5,
+  "date": "2026-09-09T07:06:58.175Z",
   "note": "Short 18-second sample including teleport; 4-second warmup, 1920x1080. Not thermal acceptance."
 }

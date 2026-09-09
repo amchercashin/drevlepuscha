@@ -2,18 +2,18 @@
   "maxShadowPhaseErrorTexels": 0,
   "state": {
     "ready": true,
-    "frameCount": 3213,
+    "frameCount": 1262,
     "paused": false,
     "player": {
       "e": 0,
-      "n": 174.8122100000422,
+      "n": 174.80555000000004,
       "heading": 0,
       "h": 3.2
     },
     "camera": {
       "x": 6.588369305827751e-16,
       "y": 5.2935142994976765,
-      "z": -169.43239819600626,
+      "z": -169.4257381959641,
       "yaw": 0,
       "pitch": 12,
       "distance": 5.5,
@@ -91,15 +91,15 @@
       "probe": [
         2.596446555107832,
         2.967909451574087,
-        2.0299907941371202
+        2.0299137849360704
       ]
     }
   },
   "errors": [],
-  "frames": 2621,
-  "median": 6.900000095367432,
-  "p95": 7.700000047683716,
-  "over33": 1,
-  "date": "2026-09-08T21:36:25.668Z",
+  "frames": 1052,
+  "median": 16.699999928474426,
+  "p95": 22.5,
+  "over33": 6,
+  "date": "2026-09-09T07:07:50.661Z",
   "note": "Short 18-second sample including teleport; 4-second warmup, 1920x1080. Not thermal acceptance."
 }

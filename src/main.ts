@@ -1,3 +1,4 @@
+import {CanopyShade} from './runtime/canopy-shade.ts';
 import {createTouchControls} from './runtime/touch-controls.ts';
 import {createForestAir} from './runtime/forest-air.ts';
 import {createForestFloor} from './runtime/forest-floor.ts';
@@ -59,6 +60,9 @@ try {
    sunlight.frustumEdgeFalloff=0.12;sunlight.bias=0.001;sunlight.normalBias=0.025;
    world.sun.shadowOrthoScale=0;world.sun.autoUpdateExtends=false;world.sun.autoCalcShadowZBounds=false;
    world.sun.shadowMinZ=1;world.sun.shadowMaxZ=110;world.sun.orthoLeft=-32;world.sun.orthoRight=32;world.sun.orthoTop=32;world.sun.orthoBottom=-32;
+  }
+  if(forest&&sunlight){
+   for(const material of scene.materials)if(material.name!=='forest-shadow-only')new CanopyShade(material,sunlight);
   }
   let shadowPassTriangles=0,shadowPassStart=0;
   if(sunlight){sunlight.getShadowMap()!.onBeforeRenderObservable.add(()=>{shadowPassStart=scene.getActiveIndices();});sunlight.getShadowMap()!.onAfterRenderObservable.add(()=>{shadowPassTriangles=(scene.getActiveIndices()-shadowPassStart)/3;});}
