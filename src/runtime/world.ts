@@ -1,3 +1,4 @@
+import {createForestProps} from './forest-props.ts';
 import {SoilPattern} from './soil-pattern.ts';
 import {soilTexture} from './forest-floor.ts';
 import { Scene } from '@babylonjs/core/scene.js';
@@ -116,18 +117,7 @@ export function createWorld(scene: Scene, forestMode=false) {
   box('end-marker',0,55,1.1,2.8,0.85);
   for(let i=0;i<10;i++) box(`edge-stone-${i}`,(i%2?-1:1)*(3.2+rng()),4+i*4.5,0.5+rng()*0.5,0.2+rng()*0.3,0.65);
   }
-  if(forestMode){
-   const woodMaterial=material('fallen-wood',Color3.White());
-   for(const [index,p] of [[-4.7,9,2.8,0.18,0.3],[4.8,30,3.2,0.24,-0.4],[-5.5,49,2.6,0.2,0.7],[7,57,3.6,0.25,0.2]].entries()){
-    const [e,n,length,radius,yaw]=p;
-    const log=CreateCylinder(`fallen-wood-${index}`,{height:length,diameterBottom:radius*2,diameterTop:radius*1.5,tessellation:9,faceColors:[new Color4(0.55,0.49,0.35,1),new Color4(0.36,0.38,0.34,1),new Color4(0.62,0.55,0.40,1)]},scene);
-    log.material=woodMaterial;log.rotation.set(0,yaw,Math.PI/2);log.position.set(e,groundHeight(e,n)+radius*0.65,-n);log.receiveShadows=true;
-    const points=log.getVerticesData('position')!,colours=log.getVerticesData('color')!;
-    for(let v=0;v<points.length/3;v++)if(points[v*3]>radius*0.25&&Math.abs(points[v*3+1])<length*0.36){colours[v*4]=0.29;colours[v*4+1]=0.42;colours[v*4+2]=0.29;}
-    log.setVerticesData('color',colours);log.computeWorldMatrix(true);const b=log.getBoundingInfo().boundingBox;
-    boxes.push({id:log.id,min:b.minimumWorld.clone(),max:b.maximumWorld.clone()});
-   }
-  }
+  if(forestMode)createForestProps(scene,boxes);
   for(const m of scene.meshes) {m.freezeWorldMatrix();m.isPickable=false;}
 
   const occluders=scene.meshes.filter(m=>m!==mesh);

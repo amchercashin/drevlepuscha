@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "provider": "Built-in image_gen",
+  "mode": "text-to-image",
+  "prompt": "Use case: stylized-concept. ONE reusable game rock asset: a low broad layered slate slab, about 1.8m across and 0.45m high, distinct from a round boulder. Three thick fused offset weathered strata forming one coherent solid rock, broad asymmetrical footprint, one slanted broken face. Blue gray slate with muted mauve and charcoal planes, a few flat sage moss patches on top, no moss hairs. Gentle erosion, slightly softened corners, no jagged spikes or tiny fragments. Matte hand-painted gouache fantasy book illustration translated into simple readable 3D volume, low-poly-friendly shapes. Three-quarter view slightly above, whole object in frame, pure white background. Neutral diffuse studio lighting, mild form shading, no cast shadow, no black baked occlusion. No soil island, ground, grass, separate stones, plants, labels, text, multiple views or collage. Flat stable base for placement on hills and river banks; readable broad planes suitable for procedural squash, stretch and subtle twist variants."
+}

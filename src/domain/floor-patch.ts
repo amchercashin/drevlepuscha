@@ -1,0 +1,69 @@
+import {groundHeight,pathCentre} from './harness.ts';
+import type {Box} from './harness.ts';
+import {FOREST_BOUNDS} from './forest.ts';
+import {createRandom,seedFor} from './seed.ts';
+
+export const FLOOR_CELL_M=8;
+export const FLOOR_HIDE_M=21;
+export interface FloorGeometry {positions:number[];indices:number[];colors:number[];uvs:number[];heights:number[]}
+const geometry=():FloorGeometry=>({positions:[],indices:[],colors:[],uvs:[],heights:[]});
+/** Distance to the cell expanded for leaves crossing its edge. */
+export function floorCellDistance(e:number,n:number,cx:number,cz:number){
+ return Math.hypot(Math.max(cx*8-1-e,0,e-((cx+1)*8+1)),Math.max(cz*8-1-n,0,n-((cz+1)*8+1)));
+}
+export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeight){
+ const grass=geometry(),leaves=geometry(),random=createRandom(seedFor('m1-floor-art-v1',cx,cz));
+ const nearby=boxes.filter(b=>b.max.x>=cx*8-1&&b.min.x<=(cx+1)*8+1&&b.max.z>=-(cz+1)*8-1&&b.min.z<=-cz*8+1);
+ function allowed(e:number,n:number,r:number){
+  if(e<FOREST_BOUNDS.minE||e>FOREST_BOUNDS.maxE||n<FOREST_BOUNDS.minN||n>FOREST_BOUNDS.maxN||Math.abs(e-pathCentre(n))<1.7+r)return false;
+  if(nearby.some(b=>e>b.min.x-r&&e<b.max.x+r&&-n>b.min.z-r&&-n<b.max.z+r))return false;
+  // Bare steep banks, richer pockets on gentler ground; no assumption of a flat floor.
+  const slope=Math.hypot(height(e+.25,n)-height(e-.25,n),height(e,n+.25)-height(e,n-.25))*2;
+  return slope<.85;
+ }
+ function vertex(g:FloorGeometry,x:number,y:number,z:number,u:number,v:number,c:number[]){
+  g.positions.push(x,y,z);g.uvs.push(u,v);g.colors.push(...c,1);
+  g.heights.push(Math.max(0,y-height(x,-z)+.06));
+ }
+ // Sparse bent opaque blades: the broad floor colour carries the distant cover.
+ for(let i=0;i<65;i++){
+  const e=cx*8+random()*8,n=cz*8+random()*8;
+  const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
+  if(!allowed(e,n,.15)||random()>patch*.8)continue;
+  const h=.13+random()*.22;
+  for(let blade=0;blade<4;blade++){
+   const a=random()*Math.PI*2,dx=Math.cos(a),dz=Math.sin(a),w=.017+random()*.014;
+   const x=e+(random()-.5)*.15,z=-n+(random()-.5)*.15,y=height(x,-z)-.025,k=grass.positions.length/3;
+   for(const [t,side] of [[0,-1],[0,1],[.6,-1],[.6,1],[1,0]]){
+    const width=w*(1-t*.7),bend=t*t*h*.45;
+    vertex(grass,x+dx*bend-dz*width*side,y+t*h,z+dz*bend+dx*width*side,0,0,[.38+t*.13,.48+t*.15,.25+t*.09]);
+   }
+   grass.indices.push(k,k+1,k+2,k+1,k+3,k+2,k+2,k+3,k+4);
+  }
+ }
+ // One atlas and curved strips, no geometry for each fern leaflet.
+ for(let plant=0;plant<14;plant++){
+  const e=cx*8+random()*8,n=cz*8+random()*8;
+  const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
+  if(!allowed(e,n,.6)||random()>patch)continue;
+  const fern=plant<5,len=(fern?.62:.35)+random()*(fern?.28:.20),count=fern?7:5,rotation=random()*Math.PI*2;
+  const quadrant=(fern?0:1)+(random()>.5?2:0),centreU=quadrant%2===0?.25:.75,baseV=quadrant<2?.505:.005;
+  const tint=.82+random()*.3;
+  for(let leaf=0;leaf<count;leaf++){
+   const a=rotation+leaf*Math.PI*2/count,dx=Math.cos(a),dz=Math.sin(a),length=len*(.75+random()*.25),k=leaves.positions.length/3;
+   for(let j=0;j<=4;j++){
+    const t=j/4,half=[.035,.34,.29,.18,.015][j];
+    const y=height(e,n)+Math.sin(t*Math.PI*.80)*length*(fern?.65:.8)-.025;
+    for(const side of [-1,1]){
+     const x=e+dx*t*length-dz*half*length*.85*side,z=-n+dz*t*length+dx*half*length*.85*side;
+     // Lift strip above local terrain on slopes, preserving an arched silhouette.
+     vertex(leaves,x,Math.max(y,height(x,-z)+.015),z,centreU+side*half*.5,baseV+.49*t,[tint,tint,tint]);
+    }
+    if(j<4){const q=k+j*2;leaves.indices.push(q,q+1,q+2,q+1,q+3,q+2);}
+   }
+  }
+ }
+ // Upper leaf surfaces face upward in Babylon's left-handed scene.
+ for(const g of [grass,leaves])for(let i=0;i<g.indices.length;i+=3)[g.indices[i+1],g.indices[i+2]]=[g.indices[i+2],g.indices[i+1]];
+ return {grass,leaves};
+}

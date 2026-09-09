@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "provider": "Meshy",
+  "type": "image-to-3d",
+  "taskId": "01a08521-5135-7554-ae3b-21a79ebaa8a6",
+  "createdAt": "2026-09-09T07:45:47.640Z",
+  "downloadedAt": "2026-09-09T07:48:57.732Z",
+  "request": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2",
+    "target_polycount": 2000,
+    "topology": "triangle",
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "2k",
+    "target_formats": [
+      "glb"
+    ],
+    "auto_size": false
+  },
+  "inputs": [
+    {
+      "path": "assets/trees/young-tree/concept.png",
+      "sha256": "941388e3e32a1452cbe3a2b7bf3f11ffad66738e2ed7af225e8105fc5215772f"
+    }
+  ],
+  "consumedCredits": 15,
+  "estimatedCredits": 15,
+  "files": [
+    {
+      "path": "assets/trees/young-tree/source.glb",
+      "bytes": 3396212,
+      "sha256": "5cb2f03deca8ec7b7c99e29e3bbb4b0a52b57177701cdc555e8b92da73de2f4d"
+    }
+  ]
+}

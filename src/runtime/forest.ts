@@ -1,3 +1,9 @@
+import {treeFamilySlot} from '../domain/tree-family.ts';
+import {groundHeight} from '../domain/harness.ts';
+import forkURL from '../../assets/trees/fork-oak/variants.json?url';
+import forkTexture from '../../assets/trees/fork-oak/material-0.jpg';
+import youngURL from '../../assets/trees/young-tree/variants.json?url';
+import youngTexture from '../../assets/trees/young-tree/material-0.jpg';
 import {LeafTransmission} from './leaf-transmission.ts';
 import type {DirectionalLight} from '@babylonjs/core/Lights/directionalLight.js';
 import {treeTone,TREE_TONE_VERSION} from '../domain/tree-tone.ts';
@@ -31,19 +37,43 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
  const response=await fetch(selected?.dataURL??dataURL);if(!response.ok)throw new Error('Game tree could not load');
  const data=await response.json() as TreeAssetData;
  const textureURLs:Record<string,string>=selected?selected.textures:{bark:barkURL,canopy:canopyURL};
- const materials=data.levels[0].map(({name})=>{const m=new StandardMaterial(`forest-${name}`,scene);m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.diffuseTexture=new Texture(textureURLs[name],scene,false,false);m.backFaceCulling=!(data.doubleSided?.[name]??false);new LodDither(m);return m;});
- const bakedMaterials=data.bakedColorFromLevel===undefined?materials:materials.map(m=>{const copy=new StandardMaterial(m.name+'-baked',scene);copy.diffuseColor=Color3.White();copy.specularColor=Color3.Black();copy.backFaceCulling=m.backFaceCulling;new LodDither(copy);return copy;});
- for(const m of new Set([...materials,...bakedMaterials]))new LeafTransmission(m,sun);
- const tonePlugins=selected?.id==='meshy-a'?[...new Set([...materials,...bakedMaterials])].map(m=>new TreeTone(m)):[];
- const templates=data.levels.map((parts,level)=>parts.map((p,i)=>{const m=new Mesh(`source-${level}-${p.name}`,scene);m.sideOrientation=1;const v=new VertexData();Object.assign(v,p);v.applyToMesh(m);m.material=level>=(data.bakedColorFromLevel??Infinity)?bakedMaterials[i]:materials[i];if(tonePlugins.length){m.registerInstancedBuffer('treeTone',3);m.instancedBuffers.treeTone=Vector3.Zero();}m.setEnabled(false);return m;}));
+ const variety=selected?.id==='meshy-a'&&new URLSearchParams(location.search).get('variety')!=='0';
+ const tonePlugins:TreeTone[]=[];
+ const materialSets=new Map<string,{materials:StandardMaterial[];baked:StandardMaterial[]}>();
+ function family(id:string,d:TreeAssetData,urls:Record<string,string>,sink=.85){
+  const materialKey=JSON.stringify([urls,d.bakedColorFromLevel,d.doubleSided]),cached=materialSets.get(materialKey);
+  const materials=cached?.materials??d.levels[0].map(({name})=>{const m=new StandardMaterial(`forest-${id}-${name}`,scene);m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.diffuseTexture=new Texture(urls[name],scene,false,false);m.backFaceCulling=!(d.doubleSided?.[name]??false);new LodDither(m);return m;});
+  const baked=cached?.baked??(d.bakedColorFromLevel===undefined?materials:materials.map(m=>{const copy=new StandardMaterial(m.name+'-baked',scene);copy.diffuseColor=Color3.White();copy.specularColor=Color3.Black();copy.backFaceCulling=m.backFaceCulling;new LodDither(copy);return copy;}));
+  if(!cached)for(const m of new Set([...materials,...baked])){new LeafTransmission(m,sun);if(selected?.id==='meshy-a')tonePlugins.push(new TreeTone(m));}
+  materialSets.set(materialKey,{materials,baked});
+  const templates=d.levels.map((parts,level)=>parts.map((p,i)=>{const m=new Mesh(`source-${id}-${level}-${p.name}`,scene);m.sideOrientation=1;const v=new VertexData();Object.assign(v,p);v.applyToMesh(m);m.material=level>=(d.bakedColorFromLevel??Infinity)?baked[i]:materials[i];if(selected?.id==='meshy-a'){m.registerInstancedBuffer('treeTone',3);m.instancedBuffers.treeTone=Vector3.Zero();}m.setEnabled(false);return m;}));
+  return {id,data:d,materials,templates,sink};
+ }
+ const families=[family(selected?.id??'game',data,textureURLs)],variantCounts:[number,number]=[0,0];
+ const additional=[[forkURL,forkTexture,.35],[youngURL,youngTexture,.16]] as const;
+ if(variety)for(const [familyIndex,[url,texture,sink]] of additional.entries()){
+  const r=await fetch(url);if(!r.ok)throw new Error('Forest variant data could not load');
+  const asset=await r.json() as {version:string;doubleSided:Record<string,boolean>;variants:(TreeAssetData&{id:string})[]};
+  if(asset.variants.length<1||asset.variants.length>4)throw new Error('Expected 1–4 variants per tree family');
+  variantCounts[familyIndex]=asset.variants.length;
+  for(const variant of asset.variants)families.push(family(variant.id,{...variant,version:asset.version,doubleSided:asset.doubleSided},{'material-0':texture},sink));
+ }
  const placements=forestPlacements(data.rootRadius,data.placement);
+ const slots=new Map(placements.map(p=>[p.id,variety?treeFamilySlot(p,variantCounts):0]));
+ const familyFor=(p:TreePlacement)=>families[slots.get(p.id)!];
+ const familyCounts=families.map(()=>0);for(const slot of slots.values())familyCounts[slot]++;
+ for(const p of placements)if(slots.get(p.id)!>0){
+  const f=familyFor(p),radius=(f.data.rootRadius??3.8)*Math.max(p.width,p.depth);let y=groundHeight(p.e,p.n);
+  for(let i=0;i<24;i++){const a=i*Math.PI/12;y=Math.min(y,groundHeight(p.e+Math.cos(a)*radius,p.n+Math.sin(a)*radius));}
+  p.y=y-.08-f.sink*p.height-radius*Math.hypot(p.leanX,p.leanZ);
+ }
  const tones=tonePlugins.length?new Map(placements.map(p=>[p.id,Vector3.FromArray(treeTone(p.id,p.e,p.n))])):undefined;
- const horizon=forestHorizon(placements,templates[2],tones);
+ const horizon=forestHorizon(placements,p=>familyFor(p).templates[2],tones);
  interface ActiveTree {placement:TreePlacement;level:number;instances:InstancedMesh[];fades:Map<number,Mesh[]>;previous:number;transition:number;opacity:number[];}
  const active=new Map<string,ActiveTree>();
  function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix();m.isPickable=false;m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
- function instances(t:TreePlacement,level:number){return templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
- function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
+ function instances(t:TreePlacement,level:number){return familyFor(t).templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
+ function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=familyFor(t.placement).templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
  let shadowCell='',shadowMesh:Mesh|null=null;
  const shadowMaterial=new StandardMaterial('forest-shadow-only',scene);
  function shadowCasters(feet:Point3){
@@ -51,7 +81,7 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   if(key!==shadowCell){
    shadowCell=key;shadowMesh?.dispose();const parts:Mesh[]=[];
    for(const p of placements)if(Math.hypot(p.e-e,p.n-n)<56){
-    for(const template of templates[1]){const m=new Mesh('shadow-part',scene);template.geometry!.applyToMesh(m);m.material=shadowMaterial;transform(m,p);parts.push(m);}
+    for(const template of familyFor(p).templates[1]){const m=new Mesh('shadow-part',scene);template.geometry!.applyToMesh(m);m.material=shadowMaterial;transform(m,p);parts.push(m);}
    }
    shadowMesh=Mesh.MergeMeshes(parts,true,true,undefined,false,false);
    if(shadowMesh){shadowMesh.name='forest-shadow-batch';shadowMesh.layerMask=0;shadowMesh.isPickable=false;shadowMesh.freezeWorldMatrix();}
@@ -66,7 +96,7 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
    let t=active.get(p.id);
    // Whole cells hand off to identical far-LOD batches, without alpha overlap or gaps.
    if(!horizon.detailed(p.id)){if(t){t.instances.forEach(m=>m.dispose());for(const pair of t.fades.values())pair.forEach(m=>m.dispose());active.delete(p.id);}continue;}
-   if(!t){const level=lockNear?0:centreDistance<32?0:centreDistance<58?1:2;t={placement:p,level,instances:instances(p,level),fades:new Map(),previous:-1,transition:1,opacity:materials.map(()=>1)};active.set(p.id,t);}
+   if(!t){const level=lockNear?0:centreDistance<32?0:centreDistance<58?1:2;t={placement:p,level,instances:instances(p,level),fades:new Map(),previous:-1,transition:1,opacity:familyFor(p).materials.map(()=>1)};active.set(p.id,t);}
    const distance=Math.max(0,centreDistance-6*Math.max(p.width,p.depth)),next=lockNear?0:treeLevel(distance,t.level);
    if(next!==t.level&&(t.previous<0||forceSwitch)){if(forceSwitch){for(const pair of t.fades.values())pair.forEach(m=>m.setEnabled(false));t.previous=-1;t.transition=1;}else{t.previous=t.level;t.transition=0;}t.instances.forEach(m=>m.dispose());t.instances=instances(p,next);t.level=next;}
    if(t.previous>=0){t.transition=Math.min(1,t.transition+dt/0.25);if(t.transition===1){fades(t,t.previous).forEach(m=>m.setEnabled(false));t.previous=-1;}}
@@ -87,5 +117,5 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   }
   forceSwitch=false;
  }
- return {shadowCasters,boxes:placements.map(p=>treeCollider(p,data.trunkRadius)),update,stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:selected?.label,colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:materials.length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:templates.length*materials.length+horizon.stats().cells*materials.length,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
+ return {shadowCasters,boxes:placements.map(p=>treeCollider(p,familyFor(p).data.trunkRadius)),update,stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:variety?'Три семейства · процедурные варианты':selected?.label,variety,families:families.map((f,i)=>({id:f.id,trees:familyCounts[i],triangles:f.data.triangles})),colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:data.levels[0].length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:families.reduce((n,f)=>n+f.templates.reduce((a,b)=>a+b.length,0),0)+horizon.stats().geometryBuffers,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
 }

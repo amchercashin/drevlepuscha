@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "provider": "Meshy",
+  "type": "image-to-3d",
+  "taskId": "01a0851c-b1b7-724c-b177-c2494e9a43af",
+  "createdAt": "2026-09-09T07:40:44.588Z",
+  "downloadedAt": "2026-09-09T07:45:06.907Z",
+  "request": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2",
+    "target_polycount": 3000,
+    "topology": "triangle",
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "2k",
+    "target_formats": [
+      "glb"
+    ],
+    "auto_size": false
+  },
+  "inputs": [
+    {
+      "path": "assets/trees/fork-oak/concept.png",
+      "sha256": "482b264c93d8ab8814d45d4c6db0262b0a2e94175651c5bd805f7dc742012347"
+    }
+  ],
+  "consumedCredits": 15,
+  "estimatedCredits": 15,
+  "files": [
+    {
+      "path": "assets/trees/fork-oak/source.glb",
+      "bytes": 4032936,
+      "sha256": "8b5170a3dc825544b83c4b6a5f6dc1f7bc98ff453fd8c17521b22b59edaef017"
+    }
+  ]
+}
