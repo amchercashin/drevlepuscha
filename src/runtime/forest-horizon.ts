@@ -20,8 +20,10 @@ export function forestHorizon(placements:TreePlacement[],templates:Mesh[]|((p:Tr
   }
  }
  function distance(p:Point3,c:{e:number;n:number}){return Math.hypot(Math.max(c.e-p.x,0,p.x-c.e-64),Math.max(c.n+p.z,0,-p.z-c.n-64));}
+ let active:TreePlacement[]=[];
  return {
-  update(camera:Point3,feet:Point3){for(const cell of cells.values()){const d=Math.min(distance(camera,cell),distance(feet,cell));cell.detailed=d<(cell.detailed?125:110);cell.meshes.forEach(m=>m.setEnabled(!cell.detailed));}},
+  activePlacements:()=>active,
+  update(camera:Point3,feet:Point3){let changed=false;for(const cell of cells.values()){const d=Math.min(distance(camera,cell),distance(feet,cell)),detailed=d<(cell.detailed?125:110);if(detailed!==cell.detailed){changed=true;cell.detailed=detailed;cell.meshes.forEach(m=>m.setEnabled(!detailed));}}if(changed)active=[...cells.values()].filter(c=>c.detailed).flatMap(c=>c.trees);},
   detailed(id:string){return cells.get(membership.get(id)!)!.detailed;},
   stats(){return {cells:cells.size,geometryBuffers:[...cells.values()].reduce((n,c)=>n+c.meshes.length,0),distantCells:[...cells.values()].filter(c=>!c.detailed).length,distantTrees:[...cells.values()].filter(c=>!c.detailed).reduce((n,c)=>n+c.trees.length,0)};},
  };

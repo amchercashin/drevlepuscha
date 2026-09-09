@@ -1,0 +1,845 @@
+{
+  "date": "2026-09-09T08:25:17.072Z",
+  "label": "after",
+  "renderer": "webgl2",
+  "base": "http://127.0.0.1:4177",
+  "errors": [],
+  "views": [
+    {
+      "name": "entrance",
+      "state": {
+        "ready": true,
+        "frameCount": 295,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 0,
+          "heading": 0,
+          "h": 0
+        },
+        "camera": {
+          "x": 6.588369305827751e-16,
+          "y": 2.0935142994976763,
+          "z": 5.379811804035931,
+          "yaw": 0,
+          "pitch": 12,
+          "distance": 5.5,
+          "currentDistance": 5.5,
+          "followError": 2.220446049250313e-16
+        },
+        "playerClear": true,
+        "faded": [],
+        "render": {
+          "width": 1920,
+          "height": 1080,
+          "backend": "webgl2",
+          "webGLVersion": 2,
+          "triangles": 822904,
+          "shadowTriangles": 156780,
+          "mainTriangles": 666124,
+          "drawCalls": 129,
+          "meshes": 1302,
+          "gpu": {
+            "vendor": "Google Inc. (Apple)",
+            "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+            "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1,
+          "resolutionQuality": "high"
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m1-2",
+        "demo": false,
+        "forest": {
+          "version": "m1-tree-field-v1",
+          "asset": "meshy-a",
+          "assetLabel": "Три семейства · процедурные варианты",
+          "variety": true,
+          "families": [
+            {
+              "id": "meshy-a",
+              "trees": 2770,
+              "triangles": [
+                5318,
+                1413,
+                224
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-0",
+              "trees": 483,
+              "triangles": [
+                2978,
+                890,
+                214
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-1",
+              "trees": 374,
+              "triangles": [
+                2978,
+                886,
+                220
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-2",
+              "trees": 259,
+              "triangles": [
+                2978,
+                888,
+                217
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-0",
+              "trees": 256,
+              "triangles": [
+                1922,
+                587,
+                227
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-1",
+              "trees": 225,
+              "triangles": [
+                1922,
+                588,
+                224
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-2",
+              "trees": 600,
+              "triangles": [
+                1922,
+                589,
+                225
+              ]
+            }
+          ],
+          "colorVariation": true,
+          "colorVersion": "tree-tone-v1",
+          "trees": 4967,
+          "activeTrees": 1028,
+          "trianglesPerLevel": [
+            5318,
+            1413,
+            224
+          ],
+          "materialsPerTree": 1,
+          "lodCounts": [
+            44,
+            123,
+            861
+          ],
+          "lockNear": false,
+          "transitions": 0,
+          "geometryBuffers": 115,
+          "horizon": {
+            "cells": 80,
+            "geometryBuffers": 94,
+            "distantCells": 64,
+            "distantTrees": 3939
+          }
+        },
+        "floor": {
+          "cells": 49,
+          "triangles": 20976
+        },
+        "lighting": {
+          "air": {
+            "method": "shadowed-air",
+            "steps": 16,
+            "maxDistanceM": 32,
+            "scale": 0.5,
+            "extraGeometryPasses": 0
+          },
+          "filter": 6,
+          "mapSize": 512,
+          "probe": [
+            -0.15745969489216893,
+            -0.18443429842590864,
+            -0.03315706364810467
+          ]
+        }
+      }
+    },
+    {
+      "name": "ferns",
+      "state": {
+        "ready": true,
+        "frameCount": 414,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 15,
+          "heading": 0,
+          "h": 0
+        },
+        "camera": {
+          "x": 6.588369305827751e-16,
+          "y": 2.0935142994976763,
+          "z": -9.620188195964069,
+          "yaw": 0,
+          "pitch": 12,
+          "distance": 5.5,
+          "currentDistance": 5.5,
+          "followError": 2.220446049250313e-16
+        },
+        "playerClear": true,
+        "faded": [],
+        "render": {
+          "width": 1920,
+          "height": 1080,
+          "backend": "webgl2",
+          "webGLVersion": 2,
+          "triangles": 788735,
+          "shadowTriangles": 149121,
+          "mainTriangles": 639614,
+          "drawCalls": 124,
+          "meshes": 1403,
+          "gpu": {
+            "vendor": "Google Inc. (Apple)",
+            "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+            "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1,
+          "resolutionQuality": "high"
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m1-2",
+        "demo": false,
+        "forest": {
+          "version": "m1-tree-field-v1",
+          "asset": "meshy-a",
+          "assetLabel": "Три семейства · процедурные варианты",
+          "variety": true,
+          "families": [
+            {
+              "id": "meshy-a",
+              "trees": 2770,
+              "triangles": [
+                5318,
+                1413,
+                224
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-0",
+              "trees": 483,
+              "triangles": [
+                2978,
+                890,
+                214
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-1",
+              "trees": 374,
+              "triangles": [
+                2978,
+                886,
+                220
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-2",
+              "trees": 259,
+              "triangles": [
+                2978,
+                888,
+                217
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-0",
+              "trees": 256,
+              "triangles": [
+                1922,
+                587,
+                227
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-1",
+              "trees": 225,
+              "triangles": [
+                1922,
+                588,
+                224
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-2",
+              "trees": 600,
+              "triangles": [
+                1922,
+                589,
+                225
+              ]
+            }
+          ],
+          "colorVariation": true,
+          "colorVersion": "tree-tone-v1",
+          "trees": 4967,
+          "activeTrees": 1028,
+          "trianglesPerLevel": [
+            5318,
+            1413,
+            224
+          ],
+          "materialsPerTree": 1,
+          "lodCounts": [
+            39,
+            106,
+            883
+          ],
+          "lockNear": false,
+          "transitions": 0,
+          "geometryBuffers": 115,
+          "horizon": {
+            "cells": 80,
+            "geometryBuffers": 94,
+            "distantCells": 64,
+            "distantTrees": 3939
+          }
+        },
+        "floor": {
+          "cells": 49,
+          "triangles": 21528
+        },
+        "lighting": {
+          "air": {
+            "method": "shadowed-air",
+            "steps": 16,
+            "maxDistanceM": 32,
+            "scale": 0.5,
+            "extraGeometryPasses": 0
+          },
+          "filter": 6,
+          "mapSize": 512,
+          "probe": [
+            0.07691530510783195,
+            0.09290945157408714,
+            0.14043167419731617
+          ]
+        }
+      }
+    },
+    {
+      "name": "canopy",
+      "state": {
+        "ready": true,
+        "frameCount": 531,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 15,
+          "heading": 0,
+          "h": 0
+        },
+        "camera": {
+          "x": -2.749999998934938,
+          "y": 0.95,
+          "z": -10.236860278570674,
+          "yaw": 29.99999998718846,
+          "pitch": -25,
+          "distance": 5.5,
+          "currentDistance": 5.5,
+          "followError": 8.881784197001252e-16
+        },
+        "playerClear": true,
+        "faded": [
+          {
+            "id": "narrow-left-lod0-0-fade",
+            "opacity": 0.18
+          }
+        ],
+        "render": {
+          "width": 1920,
+          "height": 1080,
+          "backend": "webgl2",
+          "webGLVersion": 2,
+          "triangles": 711891,
+          "shadowTriangles": 149121,
+          "mainTriangles": 562770,
+          "drawCalls": 110,
+          "meshes": 1406,
+          "gpu": {
+            "vendor": "Google Inc. (Apple)",
+            "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+            "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1,
+          "resolutionQuality": "high"
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m1-2",
+        "demo": false,
+        "forest": {
+          "version": "m1-tree-field-v1",
+          "asset": "meshy-a",
+          "assetLabel": "Три семейства · процедурные варианты",
+          "variety": true,
+          "families": [
+            {
+              "id": "meshy-a",
+              "trees": 2770,
+              "triangles": [
+                5318,
+                1413,
+                224
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-0",
+              "trees": 483,
+              "triangles": [
+                2978,
+                890,
+                214
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-1",
+              "trees": 374,
+              "triangles": [
+                2978,
+                886,
+                220
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-2",
+              "trees": 259,
+              "triangles": [
+                2978,
+                888,
+                217
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-0",
+              "trees": 256,
+              "triangles": [
+                1922,
+                587,
+                227
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-1",
+              "trees": 225,
+              "triangles": [
+                1922,
+                588,
+                224
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-2",
+              "trees": 600,
+              "triangles": [
+                1922,
+                589,
+                225
+              ]
+            }
+          ],
+          "colorVariation": true,
+          "colorVersion": "tree-tone-v1",
+          "trees": 4967,
+          "activeTrees": 1028,
+          "trianglesPerLevel": [
+            5318,
+            1413,
+            224
+          ],
+          "materialsPerTree": 1,
+          "lodCounts": [
+            38,
+            107,
+            883
+          ],
+          "lockNear": false,
+          "transitions": 0,
+          "geometryBuffers": 115,
+          "horizon": {
+            "cells": 80,
+            "geometryBuffers": 94,
+            "distantCells": 64,
+            "distantTrees": 3939
+          }
+        },
+        "floor": {
+          "cells": 49,
+          "triangles": 21528
+        },
+        "lighting": {
+          "air": {
+            "method": "shadowed-air",
+            "steps": 16,
+            "maxDistanceM": 32,
+            "scale": 0.5,
+            "extraGeometryPasses": 0
+          },
+          "filter": 6,
+          "mapSize": 512,
+          "probe": [
+            0.07691530510783195,
+            0.09290945157408714,
+            0.14043167419731617
+          ]
+        }
+      }
+    },
+    {
+      "name": "clearing",
+      "state": {
+        "ready": true,
+        "frameCount": 649,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 40,
+          "heading": 0,
+          "h": 1.759762962962963
+        },
+        "camera": {
+          "x": -1.8009248197439758e-9,
+          "y": 3.8532772624606393,
+          "z": -34.62018819596407,
+          "yaw": 1.91801632354327e-8,
+          "pitch": 12,
+          "distance": 5.5,
+          "currentDistance": 5.5,
+          "followError": 0
+        },
+        "playerClear": true,
+        "faded": [],
+        "render": {
+          "width": 1920,
+          "height": 1080,
+          "backend": "webgl2",
+          "webGLVersion": 2,
+          "triangles": 693256,
+          "shadowTriangles": 142886,
+          "mainTriangles": 550370,
+          "drawCalls": 107,
+          "meshes": 1882,
+          "gpu": {
+            "vendor": "Google Inc. (Apple)",
+            "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+            "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1,
+          "resolutionQuality": "high"
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m1-2",
+        "demo": false,
+        "forest": {
+          "version": "m1-tree-field-v1",
+          "asset": "meshy-a",
+          "assetLabel": "Три семейства · процедурные варианты",
+          "variety": true,
+          "families": [
+            {
+              "id": "meshy-a",
+              "trees": 2770,
+              "triangles": [
+                5318,
+                1413,
+                224
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-0",
+              "trees": 483,
+              "triangles": [
+                2978,
+                890,
+                214
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-1",
+              "trees": 374,
+              "triangles": [
+                2978,
+                886,
+                220
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-2",
+              "trees": 259,
+              "triangles": [
+                2978,
+                888,
+                217
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-0",
+              "trees": 256,
+              "triangles": [
+                1922,
+                587,
+                227
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-1",
+              "trees": 225,
+              "triangles": [
+                1922,
+                588,
+                224
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-2",
+              "trees": 600,
+              "triangles": [
+                1922,
+                589,
+                225
+              ]
+            }
+          ],
+          "colorVariation": true,
+          "colorVersion": "tree-tone-v1",
+          "trees": 4967,
+          "activeTrees": 1283,
+          "trianglesPerLevel": [
+            5318,
+            1413,
+            224
+          ],
+          "materialsPerTree": 1,
+          "lodCounts": [
+            36,
+            102,
+            1145
+          ],
+          "lockNear": false,
+          "transitions": 0,
+          "geometryBuffers": 115,
+          "horizon": {
+            "cells": 80,
+            "geometryBuffers": 94,
+            "distantCells": 60,
+            "distantTrees": 3684
+          }
+        },
+        "floor": {
+          "cells": 49,
+          "triangles": 22404
+        },
+        "lighting": {
+          "air": {
+            "method": "shadowed-air",
+            "steps": 16,
+            "maxDistanceM": 32,
+            "scale": 0.5,
+            "extraGeometryPasses": 0
+          },
+          "filter": 6,
+          "mapSize": 512,
+          "probe": [
+            0.47144655510783195,
+            0.5147844515740871,
+            0.4518085140734911
+          ]
+        }
+      }
+    },
+    {
+      "name": "outer",
+      "state": {
+        "ready": true,
+        "frameCount": 768,
+        "paused": false,
+        "player": {
+          "e": 0,
+          "n": 160,
+          "heading": 0,
+          "h": 3.2
+        },
+        "camera": {
+          "x": -5.379811804035931,
+          "y": 5.2935142994976765,
+          "z": -159.99999999462258,
+          "yaw": 89.99999994272974,
+          "pitch": 12,
+          "distance": 5.5,
+          "currentDistance": 5.5,
+          "followError": 1.2813616062016108e-15
+        },
+        "playerClear": true,
+        "faded": [
+          {
+            "id": "m1-outer-0-160-lod0-0-fade",
+            "opacity": 0.9986786180539533
+          }
+        ],
+        "render": {
+          "width": 1920,
+          "height": 1080,
+          "backend": "webgl2",
+          "webGLVersion": 2,
+          "triangles": 582502,
+          "shadowTriangles": 184366,
+          "mainTriangles": 398136,
+          "drawCalls": 84,
+          "meshes": 1971,
+          "gpu": {
+            "vendor": "Google Inc. (Apple)",
+            "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3, Unspecified Version)",
+            "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+          },
+          "fallbackReason": null,
+          "devicePixelRatio": 1,
+          "internalDpr": 1,
+          "resolutionQuality": "high"
+        },
+        "errors": [],
+        "seed": "atlas-demo-01",
+        "sceneVersion": "m1-2",
+        "demo": false,
+        "forest": {
+          "version": "m1-tree-field-v1",
+          "asset": "meshy-a",
+          "assetLabel": "Три семейства · процедурные варианты",
+          "variety": true,
+          "families": [
+            {
+              "id": "meshy-a",
+              "trees": 2770,
+              "triangles": [
+                5318,
+                1413,
+                224
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-0",
+              "trees": 483,
+              "triangles": [
+                2978,
+                890,
+                214
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-1",
+              "trees": 374,
+              "triangles": [
+                2978,
+                886,
+                220
+              ]
+            },
+            {
+              "id": "meshy-fork-oak-v1-2",
+              "trees": 259,
+              "triangles": [
+                2978,
+                888,
+                217
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-0",
+              "trees": 256,
+              "triangles": [
+                1922,
+                587,
+                227
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-1",
+              "trees": 225,
+              "triangles": [
+                1922,
+                588,
+                224
+              ]
+            },
+            {
+              "id": "meshy-young-tree-v1-2",
+              "trees": 600,
+              "triangles": [
+                1922,
+                589,
+                225
+              ]
+            }
+          ],
+          "colorVariation": true,
+          "colorVersion": "tree-tone-v1",
+          "trees": 4967,
+          "activeTrees": 1151,
+          "trianglesPerLevel": [
+            5318,
+            1413,
+            224
+          ],
+          "materialsPerTree": 1,
+          "lodCounts": [
+            26,
+            118,
+            1007
+          ],
+          "lockNear": false,
+          "transitions": 0,
+          "geometryBuffers": 115,
+          "horizon": {
+            "cells": 80,
+            "geometryBuffers": 94,
+            "distantCells": 62,
+            "distantTrees": 3816
+          }
+        },
+        "floor": {
+          "cells": 49,
+          "triangles": 21788
+        },
+        "lighting": {
+          "air": {
+            "method": "shadowed-air",
+            "steps": 16,
+            "maxDistanceM": 32,
+            "scale": 0.5,
+            "extraGeometryPasses": 0
+          },
+          "filter": 6,
+          "mapSize": 512,
+          "probe": [
+            2.362071555107832,
+            2.694471951574087,
+            1.858575226739049
+          ]
+        }
+      }
+    }
+  ],
+  "runs": []
+}

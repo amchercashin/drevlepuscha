@@ -19,7 +19,7 @@ import {VertexData} from '@babylonjs/core/Meshes/mesh.vertexData.js';
 import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
 import {Texture} from '@babylonjs/core/Materials/Textures/texture.js';
 import {Color3} from '@babylonjs/core/Maths/math.color.js';
-import {Vector3} from '@babylonjs/core/Maths/math.vector.js';
+import {Matrix,Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import {Ray} from '@babylonjs/core/Culling/ray.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 import type {Point3} from '../domain/harness.ts';
@@ -74,24 +74,31 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
  function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix();m.isPickable=false;m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
  function instances(t:TreePlacement,level:number){return familyFor(t).templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
  function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=familyFor(t.placement).templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
- let shadowCell='',shadowMesh:Mesh|null=null;
+ // Persistent shared geometry and bounded matrix buffers; no per-cell mesh merge.
  const shadowMaterial=new StandardMaterial('forest-shadow-only',scene);
+ const shadowGroups=families.map((family,i)=>({entries:[] as {p:TreePlacement;matrix:Matrix}[],buffer:new Float32Array(familyCounts[i]*16),meshes:family.templates[1].map((source,j)=>{
+  const mesh=new Mesh(`forest-shadow-${i}-${j}`,scene);source.geometry!.copy(`shadow-geometry-${i}-${j}`).applyToMesh(mesh);
+  mesh.material=shadowMaterial;mesh.sideOrientation=1;mesh.layerMask=0;mesh.isPickable=false;mesh.freezeWorldMatrix();return mesh;
+ })}));
+ for(const p of placements)shadowGroups[slots.get(p.id)!].entries.push({p,matrix:Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n))});
+ for(const g of shadowGroups)for(const mesh of g.meshes){mesh.thinInstanceSetBuffer('matrix',g.buffer,16,false);mesh.setEnabled(false);}
+ let shadowCell='',shadowMeshes:Mesh[]=[];
  function shadowCasters(feet:Point3){
   const e=Math.floor(feet.x/8)*8+4,n=Math.floor(-feet.z/8)*8+4,key=`${e}:${n}`;
   if(key!==shadowCell){
-   shadowCell=key;shadowMesh?.dispose();const parts:Mesh[]=[];
-   for(const p of placements)if(Math.hypot(p.e-e,p.n-n)<56){
-    for(const template of familyFor(p).templates[1]){const m=new Mesh('shadow-part',scene);template.geometry!.applyToMesh(m);m.material=shadowMaterial;transform(m,p);parts.push(m);}
+   shadowCell=key;shadowMeshes=[];
+   for(const g of shadowGroups){let count=0;
+    for(const {p,matrix} of g.entries)if((p.e-e)**2+(p.n-n)**2<56*56)matrix.copyToArray(g.buffer,count++*16);
+    for(const mesh of g.meshes){mesh.thinInstanceCount=count;mesh.setEnabled(count>0);if(count){mesh.thinInstanceBufferUpdated('matrix');mesh.thinInstanceRefreshBoundingInfo();shadowMeshes.push(mesh);}}
    }
-   shadowMesh=Mesh.MergeMeshes(parts,true,true,undefined,false,false);
-   if(shadowMesh){shadowMesh.name='forest-shadow-batch';shadowMesh.layerMask=0;shadowMesh.isPickable=false;shadowMesh.freezeWorldMatrix();}
   }
-  return shadowMesh?[shadowMesh]:[];
+  return shadowMeshes;
  }
  let lockNear=false,forceSwitch=false;
  function update(camera:Point3,feet:Point3,dt:number){
   horizon.update(camera,feet);
-  for(const p of placements){
+  for(const [id,t] of active)if(!horizon.detailed(id)){t.instances.forEach(m=>m.dispose());for(const pair of t.fades.values())pair.forEach(m=>m.dispose());active.delete(id);}
+  for(const p of horizon.activePlacements()){
    const centreDistance=Math.min(Math.hypot(camera.x-p.e,camera.z+p.n),Math.hypot(feet.x-p.e,feet.z+p.n));
    let t=active.get(p.id);
    // Whole cells hand off to identical far-LOD batches, without alpha overlap or gaps.
