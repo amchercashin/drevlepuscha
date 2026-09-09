@@ -109,8 +109,6 @@ try {
     active:()=>!paused,engage:()=>{demo=false;},
     look:(x,y)=>{yawTarget=normalizeAzimuth(yawTarget+x*0.2);pitch=clamp(pitch+y*0.16,config.travel.pitchMinDeg,config.travel.pitchMaxDeg);},
     zoom:delta=>{distance=clamp(distance+delta,config.travel.distanceMinM,config.travel.distanceMaxM);},
-    recenter:()=>{yawTarget=player.heading;pitch=config.travel.pitchDefaultDeg;distance=config.travel.distanceM;},
-    pause:()=>setPaused(true),
   });
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('pointerdown',e=>{

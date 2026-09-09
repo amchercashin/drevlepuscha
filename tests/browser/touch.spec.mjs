@@ -6,6 +6,7 @@ for(const scene of ['m0','m1']) test(`touch movement and look coexist, release a
   await page.goto(`/?debug=1&renderer=webgl2&scene=${scene}`);
   await page.waitForFunction(()=>window.m0?.state().ready);
   await expect(page.locator('.touch-controls')).toBeHidden();
+  await expect(page.locator('nav')).toBeHidden();
   await page.getByRole('button',{name:'Начать прогулку'}).tap();
   await expect(page.locator('.touch-controls')).toBeVisible();
   const cdp=await page.context().newCDPSession(page);
@@ -14,10 +15,10 @@ for(const scene of ['m0','m1']) test(`touch movement and look coexist, release a
   const x=box.x+box.width/2,y=box.y+box.height/2;
   const a=await page.evaluate(()=>window.m0.state());
   await touch('touchStart',[{x,y,id:1}]);
-  await touch('touchMove',[{x,y:y-42,id:1}]);
+  await touch('touchMove',[{x,y:y-30,id:1}]);
   await page.waitForTimeout(400);
-  await touch('touchStart',[{x,y:y-42,id:1},{x:190,y:400,id:2}]);
-  await touch('touchMove',[{x,y:y-42,id:1},{x:290,y:430,id:2}]);
+  await touch('touchStart',[{x,y:y-30,id:1},{x:190,y:400,id:2}]);
+  await touch('touchMove',[{x,y:y-30,id:1},{x:290,y:430,id:2}]);
   await page.waitForTimeout(350);
   const b=await page.evaluate(()=>window.m0.state());
   expect(b.player.n-a.player.n).toBeGreaterThan(0.5);
@@ -28,9 +29,14 @@ for(const scene of ['m0','m1']) test(`touch movement and look coexist, release a
   expect((await page.evaluate(()=>window.m0.state())).player).toEqual(stopped.player);
   await page.getByRole('button',{name:'Приблизить камеру',exact:true}).tap();
   expect((await page.evaluate(()=>window.m0.state())).camera.distance).toBeLessThan(b.camera.distance);
-  await page.getByRole('button',{name:'Бег',exact:true}).tap();
-  await expect(page.getByRole('button',{name:'Бег',exact:true})).toHaveAttribute('aria-pressed','true');
-  await touch('touchStart',[{x,y:y-42,id:1}]);
+  await touch('touchStart',[{x,y:y-48,id:1}]);
+  await expect(page.locator('.touch-stick')).toHaveClass(/running/);
+  const runStart=await page.evaluate(()=>window.m0.state());
+  await page.waitForTimeout(200);
+  const runEnd=await page.evaluate(()=>window.m0.state());
+  expect(Math.hypot(runEnd.player.e-runStart.player.e,runEnd.player.n-runStart.player.n)).toBeGreaterThan(1.5);
+  await touch('touchMove',[{x,y:y-25,id:1}]);
+  await expect(page.locator('.touch-stick')).not.toHaveClass(/running/);
   await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
   await touch('touchCancel',[]);
   await expect(page.locator('.touch-controls')).toBeHidden();
@@ -38,10 +44,12 @@ for(const scene of ['m0','m1']) test(`touch movement and look coexist, release a
   const resumed=await page.evaluate(()=>window.m0.state());
   await page.waitForTimeout(200);
   expect((await page.evaluate(()=>window.m0.state())).player).toEqual(resumed.player);
-  await expect(page.getByRole('button',{name:'Бег',exact:true})).toHaveAttribute('aria-pressed','false');
-  await page.screenshot({path:'/tmp/lotr-touch-portrait.png'});
+  await expect(page.locator('.touch-stick')).not.toHaveClass(/running/);
+  await expect(page.locator('footer')).toBeHidden();
+  await expect(page.locator('.touch-actions button')).toHaveCount(2);
+  await page.screenshot({path:`/tmp/lotr-touch-portrait-${scene}.png`});
   await page.setViewportSize({width:844,height:390});
-  await page.screenshot({path:'/tmp/lotr-touch-landscape.png'});
+  await page.screenshot({path:`/tmp/lotr-touch-landscape-${scene}.png`});
   expect(errors).toEqual([]);
 });
 
@@ -50,6 +58,13 @@ test('desktop keeps keyboard controls without the touch overlay',async({browser}
   await page.goto('/?debug=1&renderer=webgl2');await page.waitForFunction(()=>window.m0?.state().ready);
   await page.getByRole('button',{name:'Начать прогулку'}).click();
   await expect(page.locator('.touch-controls')).toBeHidden();
+  await expect(page.locator('footer nav')).toBeVisible();
+  await expect(page.locator('.controls')).toBeVisible();
+  // Removing all touch-specific CSS must leave desktop geometry unchanged.
+  const geometry=()=>[...document.querySelectorAll('.masthead,.diagnostics,footer,footer nav,.controls')].map(e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height];});
+  const before=await page.evaluate(geometry);
+  await page.evaluate(()=>{for(const sheet of document.styleSheets){for(let i=sheet.cssRules.length-1;i>=0;i--)if(sheet.cssRules[i].cssText.includes('.touch-'))sheet.deleteRule(i);}});
+  expect(await page.evaluate(geometry)).toEqual(before);
   const a=await page.evaluate(()=>window.m0.state());await page.keyboard.down('KeyW');await page.waitForTimeout(400);await page.keyboard.up('KeyW');
   expect((await page.evaluate(()=>window.m0.state())).player.n).toBeGreaterThan(a.player.n+0.3);
   await context.close();
