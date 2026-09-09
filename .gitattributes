@@ -21,3 +21,6 @@
 # Reproducible cartographic exports; review geography.json and the generator.
 content/geography/old-forest/generated/* linguist-generated=true
 *.f32.gz binary
+# The template participates in portable generator hashes.
+tools/geography/atlas.html text eol=lf
+content/geography/old-forest/generated/atlas.html text eol=lf
