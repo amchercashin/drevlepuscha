@@ -152,6 +152,9 @@ export class Trees {
                 const source = this.library.tree(t.t.family).variants[t.t.variant % this.library.tree(t.t.family).variants.length][level];
                 if (source)
                     for (let i = 0; i < t.meshes.length; i++) {
+                        // Babylon preserves an existing smaller draw range when geometry grows.
+                        // Rebuild it so returning to LOD0 draws every trunk and canopy triangle.
+                        t.meshes[i].releaseSubMeshes();
                         source[i].geometry!.applyToMesh(t.meshes[i]);
                         t.meshes[i].material = source[i].material;
                     }
