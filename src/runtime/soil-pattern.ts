@@ -14,7 +14,8 @@ export class SoilPattern extends MaterialPluginBase {
    let path=1.0-smoothstep(1.0,2.1,edge);
    let soil=mix(vec3f(0.39,0.40,0.30),vec3f(0.32,0.46,0.34),moss);
    let colour=mix(soil,vec3f(0.65,0.60,0.44),path);
-   baseColor=vec4f(baseColor.rgb*colour,baseColor.a);
+   let grain=dot(baseColor.rgb,vec3f(0.30,0.59,0.11));
+   baseColor=vec4f(mix(baseColor.rgb*1.4,colour*(0.65+grain),0.65),baseColor.a);
   `:`
    float e=vPositionW.x;float n=-vPositionW.z;
    float moss=0.5+0.25*sin(e*0.38+n*0.23)+0.25*sin(e*0.17-n*0.42);
@@ -22,7 +23,8 @@ export class SoilPattern extends MaterialPluginBase {
    float path=1.0-smoothstep(1.0,2.1,edge);
    vec3 soil=mix(vec3(0.39,0.40,0.30),vec3(0.32,0.46,0.34),moss);
    vec3 colour=mix(soil,vec3(0.65,0.60,0.44),path);
-   baseColor.rgb*=colour;
+   float grain=dot(baseColor.rgb,vec3(0.30,0.59,0.11));
+   baseColor.rgb=mix(baseColor.rgb*1.4,colour*(0.65+grain),0.65);
   `};
  }
 }

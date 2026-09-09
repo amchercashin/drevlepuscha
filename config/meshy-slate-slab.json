@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "meshy-slate-slab-v1",
+  "generation": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2",
+    "target_polycount": 450,
+    "topology": "triangle",
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "2k",
+    "target_formats": [
+      "glb"
+    ],
+    "auto_size": false
+  },
+  "estimatedApiCredits": {
+    "model": 15
+  },
+  "outputs": {
+    "a": "assets/props/slate-slab"
+  },
+  "runtime": {
+    "kind": "prop",
+    "heightMeters": 0.45,
+    "maxTriangles": [
+      750
+    ],
+    "maxMaterials": 1,
+    "maxTextureSize": 2048,
+    "variationCount": 3
+  }
+}

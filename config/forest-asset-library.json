@@ -1,0 +1,4 @@
+{
+ "version":1,
+ "profiles":["config/meshy-floor-trial.json","config/meshy-fork-oak.json","config/meshy-young-tree.json","config/meshy-fallen-log.json","config/meshy-old-stump.json","config/meshy-slate-slab.json"]
+}

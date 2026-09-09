@@ -18,7 +18,8 @@
     "preview": "vite preview --host 127.0.0.1",
     "test:browser": "npm run build && playwright test",
     "qa:capture": "node tools/capture-m0.mjs",
-    "qa:performance": "node tools/performance-m0.mjs"
+    "qa:performance": "node tools/performance-m0.mjs",
+    "assets:prepare": "node tools/prepare-forest-library.mjs"
   },
   "packageManager": "npm@10.9.8",
   "devDependencies": {

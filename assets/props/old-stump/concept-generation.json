@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "provider": "Built-in image_gen",
+  "mode": "text-to-image",
+  "prompt": "Use case: stylized-concept. One reusable ancient woodland stump for a lightweight third-person game. Broad squat old tree stump about 0.8m high and 1.3m wide, five thick flowing root flares connected to a single compact base. Irregular broken upper rim exposing weathered muted tan wood and a shallow dark central depression, not a deep hollow tunnel. Asymmetrical silhouette, no fine spikes or twigs. Pale gray mauve bark in broad matte painterly planes with few dark fissures, sage moss patches hugging top of roots and one side. Simple connected geometry suitable for stretching and procedural shape variation. Hand painted gouache fantasy book illustration translated into a coherent stylized 3D prop, no photorealistic grain. Three-quarter elevated view showing the broken top and full root base, all inside frame. Plain white background, neutral diffuse studio light, mild form shading, no cast shadow or black baked AO. No soil island, ground, stand, grass, mushrooms, other objects, labels, text or collage."
+}
