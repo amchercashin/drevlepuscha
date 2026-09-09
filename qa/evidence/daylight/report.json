@@ -1,0 +1,1568 @@
+{
+  "scope": "Showcase day/night with continuous cover and stable height haze",
+  "baseCommit": "8755445",
+  "conditions": "Mac M3, Chrome 152, WebGPU, 1280x720 DPR 1, sequential 2.5 s route warmup + 10 s measured walking per mode. No capture during measurements. Not a thermal or physical iPhone test.",
+  "checks": {
+    "unitTestsPassed": 124,
+    "build": "passed",
+    "browserTestsPassed": 10,
+    "browserCommand": "npx playwright test tests/browser/daylight.spec.mjs tests/browser/showcase-fog.spec.mjs tests/browser/cover-air.spec.mjs --max-failures=1"
+  },
+  "gpuTiming": "Unavailable: no nonzero samples. Null does not mean zero GPU cost.",
+  "rays": "Four analytic authored columns in fixed world positions, clipped to visible depth; not tree-shadowed physical volumetrics; disabled by default. WebGL2 pixel test passed. WebGPU screenshot crop difference YAVG=0.491635, YMAX=28 via ffmpeg; back-buffer readPixels returned zero and was not used as visual evidence.",
+  "limitations": [
+    "Full-moon art orbit, no astronomical calendar or moon phases.",
+    "Existing bounded 512-square shadow map; distant shade is approximate.",
+    "Star field is a procedural stylized sky, not a star catalogue.",
+    "Real iPhone/Safari and long thermal performance not tested."
+  ],
+  "baseline": {
+    "label": "baseline",
+    "renderer": "webgpu",
+    "errors": [],
+    "runs": [
+      {
+        "mode": "baseline",
+        "frameMs": {
+          "count": 600,
+          "p50": 16.699999999254942,
+          "p95": 17.699999999254942,
+          "p99": 17.700000002980232,
+          "max": 17.899999998509884
+        },
+        "cpuMs": {
+          "count": 600,
+          "p50": 5.399999998509884,
+          "p95": 6.199999999254942,
+          "p99": 6.800000000745058,
+          "max": 9
+        },
+        "gpuMs": null,
+        "state": {
+          "ready": true,
+          "frameCount": 856,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0,
+            "heading": 0,
+            "h": 4.057900340919947
+          },
+          "camera": {
+            "x": -5.119940205299585e-08,
+            "y": 5.582806888892041,
+            "z": 5.469870424525503,
+            "yaw": 5.363033324101707e-07,
+            "pitch": 6,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16,
+            "terrainLift": 0,
+            "clearance": 1.4041381358053755
+          },
+          "mapOpen": false,
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 935366,
+            "shadowTriangles": 132190,
+            "mainTriangles": 803176,
+            "drawCalls": 371,
+            "meshes": 2061,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1,
+            "resolutionQuality": "high"
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "ravine-showcase-v1",
+          "demo": false,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "asset": "meshy-a",
+            "assetLabel": "Три семейства · процедурные варианты",
+            "variety": true,
+            "families": [
+              {
+                "id": "meshy-a",
+                "trees": 699,
+                "triangles": [
+                  5318,
+                  1413,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-0",
+                "trees": 323,
+                "triangles": [
+                  2978,
+                  890,
+                  214
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-1",
+                "trees": 357,
+                "triangles": [
+                  2978,
+                  886,
+                  220
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-2",
+                "trees": 302,
+                "triangles": [
+                  2978,
+                  888,
+                  217
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-0",
+                "trees": 939,
+                "triangles": [
+                  1922,
+                  587,
+                  227
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-1",
+                "trees": 886,
+                "triangles": [
+                  1922,
+                  588,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-2",
+                "trees": 866,
+                "triangles": [
+                  1922,
+                  589,
+                  225
+                ]
+              }
+            ],
+            "colorVariation": true,
+            "colorVersion": "tree-tone-v1",
+            "trees": 4372,
+            "activeTrees": 921,
+            "trianglesPerLevel": [
+              5318,
+              1413,
+              224
+            ],
+            "materialsPerTree": 1,
+            "lodCounts": [
+              32,
+              114,
+              775
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 580,
+            "horizon": {
+              "cells": 80,
+              "geometryBuffers": 559,
+              "distantCells": 64,
+              "distantTrees": 3451
+            }
+          },
+          "floor": {
+            "cells": 81,
+            "pending": 0,
+            "pendingNear": 0,
+            "cacheLimit": 81,
+            "hideM": 24,
+            "lastBuildMs": 0,
+            "maxBuildMs": 0.8999999985098839,
+            "workerMaxBuildMs": 16.5,
+            "preparationMaxBuildMs": 1,
+            "field": {
+              "farTiles": 80,
+              "farPending": 0,
+              "midTiles": 81,
+              "midPending": 0,
+              "lastBuildMs": 0,
+              "maxBuildMs": 7.400000002235174,
+              "triangles": 213414,
+              "fullField": true
+            },
+            "triangles": 377550
+          },
+          "lighting": {
+            "air": {
+              "method": "stable-height-haze",
+              "density": 0.035,
+              "steps": 0,
+              "heightOriginM": 4,
+              "maxDistanceM": 32,
+              "scale": 0.5,
+              "extraGeometryPasses": 0
+            },
+            "filter": 6,
+            "mapSize": 512,
+            "probe": [
+              -0.15745969489216893,
+              -0.27818429842591286,
+              0.5088583836331964
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "modes": {
+    "label": "release",
+    "renderer": "webgpu",
+    "errors": [],
+    "runs": [
+      {
+        "mode": "morning",
+        "frameMs": {
+          "count": 600,
+          "p50": 16.699999999254942,
+          "p95": 17.600000001490116,
+          "p99": 17.699999999254942,
+          "max": 18.400000002235174
+        },
+        "cpuMs": {
+          "count": 600,
+          "p50": 5.5,
+          "p95": 6.199999999254942,
+          "p99": 6.600000001490116,
+          "max": 9.699999999254942
+        },
+        "gpuMs": null,
+        "state": {
+          "ready": true,
+          "frameCount": 849,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0,
+            "heading": 0,
+            "h": 4.057900340919947
+          },
+          "camera": {
+            "x": -5.151384796967154e-08,
+            "y": 5.582806888892041,
+            "z": 5.469870424525503,
+            "yaw": 5.395971243160602e-07,
+            "pitch": 6,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16,
+            "terrainLift": 0,
+            "clearance": 1.4041381358347342
+          },
+          "mapOpen": false,
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 936150,
+            "shadowTriangles": 132190,
+            "mainTriangles": 803960,
+            "drawCalls": 372,
+            "meshes": 2062,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1,
+            "resolutionQuality": "high"
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "ravine-showcase-v1",
+          "demo": false,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "asset": "meshy-a",
+            "assetLabel": "Три семейства · процедурные варианты",
+            "variety": true,
+            "families": [
+              {
+                "id": "meshy-a",
+                "trees": 699,
+                "triangles": [
+                  5318,
+                  1413,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-0",
+                "trees": 323,
+                "triangles": [
+                  2978,
+                  890,
+                  214
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-1",
+                "trees": 357,
+                "triangles": [
+                  2978,
+                  886,
+                  220
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-2",
+                "trees": 302,
+                "triangles": [
+                  2978,
+                  888,
+                  217
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-0",
+                "trees": 939,
+                "triangles": [
+                  1922,
+                  587,
+                  227
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-1",
+                "trees": 886,
+                "triangles": [
+                  1922,
+                  588,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-2",
+                "trees": 866,
+                "triangles": [
+                  1922,
+                  589,
+                  225
+                ]
+              }
+            ],
+            "colorVariation": true,
+            "colorVersion": "tree-tone-v1",
+            "trees": 4372,
+            "activeTrees": 921,
+            "trianglesPerLevel": [
+              5318,
+              1413,
+              224
+            ],
+            "materialsPerTree": 1,
+            "lodCounts": [
+              32,
+              114,
+              775
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 580,
+            "horizon": {
+              "cells": 80,
+              "geometryBuffers": 559,
+              "distantCells": 64,
+              "distantTrees": 3451
+            }
+          },
+          "floor": {
+            "cells": 81,
+            "pending": 0,
+            "pendingNear": 0,
+            "cacheLimit": 81,
+            "hideM": 24,
+            "lastBuildMs": 0,
+            "maxBuildMs": 0.8000000007450581,
+            "workerMaxBuildMs": 18,
+            "preparationMaxBuildMs": 1,
+            "field": {
+              "farTiles": 80,
+              "farPending": 0,
+              "midTiles": 81,
+              "midPending": 0,
+              "lastBuildMs": 0,
+              "maxBuildMs": 5,
+              "triangles": 213414,
+              "fullField": true
+            },
+            "triangles": 377550
+          },
+          "lighting": {
+            "daylight": {
+              "hours": 7.5,
+              "towardSun": [
+                0.9238795325112867,
+                0.31380041453937363,
+                -0.21903403671950974
+              ],
+              "towardMoon": [
+                -0.9238795325112867,
+                -0.31380041453937363,
+                0.21903403671950974
+              ],
+              "source": "sun",
+              "mainColor": [
+                1,
+                0.8742037126476818,
+                0.7175115343602938
+              ],
+              "mainIntensity": 1.05,
+              "daylight": 1,
+              "direction": [
+                -0.9238795325112867,
+                -0.31380041453937363,
+                0.21903403671950974
+              ],
+              "fillIntensity": 0.6000000000000001,
+              "fillColor": [
+                0.78,
+                0.87,
+                1
+              ],
+              "zenith": [
+                0.21,
+                0.4,
+                0.51
+              ],
+              "horizon": [
+                0.6569522743642512,
+                0.6841149891959422,
+                0.6202104404674399
+              ],
+              "fogColor": [
+                0.6489571588453623,
+                0.6997576065155073,
+                0.6414148772784061
+              ],
+              "stars": 0,
+              "sunset": 0.23174247880837284,
+              "emissionScale": 1,
+              "rayStrength": 0.3,
+              "automatic": false,
+              "rays": false,
+              "cycleSeconds": 1200,
+              "shadowMaps": 1,
+              "skyDraws": 1
+            },
+            "air": {
+              "raysEnabled": false,
+              "analyticBeams": 0,
+              "method": "stable-height-haze",
+              "density": 0.035,
+              "steps": 0,
+              "heightOriginM": 4,
+              "maxDistanceM": 32,
+              "scale": 0.5,
+              "extraGeometryPasses": 0
+            },
+            "filter": 6,
+            "mapSize": 512,
+            "probe": [
+              -0.3040713071823125,
+              -0.1437154496088624,
+              0.5328718484379351
+            ]
+          }
+        }
+      },
+      {
+        "mode": "day",
+        "frameMs": {
+          "count": 601,
+          "p50": 16.699999999254942,
+          "p95": 17.600000001490116,
+          "p99": 17.700000002980232,
+          "max": 17.800000000745058
+        },
+        "cpuMs": {
+          "count": 601,
+          "p50": 5.599999997764826,
+          "p95": 6.099999997764826,
+          "p99": 6.5,
+          "max": 7.600000001490116
+        },
+        "gpuMs": null,
+        "state": {
+          "ready": true,
+          "frameCount": 1700,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0,
+            "heading": 0,
+            "h": 4.057900340919947
+          },
+          "camera": {
+            "x": -5.16271368221302e-08,
+            "y": 5.582806888892041,
+            "z": 5.469870424525503,
+            "yaw": 5.407837306847796e-07,
+            "pitch": 6,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16,
+            "terrainLift": 0,
+            "clearance": 1.4041381358453116
+          },
+          "mapOpen": false,
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 936150,
+            "shadowTriangles": 132190,
+            "mainTriangles": 803960,
+            "drawCalls": 372,
+            "meshes": 2062,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1,
+            "resolutionQuality": "high"
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "ravine-showcase-v1",
+          "demo": false,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "asset": "meshy-a",
+            "assetLabel": "Три семейства · процедурные варианты",
+            "variety": true,
+            "families": [
+              {
+                "id": "meshy-a",
+                "trees": 699,
+                "triangles": [
+                  5318,
+                  1413,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-0",
+                "trees": 323,
+                "triangles": [
+                  2978,
+                  890,
+                  214
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-1",
+                "trees": 357,
+                "triangles": [
+                  2978,
+                  886,
+                  220
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-2",
+                "trees": 302,
+                "triangles": [
+                  2978,
+                  888,
+                  217
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-0",
+                "trees": 939,
+                "triangles": [
+                  1922,
+                  587,
+                  227
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-1",
+                "trees": 886,
+                "triangles": [
+                  1922,
+                  588,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-2",
+                "trees": 866,
+                "triangles": [
+                  1922,
+                  589,
+                  225
+                ]
+              }
+            ],
+            "colorVariation": true,
+            "colorVersion": "tree-tone-v1",
+            "trees": 4372,
+            "activeTrees": 921,
+            "trianglesPerLevel": [
+              5318,
+              1413,
+              224
+            ],
+            "materialsPerTree": 1,
+            "lodCounts": [
+              32,
+              114,
+              775
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 580,
+            "horizon": {
+              "cells": 80,
+              "geometryBuffers": 559,
+              "distantCells": 64,
+              "distantTrees": 3451
+            }
+          },
+          "floor": {
+            "cells": 81,
+            "pending": 0,
+            "pendingNear": 0,
+            "cacheLimit": 81,
+            "hideM": 24,
+            "lastBuildMs": 0,
+            "maxBuildMs": 0.8000000007450581,
+            "workerMaxBuildMs": 18,
+            "preparationMaxBuildMs": 1,
+            "field": {
+              "farTiles": 80,
+              "farPending": 0,
+              "midTiles": 81,
+              "midPending": 0,
+              "lastBuildMs": 0,
+              "maxBuildMs": 5,
+              "triangles": 213414,
+              "fullField": true
+            },
+            "triangles": 377550
+          },
+          "lighting": {
+            "daylight": {
+              "hours": 12,
+              "towardSun": [
+                6.123233995736766e-17,
+                0.82,
+                -0.5723635208501675
+              ],
+              "towardMoon": [
+                -6.123233995736766e-17,
+                -0.82,
+                0.5723635208501675
+              ],
+              "source": "sun",
+              "mainColor": [
+                1,
+                0.96,
+                0.83
+              ],
+              "mainIntensity": 1.05,
+              "daylight": 1,
+              "direction": [
+                -6.123233995736766e-17,
+                -0.82,
+                0.5723635208501675
+              ],
+              "fillIntensity": 0.6000000000000001,
+              "fillColor": [
+                0.78,
+                0.87,
+                1
+              ],
+              "zenith": [
+                0.21,
+                0.4,
+                0.51
+              ],
+              "horizon": [
+                0.65,
+                0.73,
+                0.68
+              ],
+              "fogColor": [
+                0.65,
+                0.73,
+                0.6800000000000002
+              ],
+              "stars": 0,
+              "sunset": 0,
+              "emissionScale": 1,
+              "rayStrength": 0.3,
+              "automatic": false,
+              "rays": false,
+              "cycleSeconds": 1200,
+              "shadowMaps": 1,
+              "skyDraws": 1
+            },
+            "air": {
+              "raysEnabled": false,
+              "analyticBeams": 0,
+              "method": "stable-height-haze",
+              "density": 0.035,
+              "steps": 0,
+              "heightOriginM": 4,
+              "maxDistanceM": 32,
+              "scale": 0.5,
+              "extraGeometryPasses": 0
+            },
+            "filter": 6,
+            "mapSize": 512,
+            "probe": [
+              -3.3431736955443515e-17,
+              -0.3304687477648258,
+              0.5193013241514564
+            ]
+          }
+        }
+      },
+      {
+        "mode": "sunset",
+        "frameMs": {
+          "count": 600,
+          "p50": 16.699999999254942,
+          "p95": 17.600000001490116,
+          "p99": 17.699999999254942,
+          "max": 17.800000000745058
+        },
+        "cpuMs": {
+          "count": 600,
+          "p50": 5.399999998509884,
+          "p95": 6.100000001490116,
+          "p99": 6.5,
+          "max": 7.800000000745058
+        },
+        "gpuMs": null,
+        "state": {
+          "ready": true,
+          "frameCount": 2549,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0,
+            "heading": 0,
+            "h": 4.057900340919947
+          },
+          "camera": {
+            "x": -4.2199171379908304e-08,
+            "y": 5.582806888892041,
+            "z": 5.469870424525503,
+            "yaw": 4.4202772642165655e-07,
+            "pitch": 6,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16,
+            "terrainLift": 0,
+            "clearance": 1.404138134965053
+          },
+          "mapOpen": false,
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 936150,
+            "shadowTriangles": 132190,
+            "mainTriangles": 803960,
+            "drawCalls": 372,
+            "meshes": 2062,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1,
+            "resolutionQuality": "high"
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "ravine-showcase-v1",
+          "demo": false,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "asset": "meshy-a",
+            "assetLabel": "Три семейства · процедурные варианты",
+            "variety": true,
+            "families": [
+              {
+                "id": "meshy-a",
+                "trees": 699,
+                "triangles": [
+                  5318,
+                  1413,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-0",
+                "trees": 323,
+                "triangles": [
+                  2978,
+                  890,
+                  214
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-1",
+                "trees": 357,
+                "triangles": [
+                  2978,
+                  886,
+                  220
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-2",
+                "trees": 302,
+                "triangles": [
+                  2978,
+                  888,
+                  217
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-0",
+                "trees": 939,
+                "triangles": [
+                  1922,
+                  587,
+                  227
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-1",
+                "trees": 886,
+                "triangles": [
+                  1922,
+                  588,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-2",
+                "trees": 866,
+                "triangles": [
+                  1922,
+                  589,
+                  225
+                ]
+              }
+            ],
+            "colorVariation": true,
+            "colorVersion": "tree-tone-v1",
+            "trees": 4372,
+            "activeTrees": 921,
+            "trianglesPerLevel": [
+              5318,
+              1413,
+              224
+            ],
+            "materialsPerTree": 1,
+            "lodCounts": [
+              32,
+              114,
+              775
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 580,
+            "horizon": {
+              "cells": 80,
+              "geometryBuffers": 559,
+              "distantCells": 64,
+              "distantTrees": 3451
+            }
+          },
+          "floor": {
+            "cells": 81,
+            "pending": 0,
+            "pendingNear": 0,
+            "cacheLimit": 81,
+            "hideM": 24,
+            "lastBuildMs": 0,
+            "maxBuildMs": 1.199999999254942,
+            "workerMaxBuildMs": 18,
+            "preparationMaxBuildMs": 1,
+            "field": {
+              "farTiles": 80,
+              "farPending": 0,
+              "midTiles": 81,
+              "midPending": 0,
+              "lastBuildMs": 0,
+              "maxBuildMs": 5,
+              "triangles": 213414,
+              "fullField": true
+            },
+            "triangles": 377550
+          },
+          "lighting": {
+            "daylight": {
+              "hours": 17.5,
+              "towardSun": [
+                -0.9914448613738104,
+                0.10703147762044263,
+                -0.0747084309422347
+              ],
+              "towardMoon": [
+                0.9914448613738104,
+                -0.10703147762044263,
+                0.0747084309422347
+              ],
+              "source": "sun",
+              "mainColor": [
+                1,
+                0.547067228193095,
+                0.2885992547420578
+              ],
+              "mainIntensity": 0.5037532374987465,
+              "daylight": 0.8746992346919773,
+              "direction": [
+                0.9914448613738104,
+                -0.10703147762044263,
+                0.0747084309422347
+              ],
+              "fillIntensity": 0.5573977397952723,
+              "fillColor": [
+                0.7574458622445559,
+                0.8486988698976361,
+                0.9824578928568768
+              ],
+              "zenith": [
+                0.18443864387716336,
+                0.3516339045911033,
+                0.45060743724399727
+              ],
+              "horizon": [
+                0.6478069858974446,
+                0.5008131276481599,
+                0.3960082221306235
+              ],
+              "fogColor": [
+                0.6020856098773517,
+                0.5538728945811694,
+                0.4735541873090928
+              ],
+              "stars": 0,
+              "sunset": 0.9820422614924432,
+              "emissionScale": 0.8803377691308383,
+              "rayStrength": 0.14392949642821326,
+              "automatic": false,
+              "rays": false,
+              "cycleSeconds": 1200,
+              "shadowMaps": 1,
+              "skyDraws": 1
+            },
+            "air": {
+              "raysEnabled": false,
+              "analyticBeams": 0,
+              "method": "stable-height-haze",
+              "density": 0.035,
+              "steps": 0,
+              "heightOriginM": 4,
+              "maxDistanceM": 32,
+              "scale": 0.5,
+              "extraGeometryPasses": 0
+            },
+            "filter": 6,
+            "mapSize": 512,
+            "probe": [
+              0.3116165660321723,
+              -0.12751323508564383,
+              0.5384150283643976
+            ]
+          }
+        }
+      },
+      {
+        "mode": "night",
+        "frameMs": {
+          "count": 600,
+          "p50": 16.699999999254942,
+          "p95": 17.5,
+          "p99": 17.699999999254942,
+          "max": 17.700000002980232
+        },
+        "cpuMs": {
+          "count": 600,
+          "p50": 5.5,
+          "p95": 6.099999997764826,
+          "p99": 6.5,
+          "max": 8
+        },
+        "gpuMs": null,
+        "state": {
+          "ready": true,
+          "frameCount": 3398,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0,
+            "heading": 0,
+            "h": 4.057900340919947
+          },
+          "camera": {
+            "x": -4.249063791187069e-08,
+            "y": 5.582806888892041,
+            "z": 5.469870424525503,
+            "yaw": 4.4508078644867055e-07,
+            "pitch": 6,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16,
+            "terrainLift": 0,
+            "clearance": 1.404138134992266
+          },
+          "mapOpen": false,
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 936150,
+            "shadowTriangles": 132190,
+            "mainTriangles": 803960,
+            "drawCalls": 372,
+            "meshes": 2062,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1,
+            "resolutionQuality": "high"
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "ravine-showcase-v1",
+          "demo": false,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "asset": "meshy-a",
+            "assetLabel": "Три семейства · процедурные варианты",
+            "variety": true,
+            "families": [
+              {
+                "id": "meshy-a",
+                "trees": 699,
+                "triangles": [
+                  5318,
+                  1413,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-0",
+                "trees": 323,
+                "triangles": [
+                  2978,
+                  890,
+                  214
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-1",
+                "trees": 357,
+                "triangles": [
+                  2978,
+                  886,
+                  220
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-2",
+                "trees": 302,
+                "triangles": [
+                  2978,
+                  888,
+                  217
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-0",
+                "trees": 939,
+                "triangles": [
+                  1922,
+                  587,
+                  227
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-1",
+                "trees": 886,
+                "triangles": [
+                  1922,
+                  588,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-2",
+                "trees": 866,
+                "triangles": [
+                  1922,
+                  589,
+                  225
+                ]
+              }
+            ],
+            "colorVariation": true,
+            "colorVersion": "tree-tone-v1",
+            "trees": 4372,
+            "activeTrees": 921,
+            "trianglesPerLevel": [
+              5318,
+              1413,
+              224
+            ],
+            "materialsPerTree": 1,
+            "lodCounts": [
+              32,
+              114,
+              775
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 580,
+            "horizon": {
+              "cells": 80,
+              "geometryBuffers": 559,
+              "distantCells": 64,
+              "distantTrees": 3451
+            }
+          },
+          "floor": {
+            "cells": 81,
+            "pending": 0,
+            "pendingNear": 0,
+            "cacheLimit": 81,
+            "hideM": 24,
+            "lastBuildMs": 0,
+            "maxBuildMs": 1.199999999254942,
+            "workerMaxBuildMs": 18,
+            "preparationMaxBuildMs": 1,
+            "field": {
+              "farTiles": 80,
+              "farPending": 0,
+              "midTiles": 81,
+              "midPending": 0,
+              "lastBuildMs": 0,
+              "maxBuildMs": 5,
+              "triangles": 213414,
+              "fullField": true
+            },
+            "triangles": 377550
+          },
+          "lighting": {
+            "daylight": {
+              "hours": 0,
+              "towardSun": [
+                6.123233995736766e-17,
+                -0.82,
+                0.5723635208501675
+              ],
+              "towardMoon": [
+                -6.123233995736766e-17,
+                0.82,
+                -0.5723635208501675
+              ],
+              "source": "moon",
+              "mainColor": [
+                0.72,
+                0.82,
+                1
+              ],
+              "mainIntensity": 0.32,
+              "daylight": 0,
+              "direction": [
+                6.123233995736766e-17,
+                -0.82,
+                0.5723635208501675
+              ],
+              "fillIntensity": 0.26,
+              "fillColor": [
+                0.6,
+                0.7,
+                0.86
+              ],
+              "zenith": [
+                0.006,
+                0.014,
+                0.036
+              ],
+              "horizon": [
+                0.035,
+                0.055,
+                0.085
+              ],
+              "fogColor": [
+                0.028,
+                0.044,
+                0.066
+              ],
+              "stars": 1,
+              "sunset": 0,
+              "emissionScale": 0.045,
+              "rayStrength": 0.035,
+              "automatic": false,
+              "rays": false,
+              "cycleSeconds": 1200,
+              "shadowMaps": 1,
+              "skyDraws": 1
+            },
+            "air": {
+              "raysEnabled": false,
+              "analyticBeams": 0,
+              "method": "stable-height-haze",
+              "density": 0.035,
+              "steps": 0,
+              "heightOriginM": 4,
+              "maxDistanceM": 32,
+              "scale": 0.5,
+              "extraGeometryPasses": 0
+            },
+            "filter": 6,
+            "mapSize": 512,
+            "probe": [
+              3.3431736955443515e-17,
+              -0.3304687477648258,
+              0.5193013241514564
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "raysAndAuto": {
+    "label": "release-rays",
+    "renderer": "webgpu",
+    "errors": [],
+    "runs": [
+      {
+        "mode": "day",
+        "frameMs": {
+          "count": 600,
+          "p50": 16.699999999254942,
+          "p95": 17.400000002235174,
+          "p99": 17.699999999254942,
+          "max": 19.799999997019768
+        },
+        "cpuMs": {
+          "count": 600,
+          "p50": 5.5,
+          "p95": 6.299999997019768,
+          "p99": 7.199999999254942,
+          "max": 8.300000000745058
+        },
+        "gpuMs": null,
+        "state": {
+          "ready": true,
+          "frameCount": 856,
+          "paused": false,
+          "player": {
+            "e": 0,
+            "n": 0,
+            "heading": 0,
+            "h": 4.057900340919947
+          },
+          "camera": {
+            "x": -5.169625715955271e-08,
+            "y": 5.582806888892041,
+            "z": 5.469870424525503,
+            "yaw": 5.415078021542286e-07,
+            "pitch": 6,
+            "distance": 5.5,
+            "currentDistance": 5.5,
+            "followError": 2.220446049250313e-16,
+            "terrainLift": 0,
+            "clearance": 1.404138135851765
+          },
+          "mapOpen": false,
+          "playerClear": true,
+          "faded": [],
+          "render": {
+            "width": 1280,
+            "height": 720,
+            "backend": "webgpu",
+            "webGLVersion": null,
+            "triangles": 936150,
+            "shadowTriangles": 132190,
+            "mainTriangles": 803960,
+            "drawCalls": 372,
+            "meshes": 2062,
+            "gpu": {
+              "vendor": "apple",
+              "renderer": "metal-3",
+              "version": "unknown version"
+            },
+            "fallbackReason": null,
+            "devicePixelRatio": 1,
+            "internalDpr": 1,
+            "resolutionQuality": "high"
+          },
+          "errors": [],
+          "seed": "atlas-demo-01",
+          "sceneVersion": "ravine-showcase-v1",
+          "demo": false,
+          "forest": {
+            "version": "m1-tree-field-v1",
+            "asset": "meshy-a",
+            "assetLabel": "Три семейства · процедурные варианты",
+            "variety": true,
+            "families": [
+              {
+                "id": "meshy-a",
+                "trees": 699,
+                "triangles": [
+                  5318,
+                  1413,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-0",
+                "trees": 323,
+                "triangles": [
+                  2978,
+                  890,
+                  214
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-1",
+                "trees": 357,
+                "triangles": [
+                  2978,
+                  886,
+                  220
+                ]
+              },
+              {
+                "id": "meshy-fork-oak-v1-2",
+                "trees": 302,
+                "triangles": [
+                  2978,
+                  888,
+                  217
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-0",
+                "trees": 939,
+                "triangles": [
+                  1922,
+                  587,
+                  227
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-1",
+                "trees": 886,
+                "triangles": [
+                  1922,
+                  588,
+                  224
+                ]
+              },
+              {
+                "id": "meshy-young-tree-v1-2",
+                "trees": 866,
+                "triangles": [
+                  1922,
+                  589,
+                  225
+                ]
+              }
+            ],
+            "colorVariation": true,
+            "colorVersion": "tree-tone-v1",
+            "trees": 4372,
+            "activeTrees": 921,
+            "trianglesPerLevel": [
+              5318,
+              1413,
+              224
+            ],
+            "materialsPerTree": 1,
+            "lodCounts": [
+              32,
+              114,
+              775
+            ],
+            "lockNear": false,
+            "transitions": 0,
+            "geometryBuffers": 580,
+            "horizon": {
+              "cells": 80,
+              "geometryBuffers": 559,
+              "distantCells": 64,
+              "distantTrees": 3451
+            }
+          },
+          "floor": {
+            "cells": 81,
+            "pending": 0,
+            "pendingNear": 0,
+            "cacheLimit": 81,
+            "hideM": 24,
+            "lastBuildMs": 0,
+            "maxBuildMs": 0.6999999992549419,
+            "workerMaxBuildMs": 16.599999997764826,
+            "preparationMaxBuildMs": 0.8000000007450581,
+            "field": {
+              "farTiles": 80,
+              "farPending": 0,
+              "midTiles": 81,
+              "midPending": 0,
+              "lastBuildMs": 0,
+              "maxBuildMs": 3.800000000745058,
+              "triangles": 213414,
+              "fullField": true
+            },
+            "triangles": 377550
+          },
+          "lighting": {
+            "daylight": {
+              "hours": 12.280359999999646,
+              "towardSun": [
+                -0.07333219147717468,
+                0.8177922076112473,
+                -0.5708224722831764
+              ],
+              "towardMoon": [
+                0.07333219147717468,
+                -0.8177922076112473,
+                0.5708224722831764
+              ],
+              "source": "sun",
+              "mainColor": [
+                1,
+                0.96,
+                0.83
+              ],
+              "mainIntensity": 1.05,
+              "daylight": 1,
+              "direction": [
+                0.07333219147717468,
+                -0.8177922076112473,
+                0.5708224722831764
+              ],
+              "fillIntensity": 0.6000000000000001,
+              "fillColor": [
+                0.78,
+                0.87,
+                1
+              ],
+              "zenith": [
+                0.21,
+                0.4,
+                0.51
+              ],
+              "horizon": [
+                0.65,
+                0.73,
+                0.68
+              ],
+              "fogColor": [
+                0.65,
+                0.73,
+                0.6800000000000002
+              ],
+              "stars": 0,
+              "sunset": 0,
+              "emissionScale": 1,
+              "rayStrength": 0.3,
+              "automatic": true,
+              "rays": true,
+              "cycleSeconds": 1200,
+              "shadowMaps": 1,
+              "skyDraws": 1
+            },
+            "air": {
+              "raysEnabled": true,
+              "analyticBeams": 4,
+              "method": "stable-height-haze",
+              "density": 0.035,
+              "steps": 0,
+              "heightOriginM": 4,
+              "maxDistanceM": 32,
+              "scale": 0.5,
+              "extraGeometryPasses": 0
+            },
+            "filter": 6,
+            "mapSize": 512,
+            "probe": [
+              0.03981888294220026,
+              -0.32769569754600525,
+              0.5193605087697506
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "capture": {
+    "renderer": "webgl2",
+    "errors": [],
+    "rays": {
+      "changedPixels": 17536,
+      "meanChannelChange": 0.2607595486111111,
+      "maxChannelSum": 92,
+      "rawSum": 497596418,
+      "byteLength": 3686400
+    }
+  },
+  "sourceHashes": {
+    "src/main.ts": "d1c48f5775ac443ed0a5162b93bc111123a88d4f73cb2f6b8d5cbd377e6a2137",
+    "src/runtime/day-rays.ts": "142b0ab2ba7cb379b1d2cc94d91404313e522179608a5b69f02e648c505b66b7",
+    "src/runtime/daylight.ts": "f7f7aac08b730998becf857048ba969493c25ae67e97bb75626e35199e6ac5d2",
+    "src/runtime/day-sky.ts": "bd7210ccf062d6ff499643066adfe0474b57f5b1ee96111b74810127abac4165",
+    "src/domain/daylight.ts": "df7116e4003e8c655c23353ebd68700b3b08a1f33654d38c2945ccae13c9b7ca",
+    "src/runtime/height-air.ts": "b1d59142db442a963e3e5f288a7d7ba226855a37d62686fc7babb0227c678504",
+    "src/runtime/forest-air.ts": "a1135611c0560e244aac8ff3f92bb3373dc81f5424f1a460c27b12351f5e5a13"
+  }
+}

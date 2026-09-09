@@ -135,5 +135,5 @@ export function createWorld(scene: Scene, forestMode=false) {
   const shadow=CreateCylinder('contact',{height:0.003,diameter:0.65,tessellation:20},scene);
   const shadowMat=material('contact-color',new Color3(0.16,0.22,0.16));shadowMat.alpha=0.3;
   shadow.material=shadowMat;
-  return { boxes, player, shadow, occluders, ground:mesh, sun };
+  return { boxes, player, shadow, occluders, ground:mesh, sun, fill };
 }

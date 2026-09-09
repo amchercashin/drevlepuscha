@@ -1,0 +1,10 @@
+.daylight-controls{margin:10px 12px 16px;padding:12px 0;border-bottom:1px solid #c9d3b32e}
+.daylight-heading{display:flex;align-items:center;justify-content:space-between;padding:0 2px;color:#eee6ca}
+.daylight-heading output{font-variant-numeric:tabular-nums;color:#d5dcb9}
+.diagnostics .daylight-presets{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.diagnostics .daylight-presets button{width:auto;min-height:44px;margin:0;padding:8px 4px}
+.diagnostics .daylight-presets button[aria-pressed=true]{background:#d3c79f;color:#22352b;border-color:#e7dab2}
+.diagnostics .daylight-controls label{margin:10px 2px;line-height:1.6}
+.diagnostics .daylight-controls input[type=range]{display:block;width:100%;height:36px;margin:0;accent-color:#d7ccaa;touch-action:pan-y}
+.diagnostics .daylight-controls input:focus-visible{outline:2px solid #e7dab2;outline-offset:3px}
+.diagnostics .daylight-controls label:has(input[type=checkbox]){min-height:36px;display:flex;align-items:center;gap:4px}
