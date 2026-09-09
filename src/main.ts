@@ -1,3 +1,4 @@
+import {collisionGrid} from './domain/collision-grid.ts';
 import {CanopyShade} from './runtime/canopy-shade.ts';
 import {createTouchControls} from './runtime/touch-controls.ts';
 import {createForestAir} from './runtime/forest-air.ts';
@@ -53,6 +54,7 @@ try {
   const forest=forestMode?await createForest(scene,world.sun):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
   if(forest){for(const [id,label] of [['entrance','01 Вход'],['trunks','02 Папоротники'],['arch','03 Просвет'],['slope','04 К поляне']])document.querySelector(`[data-checkpoint="${id}"]`)!.textContent=label;document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
+  const nearbyColliders=collisionGrid(world.boxes);
   const floor=forest?createForestFloor(scene,world.boxes):null;
   const sunlight=forest?new ShadowGenerator(512,world.sun):null;
   if(sunlight){
@@ -222,7 +224,7 @@ try {
           de=forward*Math.sin(a)+right*Math.cos(a);dn=forward*Math.cos(a)-right*Math.sin(a);
         }
         const speedMps=keys.has('ShiftLeft')||keys.has('ShiftRight')||touch.state.running?15:1.85;
-        const before={...player},next=moveWalker(player,de*speedMps*dt,dn*speedMps*dt,world.boxes,forest?FOREST_BOUNDS:undefined);
+        const before={...player},next=de||dn?moveWalker(player,de*speedMps*dt,dn*speedMps*dt,nearbyColliders(player,de*speedMps*dt,dn*speedMps*dt),forest?FOREST_BOUNDS:undefined):player;
         player.e=next.e;player.n=next.n;
         const movedE=player.e-before.e,movedN=player.n-before.n;
         if(Math.hypot(movedE,movedN)>0.0001){
@@ -264,6 +266,7 @@ try {
 
       }
 
+      shadowPassTriangles=0;
       scene.render();frameCount++;
       if(now-uiTime>400){
         uiTime=now;const s=state();

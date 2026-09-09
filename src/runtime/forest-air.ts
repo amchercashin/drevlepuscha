@@ -1,6 +1,5 @@
 import {ShaderStore} from '@babylonjs/core/Engines/shaderStore.js';
 import {PostProcess} from '@babylonjs/core/PostProcesses/postProcess.js';
-import {PassPostProcess} from '@babylonjs/core/PostProcesses/passPostProcess.js';
 import {Texture} from '@babylonjs/core/Materials/Textures/texture.js';
 import {Matrix} from '@babylonjs/core/Maths/math.vector.js';
 import type {Scene} from '@babylonjs/core/scene.js';
@@ -28,9 +27,9 @@ void main(){
  vec3 delta=endPoint.xyz/endPoint.w-eye;
  float distanceToSurface=min(length(delta),32.0);
  vec3 direction=normalize(delta);
- float stepLength=distanceToSurface/24.0;
+ float stepLength=distanceToSurface/16.0;
  float litAir=0.0;
- for(int i=0;i<24;i++){
+ for(int i=0;i<16;i++){
   float t=(float(i)+0.5)*stepLength;
   vec3 p=eye+direction*t;
   vec4 projected=sunMatrix*vec4(p,1.0);
@@ -75,9 +74,9 @@ fn main(input: FragmentInputs)->FragmentOutputs {
  let delta=endPoint.xyz/endPoint.w-uniforms.eye;
  let distanceToSurface=min(length(delta),32.0);
  let direction=normalize(delta);
- let stepLength=distanceToSurface/24.0;
+ let stepLength=distanceToSurface/16.0;
  var litAir=0.0;
- for(var i=0;i<24;i++){
+ for(var i=0;i<16;i++){
   let t=(f32(i)+0.5)*stepLength;
   let p=uniforms.eye+direction*t;
   let projected=uniforms.sunMatrix*vec4f(p,1.0);
@@ -106,11 +105,11 @@ fn main(input: FragmentInputs)->FragmentOutputs {
 
 export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerator,sun:DirectionalLight){
  const engine=scene.getEngine(),shaderLanguage=engine.isWebGPU?1:0;
- const source=new PassPostProcess('air-scene-copy',1,camera);
- // Reuse the depth attachment of the existing scene pass. No depth re-render.
- source.onSizeChangedObservable.add(()=>source.inputTexture.createDepthStencilTexture(0,false,false,1));
- const scatter=new PostProcess('forest-air','forestAir',{uniforms:['inverseViewProjection','sunMatrix','eye','sunDirection','sunColor','halfZ','airDensity'],samplers:['sceneDepth','sunDepth'],size:0.5,camera,samplingMode:Texture.BILINEAR_SAMPLINGMODE,shaderLanguage});
+ const scatter=new PostProcess('forest-air','forestAir',{uniforms:['inverseViewProjection','sunMatrix','eye','sunDirection','sunColor','halfZ','airDensity'],samplers:['sceneDepth','sunDepth'],size:1,camera,samplingMode:Texture.BILINEAR_SAMPLINGMODE,shaderLanguage});
  const composite=new PostProcess('forest-air-composite','forestAirComposite',{samplers:['sceneColor'],size:0.5,camera,samplingMode:Texture.BILINEAR_SAMPLINGMODE,shaderLanguage});
+ // Post-process sizes describe INPUT targets: full-resolution scene colour/depth
+ // enter scatter, whose output goes directly into composite's half-size input.
+ scatter.onSizeChangedObservable.add(()=>scatter.inputTexture.createDepthStencilTexture(0,false,false,1));
  const inverse=Matrix.Identity();
  scatter.onApply=effect=>{
   scene.getTransformMatrix().invertToRef(inverse);
@@ -118,8 +117,8 @@ export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerato
   effect.setVector3('eye',camera.globalPosition);effect.setVector3('sunDirection',sun.direction.normalizeToNew().negate());
   effect.setFloat3('sunColor',sun.diffuse.r*sun.intensity,sun.diffuse.g*sun.intensity,sun.diffuse.b*sun.intensity);
   effect.setFloat('halfZ',engine.isNDCHalfZRange?1:0);effect.setFloat('airDensity',scene.fogDensity>0.01?0.035:0.018);
-  effect._bindTexture('sceneDepth',source.inputTexture.depthStencilTexture);effect.setDepthStencilTexture('sunDepth',shadows.getShadowMap());
+  effect._bindTexture('sceneDepth',scatter.inputTexture.depthStencilTexture);effect.setDepthStencilTexture('sunDepth',shadows.getShadowMap());
  };
- composite.onApply=effect=>effect.setTextureFromPostProcess('sceneColor',source);
- return {stats:()=>({method:'shadowed-air',steps:24,maxDistanceM:32,scale:0.5,extraGeometryPasses:0})};
+ composite.onApply=effect=>effect.setTextureFromPostProcess('sceneColor',scatter);
+ return {stats:()=>({method:'shadowed-air',steps:16,maxDistanceM:32,scale:0.5,extraGeometryPasses:0})};
 }

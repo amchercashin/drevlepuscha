@@ -1,0 +1,30 @@
+{
+  "note": "RGB 0-255; excludes HUD bands top160/bottom120, baseline bb365c0 vs optimized 16 steps",
+  "views": [
+    {
+      "view": "entrance",
+      "meanChannelError": 0.6683624131944444,
+      "pixelsOver8Percent": 0.6611328125
+    },
+    {
+      "view": "ferns",
+      "meanChannelError": 0.5914021267361111,
+      "pixelsOver8Percent": 1.0833333333333335
+    },
+    {
+      "view": "canopy",
+      "meanChannelError": 1.044425564236111,
+      "pixelsOver8Percent": 0.044140625
+    },
+    {
+      "view": "clearing",
+      "meanChannelError": 0.3682953559027778,
+      "pixelsOver8Percent": 0.1259765625
+    },
+    {
+      "view": "outer",
+      "meanChannelError": 0.243349609375,
+      "pixelsOver8Percent": 0.09928385416666666
+    }
+  ]
+}
