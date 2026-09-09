@@ -1,0 +1,276 @@
+{
+  "url": "http://127.0.0.1:4181/",
+  "errors": [],
+  "views": [
+    {
+      "n": 0,
+      "yaw": 0,
+      "clearance": 0.6723057788533753,
+      "lift": 0.16568037002156533
+    },
+    {
+      "n": 0,
+      "yaw": 90,
+      "clearance": 0.2400000000000002,
+      "lift": 2.0522882330549717
+    },
+    {
+      "n": 0,
+      "yaw": 180,
+      "clearance": 0.2400000000000002,
+      "lift": 1.1073219907402816
+    },
+    {
+      "n": 0,
+      "yaw": 270,
+      "clearance": 0.2400000000000002,
+      "lift": 2.000438012702002
+    },
+    {
+      "n": 82,
+      "yaw": 0,
+      "clearance": 0.6907718190340226,
+      "lift": 0.000015817215620983512
+    },
+    {
+      "n": 82,
+      "yaw": 90,
+      "clearance": 0.2400000000000002,
+      "lift": 0.1716718847167673
+    },
+    {
+      "n": 82,
+      "yaw": 180,
+      "clearance": 0.9955471642947522,
+      "lift": 0.008085153287857635
+    },
+    {
+      "n": 82,
+      "yaw": 270,
+      "clearance": 0.2400000000000002,
+      "lift": 2.4555802991293287
+    },
+    {
+      "n": 158,
+      "yaw": 0,
+      "clearance": 0.8108839266872723,
+      "lift": 0.00002787590106768093
+    },
+    {
+      "n": 158,
+      "yaw": 90,
+      "clearance": 0.2400000000000002,
+      "lift": 1.1144741497133666
+    },
+    {
+      "n": 158,
+      "yaw": 180,
+      "clearance": 1.022197696182614,
+      "lift": 0.053044859331767495
+    },
+    {
+      "n": 158,
+      "yaw": 270,
+      "clearance": 0.2400000000000002,
+      "lift": 0.9414420190706139
+    },
+    {
+      "n": -95,
+      "yaw": 0,
+      "clearance": 0.9134657493394699,
+      "lift": 0.000009915080991325645
+    },
+    {
+      "n": -95,
+      "yaw": 90,
+      "clearance": 0.2400000000000002,
+      "lift": 1.6063842726902968
+    },
+    {
+      "n": -95,
+      "yaw": 180,
+      "clearance": 1.2310131288801034,
+      "lift": 0.07561313624389825
+    },
+    {
+      "n": -95,
+      "yaw": 270,
+      "clearance": 0.23999999999999977,
+      "lift": 1.737214901036205
+    }
+  ],
+  "readyMs": 1767,
+  "frameMs": {
+    "p50": 16.699999999720603,
+    "p95": 18.700000000186265,
+    "p99": 18.800000000279397,
+    "max": 19.100000000093132,
+    "count": 1801
+  },
+  "walk": {
+    "ready": true,
+    "frameCount": 1977,
+    "paused": false,
+    "player": {
+      "e": 17.880816256542786,
+      "n": 44.00465003384488,
+      "heading": 184.60606805263342,
+      "h": 7.265469839786022
+    },
+    "camera": {
+      "x": 18.320143584481105,
+      "y": 8.793334265959507,
+      "z": -49.45684903608475,
+      "yaw": 184.60682648785166,
+      "pitch": 6,
+      "distance": 5.5,
+      "currentDistance": 5.500309969095889,
+      "followError": 1.0993333568492896e-15,
+      "terrainLift": 0.0029578782013907267,
+      "clearance": 1.2730218176503696
+    },
+    "mapOpen": false,
+    "playerClear": true,
+    "faded": [],
+    "render": {
+      "width": 1920,
+      "height": 1080,
+      "backend": "webgpu",
+      "webGLVersion": null,
+      "triangles": 647935,
+      "shadowTriangles": 121130,
+      "mainTriangles": 526805,
+      "drawCalls": 219,
+      "meshes": 2241,
+      "gpu": {
+        "vendor": "apple",
+        "renderer": "metal-3",
+        "version": "unknown version"
+      },
+      "fallbackReason": null,
+      "devicePixelRatio": 1,
+      "internalDpr": 1,
+      "resolutionQuality": "high"
+    },
+    "errors": [],
+    "seed": "atlas-demo-01",
+    "sceneVersion": "ravine-showcase-v1",
+    "demo": true,
+    "forest": {
+      "version": "m1-tree-field-v1",
+      "asset": "meshy-a",
+      "assetLabel": "Три семейства · процедурные варианты",
+      "variety": true,
+      "families": [
+        {
+          "id": "meshy-a",
+          "trees": 699,
+          "triangles": [
+            5318,
+            1413,
+            224
+          ]
+        },
+        {
+          "id": "meshy-fork-oak-v1-0",
+          "trees": 323,
+          "triangles": [
+            2978,
+            890,
+            214
+          ]
+        },
+        {
+          "id": "meshy-fork-oak-v1-1",
+          "trees": 357,
+          "triangles": [
+            2978,
+            886,
+            220
+          ]
+        },
+        {
+          "id": "meshy-fork-oak-v1-2",
+          "trees": 302,
+          "triangles": [
+            2978,
+            888,
+            217
+          ]
+        },
+        {
+          "id": "meshy-young-tree-v1-0",
+          "trees": 939,
+          "triangles": [
+            1922,
+            587,
+            227
+          ]
+        },
+        {
+          "id": "meshy-young-tree-v1-1",
+          "trees": 886,
+          "triangles": [
+            1922,
+            588,
+            224
+          ]
+        },
+        {
+          "id": "meshy-young-tree-v1-2",
+          "trees": 866,
+          "triangles": [
+            1922,
+            589,
+            225
+          ]
+        }
+      ],
+      "colorVariation": true,
+      "colorVersion": "tree-tone-v1",
+      "trees": 4372,
+      "activeTrees": 1090,
+      "trianglesPerLevel": [
+        5318,
+        1413,
+        224
+      ],
+      "materialsPerTree": 1,
+      "lodCounts": [
+        31,
+        106,
+        953
+      ],
+      "lockNear": false,
+      "transitions": 0,
+      "geometryBuffers": 580,
+      "horizon": {
+        "cells": 80,
+        "geometryBuffers": 559,
+        "distantCells": 61,
+        "distantTrees": 3282
+      }
+    },
+    "floor": {
+      "cells": 49,
+      "triangles": 56200
+    },
+    "lighting": {
+      "air": {
+        "method": "shadowed-air",
+        "steps": 16,
+        "maxDistanceM": 32,
+        "scale": 0.5,
+        "extraGeometryPasses": 0
+      },
+      "filter": 6,
+      "mapSize": 512,
+      "probe": [
+        0.053477805107831955,
+        0.6554094515740871,
+        0.8439425239339471
+      ]
+    }
+  },
+  "mapOpenMs": 104
+}

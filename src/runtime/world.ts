@@ -1,3 +1,4 @@
+import {showcaseEnabled} from '../domain/showcase.ts';
 import {createForestProps} from './forest-props.ts';
 import {SoilPattern} from './soil-pattern.ts';
 import {soilTexture} from './forest-floor.ts';
@@ -42,20 +43,20 @@ export function createWorld(scene: Scene, forestMode=false) {
   const hood = material('hood', Color3.FromHexString('#9fa68a'));
   const skin = material('face', Color3.FromHexString('#d8bb91'));
   scene.clearColor = new Color4(0.72, 0.78, 0.74, 1);
-  scene.fogMode = Scene.FOGMODE_EXP2; scene.fogDensity = forestMode ? 0.004 : 0.023;
+  scene.fogMode = Scene.FOGMODE_EXP2; scene.fogDensity = showcaseEnabled ? 0.0025 : forestMode ? 0.004 : 0.023;
   scene.fogColor = new Color3(0.65, 0.73, 0.68);
   const fill = new HemisphericLight('ambient', new Vector3(0, 1, 0), scene);
-  fill.intensity = forestMode ? 0.46 : 0.75; fill.groundColor = new Color3(0.2, 0.26, 0.2);if(forestMode)fill.diffuse=new Color3(0.78,0.87,1);
+  fill.intensity = showcaseEnabled ? 0.60 : forestMode ? 0.46 : 0.75; fill.groundColor = new Color3(0.2, 0.26, 0.2);if(forestMode)fill.diffuse=new Color3(0.78,0.87,1);
   const sun = new DirectionalLight('sun', forestMode?new Vector3(-0.35,-0.65,0.6):new Vector3(-0.5, -1, 0.3), scene);
-  sun.intensity = forestMode ? 1.05 : 0.85; sun.diffuse = forestMode?new Color3(1,0.88,0.66):new Color3(1, 0.94, 0.78);
+  sun.intensity = forestMode ? 1.05 : 0.85; sun.diffuse = forestMode?showcaseEnabled?new Color3(1,.96,.83):new Color3(1,0.88,0.66):new Color3(1, 0.94, 0.78);
 
   // One fixed grid and a continuous height function shared with collision queries.
   const mesh = new Mesh('ground', scene), data = new VertexData();
   const uvs:number[]=[];
   const pos: number[] = [], indices: number[] = [], normals: number[] = [], colors: number[] = [];
-  const bounds=forestMode?FOREST_BOUNDS:BOUNDS,step=forestMode?4:1;
+  const bounds=forestMode?FOREST_BOUNDS:BOUNDS,step=showcaseEnabled?2:forestMode?4:1;
   const north=Array.from({length:(bounds.maxN-bounds.minN)/step+1},(_,i)=>bounds.minN+i*step);
-  if(forestMode)for(let n=28;n<=52;n++)if(!north.includes(n))north.push(n);north.sort((a,b)=>a-b);
+  if(forestMode&&!showcaseEnabled)for(let n=28;n<=52;n++)if(!north.includes(n))north.push(n);north.sort((a,b)=>a-b);
   const cols = (bounds.maxE - bounds.minE)/step + 1, rows = north.length;
   const path = color('path'), earth = Color3.FromHexString('#63735b');
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {

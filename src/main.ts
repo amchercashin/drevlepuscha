@@ -1,3 +1,6 @@
+import {showcaseEnabled,terrainCameraLift,showcasePath} from './domain/showcase.ts';
+import {createShowcaseMap} from './runtime/showcase-map.ts';
+import './showcase.css';
 import {collisionGrid} from './domain/collision-grid.ts';
 import {CanopyShade} from './runtime/canopy-shade.ts';
 import {createTouchControls} from './runtime/touch-controls.ts';
@@ -49,7 +52,7 @@ try {
   const camera=new FreeCamera('travel',new Vector3(0,2,5),scene);
   camera.inputs.clear();camera.minZ=config.travel.nearClipM;camera.maxZ=100;
   camera.fov=config.travel.fovVerticalDeg*Math.PI/180;scene.activeCamera=camera;
-  const forestMode=new URLSearchParams(location.search).get('scene')==='m1';
+  const forestMode=showcaseEnabled||new URLSearchParams(location.search).get('scene')==='m1';
   const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
   const forest=forestMode?await createForest(scene,world.sun):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
@@ -76,7 +79,7 @@ try {
   const treeColor=document.querySelector<HTMLInputElement>('#tree-color')!;document.querySelector<HTMLElement>('#tree-color-label')!.hidden=!forest?.stats().colorVersion;treeColor.onchange=()=>forest?.setColorVariation(treeColor.checked);
   document.querySelector<HTMLInputElement>('#near-only')!.onchange=e=>forest?.setNearOnly((e.target as HTMLInputElement).checked);
   const player={e:0,n:0,heading:0};
-  let yaw=0,yawTarget=0,pitch=config.travel.pitchDefaultDeg,distance=config.travel.distanceM;
+  let yaw=0,yawTarget=0,pitch=showcaseEnabled?6:config.travel.pitchDefaultDeg,distance=config.travel.distanceM;
   let frameCount=0,previousTime=performance.now(),uiTime=0;
   const samples: number[]=[],maxSamples=60*60*5;
   let collect=false;
@@ -93,7 +96,7 @@ try {
   function reset(checkpoint:keyof typeof CHECKPOINTS='entrance') {
     if(checkpoint==='outer'&&!forest)return;
     const c=CHECKPOINTS[checkpoint];player.e=c.e;player.n=c.n;player.heading=0;
-    yaw=yawTarget=0;pitch=config.travel.pitchDefaultDeg;distance=config.travel.distanceM;
+    yaw=yawTarget=0;pitch=showcaseEnabled?6:config.travel.pitchDefaultDeg;distance=config.travel.distanceM;
     keys.clear();demo=false;
   }
   const labels=['Тропа прямо','Осмотр слева','Осмотр справа','Взгляд в кроны','Рядом со стволом','Широкий проход'];
@@ -111,6 +114,9 @@ try {
     button.onclick=()=>{reset(button.dataset.checkpoint as keyof typeof CHECKPOINTS);focusScene();};
   }
   resume.disabled=false;resume.textContent='Начать прогулку';resume.onclick=focusScene;
+  let cameraLift=0;
+  const atlas=showcaseEnabled?createShowcaseMap(()=>({...player,yaw}),setPaused,(e,n)=>{player.e=e;player.n=n;keys.clear();demo=false;}):null;
+  if(showcaseEnabled){document.body.classList.add('showcase');document.title='Древлепуща — лесные ложбины';document.querySelector('h1')!.textContent='Лесные ложбины';document.querySelector('#pause-title')!.textContent='Там, где тропа уходит вниз';document.querySelector('#pause-description')!.textContent='Лесные берега, боковые промоины и солнечные просветы. Идите по тропе или поднимитесь на склон. M — карта рельефа.';document.querySelector('.muted')!.textContent='Шоукейс · 512 × 640 м. Большой мир сохранён как прототип по ?scene=world.';}
   const touch=createTouchControls(canvas,{
     active:()=>!paused,engage:()=>{demo=false;},
     look:(x,y)=>{yawTarget=normalizeAzimuth(yawTarget+x*0.2);pitch=clamp(pitch+y*0.16,config.travel.pitchMinDeg,config.travel.pitchMaxDeg);},
@@ -138,7 +144,7 @@ try {
     if(paused||document.activeElement!==canvas)return;
     if(['KeyW','KeyA','KeyS','KeyD','Space','ShiftLeft','ShiftRight'].includes(e.code)){
       e.preventDefault();keys.add(e.code);demo=false;
-      if(e.code==='Space'){yawTarget=player.heading;pitch=config.travel.pitchDefaultDeg;distance=config.travel.distanceM;}
+      if(e.code==='Space'){yawTarget=player.heading;pitch=showcaseEnabled?6:config.travel.pitchDefaultDeg;distance=config.travel.distanceM;}
     }
   });
   window.addEventListener('keyup',e=>keys.delete(e.code));
@@ -167,16 +173,16 @@ try {
     const anchor={x:player.e,y:groundHeight(player.e,player.n)+config.travel.targetHeightM,z:-player.n};
     const offset=cameraOffset(yaw+180,Math.max(0,pitch),distance);
     const currentDistance=Math.hypot(pos.x-anchor.x,pos.y-anchor.y,pos.z-anchor.z);
-    const followError=Math.hypot(pos.x-anchor.x-offset.x,pos.y-anchor.y-offset.y,pos.z-anchor.z-offset.z);
+    const followError=Math.hypot(pos.x-anchor.x-offset.x,pos.y-anchor.y-offset.y-cameraLift,pos.z-anchor.z-offset.z);
     return {
       ready:frameCount>2,frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},
-      camera:{...pos,yaw,pitch,distance,currentDistance,followError},
+      camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas?.isOpen()??false,
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,webGLVersion:renderer.kind==='webgl2'?2:null,
         triangles:scene.getActiveIndices()/3,shadowTriangles:shadowPassTriangles,mainTriangles:scene.getActiveIndices()/3-shadowPassTriangles,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
-      errors:[...errors],seed:targets.fixedSeed,sceneVersion:forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,
+      errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,
       lighting:sunlight?{air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
@@ -184,6 +190,7 @@ try {
   if(new URLSearchParams(location.search).get('debug')==='1') {
     Object.assign(window,{m0:{
       state,reset,preset,setPaused,
+      inspect:()=>({scene,engine,world,forest}),
       obstacles:()=>world.boxes.map(box=>({...box,min:{...box.min},max:{...box.max}})),
       teleport:(e:number,n:number,heading=0)=>{
         if(![e,n,heading].every(Number.isFinite)||e<(forest?FOREST_BOUNDS.minE+1:-23)||e>(forest?FOREST_BOUNDS.maxE-1:23)||n<(forest?FOREST_BOUNDS.minN+1:-11)||n>(forest?FOREST_BOUNDS.maxN-1:63))throw new Error('Outside harness');
@@ -204,6 +211,7 @@ try {
 
   engine.runRenderLoop(()=>{
     try {
+      if(atlas?.isOpen())return; // Static atlas does not keep rendering the hidden 3D scene.
       const now=performance.now(),rawDt=now-previousTime;previousTime=now;
       const dt=Math.min(rawDt/1000,0.05);
       if(!paused){
@@ -217,7 +225,7 @@ try {
           // Same closed 60-second north/south route, actual movement/collision code.
           demoTime+=dt;const phase=demoTime%60;
           dn=phase<27?1:phase<30?0:phase<57?-1:0;
-          yawTarget=0;pitch=phase>=27&&phase<30?-20:12;
+          if(showcaseEnabled){const delta=showcasePath(player.n+dn)-player.e;de=delta;const l=Math.hypot(de,dn)||1;de/=l;dn/=l;yawTarget=normalizeAzimuth(Math.atan2(de,dn)*180/Math.PI);pitch=6;}else{yawTarget=0;pitch=phase>=27&&phase<30?-20:12;}
         }else if(forward||right){
           const scale=1/Math.max(1,Math.hypot(forward,right)),a=yaw*Math.PI/180;
           forward*=scale;right*=scale;
@@ -238,6 +246,7 @@ try {
       const anchor={x:player.e,y:h+config.travel.targetHeightM,z:-player.n};
       const offset=cameraOffset(yaw+180,Math.max(0,pitch),distance);
       const desired={x:anchor.x+offset.x,y:anchor.y+offset.y,z:anchor.z+offset.z};
+      if(showcaseEnabled){const safe=terrainCameraLift(desired,anchor);cameraLift=Math.max(safe,cameraLift*Math.exp(-dt/0.18));desired.y+=cameraLift;}
       // Follow translation only. Geometry never changes the user's orbit or zoom.
       camera.position.set(desired.x,desired.y,desired.z);
       // Looking up tilts the view from traveller height instead of orbiting below the floor.
@@ -246,7 +255,7 @@ try {
       // Babylon setTarget nudges equal-Z positions by Epsilon at cardinal angles. Keep the chosen orbit exact.
       camera.position.set(desired.x,desired.y,desired.z);
       const feet={x:player.e,y:h,z:-player.n};
-      for(const mesh of [...world.occluders,world.ground]) {
+      for(const mesh of [...world.occluders,...(showcaseEnabled?[]:[world.ground])]) {
         const bounds=mesh.getBoundingInfo().boundingBox;
         const blocked=mesh===world.ground?terrainOccludesTraveller(desired,feet):
           occludesTraveller(desired,feet,{id:mesh.id,min:bounds.minimumWorld,max:bounds.maximumWorld},mesh.visibility<0.99);

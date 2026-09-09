@@ -1,3 +1,3 @@
 export {};
 const scene=new URLSearchParams(location.search).get('scene');
-if(scene==='m0'||scene==='m1')await import('./main.ts');else await import('./world/game.ts');
+if(scene==='world')await import('./world/game.ts');else{if(scene!=='m0'&&scene!=='m1'){const {enableShowcase}=await import('./domain/showcase.ts');enableShowcase();}await import('./main.ts');}

@@ -1,3 +1,4 @@
+import {showcaseEnabled,showcasePath} from './showcase.ts';
 import {createRandom,seedFor} from './seed.ts';
 import {groundHeight} from './harness.ts';
 import type {Box} from './harness.ts';
@@ -19,6 +20,20 @@ export function forestPlacements(rootRadiusM=3.8,variation?:TreeVariation):TreeP
   const samples=variation?24:12;let y=groundHeight(e,n);for(let i=0;i<samples;i++){const a=i*Math.PI*2/samples;y=Math.min(y,groundHeight(e+Math.cos(a)*radius,n+Math.sin(a)*radius));}
   y-=0.08+(variation?variation.rootSinkMeters*h+radius*Math.hypot(leanX,leanZ):0);
   output.push({id,e,n,y,yaw,width:w,height:h,depth,leanX,leanZ});
+ }
+ if(showcaseEnabled){
+  for(let n=-248;n<=376;n+=8)for(let e=-248;e<=248;e+=8){
+   const id=`showcase-${e}-${n}`,r=createRandom(seedFor('ravine-1',id));
+   const x=e+(r()-.5)*5,z=n+(r()-.5)*5,d=Math.abs(x-showcasePath(z));
+   if(d<4.3||r()<.12+(.2*Math.exp(-(((z-82)/22)**2))))continue;
+   tree(id,x,z,.55+r()*.35,.68+r()*.45);
+  }
+  for(let n=-238;n<374;n+=7)for(const side of [-1,1]){
+   const id=`showcase-bank-${n}-${side}`,r=createRandom(seedFor('bank',id)),z=n+(r()-.5)*3;
+   const x=showcasePath(z)+side*(5+r()*4);
+   if(!output.some(t=>Math.hypot(t.e-x,t.n-z)<3))tree(id,x,z,.65+r()*.25,.75+r()*.35);
+  }
+  return output;
  }
  for(let row=0;row<10;row++)for(let col=0;col<6;col++){
   if(row>=8&&(col===2||col===3))continue;

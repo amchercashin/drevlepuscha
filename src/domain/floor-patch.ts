@@ -1,3 +1,4 @@
+import {showcaseEnabled} from './showcase.ts';
 import {groundHeight,pathCentre} from './harness.ts';
 import type {Box} from './harness.ts';
 import {FOREST_BOUNDS} from './forest.ts';
@@ -42,7 +43,7 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
   }
  }
  // One atlas and curved strips, no geometry for each fern leaflet.
- for(let plant=0;plant<14;plant++){
+ for(let plant=0;plant<(showcaseEnabled?72:14);plant++){
   const e=cx*8+random()*8,n=cz*8+random()*8;
   const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
   if(!allowed(e,n,.6)||random()>patch)continue;

@@ -1,3 +1,4 @@
+import {showcaseEnabled,showcasePath} from '../domain/showcase.ts';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
 import {VertexData} from '@babylonjs/core/Meshes/mesh.vertexData.js';
 import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
@@ -22,7 +23,8 @@ export function createForestProps(scene:Scene,boxes:Box[]){
  function place(asset:PropAsset,texture:string,placements:number[][]){
   const material=new StandardMaterial(asset.sourceId,scene);material.diffuseTexture=new Texture(texture,scene,false,false);material.specularColor=Color3.Black();
   const templates=new Map<number,Mesh>();
-  for(const [i,[e,n,scale,yaw]] of placements.entries()){
+  for(const [i,[pe,pn,scale,yaw]] of placements.entries()){
+   const n=showcaseEnabled?pn*4-70:pn,e=showcaseEnabled?showcasePath(n)+pe*1.8:pe;
    const variant=i%asset.variants.length,id=`${asset.sourceId}-${i}`;let m:Mesh;
    const source=templates.get(variant);
    if(source)m=source.clone(id,null,true)!;

@@ -1,3 +1,4 @@
+import {showcaseEnabled,showcaseHeight,showcasePath} from './showcase.ts';
 /** Synthetic M0 metres. No connection to the uncalibrated canonical map. */
 export interface Point3 { x: number; y: number; z: number }
 export interface Box { id: string; min: Point3; max: Point3 }
@@ -13,9 +14,10 @@ function smooth(a: number, b: number, x: number): number {
   return t * t * (3 - 2 * t);
 }
 export function groundHeight(e: number, n: number): number {
+  if(showcaseEnabled)return showcaseHeight(e,n);
   return 3.2 * smooth(32, 47, n) + 0.18 * Math.sin(e * 0.2) * Math.sin(n * 0.14);
 }
-export function pathCentre(n: number): number { return Math.sin(n * 0.075) * 1.3; }
+export function pathCentre(n: number): number { return showcaseEnabled?showcasePath(n):Math.sin(n * 0.075) * 1.3; }
 
 /** Segment intersection with a padded obstacle box. */
 export function segmentBoxFraction(start: Point3, end: Point3, box: Box, radius: number): number | null {
@@ -70,6 +72,7 @@ export function fadeOpacity(current: number, target: number, dt: number, seconds
 
 export function walkerIsClear(p: Walker, boxes: readonly Box[]): boolean {
   const h = groundHeight(p.e, p.n);
+  if(showcaseEnabled&&Math.hypot(groundHeight(p.e+.25,p.n)-groundHeight(p.e-.25,p.n),groundHeight(p.e,p.n+.25)-groundHeight(p.e,p.n-.25))*2>1.05)return false;
   return !boxes.some(box => {
     if (h + PLAYER_HEIGHT <= box.min.y || h >= box.max.y) return false;
     return p.e > box.min.x - PLAYER_RADIUS && p.e < box.max.x + PLAYER_RADIUS &&
