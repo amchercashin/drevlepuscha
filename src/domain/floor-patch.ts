@@ -12,7 +12,7 @@ const geometry=():FloorGeometry=>({positions:[],indices:[],colors:[],uvs:[],heig
 export function floorCellDistance(e:number,n:number,cx:number,cz:number){
  return Math.hypot(Math.max(cx*8-1-e,0,e-((cx+1)*8+1)),Math.max(cz*8-1-n,0,n-((cz+1)*8+1)));
 }
-export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeight){
+export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeight,lush=showcaseEnabled){
  const grass=geometry(),leaves=geometry(),random=createRandom(seedFor('m1-floor-art-v1',cx,cz));
  const nearby=boxes.filter(b=>b.max.x>=cx*8-1&&b.min.x<=(cx+1)*8+1&&b.max.z>=-(cz+1)*8-1&&b.min.z<=-cz*8+1);
  function allowed(e:number,n:number,r:number){
@@ -26,14 +26,14 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
   g.positions.push(x,y,z);g.uvs.push(u,v);g.colors.push(...c,1);
   g.heights.push(Math.max(0,y-height(x,-z)+.06));
  }
- // Sparse bent opaque blades: the broad floor colour carries the distant cover.
- for(let i=0;i<65;i++){
-  const e=cx*8+random()*8,n=cz*8+random()*8;
+ // Jittered, clustered tufts in the showcase; the historical M1 keeps its original seed sequence.
+ for(let i=0;i<(lush?400:65);i++){
+  const e=cx*8+(lush?((i%20)+random())*.4:random()*8),n=cz*8+(lush?(Math.floor(i/20)+random())*.4:random()*8);
   const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
-  if(!allowed(e,n,.15)||random()>patch*.8)continue;
-  const h=.13+random()*.22;
-  for(let blade=0;blade<4;blade++){
-   const a=random()*Math.PI*2,dx=Math.cos(a),dz=Math.sin(a),w=.017+random()*.014;
+  if(!allowed(e,n,.15)||random()>(lush?.42+patch*.53:patch*.8))continue;
+  const h=(lush?.20:.13)+random()*(lush?.27:.22);
+  for(let blade=0;blade<(lush?5:4);blade++){
+   const a=random()*Math.PI*2,dx=Math.cos(a),dz=Math.sin(a),w=(lush?.022:.017)+random()*.014;
    const x=e+(random()-.5)*.15,z=-n+(random()-.5)*.15,y=height(x,-z)-.025,k=grass.positions.length/3;
    for(const [t,side] of [[0,-1],[0,1],[.6,-1],[.6,1],[1,0]]){
     const width=w*(1-t*.7),bend=t*t*h*.45;
@@ -43,11 +43,11 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
   }
  }
  // One atlas and curved strips, no geometry for each fern leaflet.
- for(let plant=0;plant<(showcaseEnabled?72:14);plant++){
+ for(let plant=0;plant<(lush?78:14);plant++){
   const e=cx*8+random()*8,n=cz*8+random()*8;
   const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
-  if(!allowed(e,n,.6)||random()>patch)continue;
-  const fern=plant<5,len=(fern?.62:.35)+random()*(fern?.28:.20),count=fern?7:5,rotation=random()*Math.PI*2;
+  if(!allowed(e,n,.6)||random()>(lush?.24+patch*.68:patch))continue;
+  const fern=lush?random()<.58:plant<5,len=(fern?(lush?.66:.62):.35)+random()*(fern?(lush?.26:.28):.20),count=fern?7:5,rotation=random()*Math.PI*2;
   const quadrant=(fern?0:1)+(random()>.5?2:0),centreU=quadrant%2===0?.25:.75,baseV=quadrant<2?.505:.005;
   const tint=.82+random()*.3;
   for(let leaf=0;leaf<count;leaf++){
