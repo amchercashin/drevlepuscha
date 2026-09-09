@@ -1,0 +1,129 @@
+{
+  "url": "http://127.0.0.1:4178/",
+  "errors": [],
+  "note": "Final parent-cutout and frame-boundary resize fixes; movement and auto resolution",
+  "frames": {
+    "count": 3600,
+    "median": 16.699999928474426,
+    "p95": 17.600000023841858,
+    "p99": 17.899999976158142,
+    "max": 19.800000071525574,
+    "over33": 0
+  },
+  "cpu": {
+    "count": 3600,
+    "median": 2.299999952316284,
+    "p95": 3.899999976158142,
+    "p99": 7.799999952316284,
+    "max": 12.200000047683716,
+    "over33": 0
+  },
+  "gpu": {
+    "count": 3600,
+    "median": 9.764864,
+    "p95": 12.386304,
+    "p99": 12.910592,
+    "max": 23.003136,
+    "over33": 0
+  },
+  "state": {
+    "ready": true,
+    "paused": false,
+    "frames": 3846,
+    "player": {
+      "e": 1836.3345847764679,
+      "n": 26436.33458477588,
+      "heading": 44.999999999736474,
+      "h": 139.9791471128631
+    },
+    "camera": {
+      "yaw": 40,
+      "pitch": 12,
+      "distance": 5.5,
+      "currentDistance": 5.499999999999537,
+      "followError": 5.712692894303979e-13
+    },
+    "render": {
+      "backend": "webgpu",
+      "width": 2560,
+      "height": 1440,
+      "triangles": 1232547,
+      "drawCalls": 173,
+      "meshes": 518,
+      "gpuMs": 10.092544,
+      "gpuTiming": true,
+      "pixelBudget": 3700000
+    },
+    "world": {
+      "tiles": 12,
+      "treeRecords": 15119,
+      "decodedBytes": 3806384,
+      "queued": 0,
+      "pending": 0,
+      "networkBytes": 4254132,
+      "cacheHits": 0,
+      "failures": 0,
+      "resources": {
+        "geometryBytes": 28631364,
+        "textureBytes": 194272789.33333397,
+        "instanceBytes": 3373568,
+        "framebufferEstimateBytes": 147456000,
+        "knownCPUBytes": 43424084,
+        "gpuEstimateBytes": 373733721.33333397,
+        "knownTotalBytes": 417157805.33333397,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      },
+      "terrain": {
+        "patches": 67,
+        "preparing": 0,
+        "uploadQueue": 0,
+        "lastBuildMs": 0.6000000238418579,
+        "maxBuildMs": 2.100000023841858,
+        "uploadedBytes": 40981632
+      },
+      "forest": {
+        "near": 77,
+        "batchQueue": 0,
+        "batches": 57,
+        "trees": 2675,
+        "lastBuildMs": 2.600000023841858,
+        "maxBuildMs": 4.200000047683716
+      },
+      "library": {
+        "families": [
+          "oak",
+          "young",
+          "fork",
+          "conifer",
+          "slab",
+          "log",
+          "stump",
+          "rock"
+        ],
+        "textures": 8,
+        "textureBytes": 178956970.66666666
+      },
+      "groves": 10032,
+      "floorCells": 49,
+      "props": 6,
+      "dressing": 0,
+      "origin": {
+        "e": 1536,
+        "n": 26112
+      },
+      "rebases": 3,
+      "prepareMs": [
+        663.1000000238419,
+        340.5
+      ]
+    },
+    "mapOpen": false,
+    "errors": [],
+    "traversal": {
+      "index": 1,
+      "distance": 899.9129999975202
+    },
+    "heap": 128985020
+  }
+}

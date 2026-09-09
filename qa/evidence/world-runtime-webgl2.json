@@ -1,0 +1,1657 @@
+{
+  "backend": "webgl2",
+  "url": "http://127.0.0.1:4178/",
+  "checks": [
+    "cold startup, parent cutout shader",
+    "tunnel passage, 15m/s, camera invariant",
+    "map M, selected POI, prepared fast travel",
+    "M closes map"
+  ],
+  "pois": [
+    {
+      "id": "haysend",
+      "player": {
+        "e": -172,
+        "n": 420,
+        "heading": 90,
+        "h": 1.96875
+      },
+      "world": {
+        "tiles": 9,
+        "treeRecords": 462,
+        "decodedBytes": 1397540,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 5223821,
+        "cacheHits": 0,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 22223000,
+          "textureBytes": 146999488.00000015,
+          "instanceBytes": 1491968,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 27907588,
+          "gpuEstimateBytes": 253658456.00000015,
+          "knownTotalBytes": 281566044.0000001,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 38,
+          "preparing": 11,
+          "uploadQueue": 11,
+          "lastBuildMs": 0.6000000238418579,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 35733984
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 8,
+          "trees": 45,
+          "lastBuildMs": 0.10000002384185791,
+          "maxBuildMs": 1.6999999284744263
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow"
+          ],
+          "textures": 6,
+          "textureBytes": 134217728
+        },
+        "groves": 1692,
+        "floorCells": 30,
+        "props": 0,
+        "dressing": 1,
+        "origin": {
+          "e": -512,
+          "n": 0
+        },
+        "rebases": 3,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 330977,
+        "drawCalls": 131,
+        "meshes": 343,
+        "gpuMs": 4.083666,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 749205150
+    },
+    {
+      "id": "hay_gate",
+      "player": {
+        "e": 500,
+        "n": 25420,
+        "heading": 90,
+        "h": 109.8125
+      },
+      "world": {
+        "tiles": 9,
+        "treeRecords": 2740,
+        "decodedBytes": 1169444,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 5223821,
+        "cacheHits": 9,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 22472636,
+          "textureBytes": 146999488.00000036,
+          "instanceBytes": 2259968,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 28240936,
+          "gpuEstimateBytes": 254676092.00000036,
+          "knownTotalBytes": 282917028.00000036,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 38,
+          "preparing": 11,
+          "uploadQueue": 11,
+          "lastBuildMs": 0.6000000238418579,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 47978496
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 28,
+          "trees": 689,
+          "lastBuildMs": 0.3999999761581421,
+          "maxBuildMs": 1.6999999284744263
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow"
+          ],
+          "textures": 6,
+          "textureBytes": 134217728
+        },
+        "groves": 5184,
+        "floorCells": 30,
+        "props": 0,
+        "dressing": 2,
+        "origin": {
+          "e": 0,
+          "n": 25088
+        },
+        "rebases": 4,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 793758,
+        "drawCalls": 217,
+        "meshes": 372,
+        "gpuMs": 8.594041,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 759604256
+    },
+    {
+      "id": "entry_hollow",
+      "player": {
+        "e": 570,
+        "n": 25420,
+        "heading": 90,
+        "h": 109
+      },
+      "world": {
+        "tiles": 12,
+        "treeRecords": 6600,
+        "decodedBytes": 1936432,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 5510455,
+        "cacheHits": 12,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 26303240,
+          "textureBytes": 193311594.66666722,
+          "instanceBytes": 2413568,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 34526104,
+          "gpuEstimateBytes": 304972402.6666672,
+          "knownTotalBytes": 339498506.6666672,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 56,
+          "preparing": 0,
+          "uploadQueue": 0,
+          "lastBuildMs": 0.6000000238418579,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 52476480
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 32,
+          "trees": 944,
+          "lastBuildMs": 0.7000000476837158,
+          "maxBuildMs": 1.6999999284744263
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock"
+          ],
+          "textures": 8,
+          "textureBytes": 178956970.66666666
+        },
+        "groves": 5418,
+        "floorCells": 48,
+        "props": 2,
+        "dressing": 2,
+        "origin": {
+          "e": 0,
+          "n": 25088
+        },
+        "rebases": 4,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 855272,
+        "drawCalls": 188,
+        "meshes": 420,
+        "gpuMs": 9.758624,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 770133485
+    },
+    {
+      "id": "bonfire_glade",
+      "player": {
+        "e": 2600,
+        "n": 27300,
+        "heading": 90,
+        "h": 165.046875
+      },
+      "world": {
+        "tiles": 9,
+        "treeRecords": 12860,
+        "decodedBytes": 3244324,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 6074811,
+        "cacheHits": 12,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 26065620,
+          "textureBytes": 215069546.66666716,
+          "instanceBytes": 3488768,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 39287360,
+          "gpuEstimateBytes": 327567934.66666716,
+          "knownTotalBytes": 366855294.66666716,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 49,
+          "preparing": 0,
+          "uploadQueue": 0,
+          "lastBuildMs": 0.2999999523162842,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 64720992
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 60,
+          "trees": 2953,
+          "lastBuildMs": 1.899999976158142,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log"
+          ],
+          "textures": 9,
+          "textureBytes": 201326592
+        },
+        "groves": 10320,
+        "floorCells": 49,
+        "props": 0,
+        "dressing": 1,
+        "origin": {
+          "e": 2560,
+          "n": 27136
+        },
+        "rebases": 5,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 1387869,
+        "drawCalls": 200,
+        "meshes": 436,
+        "gpuMs": 5.217624,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 798518602
+    },
+    {
+      "id": "bald_hill",
+      "player": {
+        "e": 10000,
+        "n": 33700,
+        "heading": 90,
+        "h": 313.875
+      },
+      "world": {
+        "tiles": 9,
+        "treeRecords": 6632,
+        "decodedBytes": 2187300,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 6074811,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 22880408,
+          "textureBytes": 214108352.0000004,
+          "instanceBytes": 1184768,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 30627076,
+          "gpuEstimateBytes": 321117528.00000036,
+          "knownTotalBytes": 351744604.00000036,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 38,
+          "preparing": 11,
+          "uploadQueue": 11,
+          "lastBuildMs": 1.2000000476837158,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 74216736
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 0,
+          "trees": 0,
+          "lastBuildMs": 0.2999999523162842,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log"
+          ],
+          "textures": 9,
+          "textureBytes": 201326592
+        },
+        "groves": 10014,
+        "floorCells": 30,
+        "props": 0,
+        "dressing": 1,
+        "origin": {
+          "e": 9728,
+          "n": 33280
+        },
+        "rebases": 6,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 854175,
+        "drawCalls": 81,
+        "meshes": 334,
+        "gpuMs": 5.285375,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 816083926
+    },
+    {
+      "id": "gully_mouth",
+      "player": {
+        "e": 15912,
+        "n": 18640,
+        "heading": 90,
+        "h": 82.78125
+      },
+      "world": {
+        "tiles": 9,
+        "treeRecords": 7755,
+        "decodedBytes": 3110564,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 6719918,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 23903808,
+          "textureBytes": 236390592.0000004,
+          "instanceBytes": 3642368,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 36877868,
+          "gpuEstimateBytes": 346880768.00000036,
+          "knownTotalBytes": 383758636.00000036,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 37,
+          "preparing": 12,
+          "uploadQueue": 12,
+          "lastBuildMs": 0.5,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 86211360
+        },
+        "forest": {
+          "near": 32,
+          "batchQueue": 0,
+          "batches": 64,
+          "trees": 1597,
+          "lastBuildMs": 1.100000023841858,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 10278,
+        "floorCells": 30,
+        "props": 16,
+        "dressing": 1,
+        "origin": {
+          "e": 15872,
+          "n": 18432
+        },
+        "rebases": 7,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 1046724,
+        "drawCalls": 141,
+        "meshes": 448,
+        "gpuMs": 4.566916,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 849502588
+    },
+    {
+      "id": "old_man_willow",
+      "player": {
+        "e": 17442,
+        "n": 19172,
+        "heading": 90,
+        "h": 86.4375
+      },
+      "world": {
+        "tiles": 11,
+        "treeRecords": 9393,
+        "decodedBytes": 2809260,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 6952148,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 24265808,
+          "textureBytes": 236477973.33333373,
+          "instanceBytes": 3949568,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 36643156,
+          "gpuEstimateBytes": 347637349.33333373,
+          "knownTotalBytes": 384280505.33333373,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 38,
+          "preparing": 11,
+          "uploadQueue": 11,
+          "lastBuildMs": 0.7999999523162842,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 98705760
+        },
+        "forest": {
+          "near": 13,
+          "batchQueue": 0,
+          "batches": 72,
+          "trees": 1710,
+          "lastBuildMs": 1.100000023841858,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 10296,
+        "floorCells": 30,
+        "props": 4,
+        "dressing": 1,
+        "origin": {
+          "e": 17408,
+          "n": 18944
+        },
+        "rebases": 8,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 1025502,
+        "drawCalls": 112,
+        "meshes": 427,
+        "gpuMs": 6.38875,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 881864666
+    },
+    {
+      "id": "lily_pool",
+      "player": {
+        "e": 14800,
+        "n": 17715,
+        "heading": 90,
+        "h": 77.171875
+      },
+      "world": {
+        "tiles": 9,
+        "treeRecords": 8519,
+        "decodedBytes": 2688676,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 7333056,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 23906948,
+          "textureBytes": 236390592.0000004,
+          "instanceBytes": 3603968,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 35576944,
+          "gpuEstimateBytes": 346845508.00000036,
+          "knownTotalBytes": 382422452.00000036,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 37,
+          "preparing": 12,
+          "uploadQueue": 12,
+          "lastBuildMs": 0.5,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 110700384
+        },
+        "forest": {
+          "near": 23,
+          "batchQueue": 0,
+          "batches": 63,
+          "trees": 1786,
+          "lastBuildMs": 0.8999999761581421,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 10254,
+        "floorCells": 30,
+        "props": 12,
+        "dressing": 1,
+        "origin": {
+          "e": 14336,
+          "n": 17408
+        },
+        "rebases": 9,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186,
+          198.29999995231628
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 1041168,
+        "drawCalls": 161,
+        "meshes": 459,
+        "gpuMs": 7.932958,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 911256970
+    },
+    {
+      "id": "short_fall",
+      "player": {
+        "e": 21130,
+        "n": 18489,
+        "heading": 90,
+        "h": 94.9765625
+      },
+      "world": {
+        "tiles": 9,
+        "treeRecords": 5746,
+        "decodedBytes": 2333732,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 7734106,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 24317248,
+          "textureBytes": 236565354.66666707,
+          "instanceBytes": 3719168,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 35037612,
+          "gpuEstimateBytes": 347545770.6666671,
+          "knownTotalBytes": 382583382.6666671,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 39,
+          "preparing": 10,
+          "uploadQueue": 10,
+          "lastBuildMs": 1.5,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 123444672
+        },
+        "forest": {
+          "near": 16,
+          "batchQueue": 0,
+          "batches": 66,
+          "trees": 1591,
+          "lastBuildMs": 0.8000000715255737,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 7542,
+        "floorCells": 31,
+        "props": 16,
+        "dressing": 1,
+        "origin": {
+          "e": 20992,
+          "n": 18432
+        },
+        "rebases": 10,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186,
+          198.29999995231628,
+          341.39999997615814
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 864144,
+        "drawCalls": 120,
+        "meshes": 444,
+        "gpuMs": 5.714416,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 940898022
+    },
+    {
+      "id": "east_eaves",
+      "player": {
+        "e": 21600,
+        "n": 18820,
+        "heading": 90,
+        "h": 101.265625
+      },
+      "world": {
+        "tiles": 12,
+        "treeRecords": 5746,
+        "decodedBytes": 2866480,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 7843974,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 27198388,
+          "textureBytes": 238400362.66666728,
+          "instanceBytes": 2567168,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 38364996,
+          "gpuEstimateBytes": 351109918.6666673,
+          "knownTotalBytes": 389474914.6666673,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 60,
+          "preparing": 0,
+          "uploadQueue": 0,
+          "lastBuildMs": 0.3999999761581421,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 134189856
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 36,
+          "trees": 629,
+          "lastBuildMs": 0.3999999761581421,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 6018,
+        "floorCells": 30,
+        "props": 0,
+        "dressing": 3,
+        "origin": {
+          "e": 20992,
+          "n": 18432
+        },
+        "rebases": 10,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186,
+          198.29999995231628,
+          341.39999997615814,
+          124.70000004768372
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 544791,
+        "drawCalls": 57,
+        "meshes": 402,
+        "gpuMs": 3.762166,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 952286205
+    },
+    {
+      "id": "approach_knoll",
+      "player": {
+        "e": 21900,
+        "n": 19000,
+        "heading": 90,
+        "h": 138
+      },
+      "world": {
+        "tiles": 12,
+        "treeRecords": 4425,
+        "decodedBytes": 2437552,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 7950693,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 27475812,
+          "textureBytes": 238749888.00000066,
+          "instanceBytes": 1184768,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 35973236,
+          "gpuEstimateBytes": 350354468.00000066,
+          "knownTotalBytes": 386327704.00000066,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 64,
+          "preparing": 0,
+          "uploadQueue": 0,
+          "lastBuildMs": 0.6000000238418579,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 140437056
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 0,
+          "trees": 0,
+          "lastBuildMs": 0.09999990463256836,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 4848,
+        "floorCells": 30,
+        "props": 0,
+        "dressing": 2,
+        "origin": {
+          "e": 21504,
+          "n": 18944
+        },
+        "rebases": 11,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186,
+          198.29999995231628,
+          341.39999997615814,
+          124.70000004768372,
+          63.5
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 515192,
+        "drawCalls": 60,
+        "meshes": 363,
+        "gpuMs": 4.3465,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 969164120
+    },
+    {
+      "id": "tom_house",
+      "player": {
+        "e": 22384,
+        "n": 19350,
+        "heading": 90,
+        "h": 150
+      },
+      "world": {
+        "tiles": 10,
+        "treeRecords": 1334,
+        "decodedBytes": 2293032,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 8202065,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 26587744,
+          "textureBytes": 238312981.33333394,
+          "instanceBytes": 1184768,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 34651608,
+          "gpuEstimateBytes": 349029493.33333397,
+          "knownTotalBytes": 383681101.33333397,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 59,
+          "preparing": 0,
+          "uploadQueue": 0,
+          "lastBuildMs": 0.5,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 148683360
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 0,
+          "trees": 0,
+          "lastBuildMs": 0.10000002384185791,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 2628,
+        "floorCells": 30,
+        "props": 0,
+        "dressing": 4,
+        "origin": {
+          "e": 21504,
+          "n": 18944
+        },
+        "rebases": 11,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186,
+          198.29999995231628,
+          341.39999997615814,
+          124.70000004768372,
+          63.5,
+          93.90000009536743
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 332025,
+        "drawCalls": 64,
+        "meshes": 366,
+        "gpuMs": 4.541791,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 970094016
+    },
+    {
+      "id": "flower_garden",
+      "player": {
+        "e": 22360,
+        "n": 19350,
+        "heading": 90,
+        "h": 150
+      },
+      "world": {
+        "tiles": 10,
+        "treeRecords": 1334,
+        "decodedBytes": 2293032,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 8202065,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 26711296,
+          "textureBytes": 238312981.33333394,
+          "instanceBytes": 1184768,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 34775160,
+          "gpuEstimateBytes": 349153045.33333397,
+          "knownTotalBytes": 383928205.33333397,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 59,
+          "preparing": 0,
+          "uploadQueue": 0,
+          "lastBuildMs": 0.5,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 148683360
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 0,
+          "trees": 0,
+          "lastBuildMs": 0,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 2628,
+        "floorCells": 49,
+        "props": 0,
+        "dressing": 4,
+        "origin": {
+          "e": 21504,
+          "n": 18944
+        },
+        "rebases": 11,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186,
+          198.29999995231628,
+          341.39999997615814,
+          124.70000004768372,
+          63.5,
+          93.90000009536743,
+          0.20000004768371582
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 343891,
+        "drawCalls": 66,
+        "meshes": 385,
+        "gpuMs": 5.315624,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 977181320
+    },
+    {
+      "id": "kitchen_garden",
+      "player": {
+        "e": 22440,
+        "n": 19350,
+        "heading": 90,
+        "h": 150
+      },
+      "world": {
+        "tiles": 9,
+        "treeRecords": 295,
+        "decodedBytes": 2155684,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 8202065,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 27502772,
+          "textureBytes": 238749888.00000066,
+          "instanceBytes": 1184768,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 35154592,
+          "gpuEstimateBytes": 350381428.00000066,
+          "knownTotalBytes": 385536020.00000066,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 64,
+          "preparing": 0,
+          "uploadQueue": 0,
+          "lastBuildMs": 0.20000004768371582,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 150432576
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 0,
+          "trees": 0,
+          "lastBuildMs": 0,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 2400,
+        "floorCells": 31,
+        "props": 0,
+        "dressing": 4,
+        "origin": {
+          "e": 21504,
+          "n": 18944
+        },
+        "rebases": 11,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186,
+          198.29999995231628,
+          341.39999997615814,
+          124.70000004768372,
+          63.5,
+          93.90000009536743,
+          0.20000004768371582,
+          0.10000002384185791
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 345626,
+        "drawCalls": 63,
+        "meshes": 372,
+        "gpuMs": 4.307583,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 985774282
+    },
+    {
+      "id": "tom_hill_brow",
+      "player": {
+        "e": 22950,
+        "n": 19730,
+        "heading": 90,
+        "h": 215
+      },
+      "world": {
+        "tiles": 10,
+        "treeRecords": 4,
+        "decodedBytes": 2122792,
+        "queued": 0,
+        "pending": 0,
+        "networkBytes": 8447923,
+        "cacheHits": 21,
+        "failures": 0,
+        "resources": {
+          "geometryBytes": 26768532,
+          "textureBytes": 238400362.66666728,
+          "instanceBytes": 1184768,
+          "framebufferEstimateBytes": 82944000,
+          "knownCPUBytes": 34321676,
+          "gpuEstimateBytes": 349297662.6666673,
+          "knownTotalBytes": 383619338.6666673,
+          "reserveBytes": 268435456,
+          "budgetBytes": 1073741824
+        },
+        "terrain": {
+          "patches": 60,
+          "preparing": 1,
+          "uploadQueue": 1,
+          "lastBuildMs": 1.1999999284744263,
+          "maxBuildMs": 2.399999976158142,
+          "uploadedBytes": 159428544
+        },
+        "forest": {
+          "near": 0,
+          "batchQueue": 0,
+          "batches": 0,
+          "trees": 0,
+          "lastBuildMs": 0,
+          "maxBuildMs": 2.8000000715255737
+        },
+        "library": {
+          "families": [
+            "fork",
+            "oak",
+            "young",
+            "conifer",
+            "cottage",
+            "willow",
+            "slab",
+            "rock",
+            "log",
+            "stump"
+          ],
+          "textures": 10,
+          "textureBytes": 223696213.33333334
+        },
+        "groves": 906,
+        "floorCells": 30,
+        "props": 0,
+        "dressing": 4,
+        "origin": {
+          "e": 22528,
+          "n": 19456
+        },
+        "rebases": 12,
+        "prepareMs": [
+          612.5,
+          226.5,
+          223.80000007152557,
+          322.39999997615814,
+          0.20000004768371582,
+          308,
+          208.29999995231628,
+          204,
+          365.60000002384186,
+          198.29999995231628,
+          341.39999997615814,
+          124.70000004768372,
+          63.5,
+          93.90000009536743,
+          0.20000004768371582,
+          0.10000002384185791,
+          146.89999997615814
+        ]
+      },
+      "render": {
+        "backend": "webgl2",
+        "width": 1920,
+        "height": 1080,
+        "triangles": 238263,
+        "drawCalls": 57,
+        "meshes": 367,
+        "gpuMs": 3.762,
+        "gpuTiming": true,
+        "pixelBudget": 3700000
+      },
+      "heap": 984479742
+    }
+  ],
+  "errors": [],
+  "coldReadyMs": 1710,
+  "initial": {
+    "ready": true,
+    "paused": false,
+    "frames": 57,
+    "player": {
+      "e": 500,
+      "n": 25420,
+      "heading": 90,
+      "h": 109.8125
+    },
+    "camera": {
+      "yaw": 90,
+      "pitch": 12,
+      "distance": 5.5,
+      "currentDistance": 5.4999999999999805,
+      "followError": 0
+    },
+    "render": {
+      "backend": "webgl2",
+      "width": 1920,
+      "height": 1080,
+      "triangles": 809992,
+      "drawCalls": 213,
+      "meshes": 387,
+      "gpuMs": 5.06775,
+      "gpuTiming": true,
+      "pixelBudget": 3700000
+    },
+    "world": {
+      "tiles": 9,
+      "treeRecords": 2740,
+      "decodedBytes": 1169444,
+      "queued": 0,
+      "pending": 0,
+      "networkBytes": 3218010,
+      "cacheHits": 0,
+      "failures": 0,
+      "resources": {
+        "geometryBytes": 23703576,
+        "textureBytes": 103221439.99999975,
+        "instanceBytes": 2259968,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 29471876,
+        "gpuEstimateBytes": 212128983.99999976,
+        "knownTotalBytes": 241600859.99999976,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      },
+      "terrain": {
+        "patches": 49,
+        "preparing": 0,
+        "uploadQueue": 0,
+        "lastBuildMs": 0.3999999761581421,
+        "maxBuildMs": 2,
+        "uploadedBytes": 12244512
+      },
+      "forest": {
+        "near": 0,
+        "batchQueue": 0,
+        "batches": 28,
+        "trees": 689,
+        "lastBuildMs": 0.40000009536743164,
+        "maxBuildMs": 1
+      },
+      "library": {
+        "families": [
+          "fork",
+          "oak",
+          "young",
+          "conifer"
+        ],
+        "textures": 4,
+        "textureBytes": 89478485.33333333
+      },
+      "groves": 5184,
+      "floorCells": 41,
+      "props": 0,
+      "dressing": 2,
+      "origin": {
+        "e": 0,
+        "n": 25088
+      },
+      "rebases": 1,
+      "prepareMs": [
+        612.5
+      ]
+    },
+    "mapOpen": false,
+    "errors": [],
+    "traversal": null,
+    "heap": 82058622
+  },
+  "stationary": {
+    "frames": {
+      "count": 599,
+      "median": 16.699999928474426,
+      "p95": 17.699999928474426,
+      "p99": 18,
+      "max": 249
+    },
+    "cpu": {
+      "count": 599,
+      "median": 2.200000047683716,
+      "p95": 3.899999976158142,
+      "p99": 4.299999952316284,
+      "max": 18.699999928474426
+    },
+    "gpu": {
+      "count": 599,
+      "median": 6.710208,
+      "p95": 9.256958,
+      "p99": 9.590583,
+      "max": 12.251666
+    }
+  },
+  "final": {
+    "ready": true,
+    "paused": false,
+    "frames": 1649,
+    "player": {
+      "e": 1200,
+      "n": 25800,
+      "heading": 90,
+      "h": 129.4375
+    },
+    "camera": {
+      "yaw": 30,
+      "pitch": 12,
+      "distance": 5.5,
+      "currentDistance": 5.499999999998671,
+      "followError": 1.5350354506598224e-12
+    },
+    "render": {
+      "backend": "webgl2",
+      "width": 1920,
+      "height": 1080,
+      "triangles": 1126458,
+      "drawCalls": 152,
+      "meshes": 484,
+      "gpuMs": 2.976124,
+      "gpuTiming": true,
+      "pixelBudget": 3700000
+    },
+    "world": {
+      "tiles": 9,
+      "treeRecords": 10276,
+      "decodedBytes": 2913572,
+      "queued": 0,
+      "pending": 0,
+      "networkBytes": 8605403,
+      "cacheHits": 25,
+      "failures": 0,
+      "resources": {
+        "geometryBytes": 25369044,
+        "textureBytes": 237439168.0000005,
+        "instanceBytes": 3373568,
+        "framebufferEstimateBytes": 82944000,
+        "knownCPUBytes": 37483328,
+        "gpuEstimateBytes": 349125780.0000005,
+        "knownTotalBytes": 386609108.0000005,
+        "reserveBytes": 268435456,
+        "budgetBytes": 1073741824
+      },
+      "terrain": {
+        "patches": 49,
+        "preparing": 0,
+        "uploadQueue": 0,
+        "lastBuildMs": 1.2999999523162842,
+        "maxBuildMs": 2.600000023841858,
+        "uploadedBytes": 171922944
+      },
+      "forest": {
+        "near": 54,
+        "batchQueue": 0,
+        "batches": 57,
+        "trees": 2685,
+        "lastBuildMs": 1.2000000476837158,
+        "maxBuildMs": 2.8000000715255737
+      },
+      "library": {
+        "families": [
+          "fork",
+          "oak",
+          "young",
+          "conifer",
+          "cottage",
+          "willow",
+          "slab",
+          "rock",
+          "log",
+          "stump"
+        ],
+        "textures": 10,
+        "textureBytes": 223696213.33333334
+      },
+      "groves": 7932,
+      "floorCells": 49,
+      "props": 6,
+      "dressing": 0,
+      "origin": {
+        "e": 1024,
+        "n": 25600
+      },
+      "rebases": 13,
+      "prepareMs": [
+        612.5,
+        226.5,
+        223.80000007152557,
+        322.39999997615814,
+        0.20000004768371582,
+        308,
+        208.29999995231628,
+        204,
+        365.60000002384186,
+        198.29999995231628,
+        341.39999997615814,
+        124.70000004768372,
+        63.5,
+        93.90000009536743,
+        0.20000004768371582,
+        0.10000002384185791,
+        146.89999997615814,
+        182.89999997615814
+      ]
+    },
+    "mapOpen": false,
+    "errors": [],
+    "traversal": null,
+    "heap": 686784809
+  }
+}

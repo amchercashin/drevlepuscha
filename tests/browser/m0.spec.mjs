@@ -8,7 +8,7 @@ test.beforeEach(async({page})=>{
 test.afterEach(async({page})=>{expect(browserErrors.get(page)).toEqual([]);});
 
 async function start(page) {
-  await page.goto(`/?debug=1&renderer=${test.info().project.name}`);
+  await page.goto(`/?scene=m0&debug=1&renderer=${test.info().project.name}`);
   await page.waitForFunction(()=>window.m0?.state().ready);
   await page.getByRole('button',{name:'Начать прогулку'}).click();
 }
@@ -93,20 +93,20 @@ test('all six review views retain the user camera and UI does not move player',a
 test('private references are absent from the build and ordinary page has no QA control API',async({page,request})=>{
   const response=await request.get('/references/private/04_river_reference_large.jpeg');
   expect(response.headers()['content-type']||'').not.toContain('image/');
-  await page.goto('/');await expect(page.getByRole('button',{name:'Начать прогулку'})).toBeEnabled();
+  await page.goto('/?scene=m0');await expect(page.getByRole('button',{name:'Начать прогулку'})).toBeEnabled();
   expect(await page.evaluate(()=>typeof window.m0)).toBe('undefined');
 });
 
 test('auto falls back to WebGL2 when WebGPU is unavailable',async({page})=>{
   await page.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined,configurable:true}));
-  await page.goto('/?debug=1');await page.waitForFunction(()=>window.m0?.state().ready);
+  await page.goto('/?scene=m0&debug=1');await page.waitForFunction(()=>window.m0?.state().ready);
   const s=await page.evaluate(()=>window.m0.state());expect(s.render.backend).toBe('webgl2');
   expect(s.render.fallbackReason).toContain('WebGPU');expect(s.errors).toEqual([]);
 });
 
 test('explicit unsupported WebGPU offers a working WebGL2 recovery button',async({page})=>{
   await page.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined,configurable:true}));
-  await page.goto('/?debug=1&renderer=webgpu');
+  await page.goto('/?scene=m0&debug=1&renderer=webgpu');
   await page.getByRole('button',{name:'Открыть WebGL2'}).click();
   await page.waitForFunction(()=>window.m0?.state().ready);
   expect((await page.evaluate(()=>window.m0.state())).render.backend).toBe('webgl2');

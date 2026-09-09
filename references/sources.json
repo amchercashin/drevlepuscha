@@ -4,23 +4,26 @@
     {
       "id": "tolkien-lotr-book1-ch6",
       "title": "J. R. R. Tolkien, The Fellowship of the Ring, Book I, chapter 6: The Old Forest",
-      "status": "pending-primary-verification",
-      "locator": "Book I, chapter 6; edition, page and map not selected",
-      "note": "Source locator retained from supplied kit; original book was not consulted in this preparation."
+      "status": "checked-2026-09-09",
+      "locator": "HarperCollins 2005 / eBook 2009, ISBN 978-0-06-191780-6; Book I.6; printed pp. 109–122; PDF pages 133–146",
+      "note": "Primary text read in third-party hosted edition. Hosting is not publisher authentication; no source pages distributed. Text confirms relations, not metre coordinates.",
+      "url": "https://go2train.co/wp-content/uploads/2025/11/The-Lord-of-the-Rings-by-J.R.R.-Tolkien.pdf"
     },
     {
       "id": "tolkien-lotr-book1-ch7",
       "title": "J. R. R. Tolkien, The Fellowship of the Ring, Book I, chapter 7: In the House of Tom Bombadil",
-      "status": "pending-primary-verification",
-      "locator": "Book I, chapter 7; edition, page and map not selected",
-      "note": "Source locator retained from supplied kit; original book was not consulted in this preparation."
+      "status": "checked-2026-09-09",
+      "locator": "HarperCollins 2005 / eBook 2009, ISBN 978-0-06-191780-6; Book I.7; printed pp. 123–134; PDF pages 147–158",
+      "note": "Primary text read in third-party hosted edition. Hosting is not publisher authentication; no source pages distributed. Text confirms relations, not metre coordinates.",
+      "url": "https://go2train.co/wp-content/uploads/2025/11/The-Lord-of-the-Rings-by-J.R.R.-Tolkien.pdf"
     },
     {
       "id": "tolkien-lotr-book1-ch8",
       "title": "J. R. R. Tolkien, The Fellowship of the Ring, Book I, chapter 8: Fog on the Barrow-downs",
-      "status": "pending-primary-verification",
-      "locator": "Book I, chapter 8; edition, page and map not selected",
-      "note": "Source locator retained from supplied kit; original book was not consulted in this preparation."
+      "status": "checked-2026-09-09",
+      "locator": "HarperCollins 2005 / eBook 2009, ISBN 978-0-06-191780-6; Book I.8; printed pp. 135–136 (departure); PDF pages 159–160",
+      "note": "Primary text read in third-party hosted edition. Hosting is not publisher authentication; no source pages distributed. Text confirms relations, not metre coordinates.",
+      "url": "https://go2train.co/wp-content/uploads/2025/11/The-Lord-of-the-Rings-by-J.R.R.-Tolkien.pdf"
     },
     {
       "id": "sandbox-design-v01",
@@ -245,6 +248,82 @@
       "status": "authored",
       "locator": "config/forest-asset-library.json",
       "note": "Built-in imagegen concept prompts and Meshy receipts are stored per asset. Shape variants are local deterministic preparation, not paid new generations. User photos remain private."
+    },
+    {
+      "id": "tolkien-lotr-book1-ch5",
+      "title": "Tolkien — A Conspiracy Unmasked",
+      "status": "checked-2026-09-09",
+      "locator": "Book I.5, printed p. 99; PDF p. 123. High Hay and ferry/bridge distances.",
+      "url": "https://go2train.co/wp-content/uploads/2025/11/The-Lord-of-the-Rings-by-J.R.R.-Tolkien.pdf"
+    },
+    {
+      "id": "tolkien-shire-1966",
+      "title": "Christopher Tolkien — A Part of the Shire",
+      "status": "checked-reproduction-2026-09-09",
+      "locator": "Reproduction offered as 1966 book map, 1600×971 pixels. Western boundary and lower river inspected. Eastern region is clipped; no scale bar on this reproduction.",
+      "url": "https://www.antiquemapsandprints.com/products/part-of-the-shire-middle-earth-lord-of-the-rings-hobbiton-tolkien-1966-map-p-6-102462"
+    },
+    {
+      "id": "strachey-old-forest-1981",
+      "title": "Barbara Strachey — Journeys of Frodo: The Old Forest",
+      "status": "checked-secondary-map-2026-09-09",
+      "locator": "1981 map reproduction, 1600×1203. Grid and 2-mile scale inspected; an interpretation, not Tolkien geometry.",
+      "url": "https://www.antiquemapsandprints.com/products/middle-earth-the-old-forest-frodo-s-route-tolkien-strachey-1981-map-p-6-106177"
+    },
+    {
+      "id": "fonstad-bombadil-1991",
+      "title": "Karen Wynn Fonstad — The Atlas of Middle-earth, revised edition",
+      "status": "checked-secondary-text-2026-09-09",
+      "locator": "Sections Eriador; On the Barrow-downs / The Home of Tom Bombadil. Text transcription inspected, exact contours not digitized.",
+      "url": "https://studylib.net/doc/27167549/karen-wynn-fonstad---atlas-of-middle-earth"
+    },
+    {
+      "id": "arda-withywindle",
+      "title": "Encyclopedia of Arda — River Withywindle",
+      "status": "checked-secondary-2026-09-09",
+      "locator": "Notes 2: map/text discrepancy and inferred upper course.",
+      "url": "https://www.encyclopedia-of-arda.com/w/withywindle.php"
+    },
+    {
+      "id": "arda-bombadil-hill",
+      "title": "Encyclopedia of Arda — The Hill",
+      "status": "checked-secondary-2026-09-09",
+      "locator": "Small rise below higher shoulder; explicitly conjectural illustration.",
+      "url": "https://www.encyclopedia-of-arda.com/h/hillbombadil.html"
+    },
+    {
+      "id": "ardacraft-old-forest",
+      "title": "ArdaCraft — The Old Forest",
+      "status": "checked-adaptation-2026-09-09",
+      "locator": "2016 project description and gallery captions reviewed. Game interpretation; not used for coordinates.",
+      "url": "https://www.planetminecraft.com/project/the-old-forest-3824463/"
+    },
+    {
+      "id": "tolkien-estate-maps",
+      "title": "Tolkien Estate — Maps",
+      "status": "checked-2026-09-09",
+      "locator": "Official map context; early maps not substituted for final narrative.",
+      "url": "https://www.tolkienestate.com/es/ilustrar/mapas/"
+    },
+    {
+      "id": "wisconsin-surface-roots",
+      "title": "Wisconsin Extension — Surface Tree Roots",
+      "status": "checked-2026-09-09",
+      "locator": "Diana Alfuth; shallow rooting, drainage and erosion. Ecological guidance, not Tolkien evidence.",
+      "url": "https://hort.extension.wisc.edu/how-to-deal-with-surface-tree-roots/"
+    },
+    {
+      "id": "ecosys-1998",
+      "title": "Deussen et al. — Realistic modeling and rendering of plant ecosystems",
+      "status": "checked-2026-09-09",
+      "locator": "SIGGRAPH 1998, pp. 275–286, abstract. Hand placement combined with ecosystem rules.",
+      "url": "https://algorithmicbotany.org/papers/ecosys.sig98.html"
+    },
+    {
+      "id": "old-forest-reconstruction-v1",
+      "title": "Древлепуща — авторская реконструкция v1",
+      "status": "authored",
+      "locator": "content/geography/old-forest/geography.json; constraints, coordinates, heights and ecological rules."
     }
   ]
 }

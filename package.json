@@ -13,13 +13,14 @@
     "check": "npm run typecheck && npm run validate && npm test",
     "typecheck": "tsc --noEmit",
     "doctor": "node tools/doctor.mjs",
-    "dev": "vite --host 127.0.0.1",
-    "build": "npm run typecheck && vite build",
+    "dev": "npm run world:build && vite --host 127.0.0.1",
+    "build": "npm run typecheck && npm run world:build && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test:browser": "npm run build && playwright test",
     "qa:capture": "node tools/capture-m0.mjs",
     "qa:performance": "node tools/performance-m0.mjs",
-    "assets:prepare": "node tools/prepare-forest-library.mjs"
+    "assets:prepare": "node tools/prepare-forest-library.mjs",
+    "world:build": "node tools/world/build.mjs && node tools/world/assets.mjs"
   },
   "packageManager": "npm@10.9.8",
   "devDependencies": {

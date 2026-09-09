@@ -1,0 +1,3517 @@
+{
+  "schemaVersion": 1,
+  "regionId": "old-forest",
+  "contentRevision": "old-forest-1.1.0",
+  "generatorVersion": "terrain-1.0.0",
+  "worldSeed": 30180926,
+  "coordinateSystem": {
+    "axes": [
+      "east",
+      "north",
+      "up"
+    ],
+    "units": "metres",
+    "origin": "Withywindle / Brandywine confluence",
+    "verticalDatum": "Authored zero at confluence water surface",
+    "renderMapping": "x=e-origin.e; y=h-origin.h; z=origin.n-n"
+  },
+  "bounds": {
+    "minE": -8192,
+    "minN": -4096,
+    "maxE": 32768,
+    "maxN": 40960
+  },
+  "features": [
+    {
+      "id": "forest_boundary",
+      "name": "Граница Древлепущи",
+      "kind": "boundary",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              120,
+              300
+            ],
+            [
+              900,
+              4000
+            ],
+            [
+              1700,
+              8500
+            ],
+            [
+              1650,
+              14500
+            ],
+            [
+              1000,
+              20700
+            ],
+            [
+              650,
+              25400
+            ],
+            [
+              -1000,
+              29500
+            ],
+            [
+              -4000,
+              34500
+            ],
+            [
+              2000,
+              35000
+            ],
+            [
+              11000,
+              35700
+            ],
+            [
+              18000,
+              36000
+            ],
+            [
+              23600,
+              35100
+            ],
+            [
+              25800,
+              29500
+            ],
+            [
+              25100,
+              25100
+            ],
+            [
+              23400,
+              22500
+            ],
+            [
+              22000,
+              20400
+            ],
+            [
+              21500,
+              19400
+            ],
+            [
+              21400,
+              18600
+            ],
+            [
+              22400,
+              17500
+            ],
+            [
+              24800,
+              14400
+            ],
+            [
+              22400,
+              10500
+            ],
+            [
+              17900,
+              7900
+            ],
+            [
+              13600,
+              4800
+            ],
+            [
+              7800,
+              2600
+            ],
+            [
+              2800,
+              800
+            ],
+            [
+              120,
+              300
+            ]
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-shire-1966",
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-shire-1966",
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 2000
+      },
+      "evidence": {
+        "summary": "Лес и окружающие земли.",
+        "locator": "Shire map; I.6 pp. 113, 121–122"
+      },
+      "placement": {
+        "mode": "boundary",
+        "reserveM": 0
+      },
+      "dressing": {
+        "terrain": "мозаика лесных местностей",
+        "moisture": "наследовать локально",
+        "vegetation": "наследовать зону",
+        "details": [
+          "Контур леса — граница генерации, а не физическая стена."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-shire-1966",
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "west_high_hay",
+      "name": "Высокая Изгородь",
+      "kind": "boundary",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -4000,
+            34500
+          ],
+          [
+            -1900,
+            31800
+          ],
+          [
+            -1000,
+            29500
+          ],
+          [
+            430,
+            25600
+          ],
+          [
+            512,
+            25420
+          ],
+          [
+            700,
+            24700
+          ],
+          [
+            1000,
+            20700
+          ],
+          [
+            1650,
+            14500
+          ],
+          [
+            1700,
+            8500
+          ],
+          [
+            900,
+            4000
+          ],
+          [
+            0,
+            350
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch5",
+          "tolkien-shire-1966"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch5",
+          "tolkien-shire-1966",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 600
+      },
+      "evidence": {
+        "summary": "Изгородь между Баклендом и лесом.",
+        "locator": "I.5 p. 99"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 15
+      },
+      "dressing": {
+        "terrain": "западная граница леса",
+        "moisture": "умеренная",
+        "vegetation": "живая изгородь и лесная кромка",
+        "details": [
+          "Высокая изгородь; проход под ней — отдельная геометрия."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch5",
+            "tolkien-shire-1966",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "east_road",
+      "name": "Восточная дорога",
+      "kind": "road",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -6200,
+            34900
+          ],
+          [
+            -4000,
+            34500
+          ],
+          [
+            4000,
+            37100
+          ],
+          [
+            14000,
+            38300
+          ],
+          [
+            28000,
+            39800
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-shire-1966",
+          "tolkien-lotr-book1-ch8"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-shire-1966",
+          "tolkien-lotr-book1-ch8",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1400
+      },
+      "evidence": {
+        "summary": "Дорога севернее леса.",
+        "locator": "Shire map; I.8 departure"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 15
+      },
+      "dressing": {
+        "terrain": "дорога севернее леса",
+        "moisture": "сухая / умеренная",
+        "vegetation": "открытые обочины",
+        "details": [
+          "Не переносить лесную подстилку на всё дорожное полотно."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-shire-1966",
+            "tolkien-lotr-book1-ch8",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "barrow_edge",
+      "name": "Переход к Могильникам",
+      "kind": "boundary",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            26000,
+            10000
+          ],
+          [
+            24900,
+            18000
+          ],
+          [
+            24800,
+            21000
+          ],
+          [
+            25800,
+            29500
+          ],
+          [
+            23600,
+            35100
+          ],
+          [
+            22000,
+            38300
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "tolkien-lotr-book1-ch8"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "tolkien-lotr-book1-ch8",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1800
+      },
+      "evidence": {
+        "summary": "Могильники восточнее леса.",
+        "locator": "I.6 p. 122; I.8 pp. 135–136"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 15
+      },
+      "dressing": {
+        "terrain": "восточные открытые холмы",
+        "moisture": "сухая / умеренная",
+        "vegetation": "травяные склоны",
+        "details": [
+          "Это граница контекста; отдельные курганы здесь ещё не размечены."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "tolkien-lotr-book1-ch8",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "brandywine",
+      "name": "Брендивайн",
+      "kind": "river",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -4400,
+            40000
+          ],
+          [
+            -4000,
+            34500
+          ],
+          [
+            -3000,
+            30000
+          ],
+          [
+            -1400,
+            26500
+          ],
+          [
+            -1800,
+            20500
+          ],
+          [
+            -1300,
+            16000
+          ],
+          [
+            -300,
+            10000
+          ],
+          [
+            -650,
+            5500
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            4200,
+            -1500
+          ],
+          [
+            11000,
+            -2300
+          ],
+          [
+            15500,
+            -800
+          ],
+          [
+            17000,
+            -3200
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-shire-1966"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-shire-1966",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "",
+        "locator": "Map / authored drainage"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 51.0
+      },
+      "water": {
+        "stations": [
+          [
+            -4400,
+            40000,
+            27
+          ],
+          [
+            -4000,
+            34500,
+            24
+          ],
+          [
+            -3000,
+            30000,
+            20
+          ],
+          [
+            -1400,
+            26500,
+            17
+          ],
+          [
+            -1800,
+            20500,
+            12
+          ],
+          [
+            -1300,
+            16000,
+            9
+          ],
+          [
+            -300,
+            10000,
+            5
+          ],
+          [
+            -650,
+            5500,
+            2
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            4200,
+            -1500,
+            -1
+          ],
+          [
+            11000,
+            -2300,
+            -2
+          ],
+          [
+            15500,
+            -800,
+            -2.5
+          ],
+          [
+            17000,
+            -3200,
+            -3
+          ]
+        ],
+        "widthM": 90,
+        "floodplainHalfWidthM": 350,
+        "blendWidthM": 1100,
+        "depthM": 2.5,
+        "bankHeightM": 1.6,
+        "confluence": null
+      },
+      "dressing": {
+        "terrain": "крупное речное русло и берега",
+        "moisture": "вода / влажные берега",
+        "vegetation": "прибрежная растительность по локальным условиям",
+        "details": [
+          "Разделять поверхность воды, дно и берег; внешний контекст без детальной экологии."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-shire-1966",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "withywindle",
+      "name": "Ветлянка",
+      "kind": "river",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            25200,
+            18800
+          ],
+          [
+            24000,
+            18700
+          ],
+          [
+            22900,
+            18600
+          ],
+          [
+            21750,
+            18750
+          ],
+          [
+            21450,
+            18550
+          ],
+          [
+            21150,
+            18480
+          ],
+          [
+            21110,
+            18450
+          ],
+          [
+            20700,
+            18350
+          ],
+          [
+            19500,
+            18400
+          ],
+          [
+            18100,
+            19000
+          ],
+          [
+            17100,
+            19150
+          ],
+          [
+            16500,
+            18800
+          ],
+          [
+            15900,
+            18400
+          ],
+          [
+            14200,
+            17300
+          ],
+          [
+            12000,
+            16500
+          ],
+          [
+            10900,
+            14500
+          ],
+          [
+            8200,
+            13200
+          ],
+          [
+            7800,
+            11000
+          ],
+          [
+            5800,
+            8800
+          ],
+          [
+            4200,
+            6700
+          ],
+          [
+            2600,
+            5500
+          ],
+          [
+            2300,
+            3300
+          ],
+          [
+            1100,
+            2200
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "tolkien-lotr-book1-ch7"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "tolkien-lotr-book1-ch7",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "Сток к Брендивайну.",
+        "locator": "I.6 pp. 113, 121; I.7 p. 128"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 13.0
+      },
+      "water": {
+        "stations": [
+          [
+            25200,
+            18800,
+            143
+          ],
+          [
+            24000,
+            18700,
+            129
+          ],
+          [
+            22900,
+            18600,
+            112
+          ],
+          [
+            21750,
+            18750,
+            100
+          ],
+          [
+            21450,
+            18550,
+            97
+          ],
+          [
+            21150,
+            18480,
+            94
+          ],
+          [
+            21110,
+            18450,
+            91
+          ],
+          [
+            20700,
+            18350,
+            90
+          ],
+          [
+            19500,
+            18400,
+            88
+          ],
+          [
+            18100,
+            19000,
+            86
+          ],
+          [
+            17100,
+            19150,
+            84
+          ],
+          [
+            16500,
+            18800,
+            83
+          ],
+          [
+            15900,
+            18400,
+            81
+          ],
+          [
+            14200,
+            17300,
+            73
+          ],
+          [
+            12000,
+            16500,
+            63
+          ],
+          [
+            10900,
+            14500,
+            53
+          ],
+          [
+            8200,
+            13200,
+            44
+          ],
+          [
+            7800,
+            11000,
+            36
+          ],
+          [
+            5800,
+            8800,
+            25
+          ],
+          [
+            4200,
+            6700,
+            17
+          ],
+          [
+            2600,
+            5500,
+            12
+          ],
+          [
+            2300,
+            3300,
+            7
+          ],
+          [
+            1100,
+            2200,
+            4
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "widthM": 14,
+        "floodplainHalfWidthM": 160,
+        "blendWidthM": 480,
+        "depthM": 1.8,
+        "bankHeightM": 1.6,
+        "confluence": "brandywine",
+        "pools": [
+          {
+            "center": [
+              14800,
+              17690
+            ],
+            "radiusM": 100,
+            "widthM": 40,
+            "depthM": 4
+          }
+        ]
+      },
+      "dressing": {
+        "terrain": "извилистое русло и пойма",
+        "moisture": "вода / влажные берега",
+        "vegetation": "ивы, ольха, высокие травы и тростники",
+        "details": [
+          "Коричневая медленная вода; локальные омуты; открытые полосы вдоль берега."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "gully_brook",
+      "name": "Ручей в глубокой лощине",
+      "kind": "brook",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            15100,
+            26000
+          ],
+          [
+            15550,
+            25000
+          ],
+          [
+            15500,
+            23700
+          ],
+          [
+            16300,
+            22600
+          ],
+          [
+            16450,
+            21300
+          ],
+          [
+            15900,
+            20400
+          ],
+          [
+            15900,
+            18400
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "Ручей выходит в долину.",
+        "locator": "I.6 pp. 113, 115–116"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 7.4
+      },
+      "water": {
+        "stations": [
+          [
+            15100,
+            26000,
+            179
+          ],
+          [
+            15550,
+            25000,
+            155
+          ],
+          [
+            15500,
+            23700,
+            132
+          ],
+          [
+            16300,
+            22600,
+            117
+          ],
+          [
+            16450,
+            21300,
+            102
+          ],
+          [
+            15900,
+            20400,
+            89
+          ],
+          [
+            15900,
+            18400,
+            81
+          ]
+        ],
+        "widthM": 2.8,
+        "floodplainHalfWidthM": 12,
+        "blendWidthM": 90,
+        "depthM": 0.6,
+        "bankHeightM": 0.8,
+        "confluence": "withywindle"
+      },
+      "dressing": {
+        "terrain": "глубокая лощина с ручьём",
+        "moisture": "сырые карманы / текучая вода",
+        "vegetation": "густые заросли на бортах",
+        "details": [
+          "Выходы воды и мягкий грунт выше по лощине; более крутой спуск к реке."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "north_brook",
+      "name": "Северный приток",
+      "kind": "brook",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            9200,
+            26100
+          ],
+          [
+            10000,
+            23500
+          ],
+          [
+            11300,
+            21300
+          ],
+          [
+            11800,
+            19100
+          ],
+          [
+            12000,
+            16500
+          ]
+        ]
+      },
+      "existence": {
+        "status": "authored",
+        "verification": "design",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 0
+      },
+      "evidence": {
+        "summary": "",
+        "locator": "Map / authored drainage"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 7.0
+      },
+      "water": {
+        "stations": [
+          [
+            9200,
+            26100,
+            170
+          ],
+          [
+            10000,
+            23500,
+            136
+          ],
+          [
+            11300,
+            21300,
+            111
+          ],
+          [
+            11800,
+            19100,
+            88
+          ],
+          [
+            12000,
+            16500,
+            63
+          ]
+        ],
+        "widthM": 2,
+        "floodplainHalfWidthM": 9,
+        "blendWidthM": 65,
+        "depthM": 0.5,
+        "bankHeightM": 0.8,
+        "confluence": "withywindle"
+      },
+      "dressing": {
+        "terrain": "авторская ручьевая лощина",
+        "moisture": "влажная",
+        "vegetation": "наследовать brook_hollows",
+        "details": [
+          "Размер и флора — авторское дополнение; не выдавать за отдельное место книги."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "south_brook",
+      "name": "Южный приток",
+      "kind": "brook",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            18200,
+            10800
+          ],
+          [
+            16600,
+            12300
+          ],
+          [
+            15600,
+            14700
+          ],
+          [
+            14200,
+            17300
+          ]
+        ]
+      },
+      "existence": {
+        "status": "authored",
+        "verification": "design",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 0
+      },
+      "evidence": {
+        "summary": "",
+        "locator": "Map / authored drainage"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 7.1
+      },
+      "water": {
+        "stations": [
+          [
+            18200,
+            10800,
+            147
+          ],
+          [
+            16600,
+            12300,
+            125
+          ],
+          [
+            15600,
+            14700,
+            101
+          ],
+          [
+            14200,
+            17300,
+            73
+          ]
+        ],
+        "widthM": 2.2,
+        "floodplainHalfWidthM": 10,
+        "blendWidthM": 80,
+        "depthM": 0.55,
+        "bankHeightM": 0.8,
+        "confluence": "withywindle"
+      },
+      "dressing": {
+        "terrain": "авторская ручьевая лощина",
+        "moisture": "влажная",
+        "vegetation": "наследовать brook_hollows",
+        "details": [
+          "Местные наносы и влажные карманы; не сплошное болото."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "haysend",
+      "name": "Хэйсенд",
+      "kind": "settlement",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -180,
+          420
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch5"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch5",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 500
+      },
+      "evidence": {
+        "summary": "Устье ниже конца изгороди.",
+        "locator": "I.5 p.99; I.6 p.113"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 80
+      },
+      "dressing": {
+        "terrain": "край поселения у устья",
+        "moisture": "переменная",
+        "vegetation": "культурная кромка и берег",
+        "details": [
+          "Поселение дано ориентиром; план домов не реконструирован."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch5",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "hay_gate",
+      "name": "Тоннель под изгородью",
+      "kind": "entrance",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          512,
+          25420
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 500
+      },
+      "evidence": {
+        "summary": "Вход через тоннель в ложбину.",
+        "locator": "I.6 pp.109–110"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 30
+      },
+      "dressing": {
+        "terrain": "тоннель под изгородью",
+        "moisture": "умеренная",
+        "vegetation": "изгородь сверху; проход без зарослей",
+        "details": [
+          "Сохранить отверстие, высоту прохода и выход в безлесную ложбину."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "entry_hollow",
+      "name": "Входная ложбина",
+      "kind": "hollow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          570,
+          25420
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 500
+      },
+      "evidence": {
+        "summary": "Ложбина перед деревьями.",
+        "locator": "I.6 pp.110–111"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 60
+      },
+      "dressing": {
+        "terrain": "открытая входная ложбина",
+        "moisture": "умеренная",
+        "vegetation": "без деревьев в ложбине; лес далее",
+        "details": [
+          "Не помещать ближайшие стволы непосредственно у выхода тоннеля."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "bonfire_glade",
+      "name": "Костровая поляна",
+      "kind": "glade",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2600,
+          27300
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1000
+      },
+      "evidence": {
+        "summary": "Безлесная круглая поляна.",
+        "locator": "I.6 pp.111–112"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 90
+      },
+      "dressing": {
+        "terrain": "круглая безлесная поляна",
+        "moisture": "умеренная",
+        "vegetation": "грубая трава; крапива, чертополох, кипрей, болиголов",
+        "details": [
+          "Старое место костра, не активное пожарище; не добавлять повсюду свежие угли."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "bald_hill",
+      "name": "Лысый холм",
+      "kind": "hill",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10000,
+          33700
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1500
+      },
+      "evidence": {
+        "summary": "Безлесная вершина; крутой юго-восточный склон.",
+        "locator": "I.6 p.113"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 450
+      },
+      "dressing": {
+        "terrain": "лысая зелёная вершина; крутой юго-восточный склон",
+        "moisture": "сухая / умеренная",
+        "vegetation": "трава на вершине, лес ниже",
+        "details": [
+          "Открытое небо и обзор с вершины; отделить травяную шапку от древесной кромки."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "gully_mouth",
+      "name": "Выход лощины",
+      "kind": "landmark",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15912,
+          18640
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "Расселина выводит в пойму.",
+        "locator": "I.6 p.115"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 30
+      },
+      "dressing": {
+        "terrain": "выход крутого оврага в речную долину",
+        "moisture": "влажная",
+        "vegetation": "прибрежные травы, ива и ольха вне прохода",
+        "details": [
+          "Выразительный переход от тесной лощины к открытой пойме."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "old_man_willow",
+      "name": "Старый Ив",
+      "kind": "landmark_tree",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17460,
+          19160
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "Ив у реки.",
+        "locator": "I.6 pp.116–120"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 50
+      },
+      "dressing": {
+        "terrain": "низкий берег реки",
+        "moisture": "влажная",
+        "vegetation": "единственный авторский герой-дерево: древняя ива",
+        "details": [
+          "Крупный расщеплённый ствол, нависающие ветви, корни у воды; отдельная модель и коллизии.",
+          "Окружение не должно скрывать силуэт и подход к стволу."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "lily_pool",
+      "name": "Омут с кувшинками",
+      "kind": "pool",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14800,
+          17690
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch7"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch7",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 2500
+      },
+      "evidence": {
+        "summary": "Омут ниже по реке.",
+        "locator": "I.7 p.126"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 30
+      },
+      "dressing": {
+        "terrain": "тихий речной омут",
+        "moisture": "вода",
+        "vegetation": "водяные лилии локально",
+        "details": [
+          "Лилии держать на спокойной поверхности; не разносить по всей реке."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "short_fall",
+      "name": "Малый водопад",
+      "kind": "waterfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21130,
+          18465
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 800
+      },
+      "evidence": {
+        "summary": "Водопад перед выходом.",
+        "locator": "I.6 p.121"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 30
+      },
+      "dressing": {
+        "terrain": "небольшой каменистый речной перепад",
+        "moisture": "текучая вода / брызги",
+        "vegetation": "береговая растительность вне струи",
+        "details": [
+          "Каменная кромка, струя и пена локальны; это не высокий водопад."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "east_eaves",
+      "name": "Восточный выход",
+      "kind": "entrance",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21600,
+          18820
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 900
+      },
+      "evidence": {
+        "summary": "Лес сменяется лугом.",
+        "locator": "I.6 p.121"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 50
+      },
+      "dressing": {
+        "terrain": "восточный выход из леса",
+        "moisture": "умеренная",
+        "vegetation": "лесная стена сменяется короткой травой",
+        "details": [
+          "Сохранить читаемый переход из тени на открытый луг."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "approach_knoll",
+      "name": "Бугор перед домом",
+      "kind": "hill",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21900,
+          19000
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1000
+      },
+      "evidence": {
+        "summary": "Бугор, спуск, подъём.",
+        "locator": "I.6 p.121"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 50
+      },
+      "dressing": {
+        "terrain": "гладкий луговой бугор перед домом",
+        "moisture": "умеренная",
+        "vegetation": "короткая трава",
+        "details": [
+          "Дорожка переваливает через бугор, опускается и снова поднимается."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "tom_house",
+      "name": "Дом Тома Бомбадила",
+      "kind": "dwelling",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22400,
+          19350
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "tolkien-lotr-book1-ch7"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "tolkien-lotr-book1-ch7",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "Дом под высоким склоном.",
+        "locator": "I.6 pp.121–122; I.7 p.128"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 30,
+        "facingAzimuthDeg": 270
+      },
+      "dressing": {
+        "terrain": "ухоженная площадка под плечом холма",
+        "moisture": "умеренная",
+        "vegetation": "сады и короткая трава; без ив у дома",
+        "details": [
+          "Каменная окантовка подхода; дом — закреплённая модель.",
+          "Не продолжать прибрежную ивовую зону через участок дома."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "flower_garden",
+      "name": "Цветник",
+      "kind": "garden",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22360,
+          19350
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch7"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch7",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "Цветник западнее дома.",
+        "locator": "I.7 p.128"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 18
+      },
+      "dressing": {
+        "terrain": "цветник западнее дома",
+        "moisture": "ухоженная почва",
+        "vegetation": "цветы и подстриженная изгородь",
+        "details": [
+          "Видовой состав цветов не установлен: подбор авторский."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "kitchen_garden",
+      "name": "Огород",
+      "kind": "garden",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22440,
+          19350
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch7"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch7",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "Огород восточнее дома.",
+        "locator": "I.7 p.128"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 18
+      },
+      "dressing": {
+        "terrain": "огород восточнее дома",
+        "moisture": "ухоженная почва",
+        "vegetation": "грядки; бобы на опорах",
+        "details": [
+          "Не смешивать огород с диким высокотравьем; оставить проходы между грядками."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "tom_hill_brow",
+      "name": "Гребень над домом",
+      "kind": "hill",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22950,
+          19730
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch8"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch8",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1200
+      },
+      "evidence": {
+        "summary": "Тропа позади дома поднимается к северному краю склона.",
+        "locator": "I.8 p.135"
+      },
+      "placement": {
+        "mode": "fixed",
+        "reserveM": 35
+      },
+      "dressing": {
+        "terrain": "плечо высокого холма за домом",
+        "moisture": "сухая / умеренная",
+        "vegetation": "открытая трава",
+        "details": [
+          "Сохранять превосходство холма над домом и путь к северному выходу."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch8",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "frodo_route",
+      "name": "Маршрут через лес",
+      "kind": "route",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            512,
+            25420
+          ],
+          [
+            650,
+            25420
+          ],
+          [
+            1200,
+            25800
+          ],
+          [
+            1900,
+            26500
+          ],
+          [
+            2600,
+            27300
+          ],
+          [
+            4700,
+            28800
+          ],
+          [
+            6700,
+            30800
+          ],
+          [
+            8300,
+            32200
+          ],
+          [
+            9550,
+            33500
+          ],
+          [
+            10000,
+            33700
+          ],
+          [
+            10000,
+            34000
+          ],
+          [
+            10300,
+            34200
+          ],
+          [
+            11000,
+            34000
+          ],
+          [
+            11300,
+            33500
+          ],
+          [
+            11800,
+            33000
+          ],
+          [
+            11300,
+            34000
+          ],
+          [
+            11800,
+            34600
+          ],
+          [
+            12800,
+            33800
+          ],
+          [
+            13000,
+            32100
+          ],
+          [
+            13700,
+            31200
+          ],
+          [
+            14500,
+            31000
+          ],
+          [
+            13900,
+            30000
+          ],
+          [
+            14900,
+            29600
+          ],
+          [
+            15000,
+            27700
+          ],
+          [
+            15112,
+            26000
+          ],
+          [
+            15562,
+            25000
+          ],
+          [
+            15512,
+            23700
+          ],
+          [
+            16312,
+            22600
+          ],
+          [
+            16462,
+            21300
+          ],
+          [
+            15912,
+            20400
+          ],
+          [
+            15912,
+            18640
+          ],
+          [
+            16480,
+            18900
+          ],
+          [
+            17100,
+            19200
+          ],
+          [
+            17460,
+            19160
+          ],
+          [
+            18100,
+            19065
+          ],
+          [
+            19500,
+            18465
+          ],
+          [
+            20700,
+            18415
+          ],
+          [
+            21150,
+            18525
+          ],
+          [
+            21450,
+            18625
+          ],
+          [
+            21600,
+            18820
+          ],
+          [
+            21900,
+            19000
+          ],
+          [
+            22100,
+            19080
+          ],
+          [
+            22400,
+            19350
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1",
+          "user-terrain-photos-2026-09-09"
+        ],
+        "uncertaintyM": 1500
+      },
+      "evidence": {
+        "summary": "Вход → поляна → холм → лощина → Ив → дом.",
+        "locator": "I.6 pp.109–122"
+      },
+      "placement": {
+        "mode": "corridor",
+        "reserveM": 2.5
+      },
+      "route": {
+        "widthM": 2.4,
+        "cutDepthM": 0.35,
+        "cutSegments": [
+          [
+            2,
+            8
+          ],
+          [
+            17,
+            29
+          ]
+        ],
+        "checkpointIds": [
+          "hay_gate",
+          "bonfire_glade",
+          "bald_hill",
+          "gully_mouth",
+          "old_man_willow",
+          "east_eaves",
+          "approach_knoll",
+          "tom_house"
+        ],
+        "hollowDepthM": 1.5,
+        "hollowHalfWidthM": 14,
+        "hollowSegments": [
+          [
+            4,
+            8
+          ],
+          [
+            17,
+            23
+          ]
+        ]
+      },
+      "dressing": {
+        "terrain": "смена склонов, лощин, берега и луга",
+        "moisture": "наследовать по сегменту",
+        "vegetation": "наследовать локально с исключениями ориентиров",
+        "details": [
+          "Маршрут путешествия не везде постоянная тропа.",
+          "Сухие углублённые участки брать только из route.hollowSegments; сырость задаётся водой, а не фактом понижения."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "north_exit",
+      "name": "Выход к Могильникам",
+      "kind": "route",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            22400,
+            19350
+          ],
+          [
+            22500,
+            19400
+          ],
+          [
+            22600,
+            19650
+          ],
+          [
+            22700,
+            19950
+          ],
+          [
+            22950,
+            19730
+          ],
+          [
+            23300,
+            20400
+          ],
+          [
+            23000,
+            22000
+          ],
+          [
+            23000,
+            24200
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch8"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch8",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1400
+      },
+      "evidence": {
+        "summary": "Выход за домом, далее на север.",
+        "locator": "I.8 pp.135–136"
+      },
+      "placement": {
+        "mode": "corridor",
+        "reserveM": 2
+      },
+      "route": {
+        "widthM": 2,
+        "cutDepthM": 0,
+        "cutSegments": [],
+        "checkpointIds": [
+          "tom_house",
+          "tom_hill_brow"
+        ]
+      },
+      "dressing": {
+        "terrain": "подъём за домом и путь на север",
+        "moisture": "наследовать локально",
+        "vegetation": "трава и локальная кромка",
+        "details": [
+          "Сохранить подъём на плечо холма; не вырезать повсюду глубокую колею."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch8",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    },
+    {
+      "id": "misleading_path",
+      "name": "Путь, уводящий к долине",
+      "kind": "route",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            11800,
+            33000
+          ],
+          [
+            12800,
+            31500
+          ],
+          [
+            14300,
+            29500
+          ],
+          [
+            15100,
+            26000
+          ]
+        ]
+      },
+      "existence": {
+        "status": "canonical",
+        "verification": "checked",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "geometryProvenance": {
+        "status": "inferred",
+        "sourceRefs": [
+          "tolkien-lotr-book1-ch6",
+          "old-forest-reconstruction-v1"
+        ],
+        "uncertaintyM": 1500
+      },
+      "evidence": {
+        "summary": "Северный путь поворачивает к долине.",
+        "locator": "I.6 p.114"
+      },
+      "placement": {
+        "mode": "corridor",
+        "reserveM": 1.5
+      },
+      "route": {
+        "widthM": 2,
+        "cutDepthM": 0.2,
+        "cutSegments": [
+          [
+            0,
+            3
+          ]
+        ],
+        "checkpointIds": []
+      },
+      "dressing": {
+        "terrain": "авторское ответвление в лесных складках",
+        "moisture": "наследовать локально",
+        "vegetation": "наследовать зону",
+        "details": [
+          "Нерегулярная земляная тропа; без дорожной разметки и сплошной каменной окантовки."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "c-hill-north",
+      "type": "northOf",
+      "a": "bald_hill",
+      "b": "old_man_willow",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "c-house-east",
+      "type": "eastOf",
+      "a": "tom_house",
+      "b": "old_man_willow",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "c-garden-east",
+      "type": "eastOf",
+      "a": "kitchen_garden",
+      "b": "tom_house",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch7"
+      ]
+    },
+    {
+      "id": "c-flowers-west",
+      "type": "eastOf",
+      "a": "tom_house",
+      "b": "flower_garden",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch7"
+      ]
+    },
+    {
+      "id": "c-house-north-water",
+      "type": "northOf",
+      "a": "tom_house",
+      "b": "short_fall",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch7"
+      ]
+    },
+    {
+      "id": "c-house-above",
+      "type": "higherThan",
+      "a": "tom_house",
+      "b": "east_eaves",
+      "minM": 3,
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "c-brow-above",
+      "type": "higherThan",
+      "a": "tom_hill_brow",
+      "b": "tom_house",
+      "minM": 10,
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6",
+        "tolkien-lotr-book1-ch8"
+      ]
+    },
+    {
+      "id": "c-glade-after-gate",
+      "type": "eastOf",
+      "a": "bonfire_glade",
+      "b": "hay_gate",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "c-willow-bank",
+      "type": "nearWater",
+      "a": "old_man_willow",
+      "b": "withywindle",
+      "maxM": 90,
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "c-knoll-dip",
+      "type": "profileDip",
+      "points": [
+        [
+          21900,
+          19000
+        ],
+        [
+          22100,
+          19080
+        ],
+        [
+          22400,
+          19350
+        ]
+      ],
+      "minM": 2,
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "c-entry-gap",
+      "type": "distanceRange",
+      "a": "hay_gate",
+      "point": [
+        650,
+        25420
+      ],
+      "rangeM": [
+        91.44,
+        220
+      ],
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "c-house-outside-forest",
+      "type": "outside",
+      "a": "tom_house",
+      "b": "forest_boundary",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6"
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "id": "ancient_broadleaf_core",
+      "name": "Древний смешанный лес",
+      "priority": 10,
+      "selector": {
+        "type": "forest"
+      },
+      "rules": {
+        "species": [
+          "oak",
+          "ash",
+          "beech"
+        ],
+        "treeDensityPerM2": [
+          0.003,
+          0.006
+        ],
+        "understoryCover": 0.18,
+        "deadwoodFraction": 0.13,
+        "canopyGapRadiusM": [
+          8,
+          25
+        ],
+        "matureFraction": 0.7
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "ecosys-1998",
+          "wisconsin-surface-roots"
+        ]
+      },
+      "color": "#335d48",
+      "dressing": {
+        "terrain": "лесные гряды и понижения",
+        "moisture": "переменная",
+        "surface": "листовой опад; гумус; локально открытые корни",
+        "vegetation": "старый широколиственный лес; дуб, ясень, бук",
+        "strata": "сомкнутые кроны с окнами; подлесок пятнами",
+        "details": [
+          "Разновозрастные группы, крупные стволы, сухостой и валежник разной степени распада.",
+          "Мох локально на древесине и в сырых карманах; не делать сплошной ковёр."
+        ],
+        "keepClear": [
+          "Сохранять резервы ориентиров и проходимые коридоры."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
+    },
+    {
+      "id": "western_edge_regrowth",
+      "name": "Западная кромка",
+      "priority": 20,
+      "selector": {
+        "type": "polygon",
+        "coordinates": [
+          [
+            800,
+            24000
+          ],
+          [
+            4600,
+            24000
+          ],
+          [
+            6000,
+            29800
+          ],
+          [
+            1300,
+            31500
+          ],
+          [
+            800,
+            24000
+          ]
+        ]
+      },
+      "rules": {
+        "species": [
+          "oak",
+          "ash"
+        ],
+        "treeDensityPerM2": [
+          0.005,
+          0.008
+        ],
+        "understoryCover": 0.22,
+        "deadwoodFraction": 0.08,
+        "canopyGapRadiusM": [
+          8,
+          25
+        ],
+        "matureFraction": 0.4
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "ecosys-1998",
+          "wisconsin-surface-roots"
+        ]
+      },
+      "color": "#83a958",
+      "dressing": {
+        "terrain": "опушка и вторичный лес",
+        "moisture": "умеренная",
+        "surface": "опад; травяные окна",
+        "vegetation": "широколиственное возобновление; дуб, ясень",
+        "strata": "молодые группы и кустарниковая кромка",
+        "details": [
+          "Переход от открытого края к тени делать неравномерным."
+        ],
+        "keepClear": [
+          "Не продолжать заросли через тоннель и входную ложбину."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
+    },
+    {
+      "id": "north_dry_conifers",
+      "name": "Сухие северные склоны",
+      "priority": 30,
+      "selector": {
+        "type": "polygon",
+        "coordinates": [
+          [
+            10800,
+            34300
+          ],
+          [
+            12300,
+            35800
+          ],
+          [
+            18000,
+            35400
+          ],
+          [
+            17500,
+            32000
+          ],
+          [
+            13500,
+            32000
+          ],
+          [
+            10800,
+            34300
+          ]
+        ]
+      },
+      "rules": {
+        "species": [
+          "pine",
+          "fir",
+          "oak"
+        ],
+        "treeDensityPerM2": [
+          0.002,
+          0.004
+        ],
+        "understoryCover": 0.12,
+        "deadwoodFraction": 0.1,
+        "canopyGapRadiusM": [
+          8,
+          25
+        ],
+        "matureFraction": 0.4
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "ecosys-1998",
+          "wisconsin-surface-roots"
+        ]
+      },
+      "color": "#41666a",
+      "dressing": {
+        "terrain": "верхние склоны и гребни",
+        "moisture": "сухая",
+        "surface": "хвойный и лиственный опад",
+        "vegetation": "смешанный лес с сосной и пихтой",
+        "strata": "более открытый древостой; редкий подлесок",
+        "details": [
+          "Оставлять просветы между хвойными группами."
+        ],
+        "keepClear": [
+          "Не распространять хвойную зону на всю Древлепущу."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
+    },
+    {
+      "id": "withywindle_riparian",
+      "name": "Пойма Ветлянки",
+      "priority": 50,
+      "selector": {
+        "type": "water-buffer",
+        "featureId": "withywindle",
+        "halfWidthM": 180
+      },
+      "rules": {
+        "species": [
+          "willow",
+          "alder"
+        ],
+        "treeDensityPerM2": [
+          0.002,
+          0.004
+        ],
+        "understoryCover": 0.65,
+        "deadwoodFraction": 0.25,
+        "canopyGapRadiusM": [
+          8,
+          25
+        ],
+        "matureFraction": 0.4
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "ecosys-1998",
+          "wisconsin-surface-roots"
+        ]
+      },
+      "color": "#568eab",
+      "dressing": {
+        "terrain": "пойма и низкие берега",
+        "moisture": "влажная / местами насыщенная",
+        "surface": "ил у уреза; трава; влажный опад",
+        "vegetation": "ива и ольха; прибрежные травы и тростники",
+        "strata": "разреженные деревья над высокотравьем",
+        "details": [
+          "Различать русло, мягкий берег и более сухую террасу.",
+          "Корни местами обнажены у воды; наносы и древесный мусор локально."
+        ],
+        "keepClear": [
+          "Русло свободно от обычного древесного scatter.",
+          "Береговой путь не перекрывать; Старый Ив размещается отдельно."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
+    },
+    {
+      "id": "brook_hollows",
+      "name": "Влажные лощины",
+      "priority": 45,
+      "selector": {
+        "type": "brook-buffer",
+        "halfWidthM": 40
+      },
+      "rules": {
+        "species": [
+          "alder",
+          "ash"
+        ],
+        "treeDensityPerM2": [
+          0.003,
+          0.006
+        ],
+        "understoryCover": 0.7,
+        "deadwoodFraction": 0.18,
+        "canopyGapRadiusM": [
+          8,
+          25
+        ],
+        "matureFraction": 0.4
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "ecosys-1998",
+          "wisconsin-surface-roots"
+        ]
+      },
+      "color": "#81b1b1",
+      "dressing": {
+        "terrain": "ручьевые лощины",
+        "moisture": "влажная / заболоченная пятнами",
+        "surface": "мягкий грунт; влажный опад; мелкие наносы",
+        "vegetation": "ольха, ясень; влаголюбивое разнотравье",
+        "strata": "кустарниковые карманы под разрывами крон",
+        "details": [
+          "Чередовать сырые днища и более сухие борта."
+        ],
+        "keepClear": [
+          "Не превращать каждую сухую тропную ложбину в ручей."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
+    },
+    {
+      "id": "slope_tangle",
+      "name": "Спутанные склоны",
+      "priority": 40,
+      "selector": {
+        "type": "slope",
+        "minDegrees": 12,
+        "maxDegrees": 38
+      },
+      "rules": {
+        "species": [
+          "oak",
+          "ash"
+        ],
+        "treeDensityPerM2": [
+          0.002,
+          0.004
+        ],
+        "understoryCover": 0.65,
+        "deadwoodFraction": 0.2,
+        "canopyGapRadiusM": [
+          8,
+          25
+        ],
+        "matureFraction": 0.4
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "ecosys-1998",
+          "wisconsin-surface-roots"
+        ]
+      },
+      "color": "#b39767",
+      "dressing": {
+        "terrain": "крутые борта складок рельефа",
+        "moisture": "переменная",
+        "surface": "опад; эрозионные пятна; корни",
+        "vegetation": "дуб, ясень; густые кусты и ежевичные плети",
+        "strata": "плотный подлесок локальными преградами",
+        "details": [
+          "Наклонённые стволы и валежник размещать с опорой на поверхность."
+        ],
+        "keepClear": [
+          "Проверять устойчивость крупных деревьев по всему отпечатку.",
+          "Проходимость сюжетного маршрута важнее плотности зарослей."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
+    },
+    {
+      "id": "eastern_opening",
+      "name": "Луг перед домом",
+      "priority": 70,
+      "selector": {
+        "type": "polygon",
+        "coordinates": [
+          [
+            21500,
+            18570
+          ],
+          [
+            22650,
+            18350
+          ],
+          [
+            23050,
+            18900
+          ],
+          [
+            23300,
+            19600
+          ],
+          [
+            23000,
+            20500
+          ],
+          [
+            22100,
+            20200
+          ],
+          [
+            21500,
+            18570
+          ]
+        ]
+      },
+      "rules": {
+        "species": [],
+        "treeDensityPerM2": [
+          0,
+          0
+        ],
+        "understoryCover": 0.04,
+        "deadwoodFraction": 0,
+        "canopyGapRadiusM": [
+          8,
+          25
+        ],
+        "matureFraction": 0.4
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "ecosys-1998",
+          "wisconsin-surface-roots"
+        ]
+      },
+      "color": "#e7d58d",
+      "dressing": {
+        "terrain": "открытый луг у восточной кромки",
+        "moisture": "умеренная",
+        "surface": "короткая трава; ухоженный грунт вдоль пути",
+        "vegetation": "луговая растительность без лесного древостоя",
+        "strata": "низкий травяной ярус",
+        "details": [
+          "Плавная выпуклость бугра, ложбина и подъём к дому."
+        ],
+        "keepClear": [
+          "Не засевать лесными деревьями луг, дом и сады."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
+    },
+    {
+      "id": "bonfire_margin",
+      "name": "Край костровой поляны",
+      "priority": 60,
+      "selector": {
+        "type": "point-ring",
+        "featureId": "bonfire_glade",
+        "innerM": 90,
+        "outerM": 145
+      },
+      "rules": {
+        "species": [
+          "oak",
+          "ash"
+        ],
+        "treeDensityPerM2": [
+          0.006,
+          0.009
+        ],
+        "understoryCover": 0.8,
+        "deadwoodFraction": 0.08,
+        "canopyGapRadiusM": [
+          8,
+          25
+        ],
+        "matureFraction": 0.4
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "ecosys-1998",
+          "wisconsin-surface-roots"
+        ]
+      },
+      "color": "#d0ac66",
+      "dressing": {
+        "terrain": "кромка поляны",
+        "moisture": "умеренная",
+        "surface": "опад с переходом к грубой траве",
+        "vegetation": "густая древесная стена вокруг открытого центра",
+        "strata": "плотные края; высокотравье на освещённой границе",
+        "details": [
+          "Подчеркнуть контраст замкнутой кромки и неба над поляной."
+        ],
+        "keepClear": [
+          "Не сажать деревья внутри резерва поляны."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
+    },
+    {
+      "id": "entry_root_floor",
+      "name": "Корни у западного входа",
+      "priority": 55,
+      "selector": {
+        "type": "polygon",
+        "coordinates": [
+          [
+            650,
+            25420
+          ],
+          [
+            1550,
+            25100
+          ],
+          [
+            2800,
+            26500
+          ],
+          [
+            2400,
+            26800
+          ],
+          [
+            650,
+            25420
+          ]
+        ]
+      },
+      "rules": {
+        "species": [
+          "oak",
+          "ash"
+        ],
+        "treeDensityPerM2": [
+          0.003,
+          0.006
+        ],
+        "understoryCover": 0,
+        "deadwoodFraction": 0.08,
+        "canopyGapRadiusM": [
+          4,
+          12
+        ],
+        "matureFraction": 0.7
+      },
+      "provenance": {
+        "status": "authored",
+        "sourceRefs": [
+          "old-forest-reconstruction-v1",
+          "tolkien-lotr-book1-ch6"
+        ]
+      },
+      "color": "#91a57c",
+      "dressing": {
+        "terrain": "лесной вход и низкие выпуклости",
+        "moisture": "умеренная / сухая на выпуклостях",
+        "surface": "открытый грунт; переплетённые корни; опад пятнами",
+        "vegetation": "дуб и ясень; почти отсутствующий подлесок",
+        "strata": "стволы и корни доминируют в нижнем ярусе",
+        "details": [
+          "Корни частично входят в грунт; не раскладывать их как отдельные брёвна."
+        ],
+        "keepClear": [
+          "Не закрывать землю сплошной травой, папоротником или кустами."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "tolkien-lotr-book1-ch6"
+          ]
+        }
+      }
+    }
+  ],
+  "terrain": {
+    "baseStepM": 16,
+    "detailStepM": 2,
+    "detailTileSizeM": 512,
+    "detailMarginM": 48,
+    "basePlane": {
+      "h0": 7,
+      "eSlope": 0.004,
+      "nSlope": 0.0042
+    },
+    "landforms": [
+      {
+        "id": "bald-hill-rise",
+        "center": [
+          10000,
+          33700
+        ],
+        "radiusM": [
+          650,
+          520
+        ],
+        "amplitudeM": 100
+      },
+      {
+        "id": "west-ridge",
+        "center": [
+          4800,
+          29200
+        ],
+        "radiusM": [
+          3100,
+          4800
+        ],
+        "amplitudeM": 55
+      },
+      {
+        "id": "north-ridge",
+        "center": [
+          14300,
+          33200
+        ],
+        "radiusM": [
+          4800,
+          2700
+        ],
+        "amplitudeM": 55
+      },
+      {
+        "id": "east-downs",
+        "center": [
+          28800,
+          24700
+        ],
+        "radiusM": [
+          4500,
+          11500
+        ],
+        "amplitudeM": 170
+      },
+      {
+        "id": "south-ridge",
+        "center": [
+          19000,
+          10700
+        ],
+        "radiusM": [
+          5200,
+          1900
+        ],
+        "amplitudeM": 95
+      },
+      {
+        "id": "southwest-rise",
+        "center": [
+          7600,
+          5200
+        ],
+        "radiusM": [
+          1700,
+          1200
+        ],
+        "amplitudeM": 38
+      },
+      {
+        "id": "house-shoulder",
+        "center": [
+          23000,
+          19600
+        ],
+        "radiusM": [
+          480,
+          600
+        ],
+        "amplitudeM": 70
+      },
+      {
+        "id": "approach-knoll",
+        "center": [
+          21900,
+          19000
+        ],
+        "radiusM": [
+          100,
+          130
+        ],
+        "amplitudeM": 13
+      },
+      {
+        "id": "approach-dip",
+        "center": [
+          22100,
+          19080
+        ],
+        "radiusM": [
+          95,
+          100
+        ],
+        "amplitudeM": -12
+      },
+      {
+        "id": "house-slope-saddle",
+        "center": [
+          22150,
+          19200
+        ],
+        "radiusM": [
+          800,
+          850
+        ],
+        "amplitudeM": -65
+      }
+    ],
+    "noise": {
+      "amplitudesM": [
+        9,
+        3,
+        0.35
+      ],
+      "wavelengthsM": [
+        1200,
+        270,
+        38
+      ]
+    },
+    "provenance": {
+      "status": "authored",
+      "sourceRefs": [
+        "old-forest-reconstruction-v1"
+      ]
+    },
+    "pads": [
+      {
+        "id": "house-terrace",
+        "center": [
+          22400,
+          19350
+        ],
+        "h": 150,
+        "radiusM": 45,
+        "blendM": 160
+      },
+      {
+        "id": "knoll",
+        "center": [
+          21900,
+          19000
+        ],
+        "h": 138,
+        "radiusM": 15,
+        "blendM": 180
+      },
+      {
+        "id": "dip",
+        "center": [
+          22100,
+          19080
+        ],
+        "h": 126,
+        "radiusM": 18,
+        "blendM": 70
+      },
+      {
+        "id": "hill-brow",
+        "center": [
+          22950,
+          19730
+        ],
+        "h": 215,
+        "radiusM": 20,
+        "blendM": 90
+      },
+      {
+        "id": "gate-hollow",
+        "center": [
+          570,
+          25420
+        ],
+        "h": 109,
+        "radiusM": 55,
+        "blendM": 75
+      }
+    ]
+  },
+  "placementPolicy": {
+    "order": [
+      "water",
+      "fixed reservations",
+      "route corridor",
+      "highest-priority ecological zone",
+      "seeded candidates"
+    ],
+    "outsideForest": "no procedural forest",
+    "pointExceptions": [
+      "bonfire_glade",
+      "bald_hill",
+      "entry_hollow",
+      "tom_house",
+      "flower_garden",
+      "kitchen_garden",
+      "approach_knoll",
+      "tom_hill_brow",
+      "old_man_willow"
+    ],
+    "stableKey": "FNV-1a uint32 of ASCII worldSeed/zoneId/cellE/cellN/candidateIndex; placementSeed implementation in src/domain/geography.mjs",
+    "note": "No global random stream; dry ground and slopes filtered before placement. Exposed roots reflect drainage, erosion and age. Density numbers are authored starting values, not an FPS promise."
+  },
+  "calibration": {
+    "status": "inferred",
+    "scaleMPerMile": 1609.344,
+    "sourceRefs": [
+      "tolkien-shire-1966",
+      "strachey-old-forest-1981",
+      "tolkien-lotr-book1-ch5"
+    ],
+    "strachey": {
+      "imageSize": [
+        1600,
+        1203
+      ],
+      "pixelScaleBar": [
+        [
+          1300,
+          1158
+        ],
+        [
+          1478,
+          1158
+        ]
+      ],
+      "scaleMiles": 2,
+      "gridControlPixels": [
+        [
+          202,
+          46,
+          52,
+          6
+        ],
+        [
+          1446,
+          1110,
+          66,
+          18
+        ]
+      ],
+      "gateGridMiles": [
+        51.8,
+        11.8
+      ],
+      "hillGridMiles": [
+        57.7,
+        6.65
+      ],
+      "houseGridMiles": [
+        65.3,
+        15.6
+      ]
+    },
+    "shire": {
+      "imageSize": [
+        1600,
+        971
+      ],
+      "bridgePixel": [
+        1275,
+        372
+      ],
+      "ferryPixel": [
+        1355,
+        507
+      ],
+      "gatePixel": [
+        1410,
+        460
+      ],
+      "mouthPixel": [
+        1405,
+        708
+      ],
+      "bridgeFerryTextMiles": 10,
+      "inferredMPerPixel": 102.5
+    },
+    "method": "Shire map establishes gate-to-mouth offset (~25.4 km north) using the ten-mile bridge/ferry reference as approximate calibration. Strachey mile grid establishes interior distances. Fixed landmarks rounded and locally reconciled with narrative; not literal tracing.",
+    "relativeScaleUncertainty": 0.2,
+    "warning": "20% is an authored working envelope, not statistical confidence. Eastern/southern boundary reconstructed; frame bounds are not forest size."
+  },
+  "decisions": [
+    {
+      "id": "river-conflict",
+      "decision": "Upper Withywindle flows mainly west, lower course bends southwest. Follow final narrative at eastern eaves.",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6",
+        "tolkien-shire-1966",
+        "arda-withywindle"
+      ]
+    },
+    {
+      "id": "hill-exit-conflict",
+      "decision": "Northward departure from Bald Hill precedes east/south turn; do not copy the southward-looking exit drawn by Strachey.",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6",
+        "strachey-old-forest-1981"
+      ]
+    },
+    {
+      "id": "heights",
+      "decision": "All numeric elevations and channel widths authored. Relative uphill/downhill constraints follow text. No regional sea-level claim.",
+      "sourceRefs": [
+        "old-forest-reconstruction-v1",
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "game-map",
+      "decision": "ArdaCraft reviewed as interpretation; its northeast label for house is not evidence overriding the book.",
+      "sourceRefs": [
+        "ardacraft-old-forest",
+        "tolkien-lotr-book1-ch6"
+      ]
+    },
+    {
+      "id": "forest-floor",
+      "decision": "Do not fill western arrival corridor with dense understory; keep local root-dominated floor. Other zones use a mosaic.",
+      "sourceRefs": [
+        "tolkien-lotr-book1-ch6",
+        "old-forest-reconstruction-v1"
+      ]
+    }
+  ],
+  "gaps": [
+    "Original print copies and publisher-authenticated scans not inspected; reproduction hosts identified.",
+    "Fonstad text inspected; original map contour geometry not digitized.",
+    "Tolkien drawings give no complete surveyed forest boundary or numeric heights.",
+    "All procedural streams except gully_brook are authored; source headwater location is uncertain.",
+    "Narrative route is one dated traversal, not proof of permanent paths."
+  ],
+  "research": {
+    "sourceRefs": [
+      "tolkien-lotr-book1-ch5",
+      "tolkien-lotr-book1-ch6",
+      "tolkien-lotr-book1-ch7",
+      "tolkien-lotr-book1-ch8",
+      "tolkien-shire-1966",
+      "strachey-old-forest-1981",
+      "fonstad-bombadil-1991",
+      "arda-withywindle",
+      "arda-bombadil-hill",
+      "ardacraft-old-forest",
+      "tolkien-estate-maps",
+      "wisconsin-surface-roots",
+      "ecosys-1998",
+      "user-terrain-photos-2026-09-09"
+    ],
+    "scope": "Primary narrative and published-map reproductions; secondary cartographic reconciliation; ecology. See each registry status; adaptations do not establish coordinates."
+  },
+  "photoInterpretation": {
+    "sourceRefs": [
+      "user-terrain-photos-2026-09-09"
+    ],
+    "status": "authored",
+    "note": "Three private photos visually inspected: exposed roots on convex shoulder, dry sunken track, localized understory pockets. No height or geographic measurement extracted.",
+    "dryTrailHollows": {
+      "depthM": 1.5,
+      "halfWidthM": 14,
+      "measurementStatus": "authored-not-measured"
+    }
+  },
+  "dressingPolicy": {
+    "status": "authored",
+    "sourceRefs": [
+      "old-forest-reconstruction-v1"
+    ],
+    "precedence": [
+      "feature placement reserves and explicit dressing exceptions",
+      "highest-priority matching zone rules",
+      "local slope and water conditions"
+    ],
+    "note": "dressing — авторские инструкции наполнения на основе evidence, а не новые канонические утверждения. Численные плотности и состав деревьев определяет zones.rules. Текстовые поля не являются готовыми asset ID. Вне лесного контура zoneAt возвращает null: дом, сады, луг и внешние воды оформляются по карточкам объектов. Резерв запрещает обычное процедурное наполнение, но допускает закреплённый объект и его оформленное окружение."
+  }
+}
