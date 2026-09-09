@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 test('A colour variation changes albedo and survives LOD, horizon and occluder fading',async({page},info)=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'||/uncaptured error|device lost/i.test(m.text()))errors.push(m.text());});
- await page.goto('/?scene=m1&debug=1&renderer='+info.project.name);await page.waitForFunction(()=>window.m0?.state().ready);await page.getByRole('button',{name:'Начать прогулку'}).click();
+ await page.goto('/?scene=m1&variety=0&debug=1&renderer='+info.project.name);await page.waitForFunction(()=>window.m0?.state().ready);await page.getByRole('button',{name:'Начать прогулку'}).click();
  const clip={x:290,y:185,width:400,height:260};
  for(const n of [160,5]){
   await page.evaluate(n=>{window.m0.teleport(0,n);window.m0.setCamera(n===5?90:0,n===5?12:-20,5.5);},n);await page.waitForTimeout(800);

@@ -5,7 +5,7 @@ import {canopyProxy} from './canopy-proxy.mjs';
 const empty=name=>({name,positions:[],normals:[],uvs:[],colors:[],indices:[]});
 /** This tree's atlas puts bark and foliage in separate islands. Bake sampled colour before
  * simplification: new triangles cannot span unrelated atlas islands. Keep the original LOD 0. */
-export async function meshyTreeLevels(data){
+export async function meshyTreeLevels(data,midTarget=1430){
  if(data.parts.length!==1)throw new Error('This tree LOD profile expects one Meshy mesh and atlas');
  await MeshoptSimplifier.ready;
  const bark=empty('bark'),foliage=empty('canopy'),maps=[new Map(),new Map()];
@@ -34,7 +34,7 @@ export async function meshyTreeLevels(data){
  }
  function merge(parts){const out=empty(data.parts[0].name);for(const p of parts){const offset=out.positions.length/3;for(const key of ['positions','normals','uvs','colors'])out[key].push(...p[key]);out.indices.push(...p.indices.map(i=>i+offset));}return [out];}
  // Closed crown envelopes retain volume at a distance; decimating leaf surfaces made holes.
- const mid=merge([simplifyPart(bark,430),simplifyPart(foliage,1000)]);
+ const mid=merge([simplifyPart(bark,midTarget===1430?430:Math.floor(midTarget*.3)),simplifyPart(foliage,midTarget===1430?1000:Math.floor(midTarget*.7))]);
  const far=merge([simplifyPart(bark,100),canopyProxy(foliage,8,4,3)]);
  return {levels:[data.parts,mid,far],bakedColorFromLevel:1,segmentation:{barkTriangles:bark.indices.length/3,foliageTriangles:foliage.indices.length/3}};
 }

@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "provider": "Built-in image_gen",
+  "mode": "text-to-image",
+  "prompt": "Use case: stylized-concept. Single reusable game prop reference: ONE old fallen deciduous log, lying horizontally from left to right, length about 3m, diameter 0.65m. Coherent solid trunk, slightly irregular broad taper, thick gray mauve weathered bark in broad painted planes, one broken end exposing muted tan wood and a few substantial blunt splinters. Three short broken branch stubs attached to the trunk, asymmetric but simple. A restrained flat sage moss patch follows the upper ridge. No fine twigs, no separate leaves, no vines. Keep the central trunk straight enough to allow procedural length and curvature variations. Matte hand-painted gouache fantasy book illustration made into a clear low-poly-friendly 3D object. Single three-quarter view from slightly above showing side and broken end. Pure white background, complete object with margins, diffuse neutral studio light, no cast shadow, no black baked AO, no soil island, ground, stand, other props, text or collage."
+}

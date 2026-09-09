@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "provider": "Meshy",
+  "type": "image-to-3d",
+  "taskId": "01a08521-5a74-77db-8a48-ecd0c7adcae6",
+  "createdAt": "2026-09-09T07:45:49.922Z",
+  "downloadedAt": "2026-09-09T07:49:27.276Z",
+  "request": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2",
+    "target_polycount": 700,
+    "topology": "triangle",
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "2k",
+    "target_formats": [
+      "glb"
+    ],
+    "auto_size": false
+  },
+  "inputs": [
+    {
+      "path": "assets/props/fallen-log/concept.png",
+      "sha256": "9cc7160db1bdc296716b9b6c26efce68009ae5d7bdc3241808d73fdfefb0eac7"
+    }
+  ],
+  "consumedCredits": 15,
+  "estimatedCredits": 15,
+  "files": [
+    {
+      "path": "assets/props/fallen-log/source.glb",
+      "bytes": 3490320,
+      "sha256": "a1205cbcf9d1c435c2e94f9efca51a7bc5769af9fee1562dec2b2fc03269cb68"
+    }
+  ]
+}

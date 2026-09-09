@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "id": "meshy-floor-boulder-v1",
+  "id": "meshy-fallen-log-v1",
   "generation": {
     "model_type": "smart-topology",
     "ai_model": "meshy-t2",
-    "target_polycount": 600,
+    "target_polycount": 700,
     "topology": "triangle",
     "should_texture": true,
     "enable_pbr": false,
@@ -18,13 +18,13 @@
     "model": 15
   },
   "outputs": {
-    "a": "assets/rocks/moss-boulder"
+    "a": "assets/props/fallen-log"
   },
   "runtime": {
     "kind": "prop",
     "heightMeters": 0.8,
     "maxTriangles": [
-      900
+      1000
     ],
     "maxMaterials": 1,
     "maxTextureSize": 2048,

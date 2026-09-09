@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "id": "meshy-fork-oak-v1",
+  "generation": {
+    "model_type": "smart-topology",
+    "ai_model": "meshy-t2",
+    "target_polycount": 3000,
+    "topology": "triangle",
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "2k",
+    "target_formats": [
+      "glb"
+    ],
+    "auto_size": false
+  },
+  "estimatedApiCredits": {
+    "model": 15
+  },
+  "outputs": {
+    "a": "assets/trees/fork-oak"
+  },
+  "runtime": {
+    "kind": "tree",
+    "heightMeters": 17,
+    "maxTriangles": [
+      3600,
+      900,
+      300
+    ],
+    "maxMaterials": 1,
+    "maxTextureSize": 2048,
+    "variationCount": 3,
+    "variantParameters": [
+      {
+        "bendX": 0,
+        "bendZ": 0,
+        "twist": 0,
+        "spread": 1,
+        "crownHeight": 1,
+        "stretchX": 1,
+        "stretchZ": 1
+      },
+      {
+        "bendX": 0.055,
+        "bendZ": -0.03,
+        "twist": 0.24,
+        "spread": 0.87,
+        "crownHeight": 1.08,
+        "stretchX": 1,
+        "stretchZ": 1
+      },
+      {
+        "bendX": -0.06,
+        "bendZ": 0.035,
+        "twist": -0.22,
+        "spread": 1.13,
+        "crownHeight": 0.94,
+        "stretchX": 1,
+        "stretchZ": 1
+      }
+    ]
+  }
+}

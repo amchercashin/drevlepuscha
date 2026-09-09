@@ -238,6 +238,13 @@
       "status": "authored",
       "locator": "assets/floor/generation.json",
       "note": "Built-in imagegen assets from authored text prompts. Boulder converted via Meshy Smart Topology; receipt in assets/rocks/moss-boulder/generation.json."
+    },
+    {
+      "id": "forest-library-generated-2026-09-09",
+      "title": "Two tree families, fallen log, old stump and slate slab with offline procedural variants",
+      "status": "authored",
+      "locator": "config/forest-asset-library.json",
+      "note": "Built-in imagegen concept prompts and Meshy receipts are stored per asset. Shape variants are local deterministic preparation, not paid new generations. User photos remain private."
     }
   ]
 }

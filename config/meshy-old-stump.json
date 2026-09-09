@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "id": "meshy-floor-boulder-v1",
+  "id": "meshy-old-stump-v1",
   "generation": {
     "model_type": "smart-topology",
     "ai_model": "meshy-t2",
@@ -18,7 +18,7 @@
     "model": 15
   },
   "outputs": {
-    "a": "assets/rocks/moss-boulder"
+    "a": "assets/props/old-stump"
   },
   "runtime": {
     "kind": "prop",
