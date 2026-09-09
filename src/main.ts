@@ -1,3 +1,4 @@
+import {createTouchControls} from './runtime/touch-controls.ts';
 import {createForestAir} from './runtime/forest-air.ts';
 import {createForestFloor} from './runtime/forest-floor.ts';
 import {ShadowGenerator} from '@babylonjs/core/Lights/Shadows/shadowGenerator.js';
@@ -104,6 +105,13 @@ try {
     button.onclick=()=>{reset(button.dataset.checkpoint as keyof typeof CHECKPOINTS);focusScene();};
   }
   resume.disabled=false;resume.textContent='Начать прогулку';resume.onclick=focusScene;
+  const touch=createTouchControls(canvas,{
+    active:()=>!paused,engage:()=>{demo=false;},
+    look:(x,y)=>{yawTarget=normalizeAzimuth(yawTarget+x*0.2);pitch=clamp(pitch+y*0.16,config.travel.pitchMinDeg,config.travel.pitchMaxDeg);},
+    zoom:delta=>{distance=clamp(distance+delta,config.travel.distanceMinM,config.travel.distanceMaxM);},
+    recenter:()=>{yawTarget=player.heading;pitch=config.travel.pitchDefaultDeg;distance=config.travel.distanceM;},
+    pause:()=>setPaused(true),
+  });
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('pointerdown',e=>{
     if(paused)return;canvas.focus();
@@ -198,8 +206,8 @@ try {
         if(collect&&frameCount>2)samples.push(rawDt);
         if(samples.length>maxSamples){collect=false;}
         yaw=normalizeAzimuth(yaw+shortestAngleDelta(yaw,yawTarget)*(1-Math.exp(-dt/0.085)));
-        let forward=Number(keys.has('KeyW'))-Number(keys.has('KeyS'));
-        let right=Number(keys.has('KeyD'))-Number(keys.has('KeyA'));
+        let forward=Number(keys.has('KeyW'))-Number(keys.has('KeyS'))+touch.state.forward;
+        let right=Number(keys.has('KeyD'))-Number(keys.has('KeyA'))+touch.state.right;
         let de=0,dn=0;
         if(demo){
           // Same closed 60-second north/south route, actual movement/collision code.
@@ -207,11 +215,11 @@ try {
           dn=phase<27?1:phase<30?0:phase<57?-1:0;
           yawTarget=0;pitch=phase>=27&&phase<30?-20:12;
         }else if(forward||right){
-          const scale=1/Math.hypot(forward,right),a=yaw*Math.PI/180;
+          const scale=1/Math.max(1,Math.hypot(forward,right)),a=yaw*Math.PI/180;
           forward*=scale;right*=scale;
           de=forward*Math.sin(a)+right*Math.cos(a);dn=forward*Math.cos(a)-right*Math.sin(a);
         }
-        const speedMps=keys.has('ShiftLeft')||keys.has('ShiftRight')?15:1.85;
+        const speedMps=keys.has('ShiftLeft')||keys.has('ShiftRight')||touch.state.running?15:1.85;
         const before={...player},next=moveWalker(player,de*speedMps*dt,dn*speedMps*dt,world.boxes,forest?FOREST_BOUNDS:undefined);
         player.e=next.e;player.n=next.n;
         const movedE=player.e-before.e,movedN=player.n-before.n;

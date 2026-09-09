@@ -1,0 +1,8 @@
+.touch-controls{position:absolute;inset:0;pointer-events:none;user-select:none;-webkit-user-select:none}
+.touch-controls[hidden],body:has(#pause:not([hidden])) .touch-controls{display:none}
+.touch-stick{position:absolute;left:max(20px,env(safe-area-inset-left));bottom:max(24px,env(safe-area-inset-bottom));width:132px;height:132px;border:1px solid #e2e7cb88;border-radius:50%;background:#1b302880;pointer-events:auto;touch-action:none;display:grid;place-items:center}
+.touch-stick span{width:44px;height:44px;border-radius:50%;background:#d4dbbfa0;pointer-events:none}
+.touch-actions{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(2, minmax(48px,auto));gap:8px;pointer-events:auto;touch-action:none}
+.touch-actions button{min-height:48px;padding:10px}.touch-actions button[aria-pressed=true]{background:#788358}
+.touch-enabled footer{bottom:174px;padding:10px 16px}.touch-enabled .controls,.touch-enabled .location{display:none}.touch-enabled nav{flex-wrap:wrap}.touch-enabled .diagnostics{top:76px;right:16px}.touch-enabled .masthead{padding:16px}.touch-enabled h1{font-size:22px}.touch-enabled .badge{display:none}
+@media(max-height:500px){.touch-enabled footer{top:58px;bottom:auto;left:0;right:auto}.touch-enabled nav{max-width:250px}.touch-enabled .diagnostics{top:16px}.touch-enabled .pause-card{padding:12px 24px}.touch-enabled .pause-card h2{font-size:24px;margin:8px 0}.touch-enabled .pause-card .small{margin:8px 0}}

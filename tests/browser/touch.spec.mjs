@@ -1,0 +1,56 @@
+import {test,expect} from '@playwright/test';
+
+test.use({hasTouch:true,viewport:{width:390,height:844}});
+for(const scene of ['m0','m1']) test(`touch movement and look coexist, release and pause clear movement (${scene})`,async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(`/?debug=1&renderer=webgl2&scene=${scene}`);
+  await page.waitForFunction(()=>window.m0?.state().ready);
+  await expect(page.locator('.touch-controls')).toBeHidden();
+  await page.getByRole('button',{name:'Начать прогулку'}).tap();
+  await expect(page.locator('.touch-controls')).toBeVisible();
+  const cdp=await page.context().newCDPSession(page);
+  const touch=(type,points)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:points});
+  const box=await page.locator('.touch-stick').boundingBox();
+  const x=box.x+box.width/2,y=box.y+box.height/2;
+  const a=await page.evaluate(()=>window.m0.state());
+  await touch('touchStart',[{x,y,id:1}]);
+  await touch('touchMove',[{x,y:y-42,id:1}]);
+  await page.waitForTimeout(400);
+  await touch('touchStart',[{x,y:y-42,id:1},{x:190,y:400,id:2}]);
+  await touch('touchMove',[{x,y:y-42,id:1},{x:290,y:430,id:2}]);
+  await page.waitForTimeout(350);
+  const b=await page.evaluate(()=>window.m0.state());
+  expect(b.player.n-a.player.n).toBeGreaterThan(0.5);
+  expect(b.camera.yaw).toBeGreaterThan(10);
+  await touch('touchEnd',[]);
+  const stopped=await page.evaluate(()=>window.m0.state());
+  await page.waitForTimeout(200);
+  expect((await page.evaluate(()=>window.m0.state())).player).toEqual(stopped.player);
+  await page.getByRole('button',{name:'Приблизить камеру',exact:true}).tap();
+  expect((await page.evaluate(()=>window.m0.state())).camera.distance).toBeLessThan(b.camera.distance);
+  await page.getByRole('button',{name:'Бег',exact:true}).tap();
+  await expect(page.getByRole('button',{name:'Бег',exact:true})).toHaveAttribute('aria-pressed','true');
+  await touch('touchStart',[{x,y:y-42,id:1}]);
+  await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
+  await touch('touchCancel',[]);
+  await expect(page.locator('.touch-controls')).toBeHidden();
+  await page.getByRole('button',{name:'Продолжить'}).tap();
+  const resumed=await page.evaluate(()=>window.m0.state());
+  await page.waitForTimeout(200);
+  expect((await page.evaluate(()=>window.m0.state())).player).toEqual(resumed.player);
+  await expect(page.getByRole('button',{name:'Бег',exact:true})).toHaveAttribute('aria-pressed','false');
+  await page.screenshot({path:'/tmp/lotr-touch-portrait.png'});
+  await page.setViewportSize({width:844,height:390});
+  await page.screenshot({path:'/tmp/lotr-touch-landscape.png'});
+  expect(errors).toEqual([]);
+});
+
+test('desktop keeps keyboard controls without the touch overlay',async({browser})=>{
+  const context=await browser.newContext({hasTouch:false});const page=await context.newPage();
+  await page.goto('/?debug=1&renderer=webgl2');await page.waitForFunction(()=>window.m0?.state().ready);
+  await page.getByRole('button',{name:'Начать прогулку'}).click();
+  await expect(page.locator('.touch-controls')).toBeHidden();
+  const a=await page.evaluate(()=>window.m0.state());await page.keyboard.down('KeyW');await page.waitForTimeout(400);await page.keyboard.up('KeyW');
+  expect((await page.evaluate(()=>window.m0.state())).player.n).toBeGreaterThan(a.player.n+0.3);
+  await context.close();
+});
