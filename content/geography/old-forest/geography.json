@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "regionId": "old-forest",
-  "contentRevision": "old-forest-1.0.0",
+  "contentRevision": "old-forest-1.1.0",
   "generatorVersion": "terrain-1.0.0",
   "worldSeed": 30180926,
   "coordinateSystem": {
@@ -161,6 +161,22 @@
       "placement": {
         "mode": "boundary",
         "reserveM": 0
+      },
+      "dressing": {
+        "terrain": "мозаика лесных местностей",
+        "moisture": "наследовать локально",
+        "vegetation": "наследовать зону",
+        "details": [
+          "Контур леса — граница генерации, а не физическая стена."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-shire-1966",
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -240,6 +256,22 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 15
+      },
+      "dressing": {
+        "terrain": "западная граница леса",
+        "moisture": "умеренная",
+        "vegetation": "живая изгородь и лесная кромка",
+        "details": [
+          "Высокая изгородь; проход под ней — отдельная геометрия."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch5",
+            "tolkien-shire-1966",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -295,6 +327,22 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 15
+      },
+      "dressing": {
+        "terrain": "дорога севернее леса",
+        "moisture": "сухая / умеренная",
+        "vegetation": "открытые обочины",
+        "details": [
+          "Не переносить лесную подстилку на всё дорожное полотно."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-shire-1966",
+            "tolkien-lotr-book1-ch8",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -354,6 +402,22 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 15
+      },
+      "dressing": {
+        "terrain": "восточные открытые холмы",
+        "moisture": "сухая / умеренная",
+        "vegetation": "травяные склоны",
+        "details": [
+          "Это граница контекста; отдельные курганы здесь ещё не размечены."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "tolkien-lotr-book1-ch8",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -514,6 +578,21 @@
         "depthM": 2.5,
         "bankHeightM": 1.6,
         "confluence": null
+      },
+      "dressing": {
+        "terrain": "крупное речное русло и берега",
+        "moisture": "вода / влажные берега",
+        "vegetation": "прибрежная растительность по локальным условиям",
+        "details": [
+          "Разделять поверхность воды, дно и берег; внешний контекст без детальной экологии."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-shire-1966",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -786,6 +865,22 @@
             "depthM": 4
           }
         ]
+      },
+      "dressing": {
+        "terrain": "извилистое русло и пойма",
+        "moisture": "вода / влажные берега",
+        "vegetation": "ивы, ольха, высокие травы и тростники",
+        "details": [
+          "Коричневая медленная вода; локальные омуты; открытые полосы вдоль берега."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -892,6 +987,21 @@
         "depthM": 0.6,
         "bankHeightM": 0.8,
         "confluence": "withywindle"
+      },
+      "dressing": {
+        "terrain": "глубокая лощина с ручьём",
+        "moisture": "сырые карманы / текучая вода",
+        "vegetation": "густые заросли на бортах",
+        "details": [
+          "Выходы воды и мягкий грунт выше по лощине; более крутой спуск к реке."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -979,6 +1089,20 @@
         "depthM": 0.5,
         "bankHeightM": 0.8,
         "confluence": "withywindle"
+      },
+      "dressing": {
+        "terrain": "авторская ручьевая лощина",
+        "moisture": "влажная",
+        "vegetation": "наследовать brook_hollows",
+        "details": [
+          "Размер и флора — авторское дополнение; не выдавать за отдельное место книги."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1057,6 +1181,20 @@
         "depthM": 0.55,
         "bankHeightM": 0.8,
         "confluence": "withywindle"
+      },
+      "dressing": {
+        "terrain": "авторская ручьевая лощина",
+        "moisture": "влажная",
+        "vegetation": "наследовать brook_hollows",
+        "details": [
+          "Местные наносы и влажные карманы; не сплошное болото."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1092,6 +1230,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 80
+      },
+      "dressing": {
+        "terrain": "край поселения у устья",
+        "moisture": "переменная",
+        "vegetation": "культурная кромка и берег",
+        "details": [
+          "Поселение дано ориентиром; план домов не реконструирован."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch5",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1127,6 +1280,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 30
+      },
+      "dressing": {
+        "terrain": "тоннель под изгородью",
+        "moisture": "умеренная",
+        "vegetation": "изгородь сверху; проход без зарослей",
+        "details": [
+          "Сохранить отверстие, высоту прохода и выход в безлесную ложбину."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1162,6 +1330,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 60
+      },
+      "dressing": {
+        "terrain": "открытая входная ложбина",
+        "moisture": "умеренная",
+        "vegetation": "без деревьев в ложбине; лес далее",
+        "details": [
+          "Не помещать ближайшие стволы непосредственно у выхода тоннеля."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1197,6 +1380,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 90
+      },
+      "dressing": {
+        "terrain": "круглая безлесная поляна",
+        "moisture": "умеренная",
+        "vegetation": "грубая трава; крапива, чертополох, кипрей, болиголов",
+        "details": [
+          "Старое место костра, не активное пожарище; не добавлять повсюду свежие угли."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1232,6 +1430,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 450
+      },
+      "dressing": {
+        "terrain": "лысая зелёная вершина; крутой юго-восточный склон",
+        "moisture": "сухая / умеренная",
+        "vegetation": "трава на вершине, лес ниже",
+        "details": [
+          "Открытое небо и обзор с вершины; отделить травяную шапку от древесной кромки."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1267,6 +1480,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 30
+      },
+      "dressing": {
+        "terrain": "выход крутого оврага в речную долину",
+        "moisture": "влажная",
+        "vegetation": "прибрежные травы, ива и ольха вне прохода",
+        "details": [
+          "Выразительный переход от тесной лощины к открытой пойме."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1302,6 +1530,22 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 50
+      },
+      "dressing": {
+        "terrain": "низкий берег реки",
+        "moisture": "влажная",
+        "vegetation": "единственный авторский герой-дерево: древняя ива",
+        "details": [
+          "Крупный расщеплённый ствол, нависающие ветви, корни у воды; отдельная модель и коллизии.",
+          "Окружение не должно скрывать силуэт и подход к стволу."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1337,6 +1581,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 30
+      },
+      "dressing": {
+        "terrain": "тихий речной омут",
+        "moisture": "вода",
+        "vegetation": "водяные лилии локально",
+        "details": [
+          "Лилии держать на спокойной поверхности; не разносить по всей реке."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1372,6 +1631,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 30
+      },
+      "dressing": {
+        "terrain": "небольшой каменистый речной перепад",
+        "moisture": "текучая вода / брызги",
+        "vegetation": "береговая растительность вне струи",
+        "details": [
+          "Каменная кромка, струя и пена локальны; это не высокий водопад."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1407,6 +1681,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 50
+      },
+      "dressing": {
+        "terrain": "восточный выход из леса",
+        "moisture": "умеренная",
+        "vegetation": "лесная стена сменяется короткой травой",
+        "details": [
+          "Сохранить читаемый переход из тени на открытый луг."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1442,6 +1731,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 50
+      },
+      "dressing": {
+        "terrain": "гладкий луговой бугор перед домом",
+        "moisture": "умеренная",
+        "vegetation": "короткая трава",
+        "details": [
+          "Дорожка переваливает через бугор, опускается и снова поднимается."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1480,6 +1784,23 @@
         "mode": "fixed",
         "reserveM": 30,
         "facingAzimuthDeg": 270
+      },
+      "dressing": {
+        "terrain": "ухоженная площадка под плечом холма",
+        "moisture": "умеренная",
+        "vegetation": "сады и короткая трава; без ив у дома",
+        "details": [
+          "Каменная окантовка подхода; дом — закреплённая модель.",
+          "Не продолжать прибрежную ивовую зону через участок дома."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1515,6 +1836,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 18
+      },
+      "dressing": {
+        "terrain": "цветник западнее дома",
+        "moisture": "ухоженная почва",
+        "vegetation": "цветы и подстриженная изгородь",
+        "details": [
+          "Видовой состав цветов не установлен: подбор авторский."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1550,6 +1886,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 18
+      },
+      "dressing": {
+        "terrain": "огород восточнее дома",
+        "moisture": "ухоженная почва",
+        "vegetation": "грядки; бобы на опорах",
+        "details": [
+          "Не смешивать огород с диким высокотравьем; оставить проходы между грядками."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch7",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1585,6 +1936,21 @@
       "placement": {
         "mode": "fixed",
         "reserveM": 35
+      },
+      "dressing": {
+        "terrain": "плечо высокого холма за домом",
+        "moisture": "сухая / умеренная",
+        "vegetation": "открытая трава",
+        "details": [
+          "Сохранять превосходство холма над домом и путь к северному выходу."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch8",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1827,6 +2193,22 @@
             23
           ]
         ]
+      },
+      "dressing": {
+        "terrain": "смена склонов, лощин, берега и луга",
+        "moisture": "наследовать по сегменту",
+        "vegetation": "наследовать локально с исключениями ориентиров",
+        "details": [
+          "Маршрут путешествия не везде постоянная тропа.",
+          "Сухие углублённые участки брать только из route.hollowSegments; сырость задаётся водой, а не фактом понижения."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1901,6 +2283,21 @@
           "tom_house",
           "tom_hill_brow"
         ]
+      },
+      "dressing": {
+        "terrain": "подъём за домом и путь на север",
+        "moisture": "наследовать локально",
+        "vegetation": "трава и локальная кромка",
+        "details": [
+          "Сохранить подъём на плечо холма; не вырезать повсюду глубокую колею."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch8",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     },
     {
@@ -1961,6 +2358,21 @@
           ]
         ],
         "checkpointIds": []
+      },
+      "dressing": {
+        "terrain": "авторское ответвление в лесных складках",
+        "moisture": "наследовать локально",
+        "vegetation": "наследовать зону",
+        "details": [
+          "Нерегулярная земляная тропа; без дорожной разметки и сплошной каменной окантовки."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "tolkien-lotr-book1-ch6",
+            "old-forest-reconstruction-v1"
+          ]
+        }
       }
     }
   ],
@@ -2132,7 +2544,29 @@
           "wisconsin-surface-roots"
         ]
       },
-      "color": "#335d48"
+      "color": "#335d48",
+      "dressing": {
+        "terrain": "лесные гряды и понижения",
+        "moisture": "переменная",
+        "surface": "листовой опад; гумус; локально открытые корни",
+        "vegetation": "старый широколиственный лес; дуб, ясень, бук",
+        "strata": "сомкнутые кроны с окнами; подлесок пятнами",
+        "details": [
+          "Разновозрастные группы, крупные стволы, сухостой и валежник разной степени распада.",
+          "Мох локально на древесине и в сырых карманах; не делать сплошной ковёр."
+        ],
+        "keepClear": [
+          "Сохранять резервы ориентиров и проходимые коридоры."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
     },
     {
       "id": "western_edge_regrowth",
@@ -2188,7 +2622,28 @@
           "wisconsin-surface-roots"
         ]
       },
-      "color": "#83a958"
+      "color": "#83a958",
+      "dressing": {
+        "terrain": "опушка и вторичный лес",
+        "moisture": "умеренная",
+        "surface": "опад; травяные окна",
+        "vegetation": "широколиственное возобновление; дуб, ясень",
+        "strata": "молодые группы и кустарниковая кромка",
+        "details": [
+          "Переход от открытого края к тени делать неравномерным."
+        ],
+        "keepClear": [
+          "Не продолжать заросли через тоннель и входную ложбину."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
     },
     {
       "id": "north_dry_conifers",
@@ -2249,7 +2704,28 @@
           "wisconsin-surface-roots"
         ]
       },
-      "color": "#41666a"
+      "color": "#41666a",
+      "dressing": {
+        "terrain": "верхние склоны и гребни",
+        "moisture": "сухая",
+        "surface": "хвойный и лиственный опад",
+        "vegetation": "смешанный лес с сосной и пихтой",
+        "strata": "более открытый древостой; редкий подлесок",
+        "details": [
+          "Оставлять просветы между хвойными группами."
+        ],
+        "keepClear": [
+          "Не распространять хвойную зону на всю Древлепущу."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
     },
     {
       "id": "withywindle_riparian",
@@ -2285,7 +2761,30 @@
           "wisconsin-surface-roots"
         ]
       },
-      "color": "#568eab"
+      "color": "#568eab",
+      "dressing": {
+        "terrain": "пойма и низкие берега",
+        "moisture": "влажная / местами насыщенная",
+        "surface": "ил у уреза; трава; влажный опад",
+        "vegetation": "ива и ольха; прибрежные травы и тростники",
+        "strata": "разреженные деревья над высокотравьем",
+        "details": [
+          "Различать русло, мягкий берег и более сухую террасу.",
+          "Корни местами обнажены у воды; наносы и древесный мусор локально."
+        ],
+        "keepClear": [
+          "Русло свободно от обычного древесного scatter.",
+          "Береговой путь не перекрывать; Старый Ив размещается отдельно."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
     },
     {
       "id": "brook_hollows",
@@ -2320,7 +2819,28 @@
           "wisconsin-surface-roots"
         ]
       },
-      "color": "#81b1b1"
+      "color": "#81b1b1",
+      "dressing": {
+        "terrain": "ручьевые лощины",
+        "moisture": "влажная / заболоченная пятнами",
+        "surface": "мягкий грунт; влажный опад; мелкие наносы",
+        "vegetation": "ольха, ясень; влаголюбивое разнотравье",
+        "strata": "кустарниковые карманы под разрывами крон",
+        "details": [
+          "Чередовать сырые днища и более сухие борта."
+        ],
+        "keepClear": [
+          "Не превращать каждую сухую тропную ложбину в ручей."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
     },
     {
       "id": "slope_tangle",
@@ -2356,7 +2876,29 @@
           "wisconsin-surface-roots"
         ]
       },
-      "color": "#b39767"
+      "color": "#b39767",
+      "dressing": {
+        "terrain": "крутые борта складок рельефа",
+        "moisture": "переменная",
+        "surface": "опад; эрозионные пятна; корни",
+        "vegetation": "дуб, ясень; густые кусты и ежевичные плети",
+        "strata": "плотный подлесок локальными преградами",
+        "details": [
+          "Наклонённые стволы и валежник размещать с опорой на поверхность."
+        ],
+        "keepClear": [
+          "Проверять устойчивость крупных деревьев по всему отпечатку.",
+          "Проходимость сюжетного маршрута важнее плотности зарослей."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
     },
     {
       "id": "eastern_opening",
@@ -2417,7 +2959,28 @@
           "wisconsin-surface-roots"
         ]
       },
-      "color": "#e7d58d"
+      "color": "#e7d58d",
+      "dressing": {
+        "terrain": "открытый луг у восточной кромки",
+        "moisture": "умеренная",
+        "surface": "короткая трава; ухоженный грунт вдоль пути",
+        "vegetation": "луговая растительность без лесного древостоя",
+        "strata": "низкий травяной ярус",
+        "details": [
+          "Плавная выпуклость бугра, ложбина и подъём к дому."
+        ],
+        "keepClear": [
+          "Не засевать лесными деревьями луг, дом и сады."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
     },
     {
       "id": "bonfire_margin",
@@ -2454,7 +3017,28 @@
           "wisconsin-surface-roots"
         ]
       },
-      "color": "#d0ac66"
+      "color": "#d0ac66",
+      "dressing": {
+        "terrain": "кромка поляны",
+        "moisture": "умеренная",
+        "surface": "опад с переходом к грубой траве",
+        "vegetation": "густая древесная стена вокруг открытого центра",
+        "strata": "плотные края; высокотравье на освещённой границе",
+        "details": [
+          "Подчеркнуть контраст замкнутой кромки и неба над поляной."
+        ],
+        "keepClear": [
+          "Не сажать деревья внутри резерва поляны."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "ecosys-1998",
+            "wisconsin-surface-roots"
+          ]
+        }
+      }
     },
     {
       "id": "entry_root_floor",
@@ -2509,7 +3093,27 @@
           "tolkien-lotr-book1-ch6"
         ]
       },
-      "color": "#91a57c"
+      "color": "#91a57c",
+      "dressing": {
+        "terrain": "лесной вход и низкие выпуклости",
+        "moisture": "умеренная / сухая на выпуклостях",
+        "surface": "открытый грунт; переплетённые корни; опад пятнами",
+        "vegetation": "дуб и ясень; почти отсутствующий подлесок",
+        "strata": "стволы и корни доминируют в нижнем ярусе",
+        "details": [
+          "Корни частично входят в грунт; не раскладывать их как отдельные брёвна."
+        ],
+        "keepClear": [
+          "Не закрывать землю сплошной травой, папоротником или кустами."
+        ],
+        "provenance": {
+          "status": "authored",
+          "sourceRefs": [
+            "old-forest-reconstruction-v1",
+            "tolkien-lotr-book1-ch6"
+          ]
+        }
+      }
     }
   ],
   "terrain": {
@@ -2897,5 +3501,17 @@
       "halfWidthM": 14,
       "measurementStatus": "authored-not-measured"
     }
+  },
+  "dressingPolicy": {
+    "status": "authored",
+    "sourceRefs": [
+      "old-forest-reconstruction-v1"
+    ],
+    "precedence": [
+      "feature placement reserves and explicit dressing exceptions",
+      "highest-priority matching zone rules",
+      "local slope and water conditions"
+    ],
+    "note": "dressing — авторские инструкции наполнения на основе evidence, а не новые канонические утверждения. Численные плотности и состав деревьев определяет zones.rules. Текстовые поля не являются готовыми asset ID. Вне лесного контура zoneAt возвращает null: дом, сады, луг и внешние воды оформляются по карточкам объектов. Резерв запрещает обычное процедурное наполнение, но допускает закреплённый объект и его оформленное окружение."
   }
 }

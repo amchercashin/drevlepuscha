@@ -7,7 +7,7 @@ const url=new URL('../content/geography/old-forest/',import.meta.url),source=rea
 const sha=b=>createHash('sha256').update(b).digest('hex');
 test('geography: source links, downstream confluences, spatial constraints and route order',()=>{assert.deepEqual(validateGeography(g,sources),[]);});
 test('geography: rejects upstream rivers, moved house, broken provenance and route order',()=>{
- for(const mutate of [x=>x.features.find(f=>f.id==='withywindle').water.stations[1][2]=999,x=>x.features.find(f=>f.id==='tom_house').geometry.coordinates=[0,0],x=>x.features[0].existence.sourceRefs=['unknown'],x=>x.features.find(f=>f.id==='frodo_route').route.checkpointIds.reverse()]){const x=structuredClone(g);mutate(x);assert.ok(validateGeography(x,sources).length);}
+ for(const mutate of [x=>x.features.find(f=>f.id==='withywindle').water.stations[1][2]=999,x=>x.features.find(f=>f.id==='tom_house').geometry.coordinates=[0,0],x=>x.features[0].existence.sourceRefs=['unknown'],x=>x.features.find(f=>f.id==='frodo_route').route.checkpointIds.reverse(),x=>delete x.zones[0].dressing,x=>x.features[0].dressing.provenance.status='canonical',x=>x.features[0].dressing.terrain='' ]){const x=structuredClone(g);mutate(x);assert.ok(validateGeography(x,sources).length);}
 });
 test('geography: no underwater route, no abrupt steps; preserved local up/down/up',()=>{
  const r=m.features.get('frodo_route').geometry.coordinates;let max=0;

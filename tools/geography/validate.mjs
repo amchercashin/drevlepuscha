@@ -7,6 +7,13 @@ export function validateGeography(g,sourceIds) {
   const ids=new Set(g.features.map(f=>f.id));fail(ids.size===g.features.length,'Duplicate feature IDs');
   function refs(x){if(!x||typeof x!=='object')return;if(x.sourceRefs){fail(x.sourceRefs.length>0,'Empty sourceRefs');for(const id of x.sourceRefs)fail(sourceIds.has(id),'Unknown source: '+id);}for(const v of Object.values(x))refs(v);}
   refs(g);
+  const zoneIds=new Set(g.zones.map(z=>z.id));fail(zoneIds.size===g.zones.length,'Duplicate zone IDs');
+  for(const item of [...g.features,...g.zones]){
+    const d=item.dressing;
+    fail(d&&['terrain','moisture','vegetation'].every(k=>typeof d[k]==='string'&&d[k].trim().length>0),'Missing dressing tags '+item.id);
+    fail(Array.isArray(d?.details)&&d.details.length>0&&d.details.every(s=>typeof s==='string'&&s.trim().length>0),'Missing dressing details '+item.id);
+    fail(d?.provenance?.status==='authored'&&d.provenance.sourceRefs?.length>0,'Dressing must remain an authored specification '+item.id);
+  }
   for(const f of g.features){
     fail(['canonical','inferred','authored'].includes(f.existence.status),'Invalid existence '+f.id);
     fail(['inferred','authored'].includes(f.geometryProvenance.status),'Numeric geometry must remain reconstructed: '+f.id);

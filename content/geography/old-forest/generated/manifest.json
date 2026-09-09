@@ -3,11 +3,11 @@
   "generatorInputs": {
     "src/domain/geography.mjs": "9c9a558da2cb1a8aae222793988b9f64da2a7ad534bc77699f62331f13cca5a6",
     "tools/geography/build.mjs": "172df3b0071396588848ecd5fb575b74bdb0609621cd59cd33942e7784d8032d",
-    "tools/geography/atlas.html": "e947989e1a0cb1848b093e566b533b9d2b65fc17458c3235c62303c522b1145e"
+    "tools/geography/atlas.html": "c73be5edceb8c1b6815948df5a3664f66b655371c034f64e8c4c698bc6e10ec9"
   },
-  "contentRevision": "old-forest-1.0.0",
+  "contentRevision": "old-forest-1.1.0",
   "generatorVersion": "terrain-1.0.0",
-  "inputSha256": "086509083bc69d7e5c72e98fe4e5b8537745e00b82a292be77f39f45b2fd6eb3",
+  "inputSha256": "08e216c7b9d1a4aa5f5e5cf3022f19e3f61206db19aba4ba5b34fa7390743671",
   "format": "Float32",
   "heightQuantizationM": 0.015625,
   "endianness": "little",
