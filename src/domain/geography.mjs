@@ -157,7 +157,9 @@ export function createGeography(g) {
       }
       if(candidates.size){const ds=Math.min(...[...candidates.values()].map(p=>p.distance));let sum=0,total=0,envelope=0;
         for(const p of candidates.values()){const w=Math.exp(-(p.distance*p.distance-ds*ds)/36)*p.weight;sum+=p.h*w;total+=w;envelope=Math.max(envelope,p.weight);}
-        h+=(sum/total-h)*envelope*waterFade;
+        const shelf=envelope*waterFade;h+=(sum/total-h)*shelf;
+        // Preserve authored hollow shoulders: the shelf grades the foot line, not the whole valley cross-section.
+        h+=sculptHeight(e,n)*shelf*smooth((ds-4)/12);
       }
     }
     return h;

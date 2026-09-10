@@ -1,82 +1,74 @@
 {
   "status": "passed",
-  "inputSha256": "8097f84c5c73b8eb5683eb4e00ae23cb120c42066fdbef15ceca7f08dcf4600d",
-  "scope": "Bilinear exported heightfield sampled along all route centrelines at <=1 metre; not a game collision or FPS test",
+  "scope": "Exported bilinear heightfield sampled along every route at <=1 metre; dryness and water semantics additionally covered by npm tests",
+  "inputSha256": "5a1291e4045e1f578a7e2041837ad317e5560bf0a56df8055d03cf2093df49ab",
   "summary": {
     "featureCount": 39,
-    "forestAreaKm2": 130.330092831421,
-    "frameWidthKm": 27.648,
+    "forestAreaKm2": 84.02141072261242,
+    "frameWidthKm": 25.6,
     "frameHeightKm": 35.84,
-    "routeKm": 13.348749591732437,
-    "walkingHoursAt1_85Mps": 2.004316755515381,
-    "decodedMiB": 51.31452178955078,
-    "compressedMiB": 16.757810592651367
+    "routeKm": 8.946092745400437,
+    "walkingHoursAt1_85Mps": 1.3432571689790445,
+    "decodedMiB": 43.41744613647461,
+    "compressedMiB": 14.795984268188477
   },
-  "detailTileCount": 145,
-  "optionalTrailKm": 3.604164561392665,
+  "detailTileCount": 118,
+  "optionalTrailKm": 2.4779586324519505,
+  "maximumGrade": 0.36781561396446083,
   "routes": [
     {
       "id": "frodo_route",
-      "lengthM": 13348.749591732438,
-      "maximumGrade": 0.311337088912246,
-      "underwaterSamples": 0,
-      "sampleCount": 14940
+      "lengthM": 8946.092745400436,
+      "maximumGrade": 0.31606979512240596,
+      "sampleCount": 10232
     },
     {
       "id": "north_exit",
-      "lengthM": 5581.000607129582,
-      "maximumGrade": 0.25505375618397397,
-      "underwaterSamples": 0,
+      "lengthM": 5581.00060712952,
+      "maximumGrade": 0.26203915893804086,
       "sampleCount": 5600
     },
     {
       "id": "misleading_path",
-      "lengthM": 2117.2904973293093,
-      "maximumGrade": 0.3038626653660516,
-      "underwaterSamples": 0,
-      "sampleCount": 2128
+      "lengthM": 999.4413033775903,
+      "maximumGrade": 0.36781561396446083,
+      "sampleCount": 1169
     },
     {
       "id": "root_secret_trail",
-      "lengthM": 561.5644061364345,
-      "maximumGrade": 0.3039676374345452,
-      "underwaterSamples": 0,
-      "sampleCount": 620
+      "lengthM": 385.17214203390387,
+      "maximumGrade": 0.3063802270085527,
+      "sampleCount": 444
     },
     {
       "id": "fern_bowl_trail",
-      "lengthM": 179.38667741255156,
-      "maximumGrade": 0.3050585134269677,
-      "underwaterSamples": 0,
-      "sampleCount": 198
+      "lengthM": 127.36148860374969,
+      "maximumGrade": 0.3050924786916839,
+      "sampleCount": 149
     },
     {
       "id": "hidden_saddle_trail",
-      "lengthM": 758.1602539684465,
-      "maximumGrade": 0.30511818236304616,
-      "underwaterSamples": 0,
-      "sampleCount": 829
+      "lengthM": 412.358265493271,
+      "maximumGrade": 0.30873863312718,
+      "sampleCount": 490
     },
     {
       "id": "quiet_amphitheatre_trail",
-      "lengthM": 1041.0971584149086,
-      "maximumGrade": 0.30684304648615146,
-      "underwaterSamples": 0,
-      "sampleCount": 1173
+      "lengthM": 779.1760525048621,
+      "maximumGrade": 0.3067849529512714,
+      "sampleCount": 881
     },
     {
       "id": "high_bank_trail",
-      "lengthM": 980.9629689777594,
-      "maximumGrade": 0.30520774045105054,
-      "underwaterSamples": 0,
-      "sampleCount": 1085
+      "lengthM": 701.41324079626,
+      "maximumGrade": 0.30481936107345753,
+      "sampleCount": 811
     },
     {
       "id": "fall_window_trail",
-      "lengthM": 82.99309648256474,
-      "maximumGrade": 0.3037193683384695,
-      "underwaterSamples": 0,
-      "sampleCount": 91
+      "lengthM": 72.47744301990406,
+      "maximumGrade": 0.30525152064730043,
+      "sampleCount": 81
     }
   ]
 }

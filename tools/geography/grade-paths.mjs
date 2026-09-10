@@ -25,7 +25,10 @@ for(const f of routes){
   if(distance(p[nearest],q)<.1)fixed.set(nearest,raw[nearest]);
  }
  for(const i of [0,p.length-1]){let h=raw[i];for(const prior of completed){const n=nearestOnLine(...p[i],prior.route.surface.stations);if(n.distance<.1)h=n.h;}fixed.set(i,h);}
- for(let i=0;i<p.length;i++)for(const water of base.nearbyWater(...p[i]))if(water.distance<water.feature.water.widthM/2+12)lower[i]=Math.max(lower[i],water.h+.8);
+ for(let i=0;i<p.length;i++)for(const water of base.nearbyWater(...p[i])){const half=water.feature.water.widthM/2;
+  if(water.distance<half+7){const bank=base.height(...p[i],false);lower[i]=Math.max(lower[i],bank-.15);upper[i]=Math.min(upper[i],bank+.15);}
+  else if(water.distance<half+12)lower[i]=Math.max(lower[i],water.h+.8);
+ }
  // Joined paths share a height field while they are still within one foot shelf.
  if(completed.length)for(let i=0;i<p.length;i++){const n=nearestOnLine(...p[i],completed[0].route.surface.stations);if(n.distance<14)fixed.set(i,n.h);}
  for(const [i,h] of fixed){lower[i]=h;upper[i]=h;}

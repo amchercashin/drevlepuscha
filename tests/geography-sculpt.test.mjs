@@ -47,11 +47,11 @@ test('sculpt: every route is dry and below 45% grade in the EXPORTED heightmap',
   assert.ok(max<.45,`${f.id}: exported maximum grade ${(max*100).toFixed(2)}%, must stay below 45%`);
  }}finally{hm.close();}
 });
-test('sculpt: gameplay scale stays near two hours and the manifest area matches the simple polygon',()=>{
+test('sculpt: gameplay scale stays near eighty minutes and the manifest area matches the simple polygon',()=>{
  const manifest=JSON.parse(readFileSync(new URL('generated/manifest.json',dir))),p=m.features.get('forest_boundary').geometry.coordinates[0];let area=0;
  for(let i=1;i<p.length;i++)area+=p[i-1][0]*p[i][1]-p[i][0]*p[i-1][1];
  assert.ok(Math.abs(Math.abs(area)/2e6-manifest.summary.forestAreaKm2)<1e-6);
- assert.ok(manifest.summary.walkingHoursAt1_85Mps>=1.8&&manifest.summary.walkingHoursAt1_85Mps<=2.2);
- assert.equal(g.contentRevision,'old-forest-gameplay-2.0.0');
+ assert.ok(manifest.summary.walkingHoursAt1_85Mps>=1.25&&manifest.summary.walkingHoursAt1_85Mps<=1.45);
+ assert.equal(g.contentRevision,'old-forest-gameplay-2.1.0');
  assert.ok(g.calibration.warning.includes('not 1:1'));
 });
