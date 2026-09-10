@@ -7,7 +7,9 @@ test('showcase undergrowth is repeatable, denser and bounded',()=>{
  for(const [cx,cz] of [[3,4],[-4,3],[4,8]]){
   const dense=makeFloorPatch(cx,cz,[],height,true),legacy=makeFloorPatch(cx,cz,[],height,false);
   assert.deepEqual(dense,makeFloorPatch(cx,cz,[],height,true));
-  assert.ok(dense.grass.indices.length>legacy.grass.indices.length*5);
+  const denseIndices=dense.grass.indices.length+dense.leaves.indices.length,legacyIndices=legacy.grass.indices.length+legacy.leaves.indices.length;
+  assert.ok(denseIndices>legacyIndices*5);
+  assert.ok(dense.leaves.indices.length>denseIndices*.65);
   let triangles=0;
   for(const g of Object.values(dense)){
    triangles+=g.indices.length/3;

@@ -27,29 +27,31 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
   g.heights.push(Math.max(0,y-height(x,-z)+.06));
  }
  // Jittered, clustered tufts in the showcase; the historical M1 keeps its original seed sequence.
- for(let i=0;i<(lush?400:65);i++){
+ for(let i=0;i<(lush?205:65);i++){
   const e=cx*8+(lush?((i%20)+random())*.4:random()*8),n=cz*8+(lush?(Math.floor(i/20)+random())*.4:random()*8);
   const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
   if(!allowed(e,n,.15)||random()>(lush?.42+patch*.53:patch*.8))continue;
-  const h=(lush?.20:.13)+random()*(lush?.27:.22);
-  for(let blade=0;blade<(lush?5:4);blade++){
-   const a=random()*Math.PI*2,dx=Math.cos(a),dz=Math.sin(a),w=(lush?.022:.017)+random()*.014;
+  const h=(lush?.20:.13)+random()*(lush?.27:.22),grassHue=random();
+  const grassBase=grassHue<.34?[.26,.50,.43]:grassHue<.68?[.36,.54,.30]:[.24,.45,.40];
+  for(let blade=0;blade<(lush?3:4);blade++){
+   const a=random()*Math.PI*2,dx=Math.cos(a),dz=Math.sin(a),w=(lush?.030:.017)+random()*(lush?.020:.014);
    const x=e+(random()-.5)*.15,z=-n+(random()-.5)*.15,y=height(x,-z)-.025,k=grass.positions.length/3;
    for(const [t,side] of [[0,-1],[0,1],[.6,-1],[.6,1],[1,0]]){
     const width=w*(1-t*.7),bend=t*t*h*.45;
-    vertex(grass,x+dx*bend-dz*width*side,y+t*h,z+dz*bend+dx*width*side,0,0,[.38+t*.13,.48+t*.15,.25+t*.09]);
+    vertex(grass,x+dx*bend-dz*width*side,y+t*h,z+dz*bend+dx*width*side,0,0,[grassBase[0]+t*.13,grassBase[1]+t*.16,grassBase[2]+t*.10]);
    }
    grass.indices.push(k,k+1,k+2,k+1,k+3,k+2,k+2,k+3,k+4);
   }
  }
  // One atlas and curved strips, no geometry for each fern leaflet.
- for(let plant=0;plant<(lush?78:14);plant++){
+ for(let plant=0;plant<(lush?126:14);plant++){
   const e=cx*8+random()*8,n=cz*8+random()*8;
   const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
-  if(!allowed(e,n,.6)||random()>(lush?.24+patch*.68:patch))continue;
-  const fern=lush?random()<.58:plant<5,len=(fern?(lush?.66:.62):.35)+random()*(fern?(lush?.26:.28):.20),count=fern?7:5,rotation=random()*Math.PI*2;
+  if(!allowed(e,n,.6)||random()>(lush?.30+patch*.68:patch))continue;
+  const fern=lush?random()<.72:plant<5,len=(fern?(lush?.66:.62):.35)+random()*(fern?(lush?.26:.28):.20),count=fern?7:5,rotation=random()*Math.PI*2;
   const quadrant=(fern?0:1)+(random()>.5?2:0),centreU=quadrant%2===0?.25:.75,baseV=quadrant<2?.505:.005;
-  const tint=.82+random()*.3;
+  const tint=.84+random()*.24,leafHue=random();
+  const leafTint=leafHue<.34?[.76*tint,1.00*tint,.90*tint]:leafHue<.68?[.94*tint,1.04*tint,.74*tint]:[.72*tint,.97*tint,.92*tint];
   for(let leaf=0;leaf<count;leaf++){
    const a=rotation+leaf*Math.PI*2/count,dx=Math.cos(a),dz=Math.sin(a),length=len*(.75+random()*.25),k=leaves.positions.length/3;
    for(let j=0;j<=4;j++){
@@ -58,7 +60,7 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
     for(const side of [-1,1]){
      const x=e+dx*t*length-dz*half*length*.85*side,z=-n+dz*t*length+dx*half*length*.85*side;
      // Lift strip above local terrain on slopes, preserving an arched silhouette.
-     vertex(leaves,x,Math.max(y,height(x,-z)+.015),z,centreU+side*half*.5,baseV+.49*t,[tint,tint,tint]);
+     vertex(leaves,x,Math.max(y,height(x,-z)+.015),z,centreU+side*half*.5,baseV+.49*t,leafTint);
     }
     if(j<4){const q=k+j*2;leaves.indices.push(q,q+1,q+2,q+1,q+3,q+2);}
    }

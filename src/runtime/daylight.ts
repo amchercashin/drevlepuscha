@@ -18,10 +18,11 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
  <div class="daylight-presets"><button type="button" data-hour="7.5">Утро</button><button type="button" data-hour="12">День</button><button type="button" data-hour="17.5">Закат</button><button type="button" data-hour="0">Ночь</button></div>
  <label for="day-time">Время суток</label><input id="day-time" type="range" min="0" max="24" step="0.05" value="12" aria-valuetext="12:00">
  <label><input id="day-auto" type="checkbox"> Смена суток · 20 минут</label>
- <label><input id="day-rays" type="checkbox"> Художественные лучи</label>`;
+ <label><input id="day-rays" type="checkbox"> Художественные лучи</label>
+ <label for="fog-density">Туман <output id="fog-density-value">0.011</output></label><input id="fog-density" type="range" min="0" max="0.04" step="0.001" value="0.011">`;
  document.querySelector('#diagnostics')!.insertBefore(controls,document.querySelector('#metrics'));
  const range=controls.querySelector<HTMLInputElement>('#day-time')!,output=controls.querySelector<HTMLOutputElement>('output')!;
- const auto=controls.querySelector<HTMLInputElement>('#day-auto')!,rayToggle=controls.querySelector<HTMLInputElement>('#day-rays')!;
+ const auto=controls.querySelector<HTMLInputElement>('#day-auto')!,rayToggle=controls.querySelector<HTMLInputElement>('#day-rays')!,fogRange=controls.querySelector<HTMLInputElement>('#fog-density')!,fogOutput=controls.querySelector<HTMLOutputElement>('#fog-density-value')!;
  function sync(){
   const minutes=Math.round(hours*60)%1440,text=`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
   output.value=text;range.value=String(hours);range.setAttribute('aria-valuetext',text);
@@ -39,9 +40,10 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
  function setTime(hour:number){hours=normalizeHour(hour);automatic=false;auto.checked=false;apply();}
  function setAutomatic(value:boolean){automatic=value;auto.checked=value;}
  function setRays(value:boolean){rays=Boolean(value);rayToggle.checked=rays;air?.setRays(rays);}
+ function setFog(value:number){const density=Math.max(0,Math.min(.04,value));scene.fogDensity=density;fogRange.value=density.toFixed(3);fogOutput.value=density.toFixed(3);}
  for(const b of controls.querySelectorAll<HTMLButtonElement>('button[data-hour]'))b.onclick=()=>setTime(Number(b.dataset.hour));
- range.oninput=()=>setTime(Number(range.value));auto.onchange=()=>setAutomatic(auto.checked);rayToggle.onchange=()=>setRays(rayToggle.checked);
+ range.oninput=()=>setTime(Number(range.value));auto.onchange=()=>setAutomatic(auto.checked);rayToggle.onchange=()=>setRays(rayToggle.checked);fogRange.oninput=()=>setFog(Number(fogRange.value));
  function update(dt:number){if(automatic&&dt>0)hours=normalizeHour(hours+Math.min(dt,.05)*24/CYCLE_SECONDS);apply();}
- scene.onDisposeObservable.add(()=>controls.remove());apply();
- return {update,setTime,setAutomatic,setRays,stats:()=>({...current,automatic,rays,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
+ scene.onDisposeObservable.add(()=>controls.remove());setFog(scene.fogDensity);apply();
+ return {update,setTime,setAutomatic,setRays,setFog,stats:()=>({...current,automatic,rays,fogDensity:scene.fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
 }

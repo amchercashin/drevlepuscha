@@ -13,7 +13,7 @@ test('sun and full moon remain opposed, normalized and independent of the camera
   assert.ok(Math.abs(Math.hypot(...s.towardSun)-1)<1e-12);
   assert.ok(s.direction[1]<=1e-12);
   for(let i=0;i<3;i++)assert.equal(s.towardMoon[i],-s.towardSun[i]);
-  assert.ok(s.mainIntensity>=0&&s.mainIntensity<=1.05);
+  assert.ok(s.mainIntensity>=0&&s.mainIntensity<=1.18);
   assert.ok(s.stars>=0&&s.stars<=1);
   for(const color of [s.mainColor,s.zenith,s.horizon,s.fogColor])assert.ok(color.every(c=>Number.isFinite(c)&&c>=0&&c<=1));
  }

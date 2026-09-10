@@ -30,9 +30,10 @@ test('continuous cover survives fast movement and teleport; haze is stationary a
  const a=await page.screenshot({clip:{x:300,y:180,width:600,height:360}});
  await page.waitForTimeout(600);const b=await page.screenshot({clip:{x:300,y:180,width:600,height:360}});
  expect(a.equals(b)).toBe(true);
- await page.locator('#diagnostics').evaluate(e=>e.open=true);await page.locator('#showcase-fog').uncheck();
+ await page.locator('#diagnostics').evaluate(e=>e.open=true);const fog=page.locator('#fog-density');
+ await fog.evaluate(e=>{e.value='0';e.dispatchEvent(new Event('input',{bubbles:true}));});
  expect((await page.evaluate(()=>m0.state())).lighting.air.density).toBe(0);
- expect(await field()).toEqual(original);await page.locator('#showcase-fog').check();
+ expect(await field()).toEqual(original);await fog.evaluate(e=>{e.value='0.011';e.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.locator('#diagnostics').evaluate(e=>e.open=false);
  await page.evaluate(()=>{m0.teleport(0,0);m0.setCamera(0,6,5.5);});
  await page.waitForFunction(()=>m0.state().floor.pending===0&&m0.state().floor.field.midPending===0);

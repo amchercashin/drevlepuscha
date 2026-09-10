@@ -8,3 +8,5 @@
 .diagnostics .daylight-controls input[type=range]{display:block;width:100%;height:36px;margin:0;accent-color:#d7ccaa;touch-action:pan-y}
 .diagnostics .daylight-controls input:focus-visible{outline:2px solid #e7dab2;outline-offset:3px}
 .diagnostics .daylight-controls label:has(input[type=checkbox]){min-height:36px;display:flex;align-items:center;gap:4px}
+
+.diagnostics .daylight-controls #fog-density-value{float:right;color:#d5dcb9;font-variant-numeric:tabular-nums}

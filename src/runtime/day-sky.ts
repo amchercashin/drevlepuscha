@@ -34,8 +34,14 @@ function fragment(wgsl:boolean){
  ${d('moonDisc','1.0-smoothstep(0.015-moonAA,0.015+moonAA,moonD)')}
  ${d('solarVisible',`smoothstep(-0.025,0.01,${u}solar.y)`)}
  ${d('lunarVisible',`smoothstep(-0.025,0.01,${u}lunar.y)`)}
- colour+=${v3}(1.0,0.66,0.32)*exp(-sunD*14.0)*0.12*solarVisible;
- colour=mix(colour,${v3}(1.0,0.92,0.70),sunDisc*solarVisible);
+ ${d('sunward',`max(0.0,dot(normalize(${v2}(dir.x,dir.z)),normalize(${v2}(${u}solar.x,${u}solar.z))))`)}
+ ${d('opening',`pow(sunward,3.5)*exp(-up*2.6)*solarVisible*${u}daylight`)}
+ ${d('pathward','max(0.0,-dir.z)')}
+ ${d('clearing',`pow(pathward,5.0)*exp(-up*2.0)*${u}daylight`)}
+ colour+=${v3}(1.0,0.88,0.50)*opening*0.30;
+ colour+=${v3}(1.0,0.94,0.72)*clearing*0.16;
+ colour+=${v3}(1.0,0.78,0.42)*(exp(-sunD*6.5)*0.22+exp(-sunD*20.0)*0.11)*solarVisible;
+ colour=mix(colour,${v3}(1.0,0.94,0.72),sunDisc*solarVisible);
  ${d('moonMottle','0.87+0.08*sin(dir.x*910.0+dir.z*230.0)*sin(dir.y*670.0-dir.z*320.0)')}
  colour+=${v3}(0.48,0.60,0.83)*exp(-moonD*45.0)*0.06*lunarVisible;
  colour=mix(colour,${v3}(0.82,0.88,0.91)*moonMottle,moonDisc*lunarVisible);

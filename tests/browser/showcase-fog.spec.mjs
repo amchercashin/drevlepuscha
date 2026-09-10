@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 
-test('showcase starts with fog and the checkbox switches it off and back on',async({page},info)=>{
+test('showcase starts with painterly haze and the density slider switches it off and back on',async({page},info)=>{
   test.setTimeout(60_000);
   const errors=[];
   page.on('pageerror',e=>errors.push(String(e)));
@@ -10,20 +10,20 @@ test('showcase starts with fog and the checkbox switches it off and back on',asy
   await page.waitForFunction(()=>window.m0?.state().ready);
   await page.getByRole('button',{name:'Начать прогулку'}).click();
   await page.locator('#diagnostics').evaluate(e=>e.open=true);
-  const fog=page.getByRole('checkbox',{name:'Туман',exact:true});
+  const fog=page.locator('#fog-density');
   await expect(fog).toBeVisible();
-  await expect(fog).toBeChecked();
+  await expect(fog).toHaveValue('0.011');
   await expect(page.locator('#forest-weather')).toBeHidden();
-  expect(await density()).toBe(0.023);
-  expect(await page.evaluate(()=>window.m0.state().lighting.air.density)).toBe(0.035);
+  expect(await density()).toBe(0.011);
+  expect(await page.evaluate(()=>window.m0.state().lighting.air.density)).toBeCloseTo(0.01988,5);
   await page.screenshot({path:info.outputPath('fog-on.png')});
-  await fog.uncheck();
+  await fog.evaluate(e=>{e.value='0';e.dispatchEvent(new Event('input',{bubbles:true}));});
   expect(await density()).toBe(0);
   expect(await page.evaluate(()=>window.m0.state().lighting.air.density)).toBe(0);
   await page.screenshot({path:info.outputPath('fog-off.png')});
-  await fog.check();
-  expect(await density()).toBe(0.023);
-  expect(await page.evaluate(()=>window.m0.state().lighting.air.density)).toBe(0.035);
+  await fog.evaluate(e=>{e.value='0.011';e.dispatchEvent(new Event('input',{bubbles:true}));});
+  expect(await density()).toBe(0.011);
+  expect(await page.evaluate(()=>window.m0.state().lighting.air.density)).toBeCloseTo(0.01988,5);
   await page.locator('#diagnostics').evaluate(e=>e.open=false);
   const before=await page.evaluate(()=>window.m0.state().player.n);
   await page.locator('#world').focus();
@@ -32,12 +32,12 @@ test('showcase starts with fog and the checkbox switches it off and back on',asy
   await page.setViewportSize({width:390,height:844});
   await page.locator('#diagnostics').evaluate(e=>e.open=true);
   await expect(fog).toBeVisible();
-  await fog.uncheck();expect(await density()).toBe(0);
+  await fog.evaluate(e=>{e.value='0';e.dispatchEvent(new Event('input',{bubbles:true}));});expect(await density()).toBe(0);
   await page.reload();
   await page.waitForFunction(()=>window.m0?.state().ready);
   await page.getByRole('button',{name:'Начать прогулку'}).click();
   await page.locator('#diagnostics').evaluate(e=>e.open=true);
-  await expect(fog).toBeChecked();expect(await density()).toBe(0.023);
+  await expect(fog).toHaveValue('0.011');expect(await density()).toBe(0.011);
   const state=await page.evaluate(()=>window.m0.state());
   expect(state.render.backend).toBe(info.project.name);
   expect(state.errors).toEqual([]);expect(errors).toEqual([]);
