@@ -1,0 +1,36 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Древлепуща — проверка рельефа</title>
+<style>body{margin:0;background:#dce3d8;color:#283b30;font:16px/1.4 system-ui}header{position:absolute;z-index:2;top:18px;left:18px;right:18px;padding:14px 18px;background:#f5f2e5ed;border-radius:8px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}strong{font-size:21px}small{display:block;color:#637060}select,button{padding:8px;font:inherit;color:inherit;background:#fffdf3;border:1px solid #aab69f;border-radius:5px}canvas{width:100vw;height:100vh;display:block;touch-action:none}#info{position:absolute;bottom:18px;left:18px;padding:10px;background:#f5f2e5df;border-radius:5px;max-width:90vw;font-size:13px}</style>
+<header><div><strong>Древлепуща · рельеф скрытых троп</strong><small>3D-проверка географии. Без деревьев, игровых ассетов и итогового освещения.</small></div><select id="place" aria-label="Участок рельефа"></select><button id="ground">Уровень тропы</button><button id="overview">Обзор</button></header>
+<canvas id="view"></canvas><div id="info">Загрузка…</div>
+<script type="module">
+import {Engine} from '@babylonjs/core/Engines/engine';import {Scene} from '@babylonjs/core/scene';
+import {ArcRotateCamera} from '@babylonjs/core/Cameras/arcRotateCamera';import {Vector3} from '@babylonjs/core/Maths/math.vector';
+import {Color3,Color4} from '@babylonjs/core/Maths/math.color';import {HemisphericLight} from '@babylonjs/core/Lights/hemisphericLight';import {DirectionalLight} from '@babylonjs/core/Lights/directionalLight';
+import {Mesh} from '@babylonjs/core/Meshes/mesh';import {VertexData} from '@babylonjs/core/Meshes/mesh.vertexData';import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial';
+import g from '../../content/geography/old-forest/geography.json';import {createGeography} from '../../src/domain/geography.mjs';
+const model=createGeography(g),canvas=document.querySelector('canvas'),engine=new Engine(canvas,true),scene=new Scene(engine);scene.useRightHandedSystem=true;scene.clearColor=new Color4(.78,.83,.79,1);
+const camera=new ArcRotateCamera('relief',-.95,.87,460,Vector3.Zero(),scene);camera.attachControl(canvas,true);camera.minZ=.1;camera.maxZ=3000;camera.lowerRadiusLimit=4;camera.upperRadiusLimit=1000;camera.wheelPrecision=5;
+const sky=new HemisphericLight('sky',Vector3.Up(),scene);sky.intensity=.38;sky.groundColor=new Color3(.26,.28,.22);const sun=new DirectionalLight('sun',new Vector3(-.7,-.55,.45),scene);sun.intensity=1.05;
+function material(name,color){const m=new StandardMaterial(name,scene);m.diffuseColor=Color3.FromHexString(color);m.specularColor=Color3.Black();m.backFaceCulling=true;return m;}
+const soil=material('soil','#ffffff'),water=material('water','#648e95'),path=material('footpath','#8b7e58');water.alpha=.86;
+let meshes=[],center=[0,0],centreHeight=0;
+function mesh(name,positions,indices,mat,colors){const m=new Mesh(name,scene),v=new VertexData(),normals=[];VertexData.ComputeNormals(positions,indices,normals);if(normals[1]<0){for(let i=0;i<indices.length;i+=3)[indices[i+1],indices[i+2]]=[indices[i+2],indices[i+1]];VertexData.ComputeNormals(positions,indices,normals);}v.positions=positions;v.indices=indices;v.normals=normals;if(colors)v.colors=colors;v.applyToMesh(m);m.material=mat;meshes.push(m);return m;}
+function build(id){window.reliefPreview.ready=false;for(const m of meshes)m.dispose();meshes=[];const place=g.features.find(f=>f.id===id);center=place.geometry.coordinates;centreHeight=model.height(...center);const size=480,step=2,N=size/step+1,pos=[],ind=[],col=[];
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){const e=center[0]-size/2+x*step,n=center[1]-size/2+y*step,h=model.height(e,n);pos.push(e-center[0],h-centreHeight,center[1]-n);const tone=.025*Math.sin(e*.04)*Math.sin(n*.034);col.push(.43+tone,.50+tone,.34+tone,1);}
+ for(let y=0;y<N-1;y++)for(let x=0;x<N-1;x++){const a=y*N+x,b=a+1,c=a+N,d=c+1;ind.push(a,b,c,b,d,c);}
+ mesh('terrain',pos,ind,soil,col);
+ const inside=p=>Math.abs(p[0]-center[0])<size/2-2&&Math.abs(p[1]-center[1])<size/2-2;
+ for(const f of g.features.filter(f=>f.water||f.route)){const line=f.water?.stations??f.geometry.coordinates,positions=[],indices=[],width=f.water?.widthM??f.route.widthM;
+  for(let i=1;i<line.length;i++){const a=line[i-1],b=line[i],length=Math.hypot(b[0]-a[0],b[1]-a[1]),count=Math.ceil(length/6),ne=-(b[1]-a[1])/length,nn=(b[0]-a[0])/length;
+   for(let j=0;j<count;j++){const p=[a[0]+(b[0]-a[0])*j/count,a[1]+(b[1]-a[1])*j/count],q=[a[0]+(b[0]-a[0])*(j+1)/count,a[1]+(b[1]-a[1])*(j+1)/count];if(!inside(p)||!inside(q))continue;const first=positions.length/3;
+    for(const [v,t,side]of[[p,j/count,-1],[p,j/count,1],[q,(j+1)/count,-1],[q,(j+1)/count,1]]){const e=v[0]+ne*side*width/2,n=v[1]+nn*side*width/2,h=f.water?a[2]+(b[2]-a[2])*t:model.height(e,n);positions.push(e-center[0],h-centreHeight+.055,center[1]-n);}indices.push(first,first+1,first+2,first+1,first+3,first+2);
+   }
+  }if(positions.length)mesh(f.id,positions,indices,f.water?water:path);
+ }
+ camera.setTarget(new Vector3(0,8,0));camera.alpha=-.95;camera.beta=.87;camera.radius=460;document.querySelector('#info').textContent=place.name+' · участок 480 × 480 м · реальный вертикальный масштаб · мышь: вращение, колесо: приближение';window.reliefPreview.ready=true;
+}
+const select=document.querySelector('#place');for(const p of g.terrain.viewpoints){const o=new Option(p.name,p.id);select.append(o);}select.onchange=()=>build(select.value);
+window.reliefPreview={ready:false,select:id=>{select.value=id;build(id);},inspect:()=>({engine,scene,camera,meshes:meshes.length})};
+document.querySelector('#ground').onclick=()=>{camera.setTarget(new Vector3(0,1.1,0));camera.beta=1.45;camera.radius=8;};document.querySelector('#overview').onclick=()=>{camera.setTarget(new Vector3(0,8,0));camera.beta=.87;camera.radius=460;};
+engine.runRenderLoop(()=>scene.render());window.addEventListener('resize',()=>engine.resize());select.value=new URLSearchParams(location.search).get('place')??'root_secret';if(!select.value)select.selectedIndex=0;build(select.value);
+</script></html>

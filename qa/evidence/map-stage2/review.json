@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "scope": "Actual authoring terrain in a separate WebGL viewer; no final forest assets or game traversal claim",
+  "inputSha256": "d50a3343199bb0f48793295e77b0611de35e25f09dbfc2ce539c21dc2e176695",
+  "cases": [
+    {
+      "id": "root_secret",
+      "meshes": 3,
+      "vertices": 59081,
+      "materials": 3
+    },
+    {
+      "id": "fern_bowl",
+      "meshes": 3,
+      "vertices": 58821,
+      "materials": 3
+    },
+    {
+      "id": "hidden_saddle",
+      "meshes": 3,
+      "vertices": 59005,
+      "materials": 3
+    },
+    {
+      "id": "quiet_amphitheatre",
+      "meshes": 2,
+      "vertices": 58733,
+      "materials": 3
+    },
+    {
+      "id": "high_bank",
+      "meshes": 4,
+      "vertices": 59153,
+      "materials": 3
+    },
+    {
+      "id": "fall_window",
+      "meshes": 4,
+      "vertices": 59169,
+      "materials": 3
+    }
+  ],
+  "errors": []
+}
