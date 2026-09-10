@@ -43,8 +43,11 @@ export function createWorld(scene: Scene, forestMode=false) {
   const hood = material('hood', Color3.FromHexString('#9fa68a'));
   const skin = material('face', Color3.FromHexString('#d8bb91'));
   scene.clearColor = new Color4(0.72, 0.78, 0.74, 1);
-  scene.fogMode = Scene.FOGMODE_EXP2; scene.fogDensity = forestMode && !showcaseEnabled ? 0.004 : 0.023;
-  scene.fogColor = new Color3(0.65, 0.73, 0.68);
+  scene.fogMode = Scene.FOGMODE_EXP2; scene.fogDensity = forestMode && !showcaseEnabled ? 0.004 : 0.011;
+  scene.fogColor = new Color3(0.52, 0.68, 0.74);
+  // Watercolour-like value separation: preserve bright clearings without lifting the shaded forest.
+  scene.imageProcessingConfiguration.exposure = showcaseEnabled ? 1.08 : 1;
+  scene.imageProcessingConfiguration.contrast = showcaseEnabled ? 1.16 : 1;
   const fill = new HemisphericLight('ambient', new Vector3(0, 1, 0), scene);
   fill.intensity = showcaseEnabled ? 0.60 : forestMode ? 0.46 : 0.75; fill.groundColor = new Color3(0.2, 0.26, 0.2);if(forestMode)fill.diffuse=new Color3(0.78,0.87,1);
   const sun = new DirectionalLight('sun', forestMode?new Vector3(-0.35,-0.65,0.6):new Vector3(-0.5, -1, 0.3), scene);

@@ -19,7 +19,7 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
  <label for="day-time">Время суток</label><input id="day-time" type="range" min="0" max="24" step="0.05" value="12" aria-valuetext="12:00">
  <label><input id="day-auto" type="checkbox"> Смена суток · 20 минут</label>
  <label><input id="day-rays" type="checkbox"> Художественные лучи</label>
- <label for="fog-density">Туман <output id="fog-density-value">0.023</output></label><input id="fog-density" type="range" min="0" max="0.04" step="0.001" value="0.023">`;
+ <label for="fog-density">Туман <output id="fog-density-value">0.011</output></label><input id="fog-density" type="range" min="0" max="0.04" step="0.001" value="0.011">`;
  document.querySelector('#diagnostics')!.insertBefore(controls,document.querySelector('#metrics'));
  const range=controls.querySelector<HTMLInputElement>('#day-time')!,output=controls.querySelector<HTMLOutputElement>('output')!;
  const auto=controls.querySelector<HTMLInputElement>('#day-auto')!,rayToggle=controls.querySelector<HTMLInputElement>('#day-rays')!,fogRange=controls.querySelector<HTMLInputElement>('#fog-density')!,fogOutput=controls.querySelector<HTMLOutputElement>('#fog-density-value')!;

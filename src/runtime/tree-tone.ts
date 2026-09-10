@@ -28,16 +28,16 @@ export class TreeTone extends MaterialPluginBase {
     let tone=fragmentInputs.vTreeTone;
     let leaf=smoothstep(0.035,0.12,baseColor.g-baseColor.r);
     let luminance=dot(baseColor.rgb,vec3f(0.2126,0.7152,0.0722));
-    let hue=vec3f(1.0+tone.y*0.8,1.0+tone.y*0.15,1.0-tone.y*0.7);
-    let tint=mix(vec3f(1.0),hue,leaf)*(1.0+tone.x*mix(0.5,1.0,leaf));
+    let hue=vec3f(1.0+tone.y*1.0,1.0+tone.y*0.22,1.0-tone.y*0.9);
+    let tint=mix(vec3f(1.0),hue,leaf)*(1.0+tone.x*mix(0.45,1.0,leaf));
     let varied=mix(vec3f(luminance),baseColor.rgb,1.0+tone.z*leaf)*tint;
     baseColor=vec4f(mix(baseColor.rgb,varied,uniforms.treeToneStrength),baseColor.a);
    `:`
     vec3 tone=vTreeTone;
     float leaf=smoothstep(0.035,0.12,baseColor.g-baseColor.r);
     float luminance=dot(baseColor.rgb,vec3(0.2126,0.7152,0.0722));
-    vec3 hue=vec3(1.0+tone.y*0.8,1.0+tone.y*0.15,1.0-tone.y*0.7);
-    vec3 tint=mix(vec3(1.0),hue,leaf)*(1.0+tone.x*mix(0.5,1.0,leaf));
+    vec3 hue=vec3(1.0+tone.y*1.0,1.0+tone.y*0.22,1.0-tone.y*0.9);
+    vec3 tint=mix(vec3(1.0),hue,leaf)*(1.0+tone.x*mix(0.45,1.0,leaf));
     vec3 varied=mix(vec3(luminance),baseColor.rgb,1.0+tone.z*leaf)*tint;
     baseColor.rgb=mix(baseColor.rgb,varied,treeToneStrength);
    `,

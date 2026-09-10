@@ -115,14 +115,14 @@ export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerato
  const inverse=Matrix.Identity();let rays=false;
  // Fixed authored openings: never repositioned with the camera or the walker.
  const rayBases=[8,20,34,50].flatMap((n,i)=>{const e=showcasePath(n)+(i%2?2.5:-2.5);return [e,showcaseHeight(e,n)+.4,-n,2.6];});
- const airDensity=()=>scene.fogDensity<=0?0:scene.fogDensity>0.01?0.035:0.018;
+ const airDensity=()=>scene.fogDensity<=0?0:Math.min(.026,.008+scene.fogDensity*1.08);
  scatter.onApply=effect=>{
   scene.getTransformMatrix().invertToRef(inverse);
   effect.setMatrix('inverseViewProjection',inverse);if(!showcaseEnabled)effect.setMatrix('sunMatrix',shadows.getTransformMatrix());
   effect.setVector3('eye',camera.globalPosition);effect.setVector3('sunDirection',sun.direction.normalizeToNew().negate());
   effect.setFloat3('sunColor',sun.diffuse.r*sun.intensity,sun.diffuse.g*sun.intensity,sun.diffuse.b*sun.intensity);
   effect.setFloat('halfZ',engine.isNDCHalfZRange?1:0);effect.setFloat('airDensity',airDensity());
-  if(showcaseEnabled){effect.setArray4('rayBases',rayBases);effect.setFloat('rayPower',rays?.18:0);}
+  if(showcaseEnabled){effect.setArray4('rayBases',rayBases);effect.setFloat('rayPower',rays?.040:0);}
   effect._bindTexture('sceneDepth',scatter.inputTexture.depthStencilTexture);if(!showcaseEnabled)effect.setDepthStencilTexture('sunDepth',shadows.getShadowMap());
  };
  composite.onApply=effect=>effect.setTextureFromPostProcess('sceneColor',scatter);

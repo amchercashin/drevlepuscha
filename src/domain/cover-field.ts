@@ -20,9 +20,10 @@ export function makeCoverTile(cx:number,cz:number,layer:'far'|'mid',boxes:readon
   if(e<FOREST_BOUNDS.minE||e>FOREST_BOUNDS.maxE||n<FOREST_BOUNDS.minN||n>FOREST_BOUNDS.maxN)continue;
   if(nearby.some(b=>e>b.min.x-.7&&e<b.max.x+.7&&-n>b.min.z-.7&&-n<b.max.z+.7))continue;
   if(Math.hypot(height(e+.25,n)-height(e-.25,n),height(e,n+.25)-height(e,n-.25))*2>=.85)continue;
-  const fern=r()<.42,rotation=r()*Math.PI*2,h=.24+r()*.24,length=.42+r()*.32;
-  const tint=.86+r()*.23,c=fern?[tint,tint,tint]:[.85*tint,.95*tint,.72*tint];
-  const count=fern?5:6;
+  const fern=r()<.56,rotation=r()*Math.PI*2,h=.24+r()*.27,length=.44+r()*.34;
+  const tint=.88+r()*.20,hue=r();
+  const c=fern?(hue<.34?[.76*tint,1.00*tint,.90*tint]:hue<.68?[.93*tint,1.03*tint,.74*tint]:[.72*tint,.97*tint,.92*tint]):(hue<.5?[.78*tint,1.00*tint,.80*tint]:[.93*tint,1.03*tint,.72*tint]);
+  const count=5;
   for(let b=0;b<count;b++){
    const a=rotation+b*Math.PI*2/count,dx=Math.cos(a),dz=Math.sin(a),k=g.positions.length/3;
    if(fern){
@@ -33,7 +34,7 @@ export function makeCoverTile(cx:number,cz:number,layer:'far'|'mid',boxes:readon
     vertex(x+dz*w,Math.max(y+h,height(x+dz*w,-z+dx*w)+.025),z-dx*w,c,.8,.40,.75);
     g.indices.push(k,k+1,k+2,k,k+2,k+3);
    }else{
-    const x=e+(r()-.5)*.65,z=-n+(r()-.5)*.65,y=height(x,-z)-.02,w=.035+r()*.035;
+    const x=e+(r()-.5)*.65,z=-n+(r()-.5)*.65,y=height(x,-z)-.02,w=.045+r()*.040;
     vertex(x-dz*w,y,z+dx*w,c,0);vertex(x+dz*w,y,z-dx*w,c,0);
     vertex(x+dx*h*.5,y+h,z+dz*h*.5,c,1);g.indices.push(k,k+1,k+2);
    }
