@@ -1,0 +1,26 @@
+{
+  "engine": "@babylonjs/lite@1.28.0",
+  "entry": "/?engine=lite",
+  "defaultUnchanged": true,
+  "gaps": [
+    {"api": "InstancedMesh", "status": "workaround", "note": "Near and far trees are thin-instance batches."},
+    {"api": "registerInstancedBuffer treeTone", "status": "workaround", "note": "Tone packed into instance RGB as 0.5+value; plugin undoes Standard instance multiply."},
+    {"api": "MaterialPlugin UPDATE_DIFFUSE after albedo", "status": "workaround", "note": "Lite AC slot is before baseColor. Soil/tone/leaf/canopy applied at BEFORE_FRAGCOLOR."},
+    {"api": "CanopyShade regex on PCF", "status": "workaround", "note": "Multiply final colour by distant shade using shadow-map edge blend."},
+    {"api": "mesh.visibility", "status": "workaround", "note": "Occluders toggle visible; no per-tree fade on thin instances yet."},
+    {"api": "PostProcess height-air + god rays", "status": "deferred", "note": "Scene exp2 fog only. Analytic air pass not wired to Lite frame graph."},
+    {"api": "WebGL2 fallback", "status": "wontfix", "note": "Lite is WebGPU-only by design."},
+    {"api": "LOD dither complementary coverage", "status": "deferred", "note": "Hard LOD switch on thin-instance pools."},
+    {"api": "Foliage emission vs daylight", "status": "deferred", "note": "Night still uses daytime grass/leaf emissive constants."}
+  ],
+  "observed": {
+    "conditions": "Mac Chrome WebGPU 1280x720, 10s traversal, production preview",
+    "trees": 4372,
+    "drawCalls": 929,
+    "frameMs": {"p50": 16.7, "p95": 17.5},
+    "cpuSimMs": {"p50": 0.4, "p95": 4.8, "note": "onBeforeRender only, not full BJS frame CPU"},
+    "gpuMs": null,
+    "liteEntryGzipKiB": 42.4,
+    "bjsLargeChunkGzipKiB": 645
+  }
+}
