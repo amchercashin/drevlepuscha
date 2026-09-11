@@ -49,8 +49,9 @@ function profile(id,name,points,spacing){let distance=0;const samples=[];for(let
  let maxGrade=0,totalAscent=0,totalDescent=0;for(let i=1;i<samples.length;i++){const dh=samples[i][1]-samples[i-1][1];maxGrade=Math.max(maxGrade,Math.abs(dh)/(samples[i][0]-samples[i-1][0]));if(dh>0)totalAscent+=dh;else totalDescent-=dh;}
  return {id,name,sampleColumns:['distanceM','heightM','eastM','northM'],distanceM:distance,maxGrade,totalAscentM:totalAscent,totalDescentM:totalDescent,samples};}
 for(const f of g.features.filter(f=>f.route))manifest.profiles.push(profile(f.id,f.name,f.geometry.coordinates,8));
-manifest.profiles.push(profile('valley-cross-section','Поперёк долины',[[17100,18000],[17100,20400]],4));
-manifest.profiles.push(profile('house-approach','Подход к дому',[[21600,18820],[21900,19000],[22100,19080],[22400,19350],[22950,19730]],2));
+const point=id=>g.features.find(f=>f.id===id).geometry.coordinates,willow=point('old_man_willow');
+manifest.profiles.push(profile('valley-cross-section','Поперёк долины',[[willow[0],willow[1]-500],[willow[0],willow[1]+700]],4));
+manifest.profiles.push(profile('house-approach','Подход к дому',[point('east_eaves'),...g.constraints.find(c=>c.id==='c-knoll-dip').points,point('tom_hill_brow')],2));
 const route=manifest.profiles[0];let area=0;const ring=g.features[0].geometry.coordinates[0];for(let i=1;i<ring.length;i++)area+=ring[i-1][0]*ring[i][1]-ring[i][0]*ring[i-1][1];
 manifest.summary={featureCount:g.features.length,forestAreaKm2:Math.abs(area)/2e6,frameWidthKm:(b.maxE-b.minE)/1000,frameHeightKm:(b.maxN-b.minN)/1000,routeKm:route.distanceM/1000,walkingHoursAt1_85Mps:route.distanceM/1.85/3600,decodedMiB:(base.values.byteLength+rawOffset)/1048576,compressedMiB:(baseCompressed.length+offset)/1048576};
 manifest.landmarks=Object.fromEntries(g.features.filter(f=>f.geometry.type==='Point').map(f=>[f.id,m.height(...f.geometry.coordinates)]));

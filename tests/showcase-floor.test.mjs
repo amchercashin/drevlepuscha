@@ -27,3 +27,14 @@ test('dense showcase cover still excludes steep slopes and obstacle footprints',
   assert.equal(p.grass.indices.length+p.leaves.indices.length,0);
  }
 });
+
+test('world reuses showcase foliage at map coordinates and honours placement exclusions',()=>{
+ const height=(e,n)=>100+e*.01+n*.02;
+ const patch=makeFloorPatch(200,3200,[],height,true,(e,n)=>e>=1603&&n>=25602);
+ assert.ok(patch.grass.indices.length>0);assert.ok(patch.leaves.indices.length>0);
+ for(const g of Object.values(patch))for(let i=0;i<g.positions.length;i+=3){
+  const [e,h,z]=g.positions.slice(i,i+3);assert.ok(e>1602&&-z>25601);assert.ok(h>=height(e,-z)-.05);
+ }
+ const empty=makeFloorPatch(200,3200,[],height,true,()=>false);
+ assert.equal(empty.grass.indices.length+empty.leaves.indices.length,0);
+});

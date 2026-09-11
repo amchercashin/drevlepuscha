@@ -7,8 +7,8 @@ export interface RuntimeRenderer {
 }
 
 /** WebGPU first. Only automatic selection may fall back; explicit QA requests must fail visibly. */
-export async function createRenderer(canvas:HTMLCanvasElement,performanceCapture=false):Promise<RuntimeRenderer> {
-  const requested=new URLSearchParams(location.search).get('renderer')||'auto';
+export async function createRenderer(canvas:HTMLCanvasElement,performanceCapture=false,defaultRenderer:RendererKind|'auto'='auto'):Promise<RuntimeRenderer> {
+  const requested=new URLSearchParams(location.search).get('renderer')||defaultRenderer;
   let fallbackReason:string|null=null;
   if(requested!=='webgl2'){
     let candidate:AbstractEngine|undefined;

@@ -1,4 +1,11 @@
 import {createGeography, nearestOnLine,pointInRing} from '../../src/domain/geography.mjs';
+function hasCrossing(ring) {
+ const cross=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+ for(let i=1;i<ring.length;i++)for(let j=i+2;j<ring.length;j++){
+  const a=ring[i-1],b=ring[i],c=ring[j-1],d=ring[j];
+  if(cross(a,b,c)*cross(a,b,d)<-1e-7&&cross(c,d,a)*cross(c,d,b)<-1e-7)return true;
+ }return false;
+}
 export function validateGeography(g,sourceIds) {
   const errors=[],fail=(ok,s)=>{if(!ok)errors.push(s);};
   fail(g.schemaVersion===1,'Unsupported schemaVersion');
@@ -23,9 +30,15 @@ export function validateGeography(g,sourceIds) {
     const points=t==='Point'?[p]:t==='Polygon'?p.flat():p;
     fail(points.every(v=>v.length===2&&v.every(Number.isFinite)&&v[0]>=b.minE&&v[0]<=b.maxE&&v[1]>=b.minN&&v[1]<=b.maxN),'Invalid coordinates '+f.id);
     if(t==='Polygon')for(const ring of p)fail(ring.length>=4&&JSON.stringify(ring[0])===JSON.stringify(ring.at(-1)),'Unclosed polygon '+f.id);
+    if(t==='Polygon')for(const ring of p)fail(!hasCrossing(ring),'Self-intersection '+f.id);
     if(t==='LineString')fail(p.length>=2&&p.every((v,i)=>!i||v[0]!==p[i-1][0]||v[1]!==p[i-1][1]),'Degenerate line '+f.id);
     if(f.water){const w=f.water;fail(w.stations.length===p.length&&w.stations.every((s,i)=>s.length===3&&s.every(Number.isFinite)&&s[0]===p[i][0]&&s[1]===p[i][1]),'Station mismatch '+f.id);fail(w.stations.every((s,i)=>!i||s[2]<=w.stations[i-1][2]),'River rises downstream '+f.id);fail(w.widthM>0&&w.depthM>0,'Invalid water dimensions '+f.id);}
     if(f.route)for(const id of f.route.checkpointIds)fail(ids.has(id),'Unknown checkpoint '+id);
+    if(f.route?.surface){const v=f.route.surface;
+      fail(v.halfWidthM>0&&v.blendM>0,'Invalid surface widths '+f.id);
+      fail(Array.isArray(v.stations)&&v.stations.length===p.length&&v.stations.every((q,i)=>q.length===3&&q.every(Number.isFinite)&&q[0]===p[i][0]&&q[1]===p[i][1]),'Invalid surface stations '+f.id);
+    }
+
   }
   if(errors.length)return errors;
   const m=createGeography(g),get=id=>m.features.get(id),point=id=>get(id).geometry.coordinates;

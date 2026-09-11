@@ -23,6 +23,7 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
  document.querySelector('#diagnostics')!.insertBefore(controls,document.querySelector('#metrics'));
  const range=controls.querySelector<HTMLInputElement>('#day-time')!,output=controls.querySelector<HTMLOutputElement>('output')!;
  const auto=controls.querySelector<HTMLInputElement>('#day-auto')!,rayToggle=controls.querySelector<HTMLInputElement>('#day-rays')!,fogRange=controls.querySelector<HTMLInputElement>('#fog-density')!,fogOutput=controls.querySelector<HTMLOutputElement>('#fog-density-value')!;
+ if(!air)rayToggle.closest('label')!.hidden=true;
  function sync(){
   const minutes=Math.round(hours*60)%1440,text=`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
   output.value=text;range.value=String(hours);range.setAttribute('aria-valuetext',text);

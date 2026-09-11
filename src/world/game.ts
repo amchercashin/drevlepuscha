@@ -1,6 +1,7 @@
 import type { WebGPUEngine } from '@babylonjs/core/Engines/webgpuEngine.js';
 import '../style.css';
 import { createRenderer } from '../runtime/engine.ts';
+import {createDaylight} from '../runtime/daylight.ts';
 import { createTouchControls } from '../runtime/touch-controls.ts';
 import { Scene } from '@babylonjs/core/scene.js';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera.js';
@@ -33,14 +34,14 @@ let world: WorldStreamer | undefined;
 function poiOffset(id: string) { return ({ hay_gate: [-12, 0], tom_house: [-16, 0], old_man_willow: [-18, 12], lily_pool: [0, 25], short_fall: [0, 24] } as Record<string, number[]>)[id] ?? [0, 0]; }
 function error(message: string) { errors.push(message); $('#pause-title').textContent = 'Не удалось открыть лес'; $('#pause-description').textContent = message; pause.hidden = false; resume.disabled = false; resume.textContent = 'Повторить'; resume.onclick = () => location.reload(); }
 try {
-    const renderer = await createRenderer(canvas, true), engine = renderer.engine;
+    const renderer = await createRenderer(canvas, true, 'webgpu'), engine = renderer.engine;
     canvas = renderer.canvas;
     engine.useReverseDepthBuffer = true;
     const scene = new Scene(engine);
     scene.useRightHandedSystem = true;
     scene.clearColor = new Color4(.72, .78, .74, 1);
     scene.fogMode = Scene.FOGMODE_EXP2;
-    scene.fogDensity = .00013;
+    scene.fogDensity = .001;
     scene.fogColor = new Color3(.67, .75, .70);
     const camera = new FreeCamera('traveller-camera', new Vector3(0, 120, 5), scene);
     camera.inputs.clear();
@@ -115,7 +116,8 @@ try {
     $('.muted').textContent = 'Лес в масштабе 1:1. Подробности подгружаются вокруг путника.';
     $('nav').innerHTML = '<button id="open-map" type="button">M · Карта леса</button>';
     $('#location').textContent = 'Высокая Изгородь';
-    document.title = 'Древлепуща — большой лес';
+    document.title = 'Древлепуща — прогулка по карте 1:1';
+    document.querySelector('h1')!.textContent='Древлепуща';
     const streamStatus = document.createElement('div');
     streamStatus.setAttribute('role', 'status');
     streamStatus.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:8px 14px;background:#26372ee6;color:#eee5c9;border-radius:5px;pointer-events:none';
@@ -136,7 +138,7 @@ try {
     window.addEventListener('resize', resize);
     resize();
     const rendererSelect = $<HTMLSelectElement>('#renderer');
-    rendererSelect.value = params.get('renderer') ?? 'auto';
+    rendererSelect.value = params.get('renderer') ?? 'webgpu';
     rendererSelect.onchange = () => { const url = new URL(location.href); url.searchParams.set('renderer', rendererSelect.value); location.assign(url); };
     $('#preset').closest('label');
     $('#preset').setAttribute('hidden', '');
@@ -220,6 +222,7 @@ try {
     window.addEventListener('pagehide', save);
     world = await WorldStreamer.create(scene, sun);
     const w = world;
+    const daylight=createDaylight(scene,camera,sun,ambient,null);
     const query = { height: (e: number, n: number) => w.data.height(e, n), ready: (e: number, n: number) => w.ready(e, n), waterDepth: (e: number, n: number) => w.data.waterDepth(e, n), blocked: (e: number, n: number) => w.blocked(e, n) };
     function state() { const anchor = new Vector3(player.e - w.origin.e, w.data.height(player.e, player.n) + .95, w.origin.n - player.n), actual = Vector3.Distance(anchor, camera.position), offset = cameraOffset(yaw + 180, Math.max(0, pitch), distance); return { ready: !loading, paused, frames, player: { ...player, h: w.data.height(player.e, player.n) }, camera: { yaw, pitch, distance, currentDistance: actual, followError: Vector3.Distance(camera.position, anchor.add(new Vector3(offset.x, offset.y, offset.z))) }, render: { backend: renderer.kind, width: engine.getRenderWidth(), height: engine.getRenderHeight(), triangles: scene.getActiveIndices() / 3, drawCalls: sceneMetrics.drawCallsCounter.current, meshes: scene.meshes.length, gpuMs: gpuTime(), gpuTiming: engine.getCaps().timerQuery !== undefined, pixelBudget }, world: w.stats(), mapOpen: map.isOpen(), errors: [...errors], traversal: autoMove ? { index: autoMove.index, distance: autoMove.distance } : null, heap: (performance as unknown as {
             memory?: {
@@ -279,6 +282,7 @@ try {
             const lookUp = Math.tan(Math.max(0, -pitch) * Math.PI / 180) * distance;
             camera.setTarget(new Vector3(player.e - w.origin.e, h + .95 + lookUp, w.origin.n - player.n));
             camera.position.set(eye.e - w.origin.e, eye.h, w.origin.n - eye.n);
+            daylight.update(paused||loading?0:dt);
             const lightTarget = new Vector3(Math.floor(hero.position.x / 8) * 8, h, Math.floor(hero.position.z / 8) * 8);
             sun.position.copyFrom(lightTarget.subtract(sun.direction.scale(60)));
             shadows.getShadowMap()!.renderList = [coat, hood, pack, ...w.trees.shadows(player), ...[...w.dressing.groups.values()].flat().filter(m => Math.hypot(m.metadata.e - player.e, m.metadata.n - player.n) < 40), ...[...w.props.cells.values()].filter(p => Math.hypot(p.e - player.e, p.n - player.n) < 30).flatMap(p => p.meshes)];
@@ -326,6 +330,7 @@ try {
             error(String(e));
         }
     });
+    if (debug) Object.assign(window,{worldDaylight:daylight});
     if (debug)
         Object.assign(window, { oldForest: { state, inspect: () => ({ scene, engine, world: w }), setPaused, openMap: () => map.open(), setCamera: (y: number, p: number, d: number) => { yaw = yawTarget = normalizeAzimuth(y); pitch = clamp(p, -25, 35); distance = clamp(d, 3.5, 8); }, teleport: async (e: number, n: number) => { const p = await w.prepareDestination({ e, n }, new AbortController().signal, () => { }); Object.assign(player, p); w.last = ''; w.trees.lastCell = ''; }, travel: async (id: string) => { const f = w.data.geography.features.find((f: any) => f.id === id); if (!f)
                     throw Error(id); const p = await w.prepareDestination({ e: f.geometry.coordinates[0] + poiOffset(id)[0], n: f.geometry.coordinates[1] + poiOffset(id)[1] }, new AbortController().signal, () => { }); Object.assign(player, p); w.last = ''; w.trees.lastCell = ''; }, beginMeasurement: () => { frameSamples.length = cpuSamples.length = gpuSamples.length = 0; collecting = true; }, endMeasurement: () => { collecting = false; return { frames: [...frameSamples], cpu: [...cpuSamples], gpu: [...gpuSamples] }; }, startTraversal: (points: number[][], speed = 15) => { autoMove = { points, index: 1, speed, distance: 0 }; focus(); }, stopTraversal: () => { autoMove = undefined; }, pois: () => w.data.geography.features.filter((f: any) => f.geometry.type === 'Point').map((f: any) => ({ id: f.id, point: f.geometry.coordinates })), route: () => w.data.geography.features.find((f: any) => f.id === 'frodo_route').geometry.coordinates } });

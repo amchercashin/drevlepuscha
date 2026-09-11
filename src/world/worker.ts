@@ -1,4 +1,6 @@
 import { groveMatrices } from './grove-data.ts';
+import {makeFloorPatch} from '../domain/floor-patch.ts';
+import {VertexData} from '@babylonjs/core/Meshes/mesh.vertexData.js';
 import { habitatWeights, speciesMix, pickSpecies } from './ecology.ts';
 import { makePatch } from './patch-data.ts';
 import { placementSeed, hash01 } from '../domain/geography.mjs';
@@ -25,6 +27,24 @@ scope.onmessage = async ({ data: m }) => {
         if (m.type === 'json') {
             const result = JSON.parse(new TextDecoder().decode(await unzip(m.buffer)));
             scope.postMessage({ request: m.request, result });
+            return;
+        }
+        if (m.type === 'floor') {
+            const height=(e:number,n:number)=>triangleHeight(m.grid,e,n);
+            const allowed=(e:number,n:number,r:number)=>{
+                const x=Math.round((e-m.e)*2),y=Math.round((n-m.n)*2);
+                if(x<0||y<0||x>16||y>16||m.blocked[y*17+x])return false;
+                const trail=trailAt(e,n);
+                return trail.distance>Math.max(.7,trail.width/2)+r+.4;
+            };
+            const patch=makeFloorPatch(m.e/8,m.n/8,[],height,true,allowed);
+            const result=Object.fromEntries(Object.entries(patch).map(([key,g])=>{
+                const normals:number[]=[];VertexData.ComputeNormals(g.positions,g.indices,normals);
+                for(let i=0;i<normals.length;i+=3){normals[i+1]=Math.max(.65,Math.abs(normals[i+1]));const l=Math.hypot(normals[i],normals[i+1],normals[i+2]);for(let j=0;j<3;j++)normals[i+j]/=l;}
+                for(let i=0;i<g.positions.length;i+=3){g.positions[i]-=m.e;g.positions[i+2]+=m.n;}
+                return [key,{positions:new Float32Array(g.positions),indices:new Uint32Array(g.indices),colors:new Float32Array(g.colors),uvs:new Float32Array(g.uvs),normals:new Float32Array(normals)}];
+            }));
+            scope.postMessage({request:m.request,result},Object.values(result).flatMap(g=>Object.values(g).map(a=>a.buffer)));
             return;
         }
         if (m.type === 'groves') {

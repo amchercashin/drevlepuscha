@@ -1,0 +1,91 @@
+{
+  "status": "passed",
+  "scope": "Exported 1:1 heightfield sampled along route centrelines at <=1 metre",
+  "summary": {
+    "featureCount": 39,
+    "forestAreaKm2": 717.903,
+    "frameWidthKm": 40.96,
+    "frameHeightKm": 45.056,
+    "routeKm": 42.997354591917336,
+    "walkingHoursAt1_85Mps": 6.456059248035635,
+    "decodedMiB": 110.66630172729492,
+    "compressedMiB": 33.269381523132324
+  },
+  "detailTileCount": 330,
+  "hiddenTrailKm": 8.917567513237124,
+  "maximumGrade": 0.34138473755485566,
+  "routes": [
+    {
+      "id": "frodo_route",
+      "lengthM": 42997.354591917334,
+      "maximumGrade": 0.29769407723707775,
+      "underwaterSamples": 0,
+      "sampleCount": 43152,
+      "hidden": false
+    },
+    {
+      "id": "north_exit",
+      "lengthM": 5614.098028524006,
+      "maximumGrade": 0.34138473755485566,
+      "underwaterSamples": 0,
+      "sampleCount": 5632,
+      "hidden": false
+    },
+    {
+      "id": "misleading_path",
+      "lengthM": 7877.0479819389,
+      "maximumGrade": 0.3063510163001001,
+      "underwaterSamples": 0,
+      "sampleCount": 7888,
+      "hidden": false
+    },
+    {
+      "id": "root_secret_trail",
+      "lengthM": 1244.740075678607,
+      "maximumGrade": 0.10478005678408925,
+      "underwaterSamples": 0,
+      "sampleCount": 1344,
+      "hidden": true
+    },
+    {
+      "id": "fern_bowl_trail",
+      "lengthM": 283.0685287963247,
+      "maximumGrade": 0.3043639382029676,
+      "underwaterSamples": 0,
+      "sampleCount": 299,
+      "hidden": true
+    },
+    {
+      "id": "hidden_saddle_trail",
+      "lengthM": 2169.7993533051545,
+      "maximumGrade": 0.3033813772413688,
+      "underwaterSamples": 0,
+      "sampleCount": 2280,
+      "hidden": true
+    },
+    {
+      "id": "quiet_amphitheatre_trail",
+      "lengthM": 1995.183930667171,
+      "maximumGrade": 0.31567792003448597,
+      "underwaterSamples": 0,
+      "sampleCount": 2096,
+      "hidden": true
+    },
+    {
+      "id": "high_bank_trail",
+      "lengthM": 3033.0707343620743,
+      "maximumGrade": 0.06199488578971694,
+      "underwaterSamples": 0,
+      "sampleCount": 3099,
+      "hidden": true
+    },
+    {
+      "id": "fall_window_trail",
+      "lengthM": 191.70489042779295,
+      "maximumGrade": 0.051193012172794955,
+      "underwaterSamples": 0,
+      "sampleCount": 208,
+      "hidden": true
+    }
+  ]
+}

@@ -8,14 +8,14 @@ import type {Camera} from '@babylonjs/core/Cameras/camera.js';
 import type {Daylight} from '../domain/daylight.ts';
 
 ShaderStore.ShadersStore.daySkyVertexShader=`
-precision highp float;attribute vec3 position;uniform mat4 worldViewProjection;varying vec3 skyDirection;
-void main(){skyDirection=position;gl_Position=worldViewProjection*vec4(position,1.0);gl_Position.z=gl_Position.w*0.999999;}`;
+precision highp float;attribute vec3 position;uniform mat4 worldViewProjection;uniform float skyDepth;varying vec3 skyDirection;
+void main(){skyDirection=position;gl_Position=worldViewProjection*vec4(position,1.0);gl_Position.z=gl_Position.w*skyDepth;}`;
 ShaderStore.ShadersStoreWGSL.daySkyVertexShader=`
-attribute position:vec3f;uniform worldViewProjection:mat4x4f;varying skyDirection:vec3f;
+attribute position:vec3f;uniform worldViewProjection:mat4x4f;uniform skyDepth:f32;varying skyDirection:vec3f;
 @vertex fn main(input:VertexInputs)->FragmentInputs {
  vertexOutputs.skyDirection=vertexInputs.position;
  var clip=uniforms.worldViewProjection*vec4f(vertexInputs.position,1.0);
- clip.z=clip.w*0.999999;vertexOutputs.position=clip;
+ clip.z=clip.w*uniforms.skyDepth;vertexOutputs.position=clip;
 }`;
 /** One sky draw: no cube textures, star lights, bloom or atmosphere ray march. */
 function fragment(wgsl:boolean){
@@ -61,7 +61,8 @@ ShaderStore.ShadersStore.daySkyPixelShader=fragment(false);
 ShaderStore.ShadersStoreWGSL.daySkyPixelShader=fragment(true);
 export function createDaySky(scene:Scene,camera:Camera){
  const material=new ShaderMaterial('day-sky',scene,{vertex:'daySky',fragment:'daySky'},
-  {attributes:['position'],uniforms:['worldViewProjection','zenith','horizon','solar','lunar','stars','starAngle','daylight'],shaderLanguage:scene.getEngine().isWebGPU?1:0});
+  {attributes:['position'],uniforms:['worldViewProjection','zenith','horizon','solar','lunar','stars','starAngle','daylight','skyDepth'],shaderLanguage:scene.getEngine().isWebGPU?1:0});
+ material.setFloat('skyDepth',scene.getEngine().useReverseDepthBuffer?(scene.getEngine().isWebGPU?0.000001:-0.999999):0.999999);
  material.backFaceCulling=false;material.disableDepthWrite=true;material.fogEnabled=false;
  const sky=CreateSphere('day-sky',{diameter:400,segments:12},scene);sky.material=material;
  sky.isPickable=false;sky.alwaysSelectAsActiveMesh=true;sky.metadata={environment:true};
