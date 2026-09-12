@@ -11,7 +11,16 @@ export class SceneStartup {
   const result=await work();stage.end=performance.now();return result;
  }
  async reveal(isReady:()=>boolean,activate:()=>void){
-  await this.stage('Первый вид леса…',()=>prepareUntil(isReady,()=>{}));
+  await this.stage('Первый вид леса…',async()=>{
+   let visibleWait=0;
+   while(!isReady()){
+    const before=performance.now();
+    await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));
+    // A background tab may suspend rAF for minutes. It must not fail on refocus.
+    if(!document.hidden)visibleWait+=Math.min(250,performance.now()-before);
+    if(visibleWait>45000)throw Error('Не удалось подготовить первый кадр. Перезагрузите прогулку.');
+   }
+  });
   this.readyAt=performance.now();performance.mark('scene:playable');document.body.classList.remove('booting');
   this.button.textContent='Начать прогулку';this.button.disabled=false;this.button.onclick=activate;
  }
