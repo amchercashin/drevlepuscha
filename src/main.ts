@@ -72,7 +72,7 @@ try {
   let shadowPassTriangles=0,shadowPassStart=0;
   if(sunlight){sunlight.getShadowMap()!.onBeforeRenderObservable.add(()=>{shadowPassStart=scene.getActiveIndices();});sunlight.getShadowMap()!.onAfterRenderObservable.add(()=>{shadowPassTriangles=(scene.getActiveIndices()-shadowPassStart)/3;});}
   const air=sunlight&&new URLSearchParams(location.search).get('air')!=='0'?createForestAir(scene,camera,sunlight,world.sun):null;
-  const daylight=showcaseEnabled?createDaylight(scene,camera,world.sun,world.fill,air):null;
+  const daylight=showcaseEnabled?createDaylight(scene,camera,world.sun,world.fill,air,true):null;
   const lightDirection=world.sun.direction.normalizeToNew(),lightRight=Vector3.Cross(Vector3.Up(),lightDirection).normalize(),lightUp=Vector3.Cross(lightDirection,lightRight).normalize();
   const forestControls=document.querySelector<HTMLElement>('#forest-controls')!;forestControls.hidden=!forest;
   const weatherSelect=document.querySelector<HTMLSelectElement>('#forest-weather')!;
