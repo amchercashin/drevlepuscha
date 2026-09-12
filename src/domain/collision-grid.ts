@@ -4,8 +4,9 @@ import type {Box,Walker} from './harness.ts';
 /** Static broad phase only: movement still uses the original exact hull tests. */
 export function collisionGrid(boxes:readonly Box[],size=16){
  const cells=new Map<string,Box[]>();
- for(const b of boxes)for(let x=Math.floor(b.min.x/size);x<=Math.floor(b.max.x/size);x++)for(let z=Math.floor(b.min.z/size);z<=Math.floor(b.max.z/size);z++){
+ for(const b of boxes){const bounds=b.collision??b;for(let x=Math.floor(bounds.min.x/size);x<=Math.floor(bounds.max.x/size);x++)for(let z=Math.floor(bounds.min.z/size);z<=Math.floor(bounds.max.z/size);z++){
   const key=`${x}:${z}`,cell=cells.get(key);if(cell)cell.push(b);else cells.set(key,[b]);
+ }
  }
  return (p:Walker,de:number,dn:number)=>{
   const found=new Set<Box>();

@@ -1,5 +1,6 @@
 import {treeFamilySlot} from '../domain/tree-family.ts';
 import {groundHeight} from '../domain/harness.ts';
+import {collisionGeometry,meshCollider} from '../domain/mesh-collision.ts';
 import forkURL from '../../assets/trees/fork-oak/variants.json?url';
 import forkTexture from '../../assets/trees/fork-oak/material-0.jpg';
 import youngURL from '../../assets/trees/young-tree/variants.json?url';
@@ -47,7 +48,7 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   if(!cached)for(const m of new Set([...materials,...baked])){new LeafTransmission(m,sun);if(selected?.id==='meshy-a')tonePlugins.push(new TreeTone(m));}
   materialSets.set(materialKey,{materials,baked});
   const templates=d.levels.map((parts,level)=>parts.map((p,i)=>{const m=new Mesh(`source-${id}-${level}-${p.name}`,scene);m.sideOrientation=1;const v=new VertexData();Object.assign(v,p);v.applyToMesh(m);m.material=level>=(d.bakedColorFromLevel??Infinity)?baked[i]:materials[i];if(selected?.id==='meshy-a'){m.registerInstancedBuffer('treeTone',3);m.instancedBuffers.treeTone=Vector3.Zero();}m.setEnabled(false);return m;}));
-  return {id,data:d,materials,templates,sink};
+  return {id,data:d,materials,templates,sink,collision:collisionGeometry(d.levels[0])};
  }
  const families=[family(selected?.id??'game',data,textureURLs)],variantCounts:[number,number]=[0,0];
  const additional=[[forkURL,forkTexture,.35],[youngURL,youngTexture,.16]] as const;
@@ -71,7 +72,9 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
  const horizon=forestHorizon(placements,p=>familyFor(p).templates[2],tones);
  interface ActiveTree {placement:TreePlacement;level:number;instances:InstancedMesh[];fades:Map<number,Mesh[]>;previous:number;transition:number;opacity:number[];}
  const active=new Map<string,ActiveTree>();
- function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix();m.isPickable=false;m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
+ const matrices=new Map(placements.map(p=>[p.id,Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n))]));
+ const boxes=placements.map(p=>{const matrix=matrices.get(p.id)!;return {...treeCollider(p,familyFor(p).data.trunkRadius),collision:meshCollider(familyFor(p).collision,matrix.m,Matrix.Invert(matrix).m)};});
+ function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix(matrices.get(t.id)!);m.isPickable=false;m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
  function instances(t:TreePlacement,level:number){return familyFor(t).templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
  function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=familyFor(t.placement).templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
  // Persistent shared geometry and bounded matrix buffers; no per-cell mesh merge.
@@ -124,5 +127,5 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   }
   forceSwitch=false;
  }
- return {shadowCasters,boxes:placements.map(p=>treeCollider(p,familyFor(p).data.trunkRadius)),update,stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:variety?'Три семейства · процедурные варианты':selected?.label,variety,families:families.map((f,i)=>({id:f.id,trees:familyCounts[i],triangles:f.data.triangles})),colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:data.levels[0].length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:families.reduce((n,f)=>n+f.templates.reduce((a,b)=>a+b.length,0),0)+horizon.stats().geometryBuffers,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
+ return {shadowCasters,boxes,update,stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:variety?'Три семейства · процедурные варианты':selected?.label,variety,families:families.map((f,i)=>({id:f.id,trees:familyCounts[i],triangles:f.data.triangles})),colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:data.levels[0].length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:families.reduce((n,f)=>n+f.templates.reduce((a,b)=>a+b.length,0),0)+horizon.stats().geometryBuffers,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
 }

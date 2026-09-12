@@ -59,7 +59,7 @@ try {
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
   if(forest){for(const [id,label] of [['entrance','01 Вход'],['trunks','02 Папоротники'],['arch','03 Просвет'],['slope','04 К поляне']])document.querySelector(`[data-checkpoint="${id}"]`)!.textContent=label;document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
   const nearbyColliders=collisionGrid(world.boxes);
-  const floor=forest?createForestFloor(scene,world.boxes):null;
+  const floor=forest?createForestFloor(scene,world.boxes.map(({id,min,max})=>({id,min,max}))):null;
   const sunlight=forest?new ShadowGenerator(512,world.sun):null;
   if(sunlight){
    sunlight.setDarkness(0.18);sunlight.usePercentageCloserFiltering=true;sunlight.filteringQuality=ShadowGenerator.QUALITY_HIGH;
@@ -202,7 +202,7 @@ try {
       setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
       inspect:()=>({scene,engine,world,forest}),
-      obstacles:()=>world.boxes.map(box=>({...box,min:{...box.min},max:{...box.max}})),
+      obstacles:()=>world.boxes.map(({id,min,max,collision})=>({id,min:{...min},max:{...max},geometryCollision:!!collision})),
       teleport:(e:number,n:number,heading=0)=>{
         if(![e,n,heading].every(Number.isFinite)||e<(forest?FOREST_BOUNDS.minE+1:-23)||e>(forest?FOREST_BOUNDS.maxE-1:23)||n<(forest?FOREST_BOUNDS.minN+1:-11)||n>(forest?FOREST_BOUNDS.maxN-1:63))throw new Error('Outside harness');
         if(!walkerIsClear({e,n},world.boxes))throw new Error('Position intersects obstacle');

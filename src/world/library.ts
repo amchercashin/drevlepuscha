@@ -8,12 +8,15 @@ import type { WorldData } from './data.ts';
 import { LodDither } from '../runtime/lod-dither.ts';
 import { LeafTransmission } from '../runtime/leaf-transmission.ts';
 import type { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
+import {collisionGeometry} from '../domain/mesh-collision.ts';
+import type {CollisionGeometry} from '../domain/mesh-collision.ts';
 export interface Family {
     id: string;
     variants: Mesh[][][];
     bounds: any[];
     texture: Texture;
     bytes: number;
+    collisions: CollisionGeometry[];
 }
 export class Library {
     index: Record<string, {
@@ -60,7 +63,7 @@ export class Library {
                     await mesh.material!.forceCompilationAsync(mesh);
                     await mesh.material!.forceCompilationAsync(mesh, { useInstances: true });
                 }
-            const family = { id, variants, bounds: entries.map((x: any) => x.bounds), texture, bytes: spec.bytes };
+            const family = { id, variants, bounds: entries.map((x: any) => x.bounds), collisions:entries.map((x:any)=>collisionGeometry(x.levels[0])), texture, bytes: spec.bytes };
             this.families.set(id, family);
             return family;
         })();

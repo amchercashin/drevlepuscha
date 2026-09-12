@@ -6,6 +6,8 @@ import {Texture} from '@babylonjs/core/Materials/Textures/texture.js';
 import {Color3} from '@babylonjs/core/Maths/math.color.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 import {groundHeight} from '../domain/harness.ts';
+import {collisionGeometry,meshCollider} from '../domain/mesh-collision.ts';
+import {Matrix} from '@babylonjs/core/Maths/math.vector.js';
 import type {Box} from '../domain/harness.ts';
 import type {TreePart} from '../domain/reference-tree.ts';
 import rock from '../../assets/rocks/moss-boulder/variants.json';
@@ -23,6 +25,7 @@ export function createForestProps(scene:Scene,boxes:Box[]){
  function place(asset:PropAsset,texture:string,placements:number[][]){
   const material=new StandardMaterial(asset.sourceId,scene);material.diffuseTexture=new Texture(texture,scene,false,false);material.specularColor=Color3.Black();
   const templates=new Map<number,Mesh>();
+  const collisions=asset.variants.map(v=>collisionGeometry(v.levels[0]));
   for(const [i,[pe,pn,scale,yaw]] of placements.entries()){
    const n=showcaseEnabled?pn*4-70:pn,e=showcaseEnabled?showcasePath(n)+pe*1.8:pe;
    const variant=i%asset.variants.length,id=`${asset.sourceId}-${i}`;let m:Mesh;
@@ -36,7 +39,7 @@ export function createForestProps(scene:Scene,boxes:Box[]){
     const dx=x*scale,dz=z*scale*.9;base=Math.min(base,groundHeight(e+dx*Math.cos(yaw)+dz*Math.sin(yaw),n+dx*Math.sin(yaw)-dz*Math.cos(yaw)));
    }
    m.position.set(e,base-.10*scale,-n);m.receiveShadows=true;m.computeWorldMatrix(true);
-   const b=m.getBoundingInfo().boundingBox;boxes.push({id:m.id,min:b.minimumWorld.clone(),max:b.maximumWorld.clone()});
+   const b=m.getBoundingInfo().boundingBox,matrix=m.getWorldMatrix();boxes.push({id:m.id,min:b.minimumWorld.clone(),max:b.maximumWorld.clone(),collision:meshCollider(collisions[variant],matrix.m,Matrix.Invert(matrix).m)});
   }
  }
  place(rock,rockTexture,[[-2.7,5,.75,.3],[3.4,12,1.2,1.5],[-3.2,18,.85,2.4],[4.3,24,1.1,.8],[-4,35,.9,2.9],[3.7,43,.7,1.2],[-3.3,51,1.15,2]]);

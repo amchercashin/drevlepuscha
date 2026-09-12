@@ -8,6 +8,9 @@ import type { Library } from './library.ts';
 import type { EN, TreeRecord } from './schema.ts';
 import { tileKey } from './math.ts';
 import { fadeOpacity, occludesTraveller } from '../domain/harness.ts';
+import {PLAYER_RADIUS,PLAYER_HEIGHT} from '../domain/harness.ts';
+import {meshCollider,meshBlocksCylinder} from '../domain/mesh-collision.ts';
+import type {MeshCollider} from '../domain/mesh-collision.ts';
 interface NearTree {
     t: TreeRecord;
     meshes: Mesh[];
@@ -30,9 +33,13 @@ export class Trees {
     nearQueue: TreeRecord[] = [];
     resident: TreeRecord[] = [];
     colliderCells = new Map<string, TreeRecord[]>();
+    colliders = new WeakMap<TreeRecord,MeshCollider>();
     lastBuildMs = 0;
     maxBuildMs = 0;
-    constructor(public scene: Scene, public data: WorldData, public library: Library) { }
+    scene: Scene;
+    data: WorldData;
+    library: Library;
+    constructor(scene: Scene, data: WorldData, library: Library) { this.scene=scene;this.data=data;this.library=library; }
     refresh(p: EN) {
         const list: TreeRecord[] = [];
         for (const tile of this.data.tiles.values())
@@ -42,10 +49,15 @@ export class Trees {
         this.resident = list;
         this.colliderCells.clear();
         for (const t of list) {
-            const key = tileKey(t.e, t.n, 16), cell = this.colliderCells.get(key) ?? [];
+            const f=this.library.tree(t.family),geometry=f.collisions[t.variant%f.collisions.length];
+            let c=this.colliders.get(t);
+            if(!c||c.geometry!==geometry){const m=treeMatrix(t);c=meshCollider(geometry,m.m,Matrix.Invert(m).m);this.colliders.set(t,c);}
+            for(let x=Math.floor(c.min.x/16);x<=Math.floor(c.max.x/16);x++)for(let y=Math.floor(-c.max.z/16);y<=Math.floor(-c.min.z/16);y++){
+            const key = x+','+y, cell = this.colliderCells.get(key) ?? [];
             if (!this.colliderCells.has(key))
                 this.colliderCells.set(key, cell);
             cell.push(t);
+            }
         }
         const wants = new Set<string>();
         this.nearQueue = [];
@@ -119,7 +131,7 @@ export class Trees {
     }
     create(t: TreeRecord, p: EN) {
         const f = this.library.tree(t.family), level = Math.hypot(t.e - p.e, t.n - p.n) < 30 ? 0 : 1, source = f.variants[t.variant % f.variants.length][level] ?? f.variants[0][0];
-        const meshes = source.map((s, i) => { const m = new Mesh(t.id + '-' + i, this.scene); s.geometry!.applyToMesh(m); m.material = s.material; m.sideOrientation = 1; m.isPickable = false; m.receiveShadows = true; m.position.set(t.e - this.origin.e, t.h - (t.family === 0 ? .8 : .25) * t.scale, this.origin.n - t.n); m.scaling.set(t.width, t.scale, t.width); m.rotation.y = t.yaw; m.freezeWorldMatrix(); return m; });
+        const meshes = source.map((s, i) => { const m = new Mesh(t.id + '-' + i, this.scene); s.geometry!.applyToMesh(m); m.material = s.material; m.sideOrientation = 1; m.isPickable = false; m.receiveShadows = true; m.position.set(t.e - this.origin.e, t.h - (t.family === 0 ? .8 : .25) * t.scale, this.origin.n - t.n); m.scaling.set(t.width, t.scale, t.width); m.rotation.y = t.yaw; m.freezeWorldMatrix(treeMatrix(t,this.origin)); return m; });
         this.near.set(t.id, { t, meshes, level, opacity: 1 });
     }
     update(p: EN, eye: Vector3, h: number, dt: number) {
@@ -170,11 +182,11 @@ export class Trees {
             }
         }
     }
-    blocked(e: number, n: number) { for (let y = Math.floor(n / 16) - 1; y <= Math.floor(n / 16) + 1; y++)
-        for (let x = Math.floor(e / 16) - 1; x <= Math.floor(e / 16) + 1; x++)
+    blocked(e: number, n: number) { const checked=new Set<TreeRecord>(),feet={x:e,y:this.data.height(e,n),z:-n};
+        for (let y = Math.floor((n-PLAYER_RADIUS) / 16); y <= Math.floor((n+PLAYER_RADIUS) / 16); y++)
+        for (let x = Math.floor((e-PLAYER_RADIUS) / 16); x <= Math.floor((e+PLAYER_RADIUS) / 16); x++)
             for (const t of this.colliderCells.get(x + ',' + y) ?? [])
-                if ((t.e - e) ** 2 + (t.n - n) ** 2 < (t.radius + .28) ** 2)
-                    return true; return false; }
+                if(!checked.has(t)){checked.add(t);if(meshBlocksCylinder(this.colliders.get(t)!,feet,PLAYER_RADIUS,PLAYER_HEIGHT))return true;} return false; }
     shadows(p: EN) { return [...this.near.values()].filter(t => Math.hypot(t.t.e - p.e, t.t.n - p.n) < 45).flatMap(t => t.meshes); }
     rebase(origin: EN) { this.origin = origin; for (const t of this.near.values())
         for (const m of t.meshes) {
@@ -192,3 +204,6 @@ export class Trees {
     stats() { return { near: this.near.size, batchQueue: this.batchQueue.size, batches: this.batches.size, trees: this.resident.length, lastBuildMs: this.lastBuildMs, maxBuildMs: this.maxBuildMs }; }
 }
 const matrix = Matrix.Identity();
+function treeMatrix(t:TreeRecord,origin:EN={e:0,n:0}){
+ return Matrix.Compose(new Vector3(t.width,t.scale,t.width),Quaternion.FromEulerAngles(0,t.yaw,0),new Vector3(t.e-origin.e,t.h-(t.family===0?.8:.25)*t.scale,origin.n-t.n));
+}
