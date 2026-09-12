@@ -18,6 +18,7 @@ test('ground detail follows the traveller across the whole showcase',async({page
   await page.waitForTimeout(2000);
   const data=await page.evaluate(()=>({frames:m0.endMeasurement(),costs:m0.frameCosts(),s:m0.state(),opaque:m0.state().groundTrial.opaque}));
   expect(data.s.groundTrial.mode).toBe(mode);expect(data.opaque).toBe(true);
+  expect(data.s.groundTrial.materialVersion).toBe(2);expect(data.s.groundTrial.textureMiB).toBeLessThan(6);
   expect(data.s.faded.some(m=>m.id.startsWith('ground-trial'))).toBe(false);
   expect(data.s.errors).toEqual([]);expect(data.frames.length).toBeGreaterThan(20);
   measurements.push({mode,frameMs:median(data.frames),mainGpuMs:median(data.costs.map(c=>c.gpuMs)),cpuMs:median(data.costs.map(c=>c.cpuMs))});

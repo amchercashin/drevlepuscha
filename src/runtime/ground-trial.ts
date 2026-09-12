@@ -13,6 +13,7 @@ import heightsURL from '../../assets/floor/trial/heights.png';
 import normalsURL from '../../assets/floor/trial/normals.png';
 import soilURL from '../../assets/floor/trial/soil.png';
 import litterURL from '../../assets/floor/trial/litter.png';
+import materialInfo from '../../assets/floor/trial/material.json';
 import './ground-trial.css';
 
 export type GroundTrialMode=0|1|2;
@@ -44,18 +45,24 @@ class GroundRelief extends MaterialPluginBase {
     let trialEN=vec2f(fragmentInputs.vPositionW.x,-fragmentInputs.vPositionW.z);
     let trialMask=1.0;
     let trialDistance=distance(scene.vEyePosition.xyz,fragmentInputs.vPositionW);
-    let trialOriginalUV=trialEN/2.4;
+    // Continuous world warp breaks the repetition without multiplying texture reads in POM.
+    let trialOriginalUV=vec2f(0.8660254*trialEN.x-0.5*trialEN.y,0.5*trialEN.x+0.8660254*trialEN.y)/3.2+(groundField.ba-0.5)*0.9;
     // Derivatives are computed before any divergent branch, including the POM loop.
     let trialDx=dpdx(trialOriginalUV);let trialDy=dpdy(trialOriginalUV);
+    let groundDx=dpdx(trialEN);let groundDy=dpdy(trialEN);
+    let groundDet=groundDx.x*groundDy.y-groundDx.y*groundDy.x;
+    let groundSafeDet=select(-max(abs(groundDet),0.0000001),max(abs(groundDet),0.0000001),groundDet>=0.0);
+    let groundJacE=(trialDx*groundDy.y-trialDy*groundDx.y)/groundSafeDet;
+    let groundJacN=(trialDy*groundDx.x-trialDx*groundDy.x)/groundSafeDet;
     if(uniforms.trialMode>0.5&&trialDistance<26.0){
-     let trialForest=trailForest(trialEN);
+     let trialForest=groundCover;
      let trialNear=1.0-smoothstep(7.0,14.0,trialDistance);
      let trialFacing=max(0.0,dot(viewDirectionW,normalW));
      let trialParallax=trialNear*trialMask*smoothstep(0.08,0.3,trialFacing);
      var trialUV=trialOriginalUV;
      if(uniforms.trialMode>1.5&&trialParallax>0.001){
       // Real-world relief is 6.5 cm, attenuated at grazing angles and beyond 7 m.
-      let trialRay=vec2f(viewDirectionW.x,-viewDirectionW.z)/max(0.25,trialFacing)*(0.065/2.4)*trialParallax;
+      let trialRay=(groundJacE*viewDirectionW.x-groundJacN*viewDirectionW.z)/max(0.25,trialFacing)*0.065*trialParallax;
       var rayUV=trialOriginalUV+trialRay*0.55;
       var previousUV=rayUV;var previousGap=0.0;
       var level=1.0;let stepUV=trialRay/16.0;
@@ -74,11 +81,13 @@ class GroundRelief extends MaterialPluginBase {
      }
      let trialData=textureSampleGrad(trialHeight,trialHeightSampler,trialUV,trialDx,trialDy);
      let trialMix=trialBlend(trialData.rg,trialForest);
-     let trialEarth=textureSampleGrad(trialSoil,trialSoilSampler,trialUV,trialDx,trialDy).rgb;
+     let trialEarth=textureSampleGrad(trialSoil,trialSoilSampler,trialUV,trialDx,trialDy);
      let trialLeaves=textureSampleGrad(trialLitter,trialLitterSampler,trialUV,trialDx,trialDy).rgb;
      let trialCavity=mix(trialData.b,trialData.a,trialMix);
-     let trialColour=mix(trialEarth,trialLeaves,trialMix)*(0.88+0.12*trialCavity);
-     // Keep the accepted distant palette; no detail texture reads beyond 26 m.
+     let groundMossFine=groundMoss*(1.0-0.9*trialMix)*smoothstep(0.0,0.75,trialEarth.a+groundMoss*0.25);
+     let groundMossColour=vec3f(0.25,0.33,0.17)*(0.83+0.34*trialEarth.a);
+     let trialColour=mix(mix(trialEarth.rgb,trialLeaves,trialMix),groundMossColour,groundMossFine)*(0.88+0.12*trialCavity);
+     // The same leaf/moss field also controls the distant palette, avoiding a moving colour boundary.
      let trialDetail=trialMask*(1.0-smoothstep(17.0,26.0,trialDistance));
      baseColor=vec4f(mix(baseColor.rgb,trialColour,trialDetail),baseColor.a);
      let trialNormals=textureSampleGrad(trialNormal,trialNormalSampler,trialUV,trialDx,trialDy)*2.0-1.0;
@@ -86,7 +95,8 @@ class GroundRelief extends MaterialPluginBase {
      let trialZ=sqrt(max(0.06,1.0-dot(trialXY,trialXY)));
      let trialEast=normalize(vec3f(1.0,-normalW.x/max(0.2,normalW.y),0.0));
      let trialNorth=normalize(cross(normalW,trialEast));
-     let trialPerturbed=normalize(normalW*trialZ+trialEast*trialXY.x+trialNorth*trialXY.y);
+     let groundSlopes=trialXY/trialZ;
+     let trialPerturbed=normalize(normalW+trialEast*dot(groundSlopes,groundJacE*3.2)+trialNorth*dot(groundSlopes,groundJacN*3.2));
      normalW=normalize(mix(normalW,trialPerturbed,trialDetail));
     }
    `,
@@ -105,7 +115,7 @@ export function createGroundTrial(scene:Scene,coarse:StandardMaterial,baseNormal
  const accents=new StandardMaterial('ground-litter',scene);accents.diffuseColor=Color3.White();accents.specularColor=Color3.Black();accents.backFaceCulling=false;
  const details=createGroundDetails(scene,coarse,material,accents,baseNormal);
  const setMode=(mode:GroundTrialMode)=>{for(const plugin of relief)plugin.mode=mode;};
- return {setMode,update:details.update,prepare:details.prepare,stats:()=>({mode:relief[0].mode,bounds:SHOWCASE_GROUND,...details.stats(),textureMiB:5.34,pomSteps:16,pomFade:[7,14]})};
+ return {setMode,update:details.update,prepare:details.prepare,stats:()=>({mode:relief[0].mode,bounds:SHOWCASE_GROUND,...details.stats(),textureMiB:materialInfo.textureMemoryMiBWithMips,materialVersion:materialInfo.version,pomSteps:16,pomFade:[7,14]})};
 }
 
 export function createGroundTrialControls(trial:ReturnType<typeof createGroundTrial>,focus:()=>void,visit:()=>void){

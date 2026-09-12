@@ -1,14 +1,24 @@
 {
-  "version": 1,
-  "source": "Original deterministic procedural material; tools/generate-ground-trial.mjs",
+  "version": 2,
+  "source": "Original deterministic procedural material; node --experimental-strip-types tools/generate-ground-trial.mjs",
   "seed": 9122026,
   "size": 512,
-  "tileMetres": 2.4,
+  "tileMetres": 3.2,
   "depthMetres": 0.065,
   "channels": {
     "heights": "R soil height, G litter height, B soil cavity, A litter cavity",
-    "normals": "RG soil tangent normal XY, BA litter tangent normal XY"
+    "normals": "RG soil tangent normal XY, BA litter tangent normal XY",
+    "soil": "RGB soil albedo, A fine moss grain",
+    "patches": "R leaf density, G moss cover, BA continuous texture warp"
   },
-  "textureMemoryMiBWithMips": 5.333333333333333,
+  "field": {
+    "minE": -256,
+    "minN": -256,
+    "width": 512,
+    "height": 640,
+    "pixelsE": 256,
+    "pixelsN": 320
+  },
+  "textureMemoryMiBWithMips": 5.75,
   "meshyCredits": 0
 }

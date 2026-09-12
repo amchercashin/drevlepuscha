@@ -10,6 +10,7 @@ import type {Scene} from '@babylonjs/core/scene.js';
 import type {Point3} from '../domain/harness.ts';
 import {SHOWCASE_GROUND,groundDetailVertexHeight,showcaseBaseHeight,showcaseHeight,showcasePath} from '../domain/showcase.ts';
 import {trailClearance} from '../domain/trail-edge.ts';
+import {groundPatch} from '../domain/ground-patches.ts';
 import {createRandom,seedFor} from '../domain/seed.ts';
 import {CoverFade} from './cover-fade.ts';
 
@@ -105,13 +106,14 @@ function makeAccentTile(scene:Scene,cx:number,cn:number,material:StandardMateria
  for(let i=0;i<38;i++){
   const n=cn*8+random()*8,e=cx*8+random()*8;
   if(trailClearance(e,n,showcasePath(n))<-.2)continue;
+  const patch=groundPatch(e,n);if(random()>.08+.85*patch.leaves*(1-.6*patch.moss))continue;
   const len=.07+random()*.085,width=len*.4,angle=random()*Math.PI*2,k=positions.length/3;
   const c=[.37+random()*.07,.32+random()*.05,.19+random()*.05];
   for(const [x,z,y] of [[-len,0,.006],[0,-width,.009],[0,0,.025+random()*.015],[0,width,.012],[len,0,.035]])add(e+x*Math.cos(angle)-z*Math.sin(angle),n+x*Math.sin(angle)+z*Math.cos(angle),y,c);
   indices.push(k,k+1,k+2,k+1,k+4,k+2,k+4,k+3,k+2,k+3,k,k+2);
  }
  for(let i=0;i<2;i++){
-  const n=cn*8+random()*8,e=cx*8+random()*8;if(trailClearance(e,n,showcasePath(n))<-.1)continue;
+  const n=cn*8+random()*8,e=cx*8+random()*8;if(trailClearance(e,n,showcasePath(n))<-.1||random()>.18+.7*groundPatch(e,n).leaves)continue;
   const a=random()*6.28,len=.3+random()*.6,r=.018+random()*.014,k=positions.length/3;
   for(let end=0;end<2;end++)for(let side=0;side<6;side++){
    const t=side/6*Math.PI*2,w=Math.cos(t)*r;

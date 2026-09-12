@@ -1,5 +1,6 @@
 import {showcaseEnabled} from './showcase.ts';
 import {trailClearance} from './trail-edge.ts';
+import {groundPatch} from './ground-patches.ts';
 import {groundHeight,pathCentre} from './harness.ts';
 import type {Box} from './harness.ts';
 import {FOREST_BOUNDS} from './forest.ts';
@@ -27,11 +28,12 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
   g.positions.push(x,y,z);g.uvs.push(u,v);g.colors.push(...c,1);
   g.heights.push(Math.max(0,y-height(x,-z)+.06));
  }
- // Jittered, clustered tufts in the showcase; the historical M1 keeps its original seed sequence.
+ // Full-cell candidates with world-anchored patches; no repeating empty half of an 8 m tile.
  for(let i=0;i<(lush?205:65);i++){
-  const e=cx*8+(lush?((i%20)+random())*.4:random()*8),n=cz*8+(lush?(Math.floor(i/20)+random())*.4:random()*8);
-  const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
-  if(!allowed(e,n,.15)||random()>(lush?.42+patch*.53:patch*.8))continue;
+  const e=cx*8+(lush&&!showcaseEnabled?((i%20)+random())*.4:random()*8),n=cz*8+(lush&&!showcaseEnabled?(Math.floor(i/20)+random())*.4:random()*8);
+  const field=showcaseEnabled?groundPatch(e,n):null;
+  const patch=field?.moss??(.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28));
+  if(!allowed(e,n,.15)||random()>(showcaseEnabled?.15+patch*.7: lush?.42+patch*.53:patch*.8))continue;
   const h=(lush?.20:.13)+random()*(lush?.27:.22),grassHue=random();
   const grassBase=grassHue<.34?[.26,.50,.43]:grassHue<.68?[.36,.54,.30]:[.24,.45,.40];
   for(let blade=0;blade<(lush?3:4);blade++){
@@ -47,8 +49,9 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
  // One atlas and curved strips, no geometry for each fern leaflet.
  for(let plant=0;plant<(lush?126:14);plant++){
   const e=cx*8+random()*8,n=cz*8+random()*8;
-  const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
-  if(!allowed(e,n,.6)||random()>(lush?.30+patch*.68:patch))continue;
+  const field=showcaseEnabled?groundPatch(e,n):null;
+  const patch=field?.moss??(.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28));
+  if(!allowed(e,n,.6)||random()>(showcaseEnabled?.1+patch*.65: lush?.30+patch*.68:patch))continue;
   const fern=lush?random()<.72:plant<5,len=(fern?(lush?.66:.62):.35)+random()*(fern?(lush?.26:.28):.20),count=fern?7:5,rotation=random()*Math.PI*2;
   const quadrant=(fern?0:1)+(random()>.5?2:0),centreU=quadrant%2===0?.25:.75,baseV=quadrant<2?.505:.005;
   const tint=.84+random()*.24,leafHue=random();

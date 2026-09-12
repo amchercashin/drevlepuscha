@@ -1,4 +1,6 @@
 import {groundHeight,pathCentre} from './harness.ts';
+import {showcaseEnabled} from './showcase.ts';
+import {groundPatch} from './ground-patches.ts';
 import type {Box} from './harness.ts';
 import {FOREST_BOUNDS} from './forest.ts';
 import {createRandom,seedFor} from './seed.ts';
@@ -15,8 +17,8 @@ export function makeCoverTile(cx:number,cz:number,layer:'far'|'mid',boxes:readon
  for(let j=0;j<grid;j++)for(let i=0;i<grid;i++){
   const r=createRandom(seedFor('showcase-cover-v1',layer,cx*grid+i,cz*grid+j));
   const e=e0+(i+.15+r()*.7)*step,n=n0+(j+.15+r()*.7)*step;
-  const patch=.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
-  if(r()>.48+patch*.48||Math.abs(e-pathCentre(n))<2.5)continue;
+  const patch=showcaseEnabled?groundPatch(e,n).moss:.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28);
+  if(r()>(showcaseEnabled?.2+patch*.65:.48+patch*.48)||Math.abs(e-pathCentre(n))<2.5)continue;
   if(e<FOREST_BOUNDS.minE||e>FOREST_BOUNDS.maxE||n<FOREST_BOUNDS.minN||n>FOREST_BOUNDS.maxN)continue;
   if(nearby.some(b=>e>b.min.x-.7&&e<b.max.x+.7&&-n>b.min.z-.7&&-n<b.max.z+.7))continue;
   if(Math.hypot(height(e+.25,n)-height(e-.25,n),height(e,n+.25)-height(e,n-.25))*2>=.85)continue;
