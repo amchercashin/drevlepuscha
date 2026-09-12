@@ -1,6 +1,5 @@
 import {createDaylight} from './runtime/daylight.ts';
 import {createGroundTrialControls} from './runtime/ground-trial.ts';
-import {createRanger,RANGER_WALK_SPEED,RANGER_RUN_SPEED} from './runtime/ranger.ts';
 import {waitForTextures} from './runtime/texture-ready.ts';
 import {showcaseEnabled,terrainCameraLift,showcasePath} from './domain/showcase.ts';
 import {createShowcaseMap} from './runtime/showcase-map.ts';
@@ -55,7 +54,6 @@ try {
   const forestMode=showcaseEnabled||new URLSearchParams(location.search).get('scene')==='m1';
   const minimumPitch=showcaseEnabled?-70:config.travel.pitchMinDeg;
   const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
-  const ranger=showcaseEnabled?await createRanger(scene,world.player):null;
   if(new URLSearchParams(location.search).get('debug')==='1')engine.enableGPUTimingMeasurements=true;
   const forest=forestMode?await createForest(scene,world.sun):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
@@ -186,7 +184,7 @@ try {
     const currentDistance=Math.hypot(pos.x-anchor.x,pos.y-anchor.y,pos.z-anchor.z);
     const followError=Math.hypot(pos.x-anchor.x-offset.x,pos.y-anchor.y-offset.y-cameraLift,pos.z-anchor.z-offset.z);
     return {
-      ready:frameCount>2,frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},ranger:ranger?.state()??null,
+      ready:frameCount>2,frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},
       camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas?.isOpen()??false,
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
@@ -228,7 +226,6 @@ try {
       if(atlas?.isOpen())return; // Static atlas does not keep rendering the hidden 3D scene.
       const now=performance.now(),rawDt=now-previousTime;previousTime=now;
       const dt=Math.min(rawDt/1000,0.05);
-      let actualSpeed=0,running=false;
       if(!paused){
         if(collect&&frameCount>2)samples.push(rawDt);
         if(samples.length>maxSamples){collect=false;}
@@ -246,19 +243,16 @@ try {
           forward*=scale;right*=scale;
           de=forward*Math.sin(a)+right*Math.cos(a);dn=forward*Math.cos(a)-right*Math.sin(a);
         }
-        running=keys.has('ShiftLeft')||keys.has('ShiftRight')||touch.state.running;
-        const speedMps=running?(ranger?RANGER_RUN_SPEED:15):(ranger?RANGER_WALK_SPEED:1.85);
+        const speedMps=keys.has('ShiftLeft')||keys.has('ShiftRight')||touch.state.running?15:1.85;
         const before={...player},next=de||dn?moveWalker(player,de*speedMps*dt,dn*speedMps*dt,nearbyColliders(player,de*speedMps*dt,dn*speedMps*dt),forest?FOREST_BOUNDS:undefined):player;
         player.e=next.e;player.n=next.n;
         const movedE=player.e-before.e,movedN=player.n-before.n;
-        actualSpeed=dt>0?Math.hypot(movedE,movedN)/dt:0;
         if(Math.hypot(movedE,movedN)>0.0001){
           const heading=normalizeAzimuth(Math.atan2(movedE,movedN)*180/Math.PI);
           player.heading=normalizeAzimuth(player.heading+shortestAngleDelta(player.heading,heading)*(1-Math.exp(-dt/0.1)));
         }
       }
       daylight?.update(paused?0:dt);
-      ranger?.update(paused?0:dt,actualSpeed,running);
       const h=groundHeight(player.e,player.n);
       world.player.position.set(player.e,h,-player.n);world.player.rotation.y=-player.heading*Math.PI/180;
       world.shadow.position.set(player.e,h+0.015,-player.n);

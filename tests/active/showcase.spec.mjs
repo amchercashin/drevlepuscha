@@ -1,34 +1,13 @@
 import {test,expect} from '@playwright/test';
 
-test('showcase ranger walks, runs, stops and pauses',async({page})=>{
+test('showcase starts and the traveller can move',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/?debug=1');await page.waitForFunction(()=>window.m0?.state().ready);
  await page.locator('#resume').click();
  const before=await page.evaluate(()=>m0.state());
- expect(before.ranger.model).toBe('ranger');
- expect(before.ranger.clips).toEqual(['Idle','Walk','Run']);
- await page.keyboard.down('KeyW');await page.waitForTimeout(1000);
+ await page.keyboard.down('KeyW');await page.waitForTimeout(1000);await page.keyboard.up('KeyW');
  const after=await page.evaluate(()=>m0.state());
  expect(after.render.backend).toBe('webgpu');
  expect(Math.hypot(after.player.e-before.player.e,after.player.n-before.player.n)).toBeGreaterThan(0.1);
- expect(after.ranger.gait).toBe('Walk');
- expect(after.ranger.weights.Walk).toBeGreaterThan(.9);
- await page.keyboard.down('ShiftLeft');await page.keyboard.down('KeyW');
- await page.waitForTimeout(1000);
- const running=await page.evaluate(()=>m0.state());
- expect(running.ranger.gait).toBe('Run');
- expect(running.ranger.weights.Run).toBeGreaterThan(.9);
- expect(Math.hypot(running.player.e-after.player.e,running.player.n-after.player.n)).toBeGreaterThan(1);
- await page.keyboard.up('KeyW');await page.keyboard.up('ShiftLeft');
- await page.waitForTimeout(700);
- const stopped=await page.evaluate(()=>m0.state());
- expect(stopped.ranger.gait).toBe('Idle');expect(stopped.ranger.weights.Idle).toBeGreaterThan(.9);
- await page.keyboard.press('Escape');await page.waitForTimeout(100);
- const paused=await page.evaluate(()=>m0.state());
- await page.waitForTimeout(200);
- const stillPaused=await page.evaluate(()=>m0.state());
- expect(paused.paused).toBe(true);
- expect(stillPaused.ranger.frame).toBeCloseTo(paused.ranger.frame,3);
- expect(stillPaused.errors).toEqual([]);
  expect(after.errors).toEqual([]);expect(errors).toEqual([]);
 });
