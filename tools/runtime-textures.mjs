@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync,statSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -17,6 +17,11 @@ export function runtimeTexture(source){
   verified.add(path);
  }
  return resolve(root,entry.output);
+}
+/** A scene may already have an approved, smaller runtime rendition. */
+export function smallestRuntimeTexture(source,alternatives=[]){
+ return [runtimeTexture(source),...alternatives.map(p=>resolve(p)).filter(existsSync)]
+  .sort((a,b)=>statSync(a).size-statSync(b).size)[0];
 }
 export function runtimeTexturesPlugin(){return {
  name:'runtime-textures',enforce:'pre',
