@@ -1,4 +1,5 @@
 import {createDaylight} from './runtime/daylight.ts';
+import {createGroundTrialControls} from './runtime/ground-trial.ts';
 import {waitForTextures} from './runtime/texture-ready.ts';
 import {showcaseEnabled,terrainCameraLift,showcasePath} from './domain/showcase.ts';
 import {createShowcaseMap} from './runtime/showcase-map.ts';
@@ -97,6 +98,7 @@ try {
     previousTime=performance.now();
   }
   function focusScene() {setPaused(false);canvas.focus({preventScroll:true});}
+  const groundControls=world.groundTrial?createGroundTrialControls(world.groundTrial,focusScene,()=>{player.e=0;player.n=0;player.heading=0;keys.clear();demo=false;}):null;
   function reset(checkpoint:keyof typeof CHECKPOINTS='entrance') {
     if(checkpoint==='outer'&&!forest)return;
     const c=CHECKPOINTS[checkpoint];player.e=c.e;player.n=c.n;player.heading=0;
@@ -188,7 +190,7 @@ try {
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,
         triangles:scene.getActiveIndices()/3,shadowTriangles:shadowPassTriangles,mainTriangles:scene.getActiveIndices()/3-shadowPassTriangles,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
-      errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,
+      errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,groundTrial:world.groundTrial?.stats()??null,
       lighting:sunlight?{daylight:daylight?.stats()??null,air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
@@ -196,6 +198,7 @@ try {
   if(new URLSearchParams(location.search).get('debug')==='1') {
     Object.assign(window,{m0:{
       state,reset,preset,setPaused,
+      setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
       inspect:()=>({scene,engine,world,forest}),
       obstacles:()=>world.boxes.map(box=>({...box,min:{...box.min},max:{...box.max}})),

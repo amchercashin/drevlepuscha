@@ -1,11 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {showcaseHeight,showcasePath,relief,terrainCameraLift} from '../src/domain/showcase.ts';
-test('showcase renders the same two metre triangles used by movement',()=>{
+import {showcaseHeight,showcaseBaseHeight,showcasePath,relief,terrainCameraLift,GROUND_TRIAL,groundTrialContains,groundTrialVertexHeight} from '../src/domain/showcase.ts';
+test('showcase retains its original terrain outside the ground trial',()=>{
  for(let n=-250;n<380;n+=14)for(let e=-250;e<250;e+=14){
+  if(groundTrialContains(e,n)||groundTrialContains(e+1,n+1))continue;
   assert.equal(showcaseHeight(e,n),relief(e,n));
   const expected=(relief(e+2,n)+relief(e,n+2))/2;
   assert.ok(Math.abs(showcaseHeight(e+1,n+1)-expected)<1e-10);
+ }
+});
+test('ground trial joins the old terrain without gaps and support uses the rendered triangles',()=>{
+ const {minE,maxE,minN,maxN,step}=GROUND_TRIAL;
+ for(let e=minE;e<=maxE;e+=step)for(const n of [minN,maxN])assert.equal(showcaseHeight(e,n),showcaseBaseHeight(e,n));
+ for(let n=minN;n<=maxN;n+=step)for(const e of [minE,maxE])assert.equal(showcaseHeight(e,n),showcaseBaseHeight(e,n));
+ for(let e=minE;e<maxE;e+=.75)for(let n=minN;n<maxN;n+=.75){
+  assert.ok(Math.abs(showcaseHeight(e,n)-showcaseBaseHeight(e,n))<.10);
+  for(const [u,v] of [[.2,.3],[.7,.8]]){
+   const h=(x,z)=>groundTrialVertexHeight(e+x*step,n+z*step);
+   const expected=u+v<=1?h(0,0)+(h(1,0)-h(0,0))*u+(h(0,1)-h(0,0))*v:h(1,1)+(h(0,1)-h(1,1))*(1-u)+(h(1,0)-h(1,1))*(1-v);
+   assert.ok(Math.abs(showcaseHeight(e+u*step,n+v*step)-expected)<1e-10);
+  }
  }
 });
 test('winding valley has pronounced banks, varying elevation and a walkable trail',()=>{

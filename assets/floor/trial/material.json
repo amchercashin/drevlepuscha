@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "source": "Original deterministic procedural material; tools/generate-ground-trial.mjs",
+  "seed": 9122026,
+  "size": 512,
+  "tileMetres": 2.4,
+  "depthMetres": 0.065,
+  "channels": {
+    "heights": "R soil height, G litter height, B soil cavity, A litter cavity",
+    "normals": "RG soil tangent normal XY, BA litter tangent normal XY"
+  },
+  "textureMemoryMiBWithMips": 5.333333333333333,
+  "meshyCredits": 0
+}
