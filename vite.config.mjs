@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
+import {runtimeTexturesPlugin} from './tools/runtime-textures.mjs';
 
 export default defineConfig({
   base: './',
+  plugins: [runtimeTexturesPlugin()],
   publicDir: 'public',
   server: {
     host: '127.0.0.1', port: 5173, strictPort: true,

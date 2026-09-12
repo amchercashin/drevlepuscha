@@ -10,4 +10,17 @@ test('showcase starts and the traveller can move',async({page})=>{
  expect(after.render.backend).toBe('webgpu');
  expect(Math.hypot(after.player.e-before.player.e,after.player.n-before.player.n)).toBeGreaterThan(0.1);
  expect(after.errors).toEqual([]);expect(errors).toEqual([]);
+ // Changing material controls or leaving the window clears input without pausing.
+ await page.getByRole('button',{name:'Нормали',exact:true}).click();
+ expect(await page.evaluate(()=>m0.state().paused)).toBe(false);
+ await page.keyboard.down('KeyW');
+ await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
+ const stopped=await page.evaluate(()=>m0.state().player);
+ await page.waitForTimeout(150);await page.keyboard.up('KeyW');
+ const focused=await page.evaluate(()=>m0.state());
+ expect(focused.paused).toBe(false);expect(focused.player).toEqual(stopped);
+ await page.keyboard.press('Escape');expect(await page.evaluate(()=>m0.state().paused)).toBe(true);
+ await page.keyboard.press('Escape');
+ await page.waitForFunction(()=>m0.state().floor.pending===0&&m0.state().floor.field.farPending===0&&m0.state().floor.field.midPending===0);
+ expect((await page.evaluate(()=>m0.state())).floor.field.farTiles).toBe(80);
 });

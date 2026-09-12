@@ -21,7 +21,8 @@
     "assets:prepare": "node tools/prepare-forest-library.mjs",
     "world:build": "node tools/world/build.mjs && node tools/world/assets.mjs",
     "test:showcase": "playwright test showcase.spec.mjs",
-    "test:map": "playwright test map.spec.mjs"
+    "test:map": "playwright test map.spec.mjs",
+    "textures:prepare": "node tools/prepare-runtime-textures.mjs"
   },
   "packageManager": "npm@10.9.8",
   "devDependencies": {

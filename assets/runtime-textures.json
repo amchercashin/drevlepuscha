@@ -1,0 +1,164 @@
+[
+  {
+    "source": "assets/floor/foliage.png",
+    "output": "assets/optimized/floor/foliage.webp",
+    "mode": "q90",
+    "sourceHash": "c21a6ae79a51a86769a6c791d554509e5b6e28b1ff3ffa9aa09004b9e89e01dd",
+    "outputHash": "91f5408a69ae84bb71b134baa0bf20db7ac92d092ac8e8eadd3f7778f9718cb7",
+    "sourceBytes": 1213842,
+    "bytes": 299994
+  },
+  {
+    "source": "assets/floor/soil.png",
+    "output": "assets/optimized/floor/soil.webp",
+    "mode": "q90",
+    "sourceHash": "0053cafe21fc84890f4f8d072a0dc75204e234b69c422d2ccb390e86887842d9",
+    "outputHash": "3faffa5f97cf84f2339e7e4e7b0d2e754fbb88b6a4c59d9ff48fed6540b3381d",
+    "sourceBytes": 2877587,
+    "bytes": 450146
+  },
+  {
+    "source": "assets/floor/trial/heights.png",
+    "output": "assets/optimized/floor/trial/heights.webp",
+    "mode": "lossless",
+    "sourceHash": "09f1389123c09063fcb85c9219c349a8341099c983a01b2bd8bb6455f8d0d342",
+    "outputHash": "06fb07af715f09950f9933e738089f64cd445ac582b20f83787bc9b209d4fe7b",
+    "sourceBytes": 536180,
+    "bytes": 320976
+  },
+  {
+    "source": "assets/floor/trial/litter.png",
+    "output": "assets/optimized/floor/trial/litter.webp",
+    "mode": "q90",
+    "sourceHash": "317d37344aac4cf0ed556c840305519dffc74d8bc9cfd5a54723cbf62968a7b0",
+    "outputHash": "ff7bc1e4524dcf33e8c99fced5b5e114487f70b5f442497081b7b27243118ddc",
+    "sourceBytes": 208394,
+    "bytes": 37592
+  },
+  {
+    "source": "assets/floor/trial/normals.png",
+    "output": "assets/optimized/floor/trial/normals.webp",
+    "mode": "lossless",
+    "sourceHash": "e4a6aa09a5a260e2b07e112f60e9152aebaf88c9db082fc8ee25f5583e5e6beb",
+    "outputHash": "266e9e713e8cc82a290ef60bbee0a8015cf2a87856138072dc1b25e05bf2c751",
+    "sourceBytes": 643953,
+    "bytes": 383288
+  },
+  {
+    "source": "assets/floor/trial/patches.png",
+    "output": "assets/optimized/floor/trial/patches.webp",
+    "mode": "lossless",
+    "sourceHash": "07f6e8670728874c5dddbbbb204b5aee7907258f670a623c9b260dd6b3292b76",
+    "outputHash": "55c16e0bf2ced94f1a5e8e68c5fa80751d6b51b4327bff5d1a47ba7e3b9ec453",
+    "sourceBytes": 300875,
+    "bytes": 232634
+  },
+  {
+    "source": "assets/floor/trial/soil.png",
+    "output": "assets/optimized/floor/trial/soil.webp",
+    "mode": "q90",
+    "sourceHash": "02d7ccc756b3adcc826fb27ef79d2a61780d69b9383954be055a719dfd047a83",
+    "outputHash": "87223ce0206a9e41d99248e4872c36aae4b7bf41e0b493acaea928ce2bf548e4",
+    "sourceBytes": 552073,
+    "bytes": 84242
+  },
+  {
+    "source": "assets/props/cottage/material-0.jpg",
+    "output": "assets/optimized/props/cottage/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "23d41f673d300c8d4dfc14de8547d76721dd7186a7b9f13371f52f411e5507ca",
+    "outputHash": "0dd57f9d9f9f4d4b08e841eb8f1fb2353ef197a1b90f0cf62033bee6b6d8b526",
+    "sourceBytes": 3815777,
+    "bytes": 1132440
+  },
+  {
+    "source": "assets/props/fallen-log/material-0.jpg",
+    "output": "assets/optimized/props/fallen-log/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "8334937255f996bc5cfceb44e9ec4b43eeb5822a898c234727bdf852c1f658d0",
+    "outputHash": "2891ef04348f1c0d2e5567900c6041f0c941b315b401004e0131d89336a24531",
+    "sourceBytes": 3438330,
+    "bytes": 995126
+  },
+  {
+    "source": "assets/props/old-stump/material-0.jpg",
+    "output": "assets/optimized/props/old-stump/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "72131c6151bbe0c69ceeba5a79b5a30d5e826d7ad16990c994202626f5a14049",
+    "outputHash": "a913322a2f1e4b14dbd55481775c12ee61d297ced05c5a167a885de117aeb4d7",
+    "sourceBytes": 3316847,
+    "bytes": 874666
+  },
+  {
+    "source": "assets/props/slate-slab/material-0.jpg",
+    "output": "assets/optimized/props/slate-slab/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "d796295971c659461151973720695be0ad066eec85e8885dcccdc8dfb8e9ea03",
+    "outputHash": "f232984a2079a196f637e3ea30110d7e1689e86f9021e9f68fbffe8f9949ff4d",
+    "sourceBytes": 3044584,
+    "bytes": 767910
+  },
+  {
+    "source": "assets/rocks/moss-boulder/material-0.jpg",
+    "output": "assets/optimized/rocks/moss-boulder/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "8907381ec21cdae6bc12eecb29765787be35701458dbb7de6eb9fbef5f8bff64",
+    "outputHash": "ff429150665e0847c5752dd37c2174ea12a9bd9ecb1f7d2a442cb3897bc96764",
+    "sourceBytes": 3244280,
+    "bytes": 907674
+  },
+  {
+    "source": "assets/trees/conifer/material-0.jpg",
+    "output": "assets/optimized/trees/conifer/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "fe8d65ba67cf1ceba0ba1d6f0997ab93fbd361409e1a7e6e9b73cc1e870a6f8c",
+    "outputHash": "99defdd4948284e891dc59bcdaf7388a09dce6aeb98d33c81f30f270fbcde9d7",
+    "sourceBytes": 4420061,
+    "bytes": 1509024
+  },
+  {
+    "source": "assets/trees/fork-oak/material-0.jpg",
+    "output": "assets/optimized/trees/fork-oak/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "623bc624ca9c888617a679690691c39c6bf303879c2e8b9a968498d89e26b98b",
+    "outputHash": "f0f3bb30e1555aab217267c235030f26030fad1518bcf23c87ff97a5011cb7b3",
+    "sourceBytes": 3886351,
+    "bytes": 1132720
+  },
+  {
+    "source": "assets/trees/meshy-a/material-0.jpg",
+    "output": "assets/optimized/trees/meshy-a/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "6f942d06813cdc3cb216b682d38c61fe9b3a04610d75b4c3ace62096db88f1fb",
+    "outputHash": "f1971714cfb3b8ae9986bd153f6f850bae1630c87fdecac59602940e4675ed49",
+    "sourceBytes": 3252023,
+    "bytes": 820264
+  },
+  {
+    "source": "assets/trees/meshy-b/material-0.jpg",
+    "output": "assets/optimized/trees/meshy-b/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "1dd3388bd26d68d3dabc386b828c7f2a7ac43118adc68f10469421cbd92f2882",
+    "outputHash": "4be8982f8a75cc964ce1e4ca75624d44125f3c2376b232439873f349279a0b59",
+    "sourceBytes": 2524131,
+    "bytes": 395352
+  },
+  {
+    "source": "assets/trees/willow/material-0.jpg",
+    "output": "assets/optimized/trees/willow/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "5c5bab69a3ffded332af1574e5a00cdac4a0383277fae5b1b475a3b3af00597e",
+    "outputHash": "edbd21d07a458e900999d181ab290079d73f769ab1caa09d2fed7b598641121c",
+    "sourceBytes": 4659445,
+    "bytes": 1593642
+  },
+  {
+    "source": "assets/trees/young-tree/material-0.jpg",
+    "output": "assets/optimized/trees/young-tree/material-0.webp",
+    "mode": "q90",
+    "sourceHash": "401e587f8dbd5d9078a15ca6f2854be08148632ceac1dc7f51c463755ab32dac",
+    "outputHash": "8ec3ccdd2ccaba709e9133de64196b2bee4bbb664f1e007dffec2cc0a866177d",
+    "sourceBytes": 3293882,
+    "bytes": 899554
+  }
+]

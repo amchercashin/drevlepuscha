@@ -1,3 +1,4 @@
+import {FrameWorkBudget,prepareUntil} from './startup.ts';
 import {MaterialPluginBase} from '@babylonjs/core/Materials/materialPluginBase.js';
 import {ShaderLanguage} from '@babylonjs/core/Materials/shaderLanguage.js';
 import type {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
@@ -54,7 +55,7 @@ export function createGroundDetails(scene:Scene,coarse:StandardMaterial,detail:S
  new GroundCuts(coarse,cuts);const morph=new GroundMorph(detail),fade=new CoverFade(accents,11,17);
  const tiles=new Map<string,Tile>();let pending:{x:number;n:number;key:string}[]=[],lastX=Infinity,lastN=Infinity,maxBuildMs=0;
  const index=(x:number,n:number)=>(n+32)*64+x+32;
- function update(feet:Point3){
+ function update(feet:Point3,budget=new FrameWorkBudget()){
   morph.feet=fade.feet=feet;
   const cx=Math.floor(feet.x/8),cn=Math.floor(-feet.z/8);let dirty=false;
   if(cx!==lastX||cn!==lastN){
@@ -67,16 +68,16 @@ export function createGroundDetails(scene:Scene,coarse:StandardMaterial,detail:S
    for(const [key,tile] of tiles)if(!wanted.has(key)){for(const mesh of tile.meshes)mesh.dispose();pixels[index(tile.x,tile.n)]=0;tiles.delete(key);dirty=true;}
   }
   // At most one small tile upload per frame, rather than a full-forest high-resolution mesh.
-  const next=pending.shift();
-  if(next){
+  if(pending.length)budget.run(()=>{
+   const next=pending.shift()!;
    const started=performance.now();
    const meshes=[makeGroundTile(scene,next.x,next.n,detail,baseNormal),makeAccentTile(scene,next.x,next.n,accents)];
    tiles.set(next.key,{x:next.x,n:next.n,meshes});pixels[index(next.x,next.n)]=255;dirty=true;
    maxBuildMs=Math.max(maxBuildMs,performance.now()-started);
-  }
+  });
   if(dirty)cuts.update(pixels);
  }
- async function prepare(feet:Point3){do{update(feet);await new Promise(resolve=>setTimeout(resolve,0));}while(pending.length);maxBuildMs=0;}
+ async function prepare(feet:Point3){await prepareUntil(()=>Number.isFinite(lastX)&&pending.length===0,()=>update(feet,new FrameWorkBudget(4,2)));maxBuildMs=0;}
  scene.onDisposeObservable.add(()=>cuts.dispose());
  return {update,prepare,stats:()=>({tiles:tiles.size,pending:pending.length,cacheLimit:25,maxBuildMs,triangles:[...tiles.values()].reduce((s,t)=>s+t.meshes.reduce((v,m)=>v+m.getTotalIndices()/3,0),0),opaque:[...tiles.values()].every(t=>t.meshes.every(m=>m.visibility===1)),centre:[lastX,lastN]})};
 }

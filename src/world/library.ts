@@ -40,9 +40,11 @@ export class Library {
         if (!spec)
             return this.load(id === 'conifer' ? 'young' : 'fork');
         const task = (async () => {
-            const data = await this.data.json(spec.data);
+            const dataRequest = this.data.json(spec.data);
             let texture!: Texture;
             const textureReady = new Promise<void>((resolve, reject) => { texture = new Texture(import.meta.env.BASE_URL + 'world/' + spec.texture, this.scene, false, false, Texture.TRILINEAR_SAMPLINGMODE, resolve, () => reject(Error('Texture ' + id))); });
+            // Start geometry and texture together; family readiness still gates collisions.
+            const [data]=await Promise.all([dataRequest,textureReady]);
             texture.anisotropicFilteringLevel = 4;
             const m = new StandardMaterial('world-' + id, this.scene);
             m.diffuseTexture = texture;

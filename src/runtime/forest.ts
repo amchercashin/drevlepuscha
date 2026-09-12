@@ -1,3 +1,4 @@
+import {loadJSON} from './asset-loading.ts';
 import {treeFamilySlot} from '../domain/tree-family.ts';
 import {groundHeight} from '../domain/harness.ts';
 import {collisionGeometry,meshCollider} from '../domain/mesh-collision.ts';
@@ -35,10 +36,10 @@ import canopyURL from '../../assets/trees/canopy.png';
 
 export async function createForest(scene:Scene,sun:DirectionalLight){
  const selected=treeAsset(new URLSearchParams(location.search).get('tree')??'meshy-a');
- const response=await fetch(selected?.dataURL??dataURL);if(!response.ok)throw new Error('Game tree could not load');
- const data=await response.json() as TreeAssetData;
- const textureURLs:Record<string,string>=selected?selected.textures:{bark:barkURL,canopy:canopyURL};
+ const additional=[[forkURL,forkTexture,.35],[youngURL,youngTexture,.16]] as const;
  const variety=selected?.id==='meshy-a'&&new URLSearchParams(location.search).get('variety')!=='0';
+ const [data,variants]=await Promise.all([loadJSON<TreeAssetData>(selected?.dataURL??dataURL),Promise.all(variety?additional.map(([url])=>loadJSON<{version:string;doubleSided:Record<string,boolean>;variants:(TreeAssetData&{id:string})[]}>(url)):[])]);
+ const textureURLs:Record<string,string>=selected?selected.textures:{bark:barkURL,canopy:canopyURL};
  const tonePlugins:TreeTone[]=[];
  const materialSets=new Map<string,{materials:StandardMaterial[];baked:StandardMaterial[]}>();
  function family(id:string,d:TreeAssetData,urls:Record<string,string>,sink=.85){
@@ -51,10 +52,8 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   return {id,data:d,materials,templates,sink,collision:collisionGeometry(d.levels[0])};
  }
  const families=[family(selected?.id??'game',data,textureURLs)],variantCounts:[number,number]=[0,0];
- const additional=[[forkURL,forkTexture,.35],[youngURL,youngTexture,.16]] as const;
  if(variety)for(const [familyIndex,[url,texture,sink]] of additional.entries()){
-  const r=await fetch(url);if(!r.ok)throw new Error('Forest variant data could not load');
-  const asset=await r.json() as {version:string;doubleSided:Record<string,boolean>;variants:(TreeAssetData&{id:string})[]};
+  const asset=variants[familyIndex];
   if(asset.variants.length<1||asset.variants.length>4)throw new Error('Expected 1–4 variants per tree family');
   variantCounts[familyIndex]=asset.variants.length;
   for(const variant of asset.variants)families.push(family(variant.id,{...variant,version:asset.version,doubleSided:asset.doubleSided},{'material-0':texture},sink));

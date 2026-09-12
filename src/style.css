@@ -9,3 +9,8 @@ footer{position:absolute;inset:auto 0 0;padding:40px 32px 22px;background:linear
 /* Test-scene navigation shares the existing dark panel palette. */
 .diagnostics a{color:#d8dfb4;text-underline-offset:3px}.diagnostics input[type=checkbox]{width:auto;margin-right:6px}
 .diagnostics details[open]{max-height:calc(100dvh - 230px);overflow-y:auto}#forest-controls > a{display:block;margin:10px 14px}
+
+/* Available with the HTML, before any renderer code or textures. */
+body.booting{background:radial-gradient(ellipse at 65% 25%,#78866b 0%,#334d3c 35%,#152a22 80%)}
+body.booting #world{visibility:hidden}body.booting .pause{background:transparent;backdrop-filter:none}
+body.booting .diagnostics,body.booting footer,body.booting .ground-trial-panel,body.booting .atlas-button{visibility:hidden}

@@ -1,4 +1,5 @@
 import '../style.css';
+import {SceneStartup,bindInputFocus} from '../runtime/startup.ts';
 import { createRenderer } from '../runtime/engine.ts';
 import {createDaylight} from '../runtime/daylight.ts';
 import { createTouchControls } from '../runtime/touch-controls.ts';
@@ -27,12 +28,13 @@ const params = new URLSearchParams(location.search), debug = params.get('debug')
 const $ = <T extends Element = HTMLElement>(s: string) => document.querySelector<T>(s)!;
 let canvas = $<HTMLCanvasElement>('#world');
 const pause = $('#pause'), resume = $<HTMLButtonElement>('#resume');
+const startup=new SceneStartup(resume);
 const errors: string[] = [];
 let world: WorldStreamer | undefined;
 function poiOffset(id: string) { return ({ hay_gate: [-12, 0], tom_house: [-16, 0], old_man_willow: [-18, 12], lily_pool: [0, 25], short_fall: [0, 24] } as Record<string, number[]>)[id] ?? [0, 0]; }
-function error(message: string) { errors.push(message); $('#pause-title').textContent = 'Не удалось открыть лес'; $('#pause-description').textContent = message; pause.hidden = false; resume.disabled = false; resume.textContent = 'Перезагрузить'; resume.onclick = () => location.reload(); }
+function error(message: string) { document.body.classList.remove('booting'); errors.push(message); $('#pause-title').textContent = 'Не удалось открыть лес'; $('#pause-description').textContent = message; pause.hidden = false; resume.disabled = false; resume.textContent = 'Перезагрузить'; resume.onclick = () => location.reload(); }
 try {
-    const renderer = await createRenderer(canvas, true), engine = renderer.engine;
+    const renderer = await startup.stage('Запускаем графику…',()=>createRenderer(canvas, debug)), engine = renderer.engine;
     canvas = renderer.canvas;
     engine.useReverseDepthBuffer = true;
     const scene = new Scene(engine);
@@ -201,26 +203,23 @@ try {
         }
     } });
     window.addEventListener('keyup', e => keys.delete(e.code));
-    window.addEventListener('blur', () => { if (!loading && !map.isOpen())
-        setPaused(true); });
-    document.addEventListener('visibilitychange', () => { if (document.hidden && !loading)
-        setPaused(true); });
-    canvas.addEventListener('blur', () => keys.clear());
+    bindInputFocus(canvas,()=>{keys.clear();dragging=false;touch.reset();lastTime=performance.now();});
     function save() { try {
         localStorage.setItem('old-forest-pose-v1', JSON.stringify({ version: 1, ...player, yaw, pitch, distance }));
     }
     catch { } }
     window.addEventListener('pagehide', save);
-    world = await WorldStreamer.create(scene, sun);
+    world = await startup.stage('Библиотека леса…',()=>WorldStreamer.create(scene, sun));
     const w = world;
     const daylight=createDaylight(scene,camera,sun,ambient,null);
     const query = { height: (e: number, n: number) => w.data.height(e, n), ready: (e: number, n: number) => w.ready(e, n), waterDepth: (e: number, n: number) => w.data.waterDepth(e, n), blocked: (e: number, n: number) => w.blocked(e, n) };
-    function state() { const anchor = new Vector3(player.e - w.origin.e, w.data.height(player.e, player.n) + .95, w.origin.n - player.n), actual = Vector3.Distance(anchor, camera.position), offset = cameraOffset(yaw + 180, Math.max(0, pitch), distance); return { ready: !loading, paused, frames, player: { ...player, h: w.data.height(player.e, player.n) }, camera: { yaw, pitch, distance, currentDistance: actual, followError: Vector3.Distance(camera.position, anchor.add(new Vector3(offset.x, offset.y, offset.z))) }, render: { backend: renderer.kind, width: engine.getRenderWidth(), height: engine.getRenderHeight(), triangles: scene.getActiveIndices() / 3, drawCalls: sceneMetrics.drawCallsCounter.current, meshes: scene.meshes.length, gpuMs: gpuTime(), gpuTiming: engine.getCaps().timerQuery !== undefined, pixelBudget }, world: w.stats(), mapOpen: map.isOpen(), errors: [...errors], traversal: autoMove ? { index: autoMove.index, distance: autoMove.distance } : null, heap: (performance as unknown as {
+    function state() { const anchor = new Vector3(player.e - w.origin.e, w.data.height(player.e, player.n) + .95, w.origin.n - player.n), actual = Vector3.Distance(anchor, camera.position), offset = cameraOffset(yaw + 180, Math.max(0, pitch), distance); return { ready: startup.readyAt!==null, loading:startup.stats(), paused, frames, player: { ...player, h: w.data.height(player.e, player.n) }, camera: { yaw, pitch, distance, currentDistance: actual, followError: Vector3.Distance(camera.position, anchor.add(new Vector3(offset.x, offset.y, offset.z))) }, render: { backend: renderer.kind, width: engine.getRenderWidth(), height: engine.getRenderHeight(), triangles: scene.getActiveIndices() / 3, drawCalls: sceneMetrics.drawCallsCounter.current, meshes: scene.meshes.length, gpuMs: gpuTime(), gpuTiming: engine.getCaps().timerQuery !== undefined, pixelBudget }, world: w.stats(), mapOpen: map.isOpen(), errors: [...errors], traversal: autoMove ? { index: autoMove.index, distance: autoMove.distance } : null, heap: (performance as unknown as {
             memory?: {
                 usedJSHeapSize: number;
             };
         }).memory?.usedJSHeapSize ?? null }; }
     engine.runRenderLoop(() => {
+        if(document.hidden){lastTime=performance.now();return;}
         const start = performance.now(), raw = start - lastTime;
         lastTime = start;
         const dt = Math.min(.05, raw / 1000);
@@ -325,14 +324,13 @@ try {
     if (debug)
         Object.assign(window, { oldForest: { state, inspect: () => ({ scene, engine, world: w }), setPaused, openMap: () => map.open(), setCamera: (y: number, p: number, d: number) => { yaw = yawTarget = normalizeAzimuth(y); pitch = clamp(p, -25, 35); distance = clamp(d, 3.5, 8); }, teleport: async (e: number, n: number) => { const p = await w.prepareDestination({ e, n }, new AbortController().signal, () => { }); Object.assign(player, p); w.last = ''; w.trees.lastCell = ''; }, travel: async (id: string) => { const f = w.data.geography.features.find((f: any) => f.id === id); if (!f)
                     throw Error(id); const p = await w.prepareDestination({ e: f.geometry.coordinates[0] + poiOffset(id)[0], n: f.geometry.coordinates[1] + poiOffset(id)[1] }, new AbortController().signal, () => { }); Object.assign(player, p); w.last = ''; w.trees.lastCell = ''; }, beginMeasurement: () => { frameSamples.length = cpuSamples.length = gpuSamples.length = 0; collecting = true; }, endMeasurement: () => { collecting = false; return { frames: [...frameSamples], cpu: [...cpuSamples], gpu: [...gpuSamples] }; }, startTraversal: (points: number[][], speed = 15) => { autoMove = { points, index: 1, speed, distance: 0 }; focus(); }, stopTraversal: () => { autoMove = undefined; }, pois: () => w.data.geography.features.filter((f: any) => f.geometry.type === 'Point').map((f: any) => ({ id: f.id, point: f.geometry.coordinates })), route: () => w.data.geography.features.find((f: any) => f.id === 'frodo_route').geometry.coordinates } });
-    const initial = await w.prepareDestination(player, new AbortController().signal, text => { $('#pause-description').textContent = text; });
+    const initial = await startup.stage('Готовим место входа…',()=>w.prepareDestination(player, new AbortController().signal, text => startup.progress(text)));
     Object.assign(player, initial);
     loading = false;
     pause.hidden = false;
     $('#pause-description').textContent = 'Большой лес, холмы, лощины и Ветлянка. M — карта и переход к известным местам. WASD — идти, Shift — быстрый ход.';
-    resume.disabled = false;
-    resume.textContent = 'Начать прогулку';
-    resume.onclick = focus;
+    const initialFrames=frames;
+    await startup.reveal(()=>frames>initialFrames+2&&scene.isReady(),focus);
     engine.onContextLostObservable.add(() => { engine.stopRenderLoop(); error('Графический контекст потерян. Перезагрузите прогулку.'); });
 }
 catch (e) {

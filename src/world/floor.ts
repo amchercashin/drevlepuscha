@@ -1,3 +1,4 @@
+import {FrameWorkBudget} from '../runtime/startup.ts';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
 import {VertexData} from '@babylonjs/core/Meshes/mesh.vertexData.js';
 import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
@@ -48,7 +49,7 @@ export class Floor {
   }
   this.cells.set(job.id,meshes);
  }
- update(p:EN){
+ update(p:EN,budget=new FrameWorkBudget()){
   const key=tileKey(p.e,p.n,8);
   if(key!==this.last){
    this.last=key;this.queue=[];this.wanted.clear();const e=Math.floor(p.e/8)*8,n=Math.floor(p.n/8)*8;
@@ -59,8 +60,8 @@ export class Floor {
    this.queue.sort((a,b)=>Math.hypot(a.e+4-p.e,a.n+4-p.n)-Math.hypot(b.e+4-p.e,b.n+4-p.n));
    for(const [id,meshes]of this.cells)if(!this.wanted.has(id)){for(const m of meshes)m.dispose();this.cells.delete(id);}
   }
-  if(this.completed){const {job,geometry}=this.completed;this.completed=undefined;if(this.wanted.has(job.id))this.build(job,geometry);}
-  if(!this.inflight){const next=this.queue[0];if(next&&this.data.ready(next.e,next.n)&&this.data.ready(next.e+8,next.n+8)){this.queue.shift();this.request(next);}}
+  if(this.completed)budget.run(()=>{const {job,geometry}=this.completed!;this.completed=undefined;if(this.wanted.has(job.id))this.build(job,geometry);});
+  if(!this.inflight&&!this.completed){const next=this.queue[0];if(next&&this.data.ready(next.e,next.n)&&this.data.ready(next.e+8,next.n+8)){this.queue.shift();this.request(next);}}
   for(const fade of this.fades)fade.feet={x:p.e-this.origin.e,y:0,z:this.origin.n-p.n};
   for(const meshes of this.cells.values())for(const m of meshes)m.setEnabled(Math.hypot(m.metadata.e+4-p.e,m.metadata.n+4-p.n)<32);
  }

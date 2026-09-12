@@ -1,3 +1,4 @@
+import {makeCoverTile} from '../domain/cover-field.ts';
 import {makeFloorPatch} from '../domain/floor-patch.ts';
 import type {FloorGeometry} from '../domain/floor-patch.ts';
 import type {Box} from '../domain/harness.ts';
@@ -13,7 +14,13 @@ function pack(g:FloorGeometry):PackedFloor{
 self.onmessage=({data})=>{
  if(data.type==='init'){boxes=data.boxes;return;}
  try{
-  const start=performance.now(),patch=makeFloorPatch(data.x,data.z,boxes),result={grass:pack(patch.grass),leaves:pack(patch.leaves)};
+  const start=performance.now();
+  if(data.layer){
+   const g=makeCoverTile(data.x,data.z,data.layer,boxes);
+   const geometry={positions:new Float32Array(g.positions),indices:new Uint32Array(g.indices),normals:new Float32Array(g.normals),colors:new Float32Array(g.colors),uvs:new Float32Array(g.uvs)};
+   self.postMessage({job:data,geometry,buildMs:performance.now()-start},{transfer:Object.values(geometry).map(a=>a.buffer)});return;
+  }
+  const patch=makeFloorPatch(data.x,data.z,boxes),result={grass:pack(patch.grass),leaves:pack(patch.leaves)};
   const transfer=Object.values(result).flatMap(g=>Object.values(g).map(a=>a.buffer));
   self.postMessage({job:data,data:result,buildMs:performance.now()-start},{transfer});
  }catch(error){self.postMessage({job:data,error:String(error)});}

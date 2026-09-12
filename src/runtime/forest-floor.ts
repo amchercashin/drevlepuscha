@@ -1,3 +1,4 @@
+import {FrameWorkBudget,prepareUntil} from './startup.ts';
 import type {PackedFloor} from './floor.worker.ts';
 import {CoverFade} from './cover-fade.ts';
 import {createCoverField} from './cover-field.ts';
@@ -34,6 +35,9 @@ export function soilTexture(scene:Scene){
  const texture=new Texture(soilURL,scene);texture.wrapU=Texture.MIRROR_ADDRESSMODE;texture.wrapV=Texture.MIRROR_ADDRESSMODE;texture.anisotropicFilteringLevel=4;return texture;
 }
 export function createForestFloor(scene:Scene,boxes:Box[]){
+ // Engine vectors have prototype getters, which structuredClone does not preserve.
+ // Both foliage workers receive plain coordinates so rock/log exclusions stay exact.
+ boxes=boxes.map(b=>({id:b.id,min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z}}));
  const grass=new StandardMaterial('grass',scene),leaves=new StandardMaterial('floor-leaves',scene);
  for(const m of [grass,leaves]){m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.backFaceCulling=false;m.twoSidedLighting=true;}
  if(showcaseEnabled){leaves.emissiveColor=new Color3(.12,.17,.065);grass.emissiveColor=new Color3(.045,.075,.025);}
@@ -69,7 +73,7 @@ export function createForestFloor(scene:Scene,boxes:Box[]){
   const started=performance.now();cells.set(next.key,{x:next.x,z:next.z,meshes:[...mesh(data.grass,'grass-'+next.key,grass),...mesh(data.leaves,'leaves-'+next.key,leaves)]});
   lastBuildMs=performance.now()-started;maxBuildMs=Math.max(maxBuildMs,lastBuildMs);
  }
- function update(feet:Point3){
+ function update(feet:Point3,budget=new FrameWorkBudget()){
   if(workerError)throw new Error(workerError);
   anchor=feet;for(const d of distances)d.feet=feet;
   const cx=Math.floor(feet.x/8),cz=Math.floor(-feet.z/8);
@@ -82,17 +86,19 @@ export function createForestFloor(scene:Scene,boxes:Box[]){
    for(const [key,c] of cells)if(!wanted.has(key)){for(const m of c.meshes)m.dispose();cells.delete(key);}
   }
   // One GPU activation per frame; the showcase geometry and normals are prepared off-thread.
-  lastBuildMs=0;let activated=false;
-  if(prepared){activate(prepared.job,prepared.data);prepared=null;activated=true;}
-  if(!workerJob&&!prepared){const next=pending.shift();if(next){if(worker){workerJob=next;worker.postMessage(next);}else{activate(next,makeFloorPatch(next.x,next.z,boxes));activated=true;}}}
-  field?.update(feet,!activated);
+  lastBuildMs=0;
+  if(prepared)budget.run(()=>{activate(prepared!.job,prepared!.data);prepared=null;});
+  if(!workerJob&&!prepared){const next=pending.shift();if(next){if(worker){workerJob=next;worker.postMessage(next);}else{activate(next,makeFloorPatch(next.x,next.z,boxes));}}}
+  field?.update(feet,budget);
   for(const c of cells.values()){
    const visible=floorCellDistance(feet.x,-feet.z,c.x,c.z)<hideM;
    for(const m of c.meshes)m.setEnabled(visible);
   }
  }
  async function prepare(feet:Point3,progress:(ready:number)=>void){
-  do{update(feet);const f=field?.stats();progress(cells.size+(f?.farTiles??0)+(f?.midTiles??0));await new Promise(resolve=>setTimeout(resolve,0));}while(queued().length||field?.hasPending());
+  await prepareUntil(()=>Number.isFinite(lastE)&&!queued().some(c=>floorCellDistance(feet.x,-feet.z,c.x,c.z)<hideM)&&(field?.localReady(feet)??true),()=>{
+   update(feet,new FrameWorkBudget(4,2));const f=field?.stats();progress(cells.size+(f?.farTiles??0)+(f?.midTiles??0));
+  });
   preparationMaxBuildMs=maxBuildMs;maxBuildMs=0;
  }
  return {update,prepare,stats:()=>({cells:cells.size,pending:queued().length,pendingNear:queued().filter(c=>floorCellDistance(anchor.x,-anchor.z,c.x,c.z)<COVER.nearStart).length,cacheLimit:(radius*2+1)**2,hideM,lastBuildMs,maxBuildMs,workerMaxBuildMs,preparationMaxBuildMs,field:field?.stats()??null,triangles:[...cells.values()].reduce((sum,c)=>sum+c.meshes.reduce((s,m)=>s+m.getTotalIndices()/3,0),0)})};

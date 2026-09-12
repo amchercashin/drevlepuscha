@@ -1,3 +1,4 @@
+import {SceneStartup,FrameWorkBudget,bindInputFocus} from './runtime/startup.ts';
 import {createDaylight} from './runtime/daylight.ts';
 import {createGroundTrialControls} from './runtime/ground-trial.ts';
 import {waitForTextures} from './runtime/texture-ready.ts';
@@ -32,13 +33,14 @@ let canvas = document.querySelector<HTMLCanvasElement>('#world')!;
 const pausePanel=document.querySelector<HTMLElement>('#pause')!;
 const resume=document.querySelector<HTMLButtonElement>('#resume')!;
 const metrics=document.querySelector<HTMLElement>('#metrics')!;
+const startup=new SceneStartup(resume);
 const keys=new Set<string>();
 let paused=true, dragging=false;
 let engine: WebGPUEngine | undefined;
 const errors: string[]=[];
 
 function fail(message: string) {
-  errors.push(message);paused=true;keys.clear();pausePanel.hidden=false;
+  document.body.classList.remove('booting');errors.push(message);paused=true;keys.clear();pausePanel.hidden=false;
   document.querySelector('#pause-title')!.textContent='Не удалось открыть стенд';
   document.querySelector('#pause-description')!.textContent=message;
   resume.textContent='Перезагрузить';resume.disabled=false;
@@ -46,7 +48,7 @@ function fail(message: string) {
 }
 
 try {
-  const renderer=await createRenderer(canvas,new URLSearchParams(location.search).get('debug')==='1');engine=renderer.engine;canvas=renderer.canvas;
+  const renderer=await startup.stage('Запускаем графику…',()=>createRenderer(canvas,new URLSearchParams(location.search).get('debug')==='1'));engine=renderer.engine;canvas=renderer.canvas;
   const scene=new Scene(engine);scene.useRightHandedSystem=true;
   const camera=new FreeCamera('travel',new Vector3(0,2,5),scene);
   camera.inputs.clear();camera.minZ=config.travel.nearClipM;camera.maxZ=100;
@@ -55,9 +57,9 @@ try {
   const minimumPitch=showcaseEnabled?-70:config.travel.pitchMinDeg;
   const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
   if(new URLSearchParams(location.search).get('debug')==='1')engine.enableGPUTimingMeasurements=true;
-  const forest=forestMode?await createForest(scene,world.sun):null;
-  if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
-  if(forest){for(const [id,label] of [['entrance','01 Вход'],['trunks','02 Папоротники'],['arch','03 Просвет'],['slope','04 К поляне']])document.querySelector(`[data-checkpoint="${id}"]`)!.textContent=label;document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
+  const forest=forestMode?await startup.stage('Деревья и поверхность…',()=>createForest(scene,world.sun)):null;
+  if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);if(!showcaseEnabled)document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
+  if(forest){for(const [id,label] of [['entrance','01 Вход'],['trunks','02 Папоротники'],['arch','03 Просвет'],['slope','04 К поляне']])document.querySelector(`[data-checkpoint="${id}"]`)!.textContent=label;document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');if(!showcaseEnabled)document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
   const nearbyColliders=collisionGrid(world.boxes);
   const floor=forest?createForestFloor(scene,world.boxes.map(({id,min,max})=>({id,min,max}))):null;
   const sunlight=forest?new ShadowGenerator(512,world.sun):null;
@@ -119,10 +121,12 @@ try {
   for(const button of document.querySelectorAll<HTMLButtonElement>('[data-checkpoint]')) {
     button.onclick=()=>{reset(button.dataset.checkpoint as keyof typeof CHECKPOINTS);focusScene();};
   }
-  await waitForTextures(scene.textures.filter(t=>!t.isRenderTarget),(ready,total)=>{resume.textContent=`Материалы леса · ${ready}/${total}`;});
-  await world.groundTrial?.prepare({x:player.e,y:groundHeight(player.e,player.n),z:-player.n});
-  if(showcaseEnabled&&floor)await floor.prepare({x:player.e,y:groundHeight(player.e,player.n),z:-player.n},ready=>{resume.textContent=`Растительность · ${ready}`;});
-  resume.disabled=false;resume.textContent='Начать прогулку';resume.onclick=focusScene;
+  const startFeet={x:player.e,y:groundHeight(player.e,player.n),z:-player.n};
+  await startup.stage('Готовим место входа…',()=>Promise.all([
+   waitForTextures(scene.textures.filter(t=>!t.isRenderTarget),(ready,total)=>startup.progress(`Материалы леса · ${ready}/${total}`)),
+   world.groundTrial?.prepare(startFeet),
+   showcaseEnabled&&floor?floor.prepare(startFeet,()=>{}):undefined,
+  ]));
   let cameraLift=0;
   const atlas=showcaseEnabled?createShowcaseMap(()=>({...player,yaw}),setPaused,(e,n)=>{player.e=e;player.n=n;keys.clear();demo=false;}):null;
   if(showcaseEnabled){document.body.classList.add('showcase');document.title='Древлепуща — лесные ложбины';document.querySelector('h1')!.textContent='Лесные ложбины';document.querySelector('#pause-title')!.textContent='Там, где тропа уходит вниз';document.querySelector('#pause-description')!.textContent='Лесные берега, боковые промоины и солнечные просветы. Идите по тропе или поднимитесь на склон. M — карта рельефа.';document.querySelector('.muted')!.textContent='Шоукейс · 512 × 640 м. Большой мир сохранён как прототип по ?scene=world.';}
@@ -149,7 +153,7 @@ try {
     distance=clamp(distance+e.deltaY*0.004,config.travel.distanceMinM,config.travel.distanceMaxM);
   },{passive:false});
   window.addEventListener('keydown',e=>{
-    if(e.code==='Escape'){e.preventDefault();if(paused)focusScene();else setPaused(true);return;}
+    if(e.code==='Escape'&&startup.readyAt!==null){e.preventDefault();if(paused)focusScene();else setPaused(true);return;}
     if(paused||document.activeElement!==canvas)return;
     if(['KeyW','KeyA','KeyS','KeyD','Space','ShiftLeft','ShiftRight'].includes(e.code)){
       e.preventDefault();keys.add(e.code);demo=false;
@@ -157,9 +161,7 @@ try {
     }
   });
   window.addEventListener('keyup',e=>keys.delete(e.code));
-  window.addEventListener('blur',()=>setPaused(true));
-  canvas.addEventListener('blur',()=>{keys.clear();dragging=false;});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)setPaused(true);});
+  bindInputFocus(canvas,()=>{keys.clear();dragging=false;touch.reset();previousTime=performance.now();});
   engine.onContextLostObservable.add(()=>fail('Графический контекст потерян. Закройте лишние графические приложения и перезагрузите стенд.'));
   const qualitySelect=document.querySelector<HTMLSelectElement>('#resolution-quality')!;
   let quality:ResolutionQuality='high';
@@ -184,7 +186,7 @@ try {
     const currentDistance=Math.hypot(pos.x-anchor.x,pos.y-anchor.y,pos.z-anchor.z);
     const followError=Math.hypot(pos.x-anchor.x-offset.x,pos.y-anchor.y-offset.y-cameraLift,pos.z-anchor.z-offset.z);
     return {
-      ready:frameCount>2,frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},
+      ready:startup.readyAt!==null,loading:startup.stats(),frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},
       camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas?.isOpen()??false,
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
@@ -223,6 +225,7 @@ try {
 
   engine.runRenderLoop(()=>{
     try {
+      if(document.hidden){previousTime=performance.now();return;}
       if(atlas?.isOpen())return; // Static atlas does not keep rendering the hidden 3D scene.
       const now=performance.now(),rawDt=now-previousTime;previousTime=now;
       const dt=Math.min(rawDt/1000,0.05);
@@ -277,8 +280,8 @@ try {
         mesh.visibility=fadeOpacity(mesh.visibility,target,dt,blocked?config.travel.fadeOutSeconds:config.travel.fadeInSeconds);
       }
       forest?.update(desired,feet,dt);
-      floor?.update(feet);
-      world.groundTrial?.update(feet);
+      // Optional refinement resumes after a complete first frame, under one budget.
+      if(startup.readyAt!==null){const budget=new FrameWorkBudget();world.groundTrial?.update(feet,budget);floor?.update(feet,budget);}
       if(sunlight&&forest){
        if(daylight){
         const d=world.sun.direction.normalizeToNew(),az=Math.atan2(d.x,d.z),el=Math.asin(Math.max(-1,Math.min(1,d.y)));
@@ -309,5 +312,6 @@ try {
       }
     }catch(error){engine!.stopRenderLoop();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
   });
+  await startup.reveal(()=>frameCount>2&&scene.isReady(),focusScene);
   window.addEventListener('pagehide',()=>{scene.dispose();engine!.dispose();},{once:true});
 } catch(error) {engine?.dispose();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
