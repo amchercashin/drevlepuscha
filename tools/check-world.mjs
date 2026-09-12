@@ -1,7 +1,7 @@
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
-const backend=process.argv.includes('--webgl2')?'webgl2':'webgpu',url=process.env.WORLD_URL??'http://127.0.0.1:4178/';
+const backend='webgpu',url=process.env.WORLD_URL??'http://127.0.0.1:4178/';
 mkdirSync('qa/evidence',{recursive:true});const browser=await chromium.launch({channel:'chrome',headless:false,args:['--disable-backgrounding-occluded-windows']});
 const page=await browser.newPage({viewport:{width:1920,height:1080},deviceScaleFactor:1}),errors=[],report={backend,url,checks:[],pois:[],errors};
 page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'||(m.type()==='warning'&&/invalid|error|index count of 0/i.test(m.text())))errors.push(m.text().slice(0,1800));});

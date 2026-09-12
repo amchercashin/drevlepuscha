@@ -23,7 +23,7 @@ try {
     if(samples.length<100||state.paused||state.camera.followError>0.000001||errors.length)throw new Error(`Invalid run: ${JSON.stringify(result)}`);
     runs.push(result);console.log(JSON.stringify({run,medianMs:result.medianMs,p95Ms:result.p95Ms,p99Ms:result.p99Ms}));
   }
-  const backend=initial.render.backend||(initial.render.webGLVersion===2?'webgl2':'unknown');
+  const backend=initial.render.backend;
   const name=`performance-${backend}.json`;
   await writeFile(new URL(name,out),JSON.stringify({date:new Date().toISOString(),backend,os:platform(),arch:arch(),ramBytes:totalmem(),browser:browser.version(),headed:true,viewport:{width:1280,height:720},warmupSeconds:30,runs,errors,note:'Actual requestAnimationFrame intervals in visible browser. Synthetic M0 scene only; not M1 performance or a Windows benchmark.'},null,2)+'\n');
   console.log(`Saved qa/evidence/${name}`);

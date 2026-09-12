@@ -1,12 +1,12 @@
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
-const out='qa/evidence/map-walk';mkdirSync(out,{recursive:true});
+const out=process.env.OUT??'qa/evidence/map-walk';mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:false,args:['--disable-backgrounding-occluded-windows']}),page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[],report={checks:[],errors};
 page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 const state=()=>page.evaluate(()=>oldForest.state());
 try{
- await page.goto('http://127.0.0.1:4283/?scene=world&debug=1');
+ await page.goto((process.env.URL??'http://127.0.0.1:4283/')+'?scene=world&debug=1');
  await page.waitForFunction(()=>window.oldForest?.state().ready,{},{timeout:90000});await page.locator('#resume').click();
  const initial=await state();report.initial=initial;assert.equal(initial.render.backend,'webgpu','default backend');
  assert.equal(await page.evaluate(()=>oldForest.pois().length),21);

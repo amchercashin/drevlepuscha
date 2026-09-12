@@ -1,3 +1,4 @@
+import {ShaderLanguage} from '@babylonjs/core/Materials/shaderLanguage.js';
 import './height-air.ts';
 import {showcaseEnabled,showcasePath,showcaseHeight} from '../domain/showcase.ts';
 import {ShaderStore} from '@babylonjs/core/Engines/shaderStore.js';
@@ -11,51 +12,6 @@ import type {DirectionalLight} from '@babylonjs/core/Lights/directionalLight.js'
 
 // Integrate illuminated air only up to the visible surface, using the same sun
 // shadow map as the ground. No camera-facing light cards or screen-space sun disc.
-ShaderStore.ShadersStore.forestAirPixelShader=`
-precision highp float;
-varying vec2 vUV;
-uniform sampler2D sceneDepth;
-uniform highp sampler2DShadow sunDepth;
-uniform mat4 inverseViewProjection;
-uniform mat4 sunMatrix;
-uniform vec3 eye;
-uniform vec3 sunDirection;
-uniform vec3 sunColor;
-uniform float halfZ;
-uniform float airDensity;
-void main(){
- float depth=texture2D(sceneDepth,vUV).r;
- vec4 endPoint=inverseViewProjection*vec4(vUV*2.0-1.0,mix(depth*2.0-1.0,depth,halfZ),1.0);
- vec3 delta=endPoint.xyz/endPoint.w-eye;
- float distanceToSurface=min(length(delta),32.0);
- vec3 direction=normalize(delta);
- float stepLength=distanceToSurface/16.0;
- float litAir=0.0;
- for(int i=0;i<16;i++){
-  float t=(float(i)+0.5)*stepLength;
-  vec3 p=eye+direction*t;
-  vec4 projected=sunMatrix*vec4(p,1.0);
-  vec3 ndc=projected.xyz/projected.w;
-  vec3 shadowUV=ndc*0.5+0.5;
-  shadowUV.z=mix(shadowUV.z,ndc.z,halfZ)-0.001;
-  float inside=step(0.02,shadowUV.x)*step(shadowUV.x,0.98)*step(0.02,shadowUV.y)*step(shadowUV.y,0.98);
-  float lit=texture(sunDepth,shadowUV)*inside;
-  float density=airDensity*exp(-max(p.y-eye.y,0.0)*0.09);
-  litAir+=lit*exp(-airDensity*t)*density*stepLength;
- }
- float phase=0.22+0.78*pow(max(0.0,dot(direction,sunDirection)),5.0);
- gl_FragColor=vec4(sunColor*litAir*phase,exp(-airDensity*distanceToSurface*0.22));
-}`;
-ShaderStore.ShadersStore.forestAirCompositePixelShader=`
-precision highp float;
-varying vec2 vUV;
-uniform sampler2D textureSampler;
-uniform sampler2D sceneColor;
-void main(){
- vec4 air=texture2D(textureSampler,vUV);
- vec4 surface=texture2D(sceneColor,vUV);
- gl_FragColor=vec4(surface.rgb*air.a+air.rgb,surface.a);
-}`;
 
 ShaderStore.ShadersStoreWGSL.forestAirPixelShader=`
 varying vUV: vec2f;
@@ -106,7 +62,7 @@ fn main(input: FragmentInputs)->FragmentOutputs {
 }`;
 
 export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerator,sun:DirectionalLight){
- const engine=scene.getEngine(),shaderLanguage=engine.isWebGPU?1:0;
+ const engine=scene.getEngine(),shaderLanguage=ShaderLanguage.WGSL;
  const scatter=new PostProcess('forest-air',showcaseEnabled?'heightAir':'forestAir',{uniforms:['inverseViewProjection','sunMatrix','eye','sunDirection','sunColor','halfZ','airDensity','rayPower','rayBases'],samplers:showcaseEnabled?['sceneDepth']:['sceneDepth','sunDepth'],size:1,camera,samplingMode:Texture.BILINEAR_SAMPLINGMODE,shaderLanguage});
  const composite=new PostProcess('forest-air-composite','forestAirComposite',{samplers:['sceneColor'],size:0.5,camera,samplingMode:Texture.BILINEAR_SAMPLINGMODE,shaderLanguage});
  // Post-process sizes describe INPUT targets: full-resolution scene colour/depth

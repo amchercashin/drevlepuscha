@@ -1,6 +1,4 @@
-import '@babylonjs/core/Engines/Extensions/engine.query.js';
 import {createDaylight} from './runtime/daylight.ts';
-import {EngineInstrumentation} from '@babylonjs/core/Instrumentation/engineInstrumentation.js';
 import {waitForTextures} from './runtime/texture-ready.ts';
 import {showcaseEnabled,terrainCameraLift,showcasePath} from './domain/showcase.ts';
 import {createShowcaseMap} from './runtime/showcase-map.ts';
@@ -17,7 +15,7 @@ import {renderResolution} from './runtime/resolution.ts';
 import type {ResolutionQuality} from './runtime/resolution.ts';
 import {FOREST_BOUNDS} from './domain/forest.ts';
 import {createForest} from './runtime/forest.ts';
-import type { AbstractEngine } from '@babylonjs/core/Engines/abstractEngine.js';
+import type { WebGPUEngine } from '@babylonjs/core/Engines/webgpuEngine.js';
 import { createRenderer } from './runtime/engine.ts';
 import { Scene } from '@babylonjs/core/scene.js';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera.js';
@@ -35,23 +33,19 @@ const resume=document.querySelector<HTMLButtonElement>('#resume')!;
 const metrics=document.querySelector<HTMLElement>('#metrics')!;
 const keys=new Set<string>();
 let paused=true, dragging=false;
-let engine: AbstractEngine | undefined;
+let engine: WebGPUEngine | undefined;
 const errors: string[]=[];
 
 function fail(message: string) {
   errors.push(message);paused=true;keys.clear();pausePanel.hidden=false;
   document.querySelector('#pause-title')!.textContent='Не удалось открыть стенд';
   document.querySelector('#pause-description')!.textContent=message;
-  const gpuFailure=engine?.isWebGPU||new URLSearchParams(location.search).get('renderer')==='webgpu';
-  resume.textContent=gpuFailure?'Открыть WebGL2':'Перезагрузить';resume.disabled=false;
-  resume.onclick=()=>{if(gpuFailure){const url=new URL(location.href);url.searchParams.set('renderer','webgl2');location.assign(url);}else location.reload();};
+  resume.textContent='Перезагрузить';resume.disabled=false;
+  resume.onclick=()=>location.reload();
 }
 
 try {
-  const renderer=await createRenderer(canvas);engine=renderer.engine;canvas=renderer.canvas;
-  const rendererSelect=document.querySelector<HTMLSelectElement>('#renderer')!;
-  rendererSelect.value=new URLSearchParams(location.search).get('renderer')||'auto';
-  rendererSelect.onchange=()=>{const url=new URL(location.href);url.searchParams.set('renderer',rendererSelect.value);location.assign(url);};
+  const renderer=await createRenderer(canvas,new URLSearchParams(location.search).get('debug')==='1');engine=renderer.engine;canvas=renderer.canvas;
   const scene=new Scene(engine);scene.useRightHandedSystem=true;
   const camera=new FreeCamera('travel',new Vector3(0,2,5),scene);
   camera.inputs.clear();camera.minZ=config.travel.nearClipM;camera.maxZ=100;
@@ -59,9 +53,7 @@ try {
   const forestMode=showcaseEnabled||new URLSearchParams(location.search).get('scene')==='m1';
   const minimumPitch=showcaseEnabled?-70:config.travel.pitchMinDeg;
   const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
-  const gpuTimingAvailable=typeof Reflect.get(engine,'captureGPUFrameTime')==='function'&&typeof Reflect.get(engine,'getGPUFrameTimeCounter')==='function';
-  const gpuInstrumentation=new URLSearchParams(location.search).get('debug')==='1'&&gpuTimingAvailable?new EngineInstrumentation(engine):null;
-  if(gpuInstrumentation){gpuInstrumentation.captureGPUFrameTime=true;scene.onDisposeObservable.add(()=>gpuInstrumentation.dispose());}
+  if(new URLSearchParams(location.search).get('debug')==='1')engine.enableGPUTimingMeasurements=true;
   const forest=forestMode?await createForest(scene,world.sun):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
   if(forest){for(const [id,label] of [['entrance','01 Вход'],['trunks','02 Папоротники'],['arch','03 Просвет'],['slope','04 К поляне']])document.querySelector(`[data-checkpoint="${id}"]`)!.textContent=label;document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
@@ -193,9 +185,9 @@ try {
       camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas?.isOpen()??false,
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
-      render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,webGLVersion:renderer.kind==='webgl2'?2:null,
+      render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,
         triangles:scene.getActiveIndices()/3,shadowTriangles:shadowPassTriangles,mainTriangles:scene.getActiveIndices()/3-shadowPassTriangles,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
-        gpu:renderer.info,fallbackReason:renderer.fallbackReason,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
+        gpu:renderer.info,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,
       lighting:sunlight?{daylight:daylight?.stats()??null,air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
@@ -302,11 +294,11 @@ try {
 
       shadowPassTriangles=0;
       scene.render();frameCount++;
-      if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({cpuMs:performance.now()-now,gpuMs:(gpuInstrumentation?.gpuFrameTimeCounter.current??0)/1e6});
+      if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({cpuMs:performance.now()-now,gpuMs:(engine!.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
       if(now-uiTime>400){
         uiTime=now;const s=state();
         document.querySelector('#fps')!.textContent=`${Math.round(engine!.getFps())} FPS`;
-        metrics.textContent=`${s.render.width} × ${s.render.height} · ${renderer.kind==='webgpu'?'WebGPU':'WebGL2'}\n${Math.round(s.render.mainTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(s.render.shadowTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(s.render.triangles).toLocaleString('ru-RU')}\n${s.render.drawCalls} вызовов отрисовки\nКамера ${Vector3.Distance(camera.position,new Vector3(anchor.x,anchor.y,anchor.z)).toFixed(2)} м · наклон ${pitch.toFixed(0)}°${renderer.fallbackReason?'\nАвтоматически включён WebGL2: '+renderer.fallbackReason:''}`;
+        metrics.textContent=`${s.render.width} × ${s.render.height} · WebGPU\n${Math.round(s.render.mainTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(s.render.shadowTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(s.render.triangles).toLocaleString('ru-RU')}\n${s.render.drawCalls} вызовов отрисовки\nКамера ${Vector3.Distance(camera.position,new Vector3(anchor.x,anchor.y,anchor.z)).toFixed(2)} м · наклон ${pitch.toFixed(0)}°`;
         if(forest)metrics.textContent+=`\nДеревья: ${forest.stats().trees} · LOD ${forest.stats().lodCounts.join(' / ')}`;
         document.querySelector('#location')!.textContent=forest&&(Math.abs(player.e)>24||player.n<-12||player.n>64)?'Большой лес':player.n<10?'Западный вход':player.n<19?'Между стволами':player.n<30?(forest?'Лесная тропа':'Низкая арка'):player.n<47?'Подъём к свету':'Верхняя поляна';
       }

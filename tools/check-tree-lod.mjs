@@ -1,7 +1,7 @@
 import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
-const backend = process.argv.includes('--webgl2') ? 'webgl2' : 'webgpu';
+const backend = 'webgpu';
 const url = process.env.WORLD_URL ?? 'http://127.0.0.1:4181/';
 const browser = await chromium.launch({ channel: 'chrome', headless: false });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });

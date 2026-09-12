@@ -4,7 +4,7 @@ import {createCoverField} from './cover-field.ts';
 import {COVER} from '../domain/cover-field.ts';
 import {showcaseEnabled} from '../domain/showcase.ts';
 import {MaterialPluginBase} from '@babylonjs/core/Materials/materialPluginBase.js';
-import type {ShaderLanguage} from '@babylonjs/core/Materials/shaderLanguage.js';
+import { ShaderLanguage } from '@babylonjs/core/Materials/shaderLanguage.js';
 import type {UniformBuffer} from '@babylonjs/core/Materials/uniformBuffer.js';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
 import {VertexData} from '@babylonjs/core/Meshes/mesh.vertexData.js';
@@ -22,11 +22,11 @@ import foliageURL from '../../assets/floor/foliage.png';
 class GrassDistance extends MaterialPluginBase {
  feet:Point3={x:0,y:0,z:0};
  constructor(material:StandardMaterial){super(material,'GrassDistance',220,{GRASS_DISTANCE:true},true,false);this._enable(true);}
- override isCompatible(_language:ShaderLanguage){return true;}
+ override isCompatible(language: ShaderLanguage) { return language === ShaderLanguage.WGSL; }
  override getAttributes(attributes:string[]){attributes.push('bladeHeight');}
- override getUniforms(language:ShaderLanguage){return {ubo:[{name:'grassFeet',size:3,type:'vec3'}],vertex:language===0?'#ifndef UNIFORMBUFFERS\nuniform vec3 grassFeet;\n#endif':''};}
+ override getUniforms(){return {ubo:[{name:'grassFeet',size:3,type:'vec3'}]};}
  override bindForSubMesh(ubo:UniformBuffer){ubo.updateFloat3('grassFeet',this.feet.x,this.feet.y,this.feet.z);}
- override getCustomCode(type:string,language:ShaderLanguage){if(type!=='vertex')return null;return {CUSTOM_VERTEX_DEFINITIONS:language===1?'attribute bladeHeight: f32;':'attribute float bladeHeight;',CUSTOM_VERTEX_UPDATE_POSITION:language===1?'positionUpdated.y -= vertexInputs.bladeHeight * smoothstep(14.0,21.0,distance(positionUpdated.xz,uniforms.grassFeet.xz));':'positionUpdated.y -= bladeHeight * smoothstep(14.0,21.0,distance(positionUpdated.xz,grassFeet.xz));'};}
+ override getCustomCode(type: string){if(type!=='vertex')return null;return {CUSTOM_VERTEX_DEFINITIONS:'attribute bladeHeight: f32;',CUSTOM_VERTEX_UPDATE_POSITION:'positionUpdated.y -= vertexInputs.bladeHeight * smoothstep(14.0,21.0,distance(positionUpdated.xz,uniforms.grassFeet.xz));'};}
 }
 
 /** Painted litter with mipmaps; mirrored wrap makes unmatched tile edges continuous. */

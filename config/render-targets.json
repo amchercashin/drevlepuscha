@@ -27,6 +27,5 @@
   "fixedTimeSeconds": 0,
   "visibleTrianglesAdvisory": 300000,
   "drawCallsAdvisory": 150,
-  "measurementNote": "Unmeasured starting budgets. Target 60 FPS on the baseline Mac at 1280x720; 30 FPS is a degraded fallback, not acceptance of that target. Validate real forest assets, streaming and sustained performance on this Mac and the destination Windows PC. See docs/DESIGN.md.",
-  "fallbackRuntime": "WebGL2"
+  "measurementNote": "Unmeasured starting budgets. Target 60 FPS on the baseline Mac at 1280x720; 30 FPS is a degraded fallback, not acceptance of that target. Validate real forest assets, streaming and sustained performance on this Mac and the destination Windows PC. See docs/DESIGN.md."
 }

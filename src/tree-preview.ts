@@ -82,9 +82,9 @@ try {
   download.onclick=()=>{const url=URL.createObjectURL(new Blob([treeGLB(parts,textureBytes,version,exportOptions)],{type:'model/gltf-binary'}));const a=document.createElement('a');a.href=url;a.download=`${version}.glb`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   function resize(){const scale=Math.min(1,1280/canvas.clientWidth,720/canvas.clientHeight);engine.setSize(Math.round(canvas.clientWidth*scale),Math.round(canvas.clientHeight*scale));}resize();window.addEventListener('resize',resize);
   const triangles=parts.reduce((s,p)=>s+p.indices.length/3,0),vertices=parts.reduce((s,p)=>s+p.positions.length/3,0);
-  document.querySelector('#tree-stats')!.textContent=`${triangles.toLocaleString('ru-RU')} треугольников\nМатериалы: ${parts.length} · ${renderer.kind==='webgpu'?'WebGPU':'WebGL2'}\nНастоящая объёмная геометрия`;
+  document.querySelector('#tree-stats')!.textContent=`${triangles.toLocaleString('ru-RU')} треугольников\nМатериалы: ${parts.length} · WebGPU\nНастоящая объёмная геометрия`;
   let frames=0;const times:number[]=[];let last=performance.now();
   engine.runRenderLoop(()=>{scene.render();frames++;const now=performance.now();if(frames>60){times.push(now-last);if(times.length>3600)times.shift();}last=now;});
   if(new URLSearchParams(location.search).has('debug'))Object.defineProperty(window,'treePreview',{value:{preset,stats:()=>({version,triangles,vertices,materials:parts.length,renderer:renderer.kind,frames,camera:camera.position.asArray(),frameTimes:[...times]}),orbit:(angle:number)=>{camera.alpha=angle;},exportGLB:()=>Array.from(new Uint8Array(treeGLB(parts,textureBytes,version,exportOptions)))}});
   window.addEventListener('pagehide',()=>{scene.dispose();engine.dispose();},{once:true});
-} catch(error){const el=document.querySelector<HTMLElement>('#error')!;el.hidden=false;el.textContent=`Не удалось открыть дерево: ${String(error)}\nПопробуйте добавить ?renderer=webgl2 к адресу.`;console.error(error);}
+} catch(error){const el=document.querySelector<HTMLElement>('#error')!;el.hidden=false;el.textContent=`Не удалось открыть дерево: ${String(error)}\nДля просмотра нужен WebGPU. Обновите браузер и проверьте аппаратное ускорение.`;console.error(error);}

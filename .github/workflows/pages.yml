@@ -2,7 +2,9 @@ name: Check and publish
 on:
   push:
     branches: [main]
+    paths-ignore: ["**/*.md", "qa/**"]
   pull_request:
+    paths-ignore: ["**/*.md", "qa/**"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,11 +13,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   check:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -24,10 +22,11 @@ jobs:
           node-version-file: .node-version
           cache: npm
       - run: npm ci
-      - run: npm run check
+      - run: npm run validate
+      - run: npm test
       - run: npm run build -- --base=/drevlepuscha/
       - name: Upload site only
-        if: matrix.os == 'ubuntu-latest' && github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
           path: dist

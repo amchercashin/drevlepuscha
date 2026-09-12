@@ -1,6 +1,6 @@
 import {chromium} from '@playwright/test';import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
-const url=process.env.WORLD_URL??'http://127.0.0.1:4181/',backend=process.argv.includes('--webgpu')?'webgpu':'webgl2';
+const url=process.env.WORLD_URL??'http://127.0.0.1:4181/',backend='webgpu';
 const b=await chromium.launch({channel:'chrome',headless:false}),p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true}),errors=[];
 let release;const gate=new Promise(r=>release=r);let held=false;const report={url,backend,errors};
 p.on('pageerror',e=>errors.push(e.message));

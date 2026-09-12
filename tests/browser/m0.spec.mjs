@@ -97,22 +97,6 @@ test('private references are absent from the build and ordinary page has no QA c
   expect(await page.evaluate(()=>typeof window.m0)).toBe('undefined');
 });
 
-test('auto falls back to WebGL2 when WebGPU is unavailable',async({page})=>{
-  await page.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined,configurable:true}));
-  await page.goto('/?scene=m0&debug=1');await page.waitForFunction(()=>window.m0?.state().ready);
-  const s=await page.evaluate(()=>window.m0.state());expect(s.render.backend).toBe('webgl2');
-  expect(s.render.fallbackReason).toContain('WebGPU');expect(s.errors).toEqual([]);
-});
-
-test('explicit unsupported WebGPU offers a working WebGL2 recovery button',async({page})=>{
-  await page.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined,configurable:true}));
-  await page.goto('/?scene=m0&debug=1&renderer=webgpu');
-  await page.getByRole('button',{name:'Открыть WebGL2'}).click();
-  await page.waitForFunction(()=>window.m0?.state().ready);
-  expect((await page.evaluate(()=>window.m0.state())).render.backend).toBe('webgl2');
-});
-
-
 test('arch fades smoothly while every frame keeps the chosen orbit and shared stone stays opaque',async({page})=>{
   await start(page);
   await page.evaluate(()=>{

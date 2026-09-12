@@ -1,4 +1,3 @@
-import type { WebGPUEngine } from '@babylonjs/core/Engines/webgpuEngine.js';
 import '../style.css';
 import { createRenderer } from '../runtime/engine.ts';
 import {createDaylight} from '../runtime/daylight.ts';
@@ -17,7 +16,6 @@ import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder.js';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode.js';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial.js';
 import { SceneInstrumentation } from '@babylonjs/core/Instrumentation/sceneInstrumentation.js';
-import { EngineInstrumentation } from '@babylonjs/core/Instrumentation/engineInstrumentation.js';
 import { WorldStreamer } from './streamer.ts';
 import { createWorldMap } from './map-ui.ts';
 import { cameraOffset, normalizeAzimuth, shortestAngleDelta } from '../domain/coordinates.ts';
@@ -32,9 +30,9 @@ const pause = $('#pause'), resume = $<HTMLButtonElement>('#resume');
 const errors: string[] = [];
 let world: WorldStreamer | undefined;
 function poiOffset(id: string) { return ({ hay_gate: [-12, 0], tom_house: [-16, 0], old_man_willow: [-18, 12], lily_pool: [0, 25], short_fall: [0, 24] } as Record<string, number[]>)[id] ?? [0, 0]; }
-function error(message: string) { errors.push(message); $('#pause-title').textContent = 'Не удалось открыть лес'; $('#pause-description').textContent = message; pause.hidden = false; resume.disabled = false; resume.textContent = 'Повторить'; resume.onclick = () => location.reload(); }
+function error(message: string) { errors.push(message); $('#pause-title').textContent = 'Не удалось открыть лес'; $('#pause-description').textContent = message; pause.hidden = false; resume.disabled = false; resume.textContent = 'Перезагрузить'; resume.onclick = () => location.reload(); }
 try {
-    const renderer = await createRenderer(canvas, true, 'webgpu'), engine = renderer.engine;
+    const renderer = await createRenderer(canvas, true), engine = renderer.engine;
     canvas = renderer.canvas;
     engine.useReverseDepthBuffer = true;
     const scene = new Scene(engine);
@@ -103,13 +101,9 @@ try {
     pack.parent = hero;
     pack.position.set(0, .53, .22);
     pack.material = hoodMat;
-    const sceneMetrics = new SceneInstrumentation(scene), gpuMetrics = new EngineInstrumentation(engine);
-    const webgpu = engine.isWebGPU ? engine as WebGPUEngine : undefined;
-    if (webgpu)
-        webgpu.enableGPUTimingMeasurements = true;
-    else
-        gpuMetrics.captureGPUFrameTime = true;
-    function gpuTime() { return webgpu?.gpuTimeInFrameForMainPass?.counter.current !== undefined ? webgpu.gpuTimeInFrameForMainPass.counter.current / 1e6 : gpuMetrics.gpuFrameTimeCounter.current / 1e6; }
+    const sceneMetrics = new SceneInstrumentation(scene);
+    engine.enableGPUTimingMeasurements = true;
+    function gpuTime() { return (engine.gpuTimeInFrameForMainPass?.counter.current ?? 0) / 1e6; }
     $('#pause-title').textContent = 'За Высокой Изгородью';
     $('#pause-description').textContent = 'Подготавливается место, где начнётся прогулка…';
     $('.badge').textContent = 'Древлепуща · 718 км²';
@@ -137,9 +131,6 @@ try {
     quality.onchange = resize;
     window.addEventListener('resize', resize);
     resize();
-    const rendererSelect = $<HTMLSelectElement>('#renderer');
-    rendererSelect.value = params.get('renderer') ?? 'webgpu';
-    rendererSelect.onchange = () => { const url = new URL(location.href); url.searchParams.set('renderer', rendererSelect.value); location.assign(url); };
     $('#preset').closest('label');
     $('#preset').setAttribute('hidden', '');
     document.querySelector('label[for="preset"]')?.setAttribute('hidden', '');

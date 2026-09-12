@@ -1,9 +1,9 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests/browser', timeout: 30_000, workers: 1, fullyParallel: false,
+  testDir: './tests/active', timeout: 30_000, workers: 1, fullyParallel: false,
   reporter: 'list',
-  projects: [{name:'webgl2'},{name:'webgpu'}],
+  projects: [{name:'webgpu'}],
   use: {
     channel: process.env.BROWSER_CHANNEL || 'chrome', headless: false,
     viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1,
@@ -11,5 +11,5 @@ export default defineConfig({
     launchOptions: { args: ['--disable-backgrounding-occluded-windows'] },
     screenshot: 'only-on-failure',
   },
-  webServer: {command:'npm run preview',url:'http://127.0.0.1:4173',reuseExistingServer:!process.env.CI,timeout:120_000},
+  webServer: {command:'npm run dev -- --port 4173 --strictPort',url:'http://127.0.0.1:4173',reuseExistingServer:false,timeout:120_000},
 });

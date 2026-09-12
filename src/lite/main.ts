@@ -38,11 +38,9 @@ function fail(message:string){
 }
 
 try{
+ if(!Reflect.get(navigator,'gpu'))throw new Error('Для прогулки нужен WebGPU. Обновите браузер и проверьте аппаратное ускорение.');
  const engine=await createEngine(canvas,{msaaSamples:4,maxDevicePixelRatio:2});
  canvas=engine.canvas as HTMLCanvasElement;
- const rendererSelect=document.querySelector<HTMLSelectElement>('#renderer')!;
- rendererSelect.value='webgpu';
- rendererSelect.onchange=()=>{const url=new URL(location.href);url.searchParams.set('renderer',rendererSelect.value);if(rendererSelect.value!=='webgpu')url.searchParams.delete('engine');location.assign(url);};
  const scene=createSceneContext(engine);
  const camera=createFreeCamera({x:0,y:2,z:5},{x:0,y:1,z:0});
  camera.nearPlane=config.travel.nearClipM;camera.farPlane=1000;
@@ -155,9 +153,9 @@ try{
    camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas.isOpen(),
    playerClear:walkerIsClear(player,world.boxes),
    faded:[...occluderOpacity.entries()].filter(([,o])=>o<1).map(([id,opacity])=>({id,opacity})),
-   render:{width:canvas.width,height:canvas.height,backend:'webgpu',webGLVersion:null,
+   render:{width:canvas.width,height:canvas.height,backend:'webgpu',
     triangles:0,shadowTriangles:0,mainTriangles:0,drawCalls:engine.drawCallCount,meshes:scene.meshes.length,
-    gpu:{vendor:'webgpu',renderer:'lite',version:'1.28.0'},fallbackReason:null,devicePixelRatio:window.devicePixelRatio,internalDpr:canvas.height/Math.max(1,canvas.clientHeight),resolutionQuality:quality},
+    gpu:{vendor:'webgpu',renderer:'lite',version:'1.28.0'},devicePixelRatio:window.devicePixelRatio,internalDpr:canvas.height/Math.max(1,canvas.clientHeight),resolutionQuality:quality},
    errors:[...errors],seed:targets.fixedSeed,sceneVersion:'ravine-showcase-lite-v1',demo,forest:forest.stats(),floor:floor.stats(),
    lighting:{daylight:daylight.stats(),air:{raysEnabled:false,analyticBeams:0,method:'scene-fog',density:scene.fog?.density??0,steps:0,heightOriginM:null,maxDistanceM:0,scale:1,extraGeometryPasses:0},filter:'pcf',mapSize:512,probe:null},
   };
