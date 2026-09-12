@@ -1,4 +1,5 @@
 import {showcaseEnabled} from './showcase.ts';
+import {trailClearance} from './trail-edge.ts';
 import {groundHeight,pathCentre} from './harness.ts';
 import type {Box} from './harness.ts';
 import {FOREST_BOUNDS} from './forest.ts';
@@ -16,7 +17,7 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
  const grass=geometry(),leaves=geometry(),random=createRandom(seedFor('m1-floor-art-v1',cx,cz));
  const nearby=boxes.filter(b=>b.max.x>=cx*8-1&&b.min.x<=(cx+1)*8+1&&b.max.z>=-(cz+1)*8-1&&b.min.z<=-cz*8+1);
  function allowed(e:number,n:number,r:number){
-  if(placementAllowed?!placementAllowed(e,n,r):(e<FOREST_BOUNDS.minE||e>FOREST_BOUNDS.maxE||n<FOREST_BOUNDS.minN||n>FOREST_BOUNDS.maxN||Math.abs(e-pathCentre(n))<1.7+r))return false;
+  if(placementAllowed?!placementAllowed(e,n,r):(e<FOREST_BOUNDS.minE||e>FOREST_BOUNDS.maxE||n<FOREST_BOUNDS.minN||n>FOREST_BOUNDS.maxN||(showcaseEnabled?trailClearance(e,n,pathCentre(n))<.2+r:Math.abs(e-pathCentre(n))<1.7+r)))return false;
   if(nearby.some(b=>e>b.min.x-r&&e<b.max.x+r&&-n>b.min.z-r&&-n<b.max.z+r))return false;
   // Bare steep banks, richer pockets on gentler ground; no assumption of a flat floor.
   const slope=Math.hypot(height(e+.25,n)-height(e-.25,n),height(e,n+.25)-height(e,n-.25))*2;

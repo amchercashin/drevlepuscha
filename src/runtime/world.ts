@@ -1,4 +1,4 @@
-import {showcaseEnabled,groundTrialContains} from '../domain/showcase.ts';
+import {showcaseEnabled,showcaseBaseHeight} from '../domain/showcase.ts';
 import {createGroundTrial} from './ground-trial.ts';
 import {createForestProps} from './forest-props.ts';
 import {SoilPattern} from './soil-pattern.ts';
@@ -65,13 +65,13 @@ export function createWorld(scene: Scene, forestMode=false) {
   const path = color('path'), earth = Color3.FromHexString('#63735b');
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
     const e = bounds.minE + i*step, n = north[j];
-    pos.push(e, groundHeight(e, n), -n);uvs.push(e/5,n/5);
+    pos.push(e, showcaseEnabled?showcaseBaseHeight(e,n):groundHeight(e,n), -n);uvs.push(e/5,n/5);
     const blend = Math.max(0, 1 - Math.max(0, Math.abs(e - pathCentre(n)) - 0.75) / 1.4);
     const soil=forestMode?Color3.Lerp(Color3.FromHexString('#686049'),Color3.FromHexString('#65724a'),0.5+0.3*Math.sin(e*0.31+n*0.17)+0.2*Math.sin(n*0.61-e*0.23)):earth;
     const c = Color3.Lerp(soil, path, blend);
     const shade = 0.96 + 0.04 * Math.sin(e * 0.72 + n * 0.33);
     colors.push(...(forestMode?[1,1,1,1]:[c.r * shade, c.g * shade, c.b * shade, 1]));
-    if (i < cols - 1 && j < rows - 1 && !(showcaseEnabled&&groundTrialContains(e+step/2,n+step/2))) {
+    if (i < cols - 1 && j < rows - 1) {
       const k = j * cols + i;
       indices.push(k, k + 1, k + cols, k + 1, k + cols + 1, k + cols);
     }
@@ -81,10 +81,10 @@ export function createWorld(scene: Scene, forestMode=false) {
   const earthMaterial = material('earth', Color3.White()); earthMaterial.backFaceCulling = false;
   if(forestMode){earthMaterial.diffuseTexture=soilTexture(scene);new SoilPattern(earthMaterial);mesh.receiveShadows=true;}
   mesh.material = earthMaterial;
-  const groundTrial=showcaseEnabled?createGroundTrial(scene,(e,n)=>{
+  const groundTrial=showcaseEnabled?createGroundTrial(scene,earthMaterial,(e,n)=>{
     const x=(e-bounds.minE)/step,z=(n-bounds.minN)/step,i=Math.floor(x),j=Math.floor(z),u=x-i,v=z-j;
-    const sample=(a:number,b:number,c:number)=>normals[(b*cols+a)*3+c];
-    return [0,1,2].map(c=>(1-v)*((1-u)*sample(i,j,c)+u*sample(i+1,j,c))+v*((1-u)*sample(i,j+1,c)+u*sample(i+1,j+1,c)));
+    const sample=(a:number,b:number,c:number)=>normals[(Math.max(0,Math.min(rows-1,b))*cols+Math.max(0,Math.min(cols-1,a)))*3+c];
+    return [0,1,2].map(c=>{const a=sample(i,j,c),b=sample(i+1,j,c),d=sample(i,j+1,c),f=sample(i+1,j+1,c);return u+v<=1?a+(b-a)*u+(d-a)*v:f+(d-f)*(1-u)+(b-f)*(1-v);});
   }):null;
 
   function box(id: string, e: number, n: number, width: number, height: number, depth: number, bottom = groundHeight(e, n)) {
@@ -130,7 +130,7 @@ export function createWorld(scene: Scene, forestMode=false) {
   if(forestMode)createForestProps(scene,boxes);
   for(const m of scene.meshes) {m.freezeWorldMatrix();m.isPickable=false;}
 
-  const occluders=scene.meshes.filter(m=>m!==mesh&&m!==groundTrial?.mesh&&m!==groundTrial?.accents);
+  const occluders=scene.meshes.filter(m=>m!==mesh&&!m.metadata?.showcaseGround);
 
   const player=new TransformNode('traveller',scene);
   const coat=CreateCylinder('coat',{height:0.67,diameterTop:0.27,diameterBottom:0.48,tessellation:8},scene);

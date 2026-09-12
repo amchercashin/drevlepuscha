@@ -120,6 +120,7 @@ try {
     button.onclick=()=>{reset(button.dataset.checkpoint as keyof typeof CHECKPOINTS);focusScene();};
   }
   await waitForTextures(scene.textures.filter(t=>!t.isRenderTarget),(ready,total)=>{resume.textContent=`Материалы леса · ${ready}/${total}`;});
+  await world.groundTrial?.prepare({x:player.e,y:groundHeight(player.e,player.n),z:-player.n});
   if(showcaseEnabled&&floor)await floor.prepare({x:player.e,y:groundHeight(player.e,player.n),z:-player.n},ready=>{resume.textContent=`Растительность · ${ready}`;});
   resume.disabled=false;resume.textContent='Начать прогулку';resume.onclick=focusScene;
   let cameraLift=0;
@@ -277,6 +278,7 @@ try {
       }
       forest?.update(desired,feet,dt);
       floor?.update(feet);
+      world.groundTrial?.update(feet);
       if(sunlight&&forest){
        if(daylight){
         const d=world.sun.direction.normalizeToNew(),az=Math.atan2(d.x,d.z),el=Math.asin(Math.max(-1,Math.min(1,d.y)));
