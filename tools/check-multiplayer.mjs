@@ -39,7 +39,14 @@ try{
  await joined[2].locator('#leave').click();await waitCount(host,3);
  await denied.locator('#retry').click();await waitCount(denied,4);await waitCount(host,4);
  console.log('PASS: released slot and retry after full room');
- const report=await inspect(host);
+ const report=await inspect(host),guestReport=await inspect(denied);
+ assert.equal(report.reportVersion,3);assert.equal(report.roomTag,guestReport.roomTag);
+ assert.ok(report.attempts.some(a=>a.remoteDescription&&a.state==='connected'));
+ assert.ok(guestReport.signaling.some(s=>s.signalsReceived>0));
+ const diagnosticText=JSON.stringify(report);
+ assert.ok(!diagnosticText.includes(new URL(invite).hash.slice(1)));
+ assert.ok(!diagnosticText.includes(new URLSearchParams(new URL(invite).hash.slice(1)).get('key')));
+ console.log('PASS: matching room tags, signaling and RTC attempts, invite key excluded');
  assert.ok(report.messagesSent>20);assert.ok(report.messagesReceived>5);assert.ok(report.connections.every(c=>c.state==='connected'&&c.route!=='unknown'));
  await host.locator('#leave').click();
  for(const page of [joined[0],joined[1],denied])await page.waitForFunction(()=>document.querySelector('#dot').dataset.phase==='ended',{},{timeout:10000});

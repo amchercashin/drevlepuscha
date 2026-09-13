@@ -1,4 +1,4 @@
-import {joinRoom, selfId, getRelaySockets} from './signaling.ts';
+import {joinRoom, selfId, getRelaySockets, getSignalingDiagnostics} from './signaling.ts';
 import type {Room, MessageAction} from '@trystero-p2p/core';
 import {Admission, MAX_PLAYERS, PROTOCOL, cleanName, record, validPosition, validRoster} from './protocol.ts';
 import type {Invitation, Player, Position} from './protocol.ts';
@@ -11,6 +11,7 @@ export const ICE_SERVERS: RTCIceServer[] = [
 ];
 export type Phase = 'starting' | 'waiting' | 'joining' | 'connected' | 'reconnecting' | 'full' | 'ended' | 'error';
 export type RoomOptions = {capacity?: number; appId?: string; initial?: Position; spawn?: (slot: number) => Position; onSpawn?: (position: Position) => void};
+type RtcAttempt = {id: number; startedAt: number; state: string; ice: string; gathering: string; localDescription: string; remoteDescription: string; localTypes: Record<string,number>; remoteTypes: Record<string,number>; failed: boolean};
 type Snapshot = {v: number; tick: number; players: Player[]};
 export class WalkRoom {
   readonly id = selfId;
@@ -21,6 +22,10 @@ export class WalkRoom {
   sent = 0;
   received = 0;
   readonly started = Date.now();
+  private rtcCreated = 0;
+  private rtcAttempts: RtcAttempt[] = [];
+  private joinFailures: string[] = [];
+  private roomTag: Promise<string>;
   readonly events: {at: number; event: string}[] = [];
   readonly iceTypes: Record<string, number> = {};
   readonly iceErrors: {url: string; code: number}[] = [];
@@ -46,6 +51,7 @@ export class WalkRoom {
   private bye: MessageAction<{v: number}>;
 
   constructor(readonly invite: Invitation, host: boolean, name: string, private options: RoomOptions = {}) {
+    this.roomTag = crypto.subtle.digest('SHA-256',new TextEncoder().encode(`${options.appId ?? 'probe'}:${invite.room}:${invite.host}`)).then(hash => Array.from(new Uint8Array(hash).slice(0,8), b => b.toString(16).padStart(2,'0')).join(''));
     this.capacity = options.capacity ?? MAX_PLAYERS;
     this.admission = new Admission(this.capacity);
     this.host = host;
@@ -60,14 +66,32 @@ export class WalkRoom {
     if (host) this.players.set(selfId, {...this.local});
     const owner = this;
     class ObservedRTC extends RTCPeerConnection {
+      private trace: RtcAttempt;
       constructor(config?: RTCConfiguration) {
         super(config);
+        const trace: RtcAttempt = {id: ++owner.rtcCreated,startedAt:Date.now(),state:this.connectionState,ice:this.iceConnectionState,gathering:this.iceGatheringState,localDescription:'',remoteDescription:'',localTypes:{},remoteTypes:{},failed:false};
+        this.trace=trace;owner.rtcAttempts.push(trace);
+        if(owner.rtcAttempts.length>100)owner.rtcAttempts.shift();
+        const update=()=>{
+          trace.state=this.connectionState;trace.ice=this.iceConnectionState;trace.gathering=this.iceGatheringState;
+          trace.failed ||= trace.state==='failed'||trace.ice==='failed';
+          if(this.localDescription)trace.localDescription=this.localDescription.type;
+          if(this.remoteDescription)trace.remoteDescription=this.remoteDescription.type;
+        };
+        for(const event of ['connectionstatechange','iceconnectionstatechange','icegatheringstatechange','signalingstatechange'])this.addEventListener(event,update);
         this.addEventListener('icecandidate', event => {
-          if (event.candidate?.type) owner.iceTypes[event.candidate.type] = (owner.iceTypes[event.candidate.type] ?? 0) + 1;
+          if (event.candidate?.type) {
+            const type=event.candidate.type;owner.iceTypes[type]=(owner.iceTypes[type]??0)+1;trace.localTypes[type]=(trace.localTypes[type]??0)+1;
+          }
         });
         this.addEventListener('icecandidateerror', event => {
           if (owner.iceErrors.length < 20 && !owner.iceErrors.some(e => e.url === event.url && e.code === event.errorCode)) owner.iceErrors.push({url: event.url, code: event.errorCode});
         });
+      }
+      override async addIceCandidate(candidate?: RTCIceCandidateInit | null) {
+        await super.addIceCandidate(candidate);
+        const type=candidate?.candidate?.match(/ typ (host|srflx|prflx|relay)(?: |$)/)?.[1];
+        if(type)this.trace.remoteTypes[type]=(this.trace.remoteTypes[type]??0)+1;
       }
     }
     this.room = joinRoom({
@@ -118,6 +142,8 @@ export class WalkRoom {
       onJoinError: ({peerId, error}) => {
         if (host && !this.players.has(peerId)) this.release(peerId);
         this.log('handshake-failed');
+        const failure=error.includes('after exchanging SDP')?'ice-connect-failed':error.includes('password')?'password-rejected':error.includes('incompatible')?'room-mismatch':error.includes('full')?'room-full':'handshake-rejected';
+        this.joinFailures.push(failure);if(this.joinFailures.length>20)this.joinFailures.shift();
         console.warn('Network room handshake:', error);
         if (!host && !this.stopped && this.phase !== 'full' && this.phase !== 'connected') {
           this.detail = 'Не удалось установить связь с ведущим. Оставьте обе вкладки открытыми или повторите подключение.';
@@ -240,7 +266,9 @@ export class WalkRoom {
           rttMs: typeof data?.currentRoundTripTime === 'number' ? Math.round(data.currentRoundTripTime * 1000) : null};
       } catch {return {state: pc.connectionState, route: 'unknown'};}
     }));
-    return {version: PROTOCOL, date: new Date().toISOString(), durationSeconds: Math.round((Date.now() - this.started) / 1000),
+    return {version: PROTOCOL, reportVersion:3, roomTag:await this.roomTag, signaling:getSignalingDiagnostics(),
+      rtcCreated:this.rtcCreated, attempts:this.rtcAttempts.filter(t=>t.remoteDescription||t.failed).slice(-20).map(t=>({...t,localTypes:{...t.localTypes},remoteTypes:{...t.remoteTypes}})),joinFailures:[...this.joinFailures],
+      date: new Date().toISOString(), durationSeconds: Math.round((Date.now() - this.started) / 1000),
       role: this.host ? 'host' : 'guest', phase: this.phase, capacity: this.capacity, players: this.players.size, messagesSent: this.sent, messagesReceived: this.received,
       relays: this.relayStatus(), connections, iceTypes: {...this.iceTypes}, iceErrors: [...this.iceErrors], turnConfigured: false,
       events: [...this.events], online: navigator.onLine, visible: !document.hidden};
