@@ -33,6 +33,8 @@
   "dependencies": {
     "@babylonjs/core": "9.25.0",
     "@babylonjs/lite": "1.28.0",
-    "@babylonjs/loaders": "9.25.0"
+    "@babylonjs/loaders": "9.25.0",
+    "@trystero-p2p/core": "0.25.4",
+    "mqtt": "5.15.2"
   }
 }
