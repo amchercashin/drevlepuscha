@@ -1,7 +1,7 @@
-export const PROTOCOL = 1;
+export const PROTOCOL = 2;
 export const MAX_PLAYERS = 4;
-export const COLORS = ['#d0a15b', '#80b9ad', '#c394b6', '#91aedd'];
-export type Position = {x: number; y: number; seq: number};
+export const COLORS = ['#d0a15b', '#80b9ad', '#c394b6', '#91aedd', '#c5cc83', '#da9b80'];
+export type Position = {x: number; y: number; seq: number; heading?: number; speed?: number; running?: boolean};
 export type Player = Position & {id: string; name: string; slot: number};
 export type Invitation = {room: string; host: string; key: string};
 export const record = (value: unknown): value is Record<string, unknown> =>
@@ -11,15 +11,18 @@ export const cleanName = (value: unknown) => typeof value === 'string'
 export function validPosition(value: unknown): value is Position {
   return record(value) && typeof value.x === 'number' && Number.isFinite(value.x) && value.x >= 0 && value.x <= 1
     && typeof value.y === 'number' && Number.isFinite(value.y) && value.y >= 0 && value.y <= 1
+    && (value.heading === undefined || typeof value.heading === 'number' && Number.isFinite(value.heading) && Math.abs(value.heading) <= 360)
+    && (value.speed === undefined || typeof value.speed === 'number' && Number.isFinite(value.speed) && value.speed >= 0 && value.speed <= 20)
+    && (value.running === undefined || typeof value.running === 'boolean')
     && Number.isSafeInteger(value.seq) && Number(value.seq) >= 0;
 }
-export function validPlayer(value: unknown): value is Player {
+export function validPlayer(value: unknown, capacity = MAX_PLAYERS): value is Player {
   return record(value) && typeof value.id === 'string' && /^[a-zA-Z0-9_-]{8,64}$/.test(value.id)
     && typeof value.name === 'string' && value.name === cleanName(value.name)
-    && Number.isInteger(value.slot) && Number(value.slot) >= 0 && Number(value.slot) < MAX_PLAYERS && validPosition(value);
+    && Number.isInteger(value.slot) && Number(value.slot) >= 0 && Number(value.slot) < capacity && validPosition(value);
 }
-export function validRoster(value: unknown): value is Player[] {
-  return Array.isArray(value) && value.length > 0 && value.length <= MAX_PLAYERS && value.every(validPlayer)
+export function validRoster(value: unknown, capacity = MAX_PLAYERS): value is Player[] {
+  return Array.isArray(value) && value.length > 0 && value.length <= capacity && value.every(p => validPlayer(p, capacity))
     && new Set(value.map(p => p.id)).size === value.length && new Set(value.map(p => p.slot)).size === value.length;
 }
 export function parseInvitation(hash: string): Invitation | null {
@@ -34,11 +37,13 @@ export function invitationHash(invite: Invitation): string {
 }
 /** Reserve synchronously before awaiting network I/O; pending peers also use a slot. */
 export class Admission {
+  private capacity: number;
+  constructor(capacity = MAX_PLAYERS) {this.capacity = capacity;}
   private slots = new Map<string, number>();
   reserve(id: string): number | null {
     const existing = this.slots.get(id);
     if (existing !== undefined) return existing;
-    for (let slot = 1; slot < MAX_PLAYERS; slot++) {
+    for (let slot = 1; slot < this.capacity; slot++) {
       if (![...this.slots.values()].includes(slot)) {this.slots.set(id, slot); return slot;}
     }
     return null;

@@ -25,3 +25,15 @@ test('one invitation round-trips; incomplete and malformed invitations cannot au
   assert.equal(parseInvitation('#room=test'),null);
   assert.equal(parseInvitation('#'+invitationHash({...invitation,host:'<script>'})),null);
 });
+
+test('six-person showcase validates pose and reserves only five guest slots', () => {
+  const admission=new Admission(6);
+  assert.deepEqual(['a','b','c','d','e','f'].map(id=>admission.reserve(id)),[1,2,3,4,5,null]);
+  const pose={x:.2,y:.4,seq:1,heading:359,speed:15,running:true};
+  assert.equal(validPosition(pose),true);
+  for(const invalid of [{heading:NaN},{heading:400},{speed:-1},{speed:Infinity},{running:'yes'}])assert.equal(validPosition({...pose,...invalid}),false);
+  const roster=Array.from({length:6},(_,slot)=>({...pose,id:`traveller-${slot}`,name:'Следопыт',slot}));
+  assert.equal(validRoster(roster,6),true);
+  assert.equal(validRoster(roster),false);
+  assert.equal(validRoster([...roster,{...roster[0],id:'traveller-7',slot:6}],6),false);
+});

@@ -100,7 +100,7 @@ try {
   function setPaused(value:boolean) {
     paused=value;keys.clear();dragging=false;
     pausePanel.hidden=!value;
-    if(value) {document.querySelector('#pause-title')!.textContent='Прогулка на паузе';resume.textContent='Продолжить';}
+    if(value) {multiplayer?.stopMotion();document.querySelector('#pause-title')!.textContent='Прогулка на паузе';resume.textContent='Продолжить';}
     previousTime=performance.now();
   }
   function focusScene() {setPaused(false);canvas.focus({preventScroll:true});}
@@ -132,6 +132,7 @@ try {
    showcaseEnabled&&floor?floor.prepare(startFeet,()=>{}):undefined,
   ]));
   let cameraLift=0;
+  const multiplayer=showcaseEnabled?(await import('./runtime/showcase-multiplayer.ts')).createShowcaseMultiplayer(scene,camera,player,(e,n)=>walkerIsClear({e,n},world.boxes)):null;
   const atlas=showcaseEnabled?createShowcaseMap(()=>({...player,yaw}),setPaused,(e,n)=>{player.e=e;player.n=n;keys.clear();demo=false;}):null;
   if(showcaseEnabled){document.body.classList.add('showcase');document.title='Древлепуща — лесные ложбины';document.querySelector('h1')!.textContent='Лесные ложбины';document.querySelector('#pause-title')!.textContent='Там, где тропа уходит вниз';document.querySelector('#pause-description')!.textContent='Лесные берега, боковые промоины и солнечные просветы. Идите по тропе или поднимитесь на склон. M — карта рельефа.';document.querySelector('.muted')!.textContent='Шоукейс · 512 × 640 м. Большой мир сохранён как прототип по ?scene=world.';}
   const touch=createTouchControls(canvas,{
@@ -165,7 +166,7 @@ try {
     }
   });
   window.addEventListener('keyup',e=>keys.delete(e.code));
-  bindInputFocus(canvas,()=>{keys.clear();dragging=false;touch.reset();previousTime=performance.now();});
+  bindInputFocus(canvas,()=>{keys.clear();dragging=false;touch.reset();multiplayer?.stopMotion();previousTime=performance.now();});
   engine.onContextLostObservable.add(()=>fail('Графический контекст потерян. Закройте лишние графические приложения и перезагрузите стенд.'));
   const qualitySelect=document.querySelector<HTMLSelectElement>('#resolution-quality')!;
   let quality:ResolutionQuality='high';
@@ -190,7 +191,7 @@ try {
     const currentDistance=Math.hypot(pos.x-anchor.x,pos.y-anchor.y,pos.z-anchor.z);
     const followError=Math.hypot(pos.x-anchor.x-offset.x,pos.y-anchor.y-offset.y-cameraLift,pos.z-anchor.z-offset.z);
     return {
-      ready:startup.readyAt!==null,loading:startup.stats(),frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},ranger:ranger?.state()??null,
+      ready:startup.readyAt!==null,loading:startup.stats(),frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},ranger:ranger?.state()??null,multiplayer:multiplayer?.state()??null,
       camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas?.isOpen()??false,
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
@@ -204,7 +205,7 @@ try {
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
   if(new URLSearchParams(location.search).get('debug')==='1') {
     Object.assign(window,{m0:{
-      state,reset,preset,setPaused,
+      state,reset,preset,setPaused,networkReport:()=>multiplayer?.diagnostics(),
       setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
       inspect:()=>({scene,engine,world,forest}),
@@ -278,6 +279,7 @@ try {
       camera.setTarget(new Vector3(anchor.x,anchor.y+lookUp,anchor.z));
       // Babylon setTarget nudges equal-Z positions by Epsilon at cardinal angles. Keep the chosen orbit exact.
       camera.position.set(desired.x,desired.y,desired.z);
+      multiplayer?.update(dt,paused?0:actualSpeed,!paused&&running);
       const feet={x:player.e,y:h,z:-player.n};
       for(const mesh of [...world.occluders,...(showcaseEnabled?[]:[world.ground])]) {
         const bounds=mesh.getBoundingInfo().boundingBox;
@@ -304,7 +306,7 @@ try {
        for(const axis of [lightRight,lightUp]){const p=Vector3.Dot(origin,axis);origin.addInPlace(axis.scale(Math.round(p/texel)*texel-p));}
        world.sun.position.copyFrom(origin);
        const casters=forest.shadowCasters(feet);
-       sunlight.getShadowMap()!.renderList=[...casters,...world.occluders,...world.player.getChildMeshes()];
+       sunlight.getShadowMap()!.renderList=[...casters,...world.occluders,...world.player.getChildMeshes(),...(multiplayer?.shadowMeshes()??[])];
 
       }
 
@@ -321,5 +323,5 @@ try {
     }catch(error){engine!.stopRenderLoop();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
   });
   await startup.reveal(()=>frameCount>2&&scene.isReady(),focusScene);
-  window.addEventListener('pagehide',()=>{scene.dispose();engine!.dispose();},{once:true});
+  window.addEventListener('pagehide',()=>{multiplayer?.dispose();scene.dispose();engine!.dispose();},{once:true});
 } catch(error) {engine?.dispose();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}

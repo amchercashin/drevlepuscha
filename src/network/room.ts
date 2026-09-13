@@ -1,6 +1,6 @@
 import {joinRoom, selfId, getRelaySockets} from './signaling.ts';
 import type {Room, MessageAction} from '@trystero-p2p/core';
-import {Admission, PROTOCOL, cleanName, record, validPosition, validRoster} from './protocol.ts';
+import {Admission, MAX_PLAYERS, PROTOCOL, cleanName, record, validPosition, validRoster} from './protocol.ts';
 import type {Invitation, Player, Position} from './protocol.ts';
 
 export const RELAYS = ['wss://public:public@public.cloud.shiftr.io', 'wss://broker.emqx.io:8084/mqtt'];
@@ -10,6 +10,7 @@ export const ICE_SERVERS: RTCIceServer[] = [
   {urls: 'stun:stun.l.google.com:19302'},
 ];
 export type Phase = 'starting' | 'waiting' | 'joining' | 'connected' | 'reconnecting' | 'full' | 'ended' | 'error';
+export type RoomOptions = {capacity?: number; appId?: string; initial?: Position; spawn?: (slot: number) => Position; onSpawn?: (position: Position) => void};
 type Snapshot = {v: number; tick: number; players: Player[]};
 export class WalkRoom {
   readonly id = selfId;
@@ -24,7 +25,8 @@ export class WalkRoom {
   readonly iceTypes: Record<string, number> = {};
   readonly iceErrors: {url: string; code: number}[] = [];
   private room: Room;
-  private admission = new Admission();
+  private admission: Admission;
+  readonly capacity: number;
   private pending = new Map<string, ReturnType<typeof setTimeout>>();
   private names = new Map<string, string>();
   private identities = new Map<string, string>();
@@ -43,10 +45,12 @@ export class WalkRoom {
   private snapshots: MessageAction<Snapshot>;
   private bye: MessageAction<{v: number}>;
 
-  constructor(readonly invite: Invitation, host: boolean, name: string) {
+  constructor(readonly invite: Invitation, host: boolean, name: string, private options: RoomOptions = {}) {
+    this.capacity = options.capacity ?? MAX_PLAYERS;
+    this.admission = new Admission(this.capacity);
     this.host = host;
     this.phase = host ? 'starting' : 'joining';
-    this.local = {id: selfId, name: cleanName(name), slot: 0, x: .5, y: .5, seq: 0};
+    this.local = {id: selfId, name: cleanName(name), slot: 0, x: .5, y: .5, seq: 0, ...options.initial};
     let session = crypto.randomUUID();
     try {
       const saved = sessionStorage.getItem('drevlepuscha-network-session');
@@ -67,15 +71,15 @@ export class WalkRoom {
       }
     }
     this.room = joinRoom({
-      appId: 'drevlepuscha-walk-probe-v1', password: invite.key, passive: !host,
+      appId: options.appId ?? 'drevlepuscha-walk-probe-v2', password: invite.key, passive: !host,
       relayConfig: {urls: RELAYS}, rtcConfig: {iceServers: ICE_SERVERS}, rtcPolyfill: ObservedRTC,
     }, invite.room, {
       handshakeTimeoutMs: 10000,
       onPeerHandshake: async (peerId, send, receive) => {
         if (this.stopped) throw Error('closed');
-        await send({v: PROTOCOL, host, hostId: invite.host, name: this.local.name, session});
+        await send({v: PROTOCOL, host, hostId: invite.host, name: this.local.name, session, capacity: this.capacity});
         const {data} = await receive();
-        if (!record(data) || data.v !== PROTOCOL || data.hostId !== invite.host || data.host !== !host
+        if (!record(data) || data.v !== PROTOCOL || data.capacity !== this.capacity || data.hostId !== invite.host || data.host !== !host
           || typeof data.session !== 'string' || !/^[a-zA-Z0-9-]{36}$/.test(data.session)
           || (!host && peerId !== invite.host)) throw Error('incompatible-room');
         if (host) {
@@ -91,18 +95,23 @@ export class WalkRoom {
           this.identities.set(data.session, peerId); this.sessions.set(peerId, data.session);
           this.names.set(peerId, cleanName(data.name));
           this.pending.set(peerId, setTimeout(() => this.release(peerId), 12000));
-          await send({ok: true, slot});
+          const spawn = options.spawn?.(slot);
+          await send({ok: true, slot, ...(spawn ? {spawn} : {})});
         } else {
           const {data: answer} = await receive();
           if (!record(answer) || answer.ok !== true) {
-            this.setPhase('full', 'В комнате уже четверо. Можно попробовать позже.');
+            this.setPhase('full', `В комнате уже ${this.capacity} участников. Можно попробовать позже.`);
             // Leave after the current handshake finishes rejecting.
             setTimeout(() => this.stop(), 0);
             throw Error('full');
           }
-          if (!Number.isInteger(answer.slot) || Number(answer.slot) < 1 || Number(answer.slot) > 3) throw Error('invalid-slot');
+          if (!Number.isInteger(answer.slot) || Number(answer.slot) < 1 || Number(answer.slot) >= this.capacity) throw Error('invalid-slot');
           this.local.slot = Number(answer.slot);
           this.local.x = .5 + (this.local.slot - 2) * .1; this.local.y = .6;
+          if (answer.spawn !== undefined) {
+            if (!validPosition(answer.spawn)) throw Error('invalid-spawn');
+            this.local = {...this.local, ...answer.spawn, seq: 0}; options.onSpawn?.(answer.spawn);
+          }
           this.lastSnapshot = -1;
         }
       },
@@ -122,11 +131,11 @@ export class WalkRoom {
       const p = this.players.get(peerId), now = performance.now();
       if (!host || !p || !validPosition(move) || move.seq <= p.seq || now - (this.lastIncoming.get(peerId) ?? 0) < 30) return;
       this.lastIncoming.set(peerId, now);
-      this.players.set(peerId, {...p, x: move.x, y: move.y, seq: move.seq}); this.received++;
+      this.players.set(peerId, {...p, x: move.x, y: move.y, seq: move.seq, heading: move.heading, speed: move.speed, running: move.running}); this.received++;
     };
     this.snapshots.onMessage = (value, {peerId}) => {
       if (host || peerId !== invite.host || !record(value) || value.v !== PROTOCOL || !Number.isSafeInteger(value.tick)
-        || value.tick <= this.lastSnapshot || !validRoster(value.players) || !value.players.some(p => p.id === selfId)) return;
+        || value.tick <= this.lastSnapshot || !validRoster(value.players, this.capacity) || !value.players.some(p => p.id === selfId)) return;
       this.lastSnapshot = value.tick; this.lastHostMessage = performance.now(); this.received++;
       this.players.clear();
       for (const p of value.players) this.players.set(p.id, p.id === selfId ? {...this.local} : {...p});
@@ -158,13 +167,13 @@ export class WalkRoom {
     this.timers.push(setInterval(() => this.checkConnection(), 500));
     this.log(host ? 'room-created' : 'room-joining');
   }
-  static create(name: string) {
-    return new WalkRoom({room: crypto.randomUUID(), host: selfId, key: crypto.randomUUID()}, true, name);
+  static create(name: string, options: RoomOptions = {}) {
+    return new WalkRoom({room: crypto.randomUUID(), host: selfId, key: crypto.randomUUID()}, true, name, options);
   }
   get localPlayer() {return {...this.local};}
-  move(x: number, y: number) {
+  move(x: number, y: number, pose: Pick<Position, 'heading' | 'speed' | 'running'> = {}) {
     if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-    this.local = {...this.local, x: Math.max(.025, Math.min(.975, x)), y: Math.max(.035, Math.min(.965, y)), seq: this.local.seq + 1};
+    this.local = {...this.local, ...pose, x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)), seq: this.local.seq + 1};
     if (this.players.has(selfId)) this.players.set(selfId, {...this.local});
   }
   private release(id: string) {
@@ -189,8 +198,8 @@ export class WalkRoom {
         if (this.players.has(id)) this.sendOne(id, () => this.snapshots.send(payload, {target: id}));
       }
     } else if (this.room.getPeers()[this.invite.host]) {
-      const {x, y, seq} = this.local;
-      this.sendOne(this.invite.host, () => this.moves.send({x, y, seq}, {target: this.invite.host}));
+      const {x, y, seq, heading, speed, running} = this.local;
+      this.sendOne(this.invite.host, () => this.moves.send({x, y, seq, heading, speed, running}, {target: this.invite.host}));
     }
   }
   private sendOne(id: string, send: () => Promise<void>) {
@@ -232,7 +241,7 @@ export class WalkRoom {
       } catch {return {state: pc.connectionState, route: 'unknown'};}
     }));
     return {version: PROTOCOL, date: new Date().toISOString(), durationSeconds: Math.round((Date.now() - this.started) / 1000),
-      role: this.host ? 'host' : 'guest', phase: this.phase, players: this.players.size, messagesSent: this.sent, messagesReceived: this.received,
+      role: this.host ? 'host' : 'guest', phase: this.phase, capacity: this.capacity, players: this.players.size, messagesSent: this.sent, messagesReceived: this.received,
       relays: this.relayStatus(), connections, iceTypes: {...this.iceTypes}, iceErrors: [...this.iceErrors], turnConfigured: false,
       events: [...this.events], online: navigator.onLine, visible: !document.hidden};
   }
