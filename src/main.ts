@@ -56,7 +56,7 @@ try {
   const forestMode=showcaseEnabled||new URLSearchParams(location.search).get('scene')==='m1';
   const minimumPitch=showcaseEnabled?-70:config.travel.pitchMinDeg;
   const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
-  const ranger=showcaseEnabled&&new URLSearchParams(location.search).get('ranger')==='meshy'
+  const ranger=showcaseEnabled
     ?await startup.stage('Следопыт и анимации…',async()=>{
       const {createRanger}=await import('./runtime/ranger.ts');return createRanger(scene,world.player);
     }):null;

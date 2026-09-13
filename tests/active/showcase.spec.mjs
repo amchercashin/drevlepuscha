@@ -15,6 +15,7 @@ test('showcase starts and the traveller can move',async({page})=>{
  expect(Math.hypot(after.player.e-before.player.e,after.player.n-before.player.n)).toBeGreaterThan(0.1);
  expect(after.errors).toEqual([]);expect(errors).toEqual([]);
  // Changing material controls or leaving the window clears input without pausing.
+ await page.locator('#diagnostics > summary').click();
  await page.getByRole('button',{name:'Нормали',exact:true}).click();
  expect(await page.evaluate(()=>m0.state().paused)).toBe(false);
  await page.keyboard.down('KeyW');

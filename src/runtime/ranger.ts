@@ -1,6 +1,7 @@
 import '@babylonjs/loaders/glTF/2.0/glTFLoader.js';
 import {GLTFLoaderAnimationStartMode} from '@babylonjs/loaders/glTF/glTFFileLoader.js';
 import {LoadAssetContainerAsync} from '@babylonjs/core/Loading/sceneLoader.js';
+import type {AssetContainer} from '@babylonjs/core/assetContainer.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 import {TransformNode} from '@babylonjs/core/Meshes/transformNode.js';
 import {Quaternion} from '@babylonjs/core/Maths/math.vector.js';
@@ -18,8 +19,8 @@ const HEIGHT=1.78, SOURCE_HEIGHT=1.700000286102295;
 // the movement controller retains 1.85 m/s walking and 15 m/s running.
 const CYCLE_SPEED={Walk:1.5,Run:4.5};
 
-export async function createRanger(scene:Scene,parent:TransformNode){
- const placeholder=parent.getChildMeshes();
+const sources=new WeakMap<Scene,Promise<AssetContainer>>();
+async function loadSource(scene:Scene){
  const asset=await LoadAssetContainerAsync(rangerUrl,scene,{
   pluginOptions:{gltf:{animationStartMode:GLTFLoaderAnimationStartMode.NONE}},
  });
@@ -48,14 +49,25 @@ export async function createRanger(scene:Scene,parent:TransformNode){
   neutral.normalize();
   animation.setKeys(animation.getKeys().map(key=>({...key,value:neutral.clone()})));
  }
- asset.addAllToScene();
  for(const material of asset.materials)if(material instanceof PBRMaterial)new RangerPalette(material);
+ return asset;
+}
+
+/** Shared geometry/materials, independent skeletons and animation tracks per walker. */
+export async function createRanger(scene:Scene,parent:TransformNode,id=''){
+ let source=sources.get(scene);
+ if(!source){source=loadSource(scene);sources.set(scene,source);}
+ const asset=await source;
+ const placeholder=parent.getChildMeshes();
+ const instance=asset.instantiateModelsToScene(name=>id?`${id}:${name}`:name,false,{doNotInstantiate:true});
+ const clips={} as Record<Gait,AnimationGroup>;
+ for(const gait of GAITS)clips[gait]=instance.animationGroups.find(g=>g.name===(id?`${id}:${SOURCES[gait]}`:SOURCES[gait]))!;
  // Meshy faces +Z; the showcase moves forward along -Z.
- const orientation=new TransformNode('ranger-facing',scene);
+ const orientation=new TransformNode(id?`${id}:ranger-facing`:'ranger-facing',scene);
  orientation.parent=parent;orientation.rotation.y=Math.PI;
  orientation.scaling.setAll(HEIGHT/SOURCE_HEIGHT);
- for(const node of asset.rootNodes)node.parent=orientation;
- for(const mesh of asset.meshes){mesh.isPickable=false;mesh.receiveShadows=true;mesh.alwaysSelectAsActiveMesh=true;}
+ for(const node of instance.rootNodes)node.parent=orientation;
+ for(const mesh of orientation.getChildMeshes()){mesh.isPickable=false;mesh.receiveShadows=true;mesh.alwaysSelectAsActiveMesh=true;}
  for(const mesh of placeholder)mesh.dispose();
  // Only these three clips run. Bow animations stay available in the source GLB.
  for(const gait of GAITS){
@@ -65,6 +77,7 @@ export async function createRanger(scene:Scene,parent:TransformNode){
  const weights:Record<Gait,number>={Idle:1,Walk:0,Run:0};
  let gait:Gait='Idle',speed=0;
  return {
+  dispose(){instance.dispose();orientation.dispose();},
   update(dt:number,actualSpeed:number,running:boolean){
    if(dt===0){for(const clip of Object.values(clips))clip.speedRatio=0;return;}
    speed+=(actualSpeed-speed)*(1-Math.exp(-dt/.10));

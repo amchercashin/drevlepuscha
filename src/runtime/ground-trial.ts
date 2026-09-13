@@ -121,7 +121,7 @@ export function createGroundTrial(scene:Scene,coarse:StandardMaterial,baseNormal
 export function createGroundTrialControls(trial:ReturnType<typeof createGroundTrial>,focus:()=>void,visit:()=>void){
  const panel=document.createElement('section');panel.className='ground-trial-panel';panel.setAttribute('aria-label','Земля в шоукейсе');
  panel.innerHTML='<div class="ground-trial-heading"><strong>Земля под ногами</strong><button type="button" data-ground-visit>К входу</button></div><p>Весь шоукейс · сравните материал</p><div class="ground-trial-modes" role="group" aria-label="Материал земли"><button type="button" data-ground-mode="0">Исходный</button><button type="button" data-ground-mode="1">Нормали</button><button type="button" data-ground-mode="2">Глубина</button></div><small>Мелкие бугры и веточки общие для трёх режимов.</small>';
- document.body.append(panel);
+ document.querySelector('#diagnostics')!.insertBefore(panel,document.querySelector('#metrics'));
  function select(mode:GroundTrialMode){trial.setMode(mode);for(const button of panel.querySelectorAll<HTMLButtonElement>('[data-ground-mode]'))button.setAttribute('aria-pressed',String(Number(button.dataset.groundMode)===mode));}
  for(const button of panel.querySelectorAll<HTMLButtonElement>('[data-ground-mode]'))button.onclick=()=>{select(Number(button.dataset.groundMode) as GroundTrialMode);focus();};
  panel.querySelector<HTMLButtonElement>('[data-ground-visit]')!.onclick=()=>{visit();focus();};select(2);
