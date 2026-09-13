@@ -64,5 +64,8 @@ test('Meshy ranger loads, walks, runs at full speed and freezes on pause',async(
  for(const arm of await armOffsets()){expect(arm.drop).toBeGreaterThan(.4);expect(arm.spread).toBeLessThan(.25);}
  const stopped=await page.evaluate(()=>m0.state());
  expect(stopped.ranger.gait).toBe('Idle');
+ await page.waitForFunction(()=>m0.state().ranger.weights.Idle===1);
+ expect(await page.evaluate(()=>m0.state().ranger.weights)).toEqual({Idle:1,Walk:0,Run:0});
+ expect(await page.evaluate(()=>m0.inspect().scene.animationGroups.length)).toBe(3);
  expect(stopped.errors).toEqual([]);expect(errors).toEqual([]);
 });

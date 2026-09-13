@@ -49,6 +49,11 @@ async function loadSource(scene:Scene){
   neutral.normalize();
   animation.setKeys(animation.getKeys().map(key=>({...key,value:neutral.clone()})));
  }
+ // Keep the authored GLB intact, but do not clone unused bow/alternate clips
+ // for every participant. These tracks are never played by the showcase.
+ const used=new Set(Object.values(clips));
+ for(const clip of asset.animationGroups.filter(clip=>!used.has(clip)))clip.dispose();
+ asset.animationGroups=asset.animationGroups.filter(clip=>used.has(clip));
  for(const material of asset.materials)if(material instanceof PBRMaterial)new RangerPalette(material);
  return asset;
 }
@@ -85,6 +90,12 @@ export async function createRanger(scene:Scene,parent:TransformNode,id=''){
    const blend=1-Math.exp(-dt/.16);
    for(const name of GAITS){
     weights[name]+=((name===gait?1:0)-weights[name])*blend;
+    // Exponential blends otherwise leave tiny positive weights forever, so
+    // Babylon keeps evaluating all three skeleton poses after walking once.
+    if(name!==gait&&weights[name]<.0001)weights[name]=0;
+   }
+   weights[gait]=1-GAITS.reduce((sum,name)=>sum+(name===gait?0:weights[name]),0);
+   for(const name of GAITS){
     clips[name].setWeightForAllAnimatables(weights[name]);
    }
    clips.Idle.speedRatio=0; // Static standing pose with relaxed arms.

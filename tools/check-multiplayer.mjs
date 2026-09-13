@@ -14,6 +14,8 @@ try{
  host.on('console',m=>{if(m.text().startsWith('Network room handshake:'))console.log('host:',m.text());});
  await host.goto(base);await host.locator('#create').click();await host.waitForFunction(()=>!document.querySelector('#copy').disabled,{},{timeout:20000});
  const invite=await host.locator('#invite').inputValue();
+ assert.equal((await inspect(host)).rtcCreated,0,'empty room must not prewarm WebRTC');
+ console.log('PASS: empty room creates no speculative WebRTC connections');
  const guests=await Promise.all(Array.from({length:4},()=>browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true})));
  for(const page of guests){page.on('pageerror',e=>pageErrors.push(e.message));page.on('console',m=>{if(m.text().startsWith('Network room handshake:'))console.log('guest:',m.text());});}
  await Promise.all(guests.map(page=>page.goto(invite)));
