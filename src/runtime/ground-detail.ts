@@ -51,7 +51,8 @@ class GroundMorph extends MaterialPluginBase {
 
 type Tile={x:number;n:number;meshes:Mesh[]};
 export function createGroundDetails(scene:Scene,coarse:StandardMaterial,detail:StandardMaterial,accents:StandardMaterial,baseNormal:(e:number,n:number)=>number[]){
- const pixels=new Uint8Array(64*80),cuts=RawTexture.CreateRTexture(pixels,64,80,scene,false,false,Texture.NEAREST_SAMPLINGMODE);
+ // CreateRTexture defaults to float data; this mask contains unsigned bytes.
+ const pixels=new Uint8Array(64*80),cuts=RawTexture.CreateRTexture(pixels,64,80,scene,false,false,Texture.NEAREST_SAMPLINGMODE,0);
  new GroundCuts(coarse,cuts);const morph=new GroundMorph(detail),fade=new CoverFade(accents,11,17);
  const tiles=new Map<string,Tile>();let pending:{x:number;n:number;key:string}[]=[],lastX=Infinity,lastN=Infinity,maxBuildMs=0;
  const index=(x:number,n:number)=>(n+32)*64+x+32;
