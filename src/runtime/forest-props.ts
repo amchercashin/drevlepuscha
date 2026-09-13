@@ -1,3 +1,4 @@
+import {showcaseTexture} from './showcase-textures.ts';
 import {showcaseEnabled,showcasePath} from '../domain/showcase.ts';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
 import {VertexData} from '@babylonjs/core/Meshes/mesh.vertexData.js';
@@ -23,7 +24,7 @@ interface PropAsset {sourceId:string;variants:{levels:TreePart[][]}[];}
 /** Prepared shape variants share one material per family and geometry across repeated copies. */
 export function createForestProps(scene:Scene,boxes:Box[]){
  function place(asset:PropAsset,texture:string,placements:number[][]){
-  const material=new StandardMaterial(asset.sourceId,scene);material.diffuseTexture=new Texture(texture,scene,false,false);material.specularColor=Color3.Black();
+  const material=new StandardMaterial(asset.sourceId,scene);material.diffuseTexture=new Texture(showcaseTexture(texture),scene,false,false);material.specularColor=Color3.Black();
   const templates=new Map<number,Mesh>();
   const collisions=asset.variants.map(v=>collisionGeometry(v.levels[0]));
   for(const [i,[pe,pn,scale,yaw]] of placements.entries()){

@@ -1,3 +1,4 @@
+import {showcaseTexture} from './showcase-textures.ts';
 import {FrameWorkBudget,prepareUntil} from './startup.ts';
 import type {PackedFloor} from './floor.worker.ts';
 import {CoverFade} from './cover-fade.ts';
@@ -32,7 +33,7 @@ class GrassDistance extends MaterialPluginBase {
 
 /** Painted litter with mipmaps; mirrored wrap makes unmatched tile edges continuous. */
 export function soilTexture(scene:Scene){
- const texture=new Texture(soilURL,scene);texture.wrapU=Texture.MIRROR_ADDRESSMODE;texture.wrapV=Texture.MIRROR_ADDRESSMODE;texture.anisotropicFilteringLevel=4;return texture;
+ const texture=new Texture(showcaseTexture(soilURL),scene);texture.wrapU=Texture.MIRROR_ADDRESSMODE;texture.wrapV=Texture.MIRROR_ADDRESSMODE;texture.anisotropicFilteringLevel=4;return texture;
 }
 export function createForestFloor(scene:Scene,boxes:Box[]){
  // Engine vectors have prototype getters, which structuredClone does not preserve.
@@ -41,7 +42,7 @@ export function createForestFloor(scene:Scene,boxes:Box[]){
  const grass=new StandardMaterial('grass',scene),leaves=new StandardMaterial('floor-leaves',scene);
  for(const m of [grass,leaves]){m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.backFaceCulling=false;m.twoSidedLighting=true;}
  if(showcaseEnabled){leaves.emissiveColor=new Color3(.12,.17,.065);grass.emissiveColor=new Color3(.045,.075,.025);}
- leaves.diffuseTexture=new Texture(foliageURL,scene);leaves.diffuseTexture.hasAlpha=true;leaves.useAlphaFromDiffuseTexture=true;leaves.transparencyMode=Material.MATERIAL_ALPHATEST;leaves.alphaCutOff=.45;
+ leaves.diffuseTexture=new Texture(showcaseTexture(foliageURL),scene);leaves.diffuseTexture.hasAlpha=true;leaves.useAlphaFromDiffuseTexture=true;leaves.transparencyMode=Material.MATERIAL_ALPHATEST;leaves.alphaCutOff=.45;
  leaves.diffuseTexture.wrapU=Texture.CLAMP_ADDRESSMODE;leaves.diffuseTexture.wrapV=Texture.CLAMP_ADDRESSMODE;
  const distances=showcaseEnabled?[new CoverFade(grass,COVER.nearStart,COVER.nearEnd),new CoverFade(leaves,COVER.nearStart,COVER.nearEnd)]:[new GrassDistance(grass),new GrassDistance(leaves)];
  const field=showcaseEnabled?createCoverField(scene,boxes,leaves.diffuseTexture):null;

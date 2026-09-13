@@ -14,9 +14,11 @@ if(params.get('engine')==='lite'){
    enableShowcase();
    const invite=parseInvitation(location.hash);
    if(invite)await (await import('./network/showcase-entrance.ts')).enterShowcase(invite);
-   preloadShowcase(params);
   }else document.body.classList.remove('showcase');
-  await import('./main.ts');
+  // Queue the renderer's code before bulk image transfers, still after joining.
+  const main=import('./main.ts');
+  if(scene!=='m0'&&scene!=='m1')preloadShowcase(params);
+  await main;
  }
 }
 

@@ -1,3 +1,4 @@
+import {showcaseTexture} from './showcase-textures.ts';
 import {loadJSON} from './asset-loading.ts';
 import {treeFamilySlot} from '../domain/tree-family.ts';
 import {groundHeight} from '../domain/harness.ts';
@@ -44,7 +45,7 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
  const materialSets=new Map<string,{materials:StandardMaterial[];baked:StandardMaterial[]}>();
  function family(id:string,d:TreeAssetData,urls:Record<string,string>,sink=.85){
   const materialKey=JSON.stringify([urls,d.bakedColorFromLevel,d.doubleSided]),cached=materialSets.get(materialKey);
-  const materials=cached?.materials??d.levels[0].map(({name})=>{const m=new StandardMaterial(`forest-${id}-${name}`,scene);m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.diffuseTexture=new Texture(urls[name],scene,false,false);m.backFaceCulling=!(d.doubleSided?.[name]??false);new LodDither(m);return m;});
+  const materials=cached?.materials??d.levels[0].map(({name})=>{const m=new StandardMaterial(`forest-${id}-${name}`,scene);m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.diffuseTexture=new Texture(showcaseTexture(urls[name]),scene,false,false);m.backFaceCulling=!(d.doubleSided?.[name]??false);new LodDither(m);return m;});
   const baked=cached?.baked??(d.bakedColorFromLevel===undefined?materials:materials.map(m=>{const copy=new StandardMaterial(m.name+'-baked',scene);copy.diffuseColor=Color3.White();copy.specularColor=Color3.Black();copy.backFaceCulling=m.backFaceCulling;new LodDither(copy);return copy;}));
   if(!cached)for(const m of new Set([...materials,...baked])){new LeafTransmission(m,sun);if(selected?.id==='meshy-a')tonePlugins.push(new TreeTone(m));}
   materialSets.set(materialKey,{materials,baked});

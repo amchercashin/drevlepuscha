@@ -1,3 +1,4 @@
+import {showcaseTexture} from './showcase-textures.ts';
 import {loadJSON,preloadImages} from './asset-loading.ts';
 import oak from '../../assets/trees/meshy-a/tree.json?url';
 import fork from '../../assets/trees/fork-oak/variants.json?url';
@@ -24,5 +25,5 @@ export function preloadShowcase(params:URLSearchParams){
  if(params.get('tree')&&params.get('tree')!=='meshy-a')return;
  const variety=params.get('variety')!=='0';
  for(const url of variety?[oak,fork,young]:[oak])void loadJSON(url).catch(()=>{});
- preloadImages([oakTexture,...(variety?[forkTexture,youngTexture]:[]),rock,log,stump,slab,soil,foliage,heights,normals,patches,detailSoil,litter]);
+ preloadImages([oakTexture,...(variety?[forkTexture,youngTexture]:[]),rock,log,stump,slab,soil,foliage,heights,normals,patches,detailSoil,litter].map(showcaseTexture));
 }
