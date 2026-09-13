@@ -13,8 +13,8 @@
     "check": "npm run typecheck && npm run validate && npm test",
     "typecheck": "tsc --noEmit",
     "doctor": "node tools/doctor.mjs",
-    "dev": "vite --host 127.0.0.1",
-    "build": "npm run typecheck && npm run world:build && vite build",
+    "dev": "node tools/patch-trystero.mjs && vite --host 127.0.0.1",
+    "build": "node tools/patch-trystero.mjs && npm run typecheck && npm run world:build && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "qa:capture": "node tools/capture-m0.mjs",
     "qa:performance": "node tools/performance-m0.mjs",
@@ -22,8 +22,7 @@
     "world:build": "node tools/world/build.mjs && node tools/world/assets.mjs",
     "test:showcase": "playwright test showcase.spec.mjs",
     "test:map": "playwright test map.spec.mjs",
-    "textures:prepare": "node tools/prepare-runtime-textures.mjs",
-    "postinstall": "node tools/patch-trystero.mjs"
+    "textures:prepare": "node tools/prepare-runtime-textures.mjs"
   },
   "packageManager": "npm@10.9.8",
   "devDependencies": {
