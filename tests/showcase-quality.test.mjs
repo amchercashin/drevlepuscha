@@ -24,3 +24,11 @@ test('automatic quality ignores a hitch, needs sustained slow frames, and has a 
  assert.equal(q.sample(30),true);assert.equal(q.effective,'performance');
  for(let i=0;i<720;i++)assert.equal(q.sample(30),false);
 });
+
+test('auto steps down for sustained 50-55 FPS, aiming for 60 rather than 48',()=>{
+ const q=new AutoQuality('balanced');
+ for(let i=0;i<360;i++)q.sample(17);
+ assert.equal(q.effective,'balanced');
+ for(let i=0;i<360;i++)q.sample(19);
+ assert.equal(q.effective,'performance');
+});

@@ -24,7 +24,7 @@ export class AutoQuality {
  sample(ms:number){
   if(ms<=0||ms>100){this.reset();return false;}
   this.frames.push(ms);if(this.frames.length<180)return false;
-  this.frames.sort((a,b)=>a-b);const slow=this.frames[135]>21;
+  this.frames.sort((a,b)=>a-b);const slow=this.frames[135]>18.5;
   this.frames=[];this.slowWindows=slow?this.slowWindows+1:0;
   if(this.slowWindows<2)return false;
   this.slowWindows=0;
