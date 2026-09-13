@@ -15,6 +15,7 @@ import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent.js';
 import './style.css';
 import {renderResolution} from './runtime/resolution.ts';
 import type {ResolutionQuality} from './runtime/resolution.ts';
+import {performanceReport} from './runtime/performance-report.ts';
 import {FOREST_BOUNDS} from './domain/forest.ts';
 import {createForest} from './runtime/forest.ts';
 import type { WebGPUEngine } from '@babylonjs/core/Engines/webgpuEngine.js';
@@ -203,6 +204,13 @@ try {
       lighting:sunlight?{daylight:daylight?.stats()??null,air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
+  const disposePerformanceReport=showcaseEnabled?performanceReport(
+   ()=>{samples.length=0;frameCosts.length=0;collect=true;},
+   ()=>{collect=false;const s=state();return {frames:[...samples],costs:[...frameCosts],context:{render:s.render,forest:s.forest,floor:s.floor,
+    players:s.multiplayer?.players??1,roomPhase:s.multiplayer?.phase??'solo',ranger:s.ranger,
+    memory:{meshes:scene.meshes.length,geometries:scene.geometries.length,textures:scene.textures.length,materials:scene.materials.length,
+     jsHeapBytes:(performance as Performance&{memory?:{usedJSHeapSize:number}}).memory?.usedJSHeapSize??null}}};}
+  ):null;
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
   if(new URLSearchParams(location.search).get('debug')==='1') {
     Object.assign(window,{m0:{
@@ -315,14 +323,17 @@ try {
       scene.render();frameCount++;
       if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({cpuMs:performance.now()-now,gpuMs:(engine!.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
       if(now-uiTime>400){
-        uiTime=now;const s=state();
+        uiTime=now;
         document.querySelector('#fps')!.textContent=`${Math.round(engine!.getFps())} FPS`;
-        metrics.textContent=`${s.render.width} × ${s.render.height} · WebGPU\n${Math.round(s.render.mainTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(s.render.shadowTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(s.render.triangles).toLocaleString('ru-RU')}\n${s.render.drawCalls} вызовов отрисовки\nКамера ${Vector3.Distance(camera.position,new Vector3(anchor.x,anchor.y,anchor.z)).toFixed(2)} м · наклон ${pitch.toFixed(0)}°`;
-        if(forest)metrics.textContent+=`\nДеревья: ${forest.stats().trees} · LOD ${forest.stats().lodCounts.join(' / ')}`;
+        if(document.querySelector<HTMLDetailsElement>('#diagnostics')!.open){
+         const triangles=scene.getActiveIndices()/3;
+         metrics.textContent=`${engine!.getRenderWidth()} × ${engine!.getRenderHeight()} · WebGPU\n${Math.round(triangles-shadowPassTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(shadowPassTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(triangles).toLocaleString('ru-RU')}\n${instrumentation.drawCallsCounter.current} вызовов отрисовки\nКамера ${Math.hypot(camera.position.x-anchor.x,camera.position.y-anchor.y,camera.position.z-anchor.z).toFixed(2)} м · наклон ${pitch.toFixed(0)}°`;
+         if(forest){const f=forest.stats();metrics.textContent+=`\nДеревья: ${f.trees} · LOD ${f.lodCounts.join(' / ')}`;}
+        }
         document.querySelector('#location')!.textContent=forest&&(Math.abs(player.e)>24||player.n<-12||player.n>64)?'Большой лес':player.n<10?'Западный вход':player.n<19?'Между стволами':player.n<30?(forest?'Лесная тропа':'Низкая арка'):player.n<47?'Подъём к свету':'Верхняя поляна';
       }
     }catch(error){engine!.stopRenderLoop();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
   });
   await startup.reveal(()=>frameCount>2&&scene.isReady(),focusScene);
-  window.addEventListener('pagehide',()=>{multiplayer?.dispose();scene.dispose();engine!.dispose();},{once:true});
+  window.addEventListener('pagehide',()=>{disposePerformanceReport?.();multiplayer?.dispose();scene.dispose();engine!.dispose();},{once:true});
 } catch(error) {engine?.dispose();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}

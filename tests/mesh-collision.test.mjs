@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {Matrix,Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
-import {collisionGeometry,meshCollider,meshBlocksCylinder} from '../src/domain/mesh-collision.ts';
+import {collisionGeometry,meshCollider,meshBlocksCylinder,meshBlocksSegment} from '../src/domain/mesh-collision.ts';
 import {treeCollider} from '../src/domain/forest.ts';
 import {collisionGrid} from '../src/domain/collision-grid.ts';
 import {groundHeight,moveWalker,walkerIsClear} from '../src/domain/harness.ts';
@@ -12,6 +12,44 @@ function placed(g,scale=[1,1,1],rotation=[0,0,0],position=[0,0,0]){
  const matrix=Matrix.Compose(Vector3.FromArray(scale),Quaternion.FromEulerAngles(...rotation),Vector3.FromArray(position));
  return meshCollider(g,matrix.m,Matrix.Invert(matrix).m);
 }
+test('camera segments hit actual triangles with scale/lean, skip empty bounds and the endpoint',()=>{
+ const c=placed(geometry,[.4,1.8,.2],[.3,.7,.4],[8,3,-10]);
+ const world=p=>{const v=Vector3.TransformCoordinates(Vector3.FromArray(p),Matrix.FromArray(c.matrix));return {x:v.x,y:v.y,z:v.z};};
+ assert.equal(meshBlocksSegment(c,world([-3,1,0]),world([3,1,0])),true);
+ assert.equal(meshBlocksSegment(c,world([3,1,0]),world([-3,1,0])),true);
+ assert.equal(meshBlocksSegment(c,world([-3,3,0]),world([3,3,0])),false);
+ assert.equal(meshBlocksSegment(c,world([-3,1,0]),world([-1,1,0])),false,'wall at the player endpoint is not an occluder');
+ assert.equal(meshBlocksSegment(c,world([-3,1,0]),world([-1.1,1,0])),false);
+ assert.equal(meshBlocksSegment(c,world([-3,1,0]),world([-.9,1,0])),true);
+ const triangle=placed(collisionGeometry([{positions:[0,0,0,2,0,0,0,2,0],indices:[0,1,2]}]));
+ assert.equal(meshBlocksSegment(triangle,{x:1.8,y:1.8,z:-2},{x:1.8,y:1.8,z:2}),false,'empty corner inside the bounding box');
+ assert.equal(meshBlocksSegment(triangle,{x:.2,y:.2,z:-2},{x:.2,y:.2,z:2}),true);
+ assert.equal(meshBlocksSegment(triangle,{x:.2,y:.2,z:0},{x:.2,y:.2,z:0}),false);
+});
+test('BVH camera rays agree with Babylon on a transformed tree',async()=>{
+ const {NullEngine}=await import('@babylonjs/core/Engines/nullEngine.js');
+ const {Scene}=await import('@babylonjs/core/scene.js');
+ const {Mesh}=await import('@babylonjs/core/Meshes/mesh.js');
+ const {VertexData}=await import('@babylonjs/core/Meshes/mesh.vertexData.js');
+ const {StandardMaterial}=await import('@babylonjs/core/Materials/standardMaterial.js');
+ const {Ray}=await import('@babylonjs/core/Culling/ray.js');
+ const parts=JSON.parse(readFileSync('assets/trees/young-tree/variants.json')).variants[0].levels[0];
+ const engine=new NullEngine(),scene=new Scene(engine),mesh=new Mesh('camera-reference',scene);
+ try{
+  mesh.material=new StandardMaterial('triangles',scene);
+  const vertices=new VertexData();Object.assign(vertices,parts[0]);vertices.applyToMesh(mesh);
+  mesh.scaling.set(.7,1.1,.45);mesh.rotationQuaternion=Quaternion.FromEulerAngles(.2,1.3,-.12);mesh.position.set(10,-1,-20);mesh.computeWorldMatrix(true);
+  const matrix=mesh.getWorldMatrix(),collider=meshCollider(collisionGeometry(parts),matrix.m,Matrix.Invert(matrix).m);
+  let seed=4143,hits=0;const random=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
+  for(let i=0;i<1500;i++){
+   const from=new Vector3(10+(random()-.5)*12,random()*10,-20+(random()-.5)*12),to=new Vector3(10+(random()-.5)*7,random()*8,-20+(random()-.5)*7);
+   const dir=to.subtract(from),length=dir.length();dir.normalize();
+   const hit=new Ray(from,dir,length).intersectsMesh(mesh,false),expected=hit.hit&&hit.distance<length-.001;
+   assert.equal(meshBlocksSegment(collider,from,to),expected,`ray ${i}`);if(expected)hits++;
+  }
+  assert.ok(hits>100);
+ }finally{scene.dispose();engine.dispose();}
+});
 test('collision follows shrink, growth, nonuniform scale, yaw, lean and translation',()=>{
  const small=placed(geometry,[.2,.3,.4]);
  assert.equal(meshBlocksCylinder(small,{x:.6,y:0,z:0},.28,1.1),false);

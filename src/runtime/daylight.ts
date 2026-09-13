@@ -26,7 +26,11 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
  const range=controls.querySelector<HTMLInputElement>('#day-time')!,output=controls.querySelector<HTMLOutputElement>('output')!;
  const auto=controls.querySelector<HTMLInputElement>('#day-auto')!,rayToggle=controls.querySelector<HTMLInputElement>('#day-rays')!,fogRange=controls.querySelector<HTMLInputElement>('#fog-density')!,fogOutput=controls.querySelector<HTMLOutputElement>('#fog-density-value')!;
  if(!air)rayToggle.closest('label')!.hidden=true;
- function sync(){
+ let lastSync=-Infinity;
+ function sync(force=false){
+  const now=performance.now();
+  if(!force&&(!document.querySelector<HTMLDetailsElement>('#diagnostics')!.open||now-lastSync<250))return;
+  lastSync=now;
   const minutes=Math.round(hours*60)%1440,text=`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
   output.value=text;range.value=String(hours);range.setAttribute('aria-valuetext',text);
   for(const b of controls.querySelectorAll<HTMLButtonElement>('button[data-hour]'))b.setAttribute('aria-pressed',String(Math.abs(Number(b.dataset.hour)-hours)<.03));
@@ -40,13 +44,15 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
   for(const {material,emission} of foliage)emission.scaleToRef(current.emissionScale,material.emissiveColor);
   sky.update(current);sync();
  }
- function setTime(hour:number){hours=normalizeHour(hour);automatic=false;auto.checked=false;apply();}
+ function setTime(hour:number){hours=normalizeHour(hour);automatic=false;auto.checked=false;apply();sync(true);}
  function setAutomatic(value:boolean){automatic=value;auto.checked=value;}
  function setRays(value:boolean){rays=Boolean(value);rayToggle.checked=rays;air?.setRays(rays);}
  function setFog(value:number){const density=Math.max(0,Math.min(.04,value));scene.fogDensity=density;fogRange.value=density.toFixed(3);fogOutput.value=density.toFixed(3);}
  for(const b of controls.querySelectorAll<HTMLButtonElement>('button[data-hour]'))b.onclick=()=>setTime(Number(b.dataset.hour));
  range.oninput=()=>setTime(Number(range.value));auto.onchange=()=>setAutomatic(auto.checked);rayToggle.onchange=()=>setRays(rayToggle.checked);fogRange.oninput=()=>setFog(Number(fogRange.value));
  function update(dt:number){if(automatic&&dt>0)hours=normalizeHour(hours+Math.min(dt,.05)*24/CYCLE_SECONDS);animatedSky?.animate(dt);apply();}
- scene.onDisposeObservable.add(()=>controls.remove());setFog(scene.fogDensity);auto.checked=automatic;apply();
+ const details=document.querySelector<HTMLDetailsElement>('#diagnostics')!;
+ const opened=()=>{if(details.open)sync(true);};details.addEventListener('toggle',opened);
+ scene.onDisposeObservable.add(()=>{controls.remove();details.removeEventListener('toggle',opened);});setFog(scene.fogDensity);auto.checked=automatic;apply();sync(true);
  return {update,setTime,setAutomatic,setRays,setFog,stats:()=>({...current,automatic,rays,fogDensity:scene.fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
 }

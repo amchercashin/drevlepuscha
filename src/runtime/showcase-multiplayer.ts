@@ -23,6 +23,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
  const name=showcaseName(),remotes=new Map<string,Remote>();
  const soloCloak=localRanger.state().cloakColor;
  let cloakColors:string[]=[];
+ let uiKey='';
  let room:WalkRoom|null=null,invite=parseInvitation(location.hash),lastUi=0,disposed=false;
  const labels=document.createElement('div');labels.className='walker-labels';document.body.append(labels);
  const mine=document.createElement('span');mine.className='walker-name mine';mine.textContent=name;labels.append(mine);
@@ -74,6 +75,8 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   const phase=room?.phase;
   const me=room?.players.get(room.id);
   localRanger.setCloak(me?cloakColors[me.slot]:soloCloak);
+  const key=JSON.stringify([phase,room?.host,room?.detail,[...room?.players.values()??[]].map(p=>[p.id,p.name,p.slot])]);
+  if(key===uiKey)return;uiKey=key;
   button.textContent=!room?'Пригласить друзей':['ended','full','error'].includes(phase!)?'Создать свою комнату':'Скопировать приглашение';
   const texts={starting:'Создаём комнату…',waiting:'Ждём друзей',joining:'Подключаемся…',connected:'Гуляем вместе',reconnecting:'Восстанавливаем связь…',full:'Комната заполнена',ended:'Комната закрыта',error:'Не удалось подключиться'};
   el('friends-status').textContent=room?`${texts[room.phase]} · ${room.players.size}/${CAPACITY}`:'Прогулка на шестерых';

@@ -1,7 +1,7 @@
 import {loadJSON} from './asset-loading.ts';
 import {treeFamilySlot} from '../domain/tree-family.ts';
 import {groundHeight} from '../domain/harness.ts';
-import {collisionGeometry,meshCollider} from '../domain/mesh-collision.ts';
+import {collisionGeometry,meshCollider,meshBlocksSegment} from '../domain/mesh-collision.ts';
 import forkURL from '../../assets/trees/fork-oak/variants.json?url';
 import forkTexture from '../../assets/trees/fork-oak/material-0.jpg';
 import youngURL from '../../assets/trees/young-tree/variants.json?url';
@@ -73,7 +73,8 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
  const active=new Map<string,ActiveTree>();
  const matrices=new Map(placements.map(p=>[p.id,Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n))]));
  const boxes=placements.map(p=>{const matrix=matrices.get(p.id)!;return {...treeCollider(p,familyFor(p).data.trunkRadius),collision:meshCollider(familyFor(p).collision,matrix.m,Matrix.Invert(matrix).m)};});
- function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix(matrices.get(t.id)!);m.isPickable=false;m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
+ const colliders=new Map(boxes.map(box=>[box.id,box.collision]));
+ function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix(matrices.get(t.id)!);m.isPickable=false;if(m instanceof Mesh)m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
  function instances(t:TreePlacement,level:number){return familyFor(t).templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
  function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=familyFor(t.placement).templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
  // Persistent shared geometry and bounded matrix buffers; no per-cell mesh merge.
@@ -105,16 +106,22 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
    let t=active.get(p.id);
    // Whole cells hand off to identical far-LOD batches, without alpha overlap or gaps.
    if(!horizon.detailed(p.id)){if(t){t.instances.forEach(m=>m.dispose());for(const pair of t.fades.values())pair.forEach(m=>m.dispose());active.delete(p.id);}continue;}
-   if(!t){const level=lockNear?0:centreDistance<32?0:centreDistance<58?1:2;t={placement:p,level,instances:instances(p,level),fades:new Map(),previous:-1,transition:1,opacity:familyFor(p).materials.map(()=>1)};active.set(p.id,t);}
-   const distance=Math.max(0,centreDistance-6*Math.max(p.width,p.depth)),next=lockNear?0:treeLevel(distance,t.level);
+   const distance=Math.max(0,centreDistance-6*Math.max(p.width,p.depth));
+   const directLevel=distance<=22?0:distance<=53?1:2;
+   if(!t){const level=lockNear?0:directLevel;t={placement:p,level,instances:instances(p,level),fades:new Map(),previous:-1,transition:1,opacity:familyFor(p).materials.map(()=>1)};active.set(p.id,t);}
+   // A forced reset goes straight to the final LOD, avoiding a mass 0→1→2
+   // transition in the following frame after switching the diagnostic checkbox.
+   const next=lockNear?0:forceSwitch?directLevel:treeLevel(distance,t.level);
    if(next!==t.level&&(t.previous<0||forceSwitch)){if(forceSwitch){for(const pair of t.fades.values())pair.forEach(m=>m.setEnabled(false));t.previous=-1;t.transition=1;}else{t.previous=t.level;t.transition=0;}t.instances.forEach(m=>m.dispose());t.instances=instances(p,next);t.level=next;}
    if(t.previous>=0){t.transition=Math.min(1,t.transition+dt/0.25);if(t.transition===1){fades(t,t.previous).forEach(m=>m.setEnabled(false));t.previous=-1;}}
    for(const [i,m] of t.instances.entries()){
     let blocked=false;
     if(centreDistance<16){const box=m.getBoundingInfo().boundingBox;
      blocked=occludesTraveller(camera,feet,{id:m.id,min:box.minimumWorld,max:box.maximumWorld},t.opacity[i]<0.99,(from,to)=>{
+      if(familyFor(p).templates[0].length===1)return meshBlocksSegment(colliders.get(p.id)!,from,to);
+      // Legacy multi-part trees still fade only the part actually intersected.
       const origin=new Vector3(from.x,from.y,from.z),direction=new Vector3(to.x-from.x,to.y-from.y,to.z-from.z),length=direction.length();direction.normalize();
-      const hit=new Ray(origin,direction,length).intersectsMesh(m,false);return hit.hit&&hit.distance<length-0.001;
+      const hit=new Ray(origin,direction,length).intersectsMesh(m,false);return hit.hit&&hit.distance<length-.001;
      });
     }
     t.opacity[i]=fadeOpacity(t.opacity[i],blocked?config.travel.occluderOpacity:1,dt,blocked?config.travel.fadeOutSeconds:config.travel.fadeInSeconds);
@@ -123,6 +130,9 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
     else t.fades.get(t.level)?.[i].setEnabled(false);
     if(t.previous>=0){const mesh=fades(t,t.previous)[i];mesh.setEnabled(true);mesh.visibility=t.opacity[i];mesh.metadata={...mesh.metadata,lodCoverage:[t.transition,1]};}
    }
+   // These copies exist only while fading. Disabled copies still cost a scene
+   // traversal every frame, so do not retain every LOD visited by every tree.
+   for(const [level,pair] of t.fades)if(!pair.some(m=>m.isEnabled())){pair.forEach(m=>m.dispose());t.fades.delete(level);}
   }
   forceSwitch=false;
  }

@@ -37,6 +37,34 @@ export function collisionGeometry(parts:readonly {positions:ArrayLike<number>;in
 export function meshCollider(geometry:CollisionGeometry,matrix:ArrayLike<number>,inverse:ArrayLike<number>):MeshCollider {
  const m=Array.from(matrix);return {...bounds(corners(geometry.root).map(p=>transform(p,m))),geometry,matrix:m,inverse:Array.from(inverse)};
 }
+
+/** Double-sided segment test through the same BVH, in local coordinates. The
+ * segment parameter survives nonuniform scale/rotation; ignore its last 1 mm. */
+export function meshBlocksSegment(c:MeshCollider,from:Point3,to:Point3):boolean {
+ const length=Math.hypot(to.x-from.x,to.y-from.y,to.z-from.z);
+ if(length<=.001)return false;
+ const a=transform(from,c.inverse),b=transform(to,c.inverse),d={x:b.x-a.x,y:b.y-a.y,z:b.z-a.z},end=1-.001/length;
+ function hits(node:Node):boolean {
+  let lo=0,hi=end;
+  for(const k of axes){
+   if(Math.abs(d[k])<1e-12){if(a[k]<node.min[k]||a[k]>node.max[k])return false;continue;}
+   const t0=(node.min[k]-a[k])/d[k],t1=(node.max[k]-a[k])/d[k];
+   lo=Math.max(lo,Math.min(t0,t1));hi=Math.min(hi,Math.max(t0,t1));if(lo>hi)return false;
+  }
+  if(node.children)return hits(node.children[0])||hits(node.children[1]);
+  return node.triangles!.some(([v0,v1,v2])=>{
+   const ex=v1.x-v0.x,ey=v1.y-v0.y,ez=v1.z-v0.z,fx=v2.x-v0.x,fy=v2.y-v0.y,fz=v2.z-v0.z;
+   const hx=d.y*fz-d.z*fy,hy=d.z*fx-d.x*fz,hz=d.x*fy-d.y*fx,det=ex*hx+ey*hy+ez*hz;
+   if(Math.abs(det)<1e-12)return false;
+   const sx=a.x-v0.x,sy=a.y-v0.y,sz=a.z-v0.z,u=(sx*hx+sy*hy+sz*hz)/det;
+   if(u<0||u>1)return false;
+   const qx=sy*ez-sz*ey,qy=sz*ex-sx*ez,qz=sx*ey-sy*ex,v=(d.x*qx+d.y*qy+d.z*qz)/det;
+   if(v<0||u+v>1)return false;
+   const t=(fx*qx+fy*qy+fz*qz)/det;return t>=0&&t<end;
+  });
+ }
+ return hits(c.geometry.root);
+}
 function visit(node:Node,query:Bounds,hit:(t:Triangle)=>boolean):boolean {
  if(!overlaps(node,query))return false;
  return node.children?node.children.some(n=>visit(n,query,hit)):node.triangles!.some(hit);
