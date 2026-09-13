@@ -49,6 +49,13 @@ test('rangers share a six-person showcase, reconnect, and leave cleanly',async({
   if(await guest.locator('#pause').isVisible())await guest.locator('#resume').click();
   await page.waitForFunction(()=>m0.state().multiplayer.remotes.some(r=>r.ready),null,{timeout:45000});
   await guest.waitForFunction(()=>m0.state().multiplayer.remotes.some(r=>r.ready),null,{timeout:45000});
+  const checkCloaks=async()=>{
+   const host=await page.evaluate(()=>m0.state()),visitor=await guest.evaluate(()=>m0.state());
+   expect(host.ranger.cloakColor).not.toBe(visitor.ranger.cloakColor);
+   expect(host.multiplayer.remotes[0].animation.cloakColor).toBe(visitor.ranger.cloakColor);
+   expect(visitor.multiplayer.remotes[0].animation.cloakColor).toBe(host.ranger.cloakColor);
+  };
+  await checkCloaks();
   const hostPos=await page.evaluate(()=>m0.state().player),guestPos=await guest.evaluate(()=>m0.state().player);
   expect(Math.hypot(hostPos.e-guestPos.e,hostPos.n-guestPos.n)).toBeLessThan(8);
   await guest.locator('#friends-details').evaluate(el=>el.open=false);
@@ -63,6 +70,9 @@ test('rangers share a six-person showcase, reconnect, and leave cleanly',async({
   expect(Math.hypot(local.e-remote.e,local.n-remote.n)).toBeLessThan(.5);
   console.log('PASS: two scenes, nearby spawn, walking/running/idle synchronization');
   await guest.reload();await guest.waitForFunction(()=>window.m0?.state().ready&&m0.state().multiplayer.players===2,null,{timeout:90000});
+  await guest.waitForFunction(()=>m0.state().multiplayer.remotes[0]?.ready);
+  await page.waitForFunction(()=>m0.state().multiplayer.remotes[0]?.ready);
+  await checkCloaks();
   console.log('PASS: guest reload');
   // Four lightweight peers exercise capacity while two actual scenes render.
   const bots=[];
@@ -81,6 +91,13 @@ test('rangers share a six-person showcase, reconnect, and leave cleanly',async({
    return {rigs:meshes.length,skeletons:new Set(meshes.map(m=>m.skeleton)).size,materials:new Set(meshes.map(m=>m.material)).size,geometry:new Set(meshes.map(m=>m.geometry)).size,loads:performance.getEntriesByType('resource').filter(r=>/meshy.*\.glb/.test(r.name)&&r.initiatorType!=='script').length};
   });
   expect(assets).toEqual({rigs:6,skeletons:6,materials:1,geometry:1,loads:1});
+  const cloakCount=await page.evaluate(()=>{
+   const state=m0.state(),meshes=m0.inspect().scene.meshes.filter(m=>m.skeleton&&m.getTotalVertices()>20000);
+   return {colors:new Set([state.ranger.cloakColor,...state.multiplayer.remotes.map(r=>r.animation.cloakColor)]).size,
+    uniforms:new Set(meshes.map(m=>JSON.stringify(m.metadata.rangerCloakTone))).size};
+  });
+  expect(cloakCount).toEqual({colors:6,uniforms:6});
+  console.log('PASS: six distinct cloak dyes, matching across clients, shared material and textures');
   const seventh=await browser.newPage();extra.push(seventh);await seventh.goto(new URL('multiplayer.html',invite).href.split('#')[0]);
   await seventh.evaluate(async invite=>{const {WalkRoom}=await import('/src/network/room.ts');const {parseInvitation}=await import('/src/network/protocol.ts');window.bot=new WalkRoom(parseInvitation(new URL(invite).hash),false,'Лишний гость',{capacity:6,appId:'drevlepuscha-showcase-v1'});},invite);
   await seventh.waitForFunction(()=>window.bot.phase==='full',null,{timeout:45000});

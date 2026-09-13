@@ -10,6 +10,7 @@ import {FOREST_BOUNDS as B} from '../domain/forest.ts';
 import {groundHeight} from '../domain/harness.ts';
 import {shortestAngleDelta} from '../domain/coordinates.ts';
 import {createRanger} from './ranger.ts';
+import {roomCloakColors} from '../domain/cloak-colors.ts';
 import './showcase-multiplayer.css';
 
 type Walker = {e:number;n:number;heading:number};
@@ -18,8 +19,10 @@ type Remote = {root:TransformNode;rig:Ranger|null;label:HTMLElement;pose:Walker;
 const CAPACITY=SHOWCASE_ROOM.capacity;
 export const packPosition=(p:Walker,speed=0,running=false):Position=>({x:(p.e-B.minE)/(B.maxE-B.minE),y:(p.n-B.minN)/(B.maxN-B.minN),heading:p.heading,speed,running,seq:0});
 const unpack=(p:Position):Walker=>({e:B.minE+p.x*(B.maxE-B.minE),n:B.minN+p.y*(B.maxN-B.minN),heading:p.heading??0});
-export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:Walker,canStand:(e:number,n:number)=>boolean){
+export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:Walker,canStand:(e:number,n:number)=>boolean,localRanger:Ranger){
  const name=showcaseName(),remotes=new Map<string,Remote>();
+ const soloCloak=localRanger.state().cloakColor;
+ let cloakColors:string[]=[];
  let room:WalkRoom|null=null,invite=parseInvitation(location.hash),lastUi=0,disposed=false;
  const labels=document.createElement('div');labels.className='walker-labels';document.body.append(labels);
  const mine=document.createElement('span');mine.className='walker-name mine';mine.textContent=name;labels.append(mine);
@@ -43,6 +46,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   room=host?WalkRoom.create(name,options):prepared?.room??new WalkRoom(invite!,false,name,options);
   prepared?.attach(options.onSpawn);
   invite=room.invite;
+  cloakColors=roomCloakColors(invite.room);
   // Drop debug/experimental query parameters when sharing the ordinary showcase.
   const url=new URL(location.href);url.search='';url.hash=invitationHash(invite);link.value=url.href;link.hidden=false;
   history.replaceState(null,'',`${location.pathname}${location.search}#${invitationHash(invite)}`);
@@ -68,6 +72,8 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
  };
  function renderUi(){
   const phase=room?.phase;
+  const me=room?.players.get(room.id);
+  localRanger.setCloak(me?cloakColors[me.slot]:soloCloak);
   button.textContent=!room?'Пригласить друзей':['ended','full','error'].includes(phase!)?'Создать свою комнату':'Скопировать приглашение';
   const texts={starting:'Создаём комнату…',waiting:'Ждём друзей',joining:'Подключаемся…',connected:'Гуляем вместе',reconnecting:'Восстанавливаем связь…',full:'Комната заполнена',ended:'Комната закрыта',error:'Не удалось подключиться'};
   el('friends-status').textContent=room?`${texts[room.phase]} · ${room.players.size}/${CAPACITY}`:'Прогулка на шестерых';
@@ -84,7 +90,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   root.position.set(pose.e,groundHeight(pose.e,pose.n),-pose.n);root.rotation.y=-pose.heading*Math.PI/180;
   const label=document.createElement('span');label.className='walker-name';label.textContent=p.name;label.style.borderColor=COLORS[p.slot];labels.append(label);
   const remote:Remote={root,rig:null,label,pose,failed:false};remotes.set(p.id,remote);
-  void createRanger(scene,root,p.id).then(rig=>{if(disposed||remotes.get(p.id)!==remote){rig.dispose();root.dispose();}else remote.rig=rig;}).catch(()=>{remote.failed=true;el('friends-feedback').textContent='Не удалось показать одного из следопытов. Обнови страницу для повторного входа.';});
+  void createRanger(scene,root,p.id,cloakColors[p.slot]).then(rig=>{if(disposed||remotes.get(p.id)!==remote){rig.dispose();root.dispose();}else remote.rig=rig;}).catch(()=>{remote.failed=true;el('friends-feedback').textContent='Не удалось показать одного из следопытов. Обнови страницу для повторного входа.';});
   return remote;
  }
  function placeLabel(label:HTMLElement,p:Walker){
@@ -114,6 +120,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
     remote.pose.heading+=shortestAngleDelta(remote.pose.heading,target.heading)*blend;
     remote.root.position.set(remote.pose.e,groundHeight(remote.pose.e,remote.pose.n),-remote.pose.n);remote.root.rotation.y=-remote.pose.heading*Math.PI/180;
     const near=Math.hypot(player.e-remote.pose.e,player.n-remote.pose.n)<120;remote.root.setEnabled(near);
+    remote.rig?.setCloak(cloakColors[p.slot]);
     remote.rig?.update(near?dt:0,room?.phase==='reconnecting'?0:p.speed??0,p.running??false);
    }
    if(performance.now()-lastUi>100){lastUi=performance.now();placeLabel(mine,player);for(const r of remotes.values())placeLabel(r.label,r.pose);}

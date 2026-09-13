@@ -133,7 +133,7 @@ try {
    showcaseEnabled&&floor?floor.prepare(startFeet,()=>{}):undefined,
   ]));
   let cameraLift=0;
-  const multiplayer=showcaseEnabled?(await import('./runtime/showcase-multiplayer.ts')).createShowcaseMultiplayer(scene,camera,player,(e,n)=>walkerIsClear({e,n},world.boxes)):null;
+  const multiplayer=showcaseEnabled?(await import('./runtime/showcase-multiplayer.ts')).createShowcaseMultiplayer(scene,camera,player,(e,n)=>walkerIsClear({e,n},world.boxes),ranger!):null;
   const atlas=showcaseEnabled?createShowcaseMap(()=>({...player,yaw}),setPaused,(e,n)=>{player.e=e;player.n=n;keys.clear();demo=false;}):null;
   if(showcaseEnabled){document.body.classList.add('showcase');document.title='Древлепуща — лесные ложбины';document.querySelector('h1')!.textContent='Лесные ложбины';document.querySelector('#pause-title')!.textContent='Там, где тропа уходит вниз';document.querySelector('#pause-description')!.textContent='Лесные берега, боковые промоины и солнечные просветы. Идите по тропе или поднимитесь на склон. M — карта рельефа.';document.querySelector('.muted')!.textContent='Шоукейс · 512 × 640 м. Большой мир сохранён как прототип по ?scene=world.';}
   const touch=createTouchControls(canvas,{

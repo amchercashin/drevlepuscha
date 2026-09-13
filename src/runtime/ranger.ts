@@ -8,6 +8,8 @@ import {Quaternion} from '@babylonjs/core/Maths/math.vector.js';
 import type {AnimationGroup} from '@babylonjs/core/Animations/animationGroup.js';
 import {PBRMaterial} from '@babylonjs/core/Materials/PBR/pbrMaterial.js';
 import {RangerPalette} from './ranger-palette.ts';
+import {Color3} from '@babylonjs/core/Maths/math.color.js';
+import {CLOAK_COLORS} from '../domain/cloak-colors.ts';
 import rangerUrl from '../../assets/characters/ranger/meshy.glb?url';
 
 const SOURCES={Idle:'restpose',Walk:'Walking',Run:'Running'} as const;
@@ -59,7 +61,7 @@ async function loadSource(scene:Scene){
 }
 
 /** Shared geometry/materials, independent skeletons and animation tracks per walker. */
-export async function createRanger(scene:Scene,parent:TransformNode,id=''){
+export async function createRanger(scene:Scene,parent:TransformNode,id='',initialCloak=CLOAK_COLORS[crypto.getRandomValues(new Uint32Array(1))[0]%CLOAK_COLORS.length] as string){
  let source=sources.get(scene);
  if(!source){source=loadSource(scene);sources.set(scene,source);}
  const asset=await source;
@@ -73,6 +75,16 @@ export async function createRanger(scene:Scene,parent:TransformNode,id=''){
  orientation.scaling.setAll(HEIGHT/SOURCE_HEIGHT);
  for(const node of instance.rootNodes)node.parent=orientation;
  for(const mesh of orientation.getChildMeshes()){mesh.isPickable=false;mesh.receiveShadows=true;mesh.alwaysSelectAsActiveMesh=true;}
+ const meshes=orientation.getChildMeshes();
+ let cloakColor='';
+ function setCloak(color:string){
+  if(color===cloakColor)return;
+  const tone=Color3.FromHexString(color).toLinearSpace();
+  tone.scaleInPlace(1/Math.max(.001,.2126*tone.r+.7152*tone.g+.0722*tone.b));
+  for(const mesh of meshes)mesh.metadata={...mesh.metadata,rangerCloakTone:tone};
+  cloakColor=color;
+ }
+ setCloak(initialCloak);
  for(const mesh of placeholder)mesh.dispose();
  // Only these three clips run. Bow animations stay available in the source GLB.
  for(const gait of GAITS){
@@ -82,6 +94,7 @@ export async function createRanger(scene:Scene,parent:TransformNode,id=''){
  const weights:Record<Gait,number>={Idle:1,Walk:0,Run:0};
  let gait:Gait='Idle',speed=0;
  return {
+  setCloak,
   dispose(){instance.dispose();orientation.dispose();},
   update(dt:number,actualSpeed:number,running:boolean){
    if(dt===0){for(const clip of Object.values(clips))clip.speedRatio=0;return;}
@@ -102,7 +115,7 @@ export async function createRanger(scene:Scene,parent:TransformNode,id=''){
    clips.Walk.speedRatio=Math.max(.15,speed/CYCLE_SPEED.Walk);
    clips.Run.speedRatio=Math.max(.15,speed/CYCLE_SPEED.Run);
   },
-  state:()=>({model:'meshy',gait,speed,height:HEIGHT,weights:{...weights},clips:{...SOURCES},
+  state:()=>({model:'meshy',cloakColor,gait,speed,height:HEIGHT,weights:{...weights},clips:{...SOURCES},
    playbackRate:clips[gait].speedRatio,frame:clips[gait].getCurrentFrame()}),
  };
 }
