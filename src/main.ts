@@ -40,6 +40,7 @@ let engine: WebGPUEngine | undefined;
 const errors: string[]=[];
 
 function fail(message: string) {
+  if(showcaseEnabled&&location.hash)void import('./network/showcase-session.ts').then(m=>m.closePreparedGuest()).catch(()=>{});
   document.body.classList.remove('booting');errors.push(message);paused=true;keys.clear();pausePanel.hidden=false;
   document.querySelector('#pause-title')!.textContent='Не удалось открыть стенд';
   document.querySelector('#pause-description')!.textContent=message;

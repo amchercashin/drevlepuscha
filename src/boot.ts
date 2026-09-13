@@ -1,5 +1,6 @@
 import {enableShowcase} from './domain/showcase.ts';
 import {preloadShowcase} from './runtime/showcase-assets.ts';
+import {parseInvitation} from './network/protocol.ts';
 const params=new URLSearchParams(location.search);
 try {
 if(params.get('engine')==='lite'){
@@ -8,10 +9,19 @@ if(params.get('engine')==='lite'){
 }else{
  const scene=params.get('scene');
  if(scene==='world'){document.body.classList.remove('showcase');document.title='Древлепуща — прогулка по карте';document.querySelector('h1')!.textContent='Древлепуща';document.querySelector('#pause-title')!.textContent='За Высокой Изгородью';await import('./world/game.ts');}
- else{if(scene!=='m0'&&scene!=='m1'){enableShowcase();preloadShowcase(params);}else document.body.classList.remove('showcase');await import('./main.ts');}
+ else{
+  if(scene!=='m0'&&scene!=='m1'){
+   enableShowcase();
+   const invite=parseInvitation(location.hash);
+   if(invite)await (await import('./network/showcase-entrance.ts')).enterShowcase(invite);
+   preloadShowcase(params);
+  }else document.body.classList.remove('showcase');
+  await import('./main.ts');
+ }
 }
 
 }catch(error){
+ if(parseInvitation(location.hash))await import('./network/showcase-session.ts').then(m=>m.closePreparedGuest()).catch(()=>{});
  document.body.classList.remove('booting');
  document.querySelector('#pause-title')!.textContent='Не удалось открыть прогулку';
  document.querySelector('#pause-description')!.textContent='Проверьте соединение и повторите загрузку.';

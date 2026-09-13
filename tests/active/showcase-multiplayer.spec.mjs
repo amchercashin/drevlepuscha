@@ -22,7 +22,30 @@ test('rangers share a six-person showcase, reconnect, and leave cleanly',async({
   console.log('PASS: default ranger, settings, invite');
   const guest=await browser.newPage({viewport:{width:1280,height:720}});extra.push(guest);observe(guest);
   const guestUrl=new URL(invite);guestUrl.search='?debug=1';
-  await guest.goto(guestUrl.href);await guest.waitForFunction(()=>window.m0?.state().ready,null,{timeout:90000});
+  // Delay the heavy model beyond the custom handshake timeout. The guest must
+  // already be connected and retain the same RTC object when the forest opens.
+  await guest.addInitScript(()=>{
+   const Base=RTCPeerConnection;window.testConnections=[];
+   window.RTCPeerConnection=class extends Base{constructor(config){super(config);window.testConnections.push(this);}};
+  });
+  let releaseModel,modelRequested=false;
+  const modelGate=new Promise(resolve=>{releaseModel=resolve;});
+  await guest.route('**/meshy.glb*',async route=>{modelRequested=true;await modelGate;await route.continue();});
+  await guest.goto(guestUrl.href,{waitUntil:'commit'});
+  try{
+   await page.waitForFunction(()=>m0.state().multiplayer.players===2,null,{timeout:45000});
+   await expect.poll(()=>modelRequested).toBe(true);
+   expect(await guest.evaluate(()=>!!window.m0?.state().ready)).toBe(false);
+   expect(await guest.evaluate(()=>performance.getEntriesByName('room:connected-before-scene').length)).toBe(1);
+   await guest.waitForTimeout(11000);
+   expect(await guest.evaluate(()=>window.testConnections.filter(pc=>pc.connectionState==='connected').length)).toBe(1);
+  }finally{releaseModel();}
+  const rtcBeforeScene=await guest.evaluate(()=>window.testConnections.length);
+  await guest.waitForFunction(()=>window.m0?.state().ready,null,{timeout:90000});
+  expect(await guest.evaluate(()=>window.testConnections.length)).toBe(rtcBeforeScene);
+  expect((await guest.evaluate(()=>m0.networkReport())).rtcCreated).toBe(rtcBeforeScene);
+  await guest.unroute('**/meshy.glb*');
+  console.log('PASS: connection before 3D loading, preserved through slow model loading');
   if(await guest.locator('#pause').isVisible())await guest.locator('#resume').click();
   await page.waitForFunction(()=>m0.state().multiplayer.remotes.some(r=>r.ready),null,{timeout:45000});
   await guest.waitForFunction(()=>m0.state().multiplayer.remotes.some(r=>r.ready),null,{timeout:45000});

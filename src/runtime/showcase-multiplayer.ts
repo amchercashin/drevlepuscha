@@ -3,7 +3,8 @@ import {Matrix, Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 import type {FreeCamera} from '@babylonjs/core/Cameras/freeCamera.js';
 import {WalkRoom} from '../network/room.ts';
-import {COLORS, cleanName, invitationHash, parseInvitation} from '../network/protocol.ts';
+import {SHOWCASE_ROOM,showcaseName,claimShowcaseGuest} from '../network/showcase-session.ts';
+import {COLORS, invitationHash, parseInvitation} from '../network/protocol.ts';
 import type {Player, Position} from '../network/protocol.ts';
 import {FOREST_BOUNDS as B} from '../domain/forest.ts';
 import {groundHeight} from '../domain/harness.ts';
@@ -14,21 +15,11 @@ import './showcase-multiplayer.css';
 type Walker = {e:number;n:number;heading:number};
 type Ranger = Awaited<ReturnType<typeof createRanger>>;
 type Remote = {root:TransformNode;rig:Ranger|null;label:HTMLElement;pose:Walker;failed:boolean};
-const CAPACITY=6;
+const CAPACITY=SHOWCASE_ROOM.capacity;
 export const packPosition=(p:Walker,speed=0,running=false):Position=>({x:(p.e-B.minE)/(B.maxE-B.minE),y:(p.n-B.minN)/(B.maxN-B.minN),heading:p.heading,speed,running,seq:0});
 const unpack=(p:Position):Walker=>({e:B.minE+p.x*(B.maxE-B.minE),n:B.minN+p.y*(B.maxN-B.minN),heading:p.heading??0});
-function randomName(){
- let name='';try{name=sessionStorage.getItem('showcase-walker-name')??'';}catch{}
- if(!name){
-  const first=['Тихий','Лесной','Северный','Сумрачный','Зелёный','Вольный','Зоркий','Солнечный'];
-  const last=['Ясень','Клён','Дрозд','Ветер','Кедр','Сокол','Ворон','Лис'];
-  name=`${first[Math.floor(Math.random()*first.length)]} ${last[Math.floor(Math.random()*last.length)]} ${Math.floor(Math.random()*90+10)}`;
-  try{sessionStorage.setItem('showcase-walker-name',name);}catch{}
- }
- return cleanName(name);
-}
 export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:Walker,canStand:(e:number,n:number)=>boolean){
- const name=randomName(),remotes=new Map<string,Remote>();
+ const name=showcaseName(),remotes=new Map<string,Remote>();
  let room:WalkRoom|null=null,invite=parseInvitation(location.hash),lastUi=0,disposed=false;
  const labels=document.createElement('div');labels.className='walker-labels';document.body.append(labels);
  const mine=document.createElement('span');mine.className='walker-name mine';mine.textContent=name;labels.append(mine);
@@ -46,9 +37,11 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   return packPosition(player);
  }
  function start(host:boolean){
-  const options={capacity:CAPACITY,appId:'drevlepuscha-showcase-v1',initial:packPosition(player),spawn,
+  const options={...SHOWCASE_ROOM,initial:packPosition(player),spawn,
    onSpawn:(p:Position)=>{const destination=unpack(p);if(canStand(destination.e,destination.n))Object.assign(player,destination);}};
-  room=host?WalkRoom.create(name,options):new WalkRoom(invite!,false,name,options);
+  const prepared=!host&&invite?claimShowcaseGuest(invite):null;
+  room=host?WalkRoom.create(name,options):prepared?.room??new WalkRoom(invite!,false,name,options);
+  prepared?.attach(options.onSpawn);
   invite=room.invite;
   // Drop debug/experimental query parameters when sharing the ordinary showcase.
   const url=new URL(location.href);url.search='';url.hash=invitationHash(invite);link.value=url.href;link.hidden=false;

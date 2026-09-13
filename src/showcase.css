@@ -3,3 +3,5 @@ body.showcase .masthead{padding:24px 30px}body.showcase .masthead h1{font-size:2
 body.showcase.touch-enabled .atlas-button{bottom:calc(max(20px, env(safe-area-inset-bottom)) + 158px);left:max(20px, env(safe-area-inset-left));min-height:44px;z-index:2}
 
 body.showcase #forest-weather[hidden]{display:none}
+
+#connection-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px}#connection-controls button{font-size:12px;padding:10px 12px;margin:0;background:transparent;color:#e2d5ad;border:1px solid #c5c8a946}#connection-controls button[hidden]{display:none}
