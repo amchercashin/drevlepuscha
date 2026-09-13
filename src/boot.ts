@@ -1,3 +1,5 @@
+import './showcase.css';
+import './style.css';
 import {enableShowcase} from './domain/showcase.ts';
 import {preloadShowcase} from './runtime/showcase-assets.ts';
 import {parseInvitation} from './network/protocol.ts';

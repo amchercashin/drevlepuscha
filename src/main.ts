@@ -18,6 +18,7 @@ import type {ResolutionQuality} from './runtime/resolution.ts';
 import {AutoQuality,QUALITY_PROFILES,recommendedQuality,showcaseResolution} from './runtime/showcase-quality.ts';
 import type {ShowcaseQuality} from './runtime/showcase-quality.ts';
 import {performanceReport} from './runtime/performance-report.ts';
+import {createRanger} from './runtime/ranger.ts';
 import {FOREST_BOUNDS} from './domain/forest.ts';
 import {createForest} from './runtime/forest.ts';
 import type { WebGPUEngine } from '@babylonjs/core/Engines/webgpuEngine.js';
@@ -61,9 +62,7 @@ try {
   const minimumPitch=showcaseEnabled?-70:config.travel.pitchMinDeg;
   const world=await startup.stage('Рельеф и предметы…',async()=>createWorld(scene,forestMode)), instrumentation=new SceneInstrumentation(scene);
   const ranger=showcaseEnabled
-    ?await startup.stage('Следопыт и анимации…',async()=>{
-      const {createRanger}=await import('./runtime/ranger.ts');return createRanger(scene,world.player);
-    }):null;
+    ?await startup.stage('Следопыт и анимации…',()=>createRanger(scene,world.player)):null;
   if(new URLSearchParams(location.search).get('debug')==='1')engine.enableGPUTimingMeasurements=true;
   const forest=forestMode?await startup.stage('Деревья и поверхность…',()=>createForest(scene,world.sun)):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);if(!showcaseEnabled)document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
