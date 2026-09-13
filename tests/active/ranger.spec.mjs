@@ -27,6 +27,17 @@ test('Meshy ranger loads, walks, runs at full speed and freezes on pause',async(
  expect(Math.abs(rig.minY*rig.scale)).toBeLessThan(.12);
  expect(rig.maxY*rig.scale).toBeGreaterThan(1.65);expect(rig.maxY*rig.scale).toBeLessThan(1.9);
  expect(rig.activeClips.sort()).toEqual(['Running','Walking','restpose']);
+ // Both hands must hang beside the body, rather than remain in the A-pose.
+ const armOffsets=()=>page.evaluate(()=>{
+  const {scene}=m0.inspect();
+  return ['Left','Right'].map(side=>{
+   const shoulder=scene.getTransformNodeByName(side+'Arm').getAbsolutePosition();
+   const hand=scene.getTransformNodeByName(side+'Hand').getAbsolutePosition();
+   return {drop:shoulder.y-hand.y,spread:Math.hypot(hand.x-shoulder.x,hand.z-shoulder.z)};
+  });
+ });
+ const standingArms=await armOffsets();
+ for(const arm of standingArms){expect(arm.drop).toBeGreaterThan(.4);expect(arm.spread).toBeLessThan(.25);}
  await page.keyboard.down('KeyW');
  await page.waitForFunction(()=>m0.state().ranger.weights.Walk>.95);
  const walking=await page.evaluate(()=>m0.state());
@@ -49,7 +60,8 @@ test('Meshy ranger loads, walks, runs at full speed and freezes on pause',async(
  expect(held.player).toEqual(paused.player);
  await page.keyboard.up('KeyW');await page.keyboard.up('ShiftLeft');
  await page.keyboard.press('Escape');
- await page.waitForFunction(()=>m0.state().ranger.weights.Idle>.95);
+ await page.waitForFunction(()=>m0.state().ranger.weights.Idle>.995);
+ for(const arm of await armOffsets()){expect(arm.drop).toBeGreaterThan(.4);expect(arm.spread).toBeLessThan(.25);}
  const stopped=await page.evaluate(()=>m0.state());
  expect(stopped.ranger.gait).toBe('Idle');
  expect(stopped.errors).toEqual([]);expect(errors).toEqual([]);

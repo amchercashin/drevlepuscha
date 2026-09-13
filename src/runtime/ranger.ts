@@ -3,6 +3,7 @@ import {GLTFLoaderAnimationStartMode} from '@babylonjs/loaders/glTF/glTFFileLoad
 import {LoadAssetContainerAsync} from '@babylonjs/core/Loading/sceneLoader.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 import {TransformNode} from '@babylonjs/core/Meshes/transformNode.js';
+import {Quaternion} from '@babylonjs/core/Maths/math.vector.js';
 import type {AnimationGroup} from '@babylonjs/core/Animations/animationGroup.js';
 import rangerUrl from '../../assets/characters/ranger/meshy.glb?url';
 
@@ -25,6 +26,25 @@ export async function createRanger(scene:Scene,parent:TransformNode){
   const clip=asset.animationGroups.find(group=>group.name===SOURCES[gait]);
   if(!clip){asset.dispose();throw new Error(`Ranger animation missing: ${SOURCES[gait]}`);}
   clips[gait]=clip;
+ }
+ // Keep the standing body/legs from restpose, but relax its spread arms.
+ // Averaging the walking rotations removes the arm swing while retaining
+ // the authored shoulder, elbow and wrist alignment on this same rig.
+ for(const {target,animation} of clips.Idle.targetedAnimations){
+  if(animation.targetProperty!=='rotationQuaternion'||! /^(Left|Right)(Shoulder|Arm|ForeArm|Hand)$/.test(target.name))continue;
+  const walk=clips.Walk.targetedAnimations.find(track=>track.target===target&&track.animation.targetProperty==='rotationQuaternion');
+  if(!walk)continue;
+  const rotations=walk.animation.getKeys().map(key=>key.value as Quaternion);
+  if(!rotations.length)continue;
+  const neutral=new Quaternion(0,0,0,0);
+  for(const rotation of rotations){
+   // q and -q represent the same rotation; align their signs before averaging.
+   const sign=Quaternion.Dot(rotations[0],rotation)<0?-1:1;
+   neutral.x+=sign*rotation.x;neutral.y+=sign*rotation.y;
+   neutral.z+=sign*rotation.z;neutral.w+=sign*rotation.w;
+  }
+  neutral.normalize();
+  animation.setKeys(animation.getKeys().map(key=>({...key,value:neutral.clone()})));
  }
  asset.addAllToScene();
  // Meshy faces +Z; the showcase moves forward along -Z.
@@ -51,7 +71,7 @@ export async function createRanger(scene:Scene,parent:TransformNode){
     weights[name]+=((name===gait?1:0)-weights[name])*blend;
     clips[name].setWeightForAllAnimatables(weights[name]);
    }
-   clips.Idle.speedRatio=0; // Supplied static rest pose, not an invented idle cycle.
+   clips.Idle.speedRatio=0; // Static standing pose with relaxed arms.
    clips.Walk.speedRatio=Math.max(.15,speed/CYCLE_SPEED.Walk);
    clips.Run.speedRatio=Math.max(.15,speed/CYCLE_SPEED.Run);
   },
