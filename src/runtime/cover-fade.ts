@@ -6,6 +6,7 @@ import type {Point3} from '../domain/harness.ts';
 /** Dissolve small distant detail at its original height; the persistent cover stays underneath. */
 export class CoverFade extends MaterialPluginBase {
  feet:Point3={x:0,y:0,z:0};
+ setRange(start:number,end:number){this.start=start;this.end=end;}
  constructor(material:Material,private start:number,private end:number){super(material,'CoverFade',220,{COVER_FADE:true},true,false);this._enable(true);}
  override isCompatible(language: ShaderLanguage) { return language === ShaderLanguage.WGSL; }
  override getUniforms(){return {ubo:[{name:'coverFeet',size:3,type:'vec3'},{name:'coverRange',size:2,type:'vec2'}]};}

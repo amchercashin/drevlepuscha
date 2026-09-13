@@ -8,7 +8,8 @@ import type {Point3} from '../domain/harness.ts';
 export function forestHorizon(placements:TreePlacement[],templates:Mesh[]|((p:TreePlacement)=>Mesh[]),tones?:ReadonlyMap<string,Vector3>){
  const cells=new Map<string,{e:number;n:number;trees:TreePlacement[];meshes:Mesh[];detailed:boolean;min?:Vector3;max?:Vector3;fogHidden?:boolean}>();
  const membership=new Map<string,string>();
- const detailedEntry=Math.max(72,placements.reduce((r,p)=>Math.max(r,53+6*Math.max(p.width,p.depth)+8),0));
+ const crownMargin=placements.reduce((r,p)=>Math.max(r,6*Math.max(p.width,p.depth)+8),0);
+ let detailedEntry=Math.max(72,53+crownMargin);
  for(const p of placements){const e=Math.floor(p.e/64)*64,n=Math.floor(p.n/64)*64,key=`${e}:${n}`;let cell=cells.get(key);if(!cell){cell={e,n,trees:[],meshes:[],detailed:false};cells.set(key,cell);}cell.trees.push(p);membership.set(p.id,key);}
  for(const [key,cell] of cells){
   const groups=new Map<string,{trees:TreePlacement[];sources:Mesh[]}>();
@@ -26,6 +27,7 @@ export function forestHorizon(placements:TreePlacement[],templates:Mesh[]|((p:Tr
  let active:TreePlacement[]=[];
  return {
   activePlacements:()=>active,
+  setDetail:(scale:number)=>{detailedEntry=Math.max(72*scale,53*scale+crownMargin);},
   update(camera:Point3,feet:Point3){
    const scene=cells.values().next().value?.meshes[0]?.getScene();
    // EXP2 transmittance below 1/1024 is already visually opaque. Test full

@@ -14,6 +14,7 @@ export function createCoverField(scene:Scene,boxes:Box[],foliage:BaseTexture){
  const far=new StandardMaterial('cover-far',scene),mid=new StandardMaterial('cover-mid',scene);
  for(const m of [far,mid]){m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.emissiveColor=new Color3(.045,.075,.025);m.backFaceCulling=false;m.twoSidedLighting=true;m.diffuseTexture=foliage;m.useAlphaFromDiffuseTexture=true;m.transparencyMode=Material.MATERIAL_ALPHATEST;m.alphaCutOff=.45;}
  const fade=new CoverFade(mid,COVER.midStart,COVER.midEnd),field:Mesh[]=[],cells=new Map<string,Mesh>();
+ let detailScale=1;
  type Job={x:number;z:number;key:string};
  type CoverJob=Job&{layer:'far'|'mid'};
  type Geometry={positions:Float32Array;indices:Uint32Array;colors:Float32Array;normals:Float32Array;uvs:Float32Array};
@@ -59,8 +60,8 @@ export function createCoverField(scene:Scene,boxes:Box[],foliage:BaseTexture){
   for(const m of cells.values()){
    const {x,z}=m.metadata;
    const d=Math.hypot(Math.max(x*32-1-feet.x,0,feet.x-(x*32+33)),Math.max(z*32-1+feet.z,0,-feet.z-(z*32+33)));
-   m.setEnabled(d<COVER.midEnd);
+   m.setEnabled(d<COVER.midEnd*detailScale);
   }
  }
- return {update,localReady,hasPending:()=>pending.length+farQueue.length+Number(!!inflight)>0,stats:()=>({farTiles:field.length,farPending:farQueue.length+Number(inflight?.layer==='far'),midTiles:cells.size,midPending:pending.length+Number(inflight?.layer==='mid'),lastBuildMs,maxBuildMs,workerMaxBuildMs,triangles:[...field,...cells.values()].reduce((n,m)=>n+m.getTotalIndices()/3,0),fullField:true})};
+ return {update,localReady,setDetail:(scale:number)=>{detailScale=scale;fade.setRange(COVER.midStart*scale,COVER.midEnd*scale);},hasPending:()=>pending.length+farQueue.length+Number(!!inflight)>0,stats:()=>({farTiles:field.length,farPending:farQueue.length+Number(inflight?.layer==='far'),midTiles:cells.size,midPending:pending.length+Number(inflight?.layer==='mid'),lastBuildMs,maxBuildMs,workerMaxBuildMs,triangles:[...field,...cells.values()].reduce((n,m)=>n+m.getTotalIndices()/3,0),fullField:true})};
 }

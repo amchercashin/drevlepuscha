@@ -16,9 +16,11 @@ import normals from '../../assets/floor/trial/normals.png';
 import patches from '../../assets/floor/trial/patches.png';
 import detailSoil from '../../assets/floor/trial/soil.png';
 import litter from '../../assets/floor/trial/litter.png';
+import ranger from '../../assets/characters/ranger/runtime.glb?url';
 
 /** Lightweight URL manifest; no renderer imports on the early request path. */
 export function preloadShowcase(params:URLSearchParams){
+ preloadImages([ranger]);
  if(params.get('tree')&&params.get('tree')!=='meshy-a')return;
  const variety=params.get('variety')!=='0';
  for(const url of variety?[oak,fork,young]:[oak])void loadJSON(url).catch(()=>{});

@@ -45,7 +45,7 @@ export function createForestFloor(scene:Scene,boxes:Box[]){
  leaves.diffuseTexture.wrapU=Texture.CLAMP_ADDRESSMODE;leaves.diffuseTexture.wrapV=Texture.CLAMP_ADDRESSMODE;
  const distances=showcaseEnabled?[new CoverFade(grass,COVER.nearStart,COVER.nearEnd),new CoverFade(leaves,COVER.nearStart,COVER.nearEnd)]:[new GrassDistance(grass),new GrassDistance(leaves)];
  const field=showcaseEnabled?createCoverField(scene,boxes,leaves.diffuseTexture):null;
- const radius=showcaseEnabled?COVER.nearRadius:3,hideM=showcaseEnabled?COVER.nearEnd:FLOOR_HIDE_M;
+ const radius=showcaseEnabled?COVER.nearRadius:3;let hideM=showcaseEnabled?COVER.nearEnd:FLOOR_HIDE_M;
  let lastBuildMs=0,maxBuildMs=0,preparationMaxBuildMs=0;
  let anchor:Point3={x:0,y:0,z:0};
  const cells=new Map<string,{x:number;z:number;meshes:Mesh[]}>();
@@ -101,5 +101,5 @@ export function createForestFloor(scene:Scene,boxes:Box[]){
   });
   preparationMaxBuildMs=maxBuildMs;maxBuildMs=0;
  }
- return {update,prepare,stats:()=>({cells:cells.size,pending:queued().length,pendingNear:queued().filter(c=>floorCellDistance(anchor.x,-anchor.z,c.x,c.z)<COVER.nearStart).length,cacheLimit:(radius*2+1)**2,hideM,lastBuildMs,maxBuildMs,workerMaxBuildMs,preparationMaxBuildMs,field:field?.stats()??null,triangles:[...cells.values()].reduce((sum,c)=>sum+c.meshes.reduce((s,m)=>s+m.getTotalIndices()/3,0),0)})};
+ return {update,prepare,setDetail:(scale:number)=>{hideM=COVER.nearEnd*scale;for(const fade of distances)if(fade instanceof CoverFade)fade.setRange(COVER.nearStart*scale,hideM);field?.setDetail(scale);},stats:()=>({cells:cells.size,pending:queued().length,pendingNear:queued().filter(c=>floorCellDistance(anchor.x,-anchor.z,c.x,c.z)<COVER.nearStart).length,cacheLimit:(radius*2+1)**2,hideM,lastBuildMs,maxBuildMs,workerMaxBuildMs,preparationMaxBuildMs,field:field?.stats()??null,triangles:[...cells.values()].reduce((sum,c)=>sum+c.meshes.reduce((s,m)=>s+m.getTotalIndices()/3,0),0)})};
 }

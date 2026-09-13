@@ -30,7 +30,7 @@ test('rangers share a six-person showcase, reconnect, and leave cleanly',async({
   });
   let releaseModel,modelRequested=false;
   const modelGate=new Promise(resolve=>{releaseModel=resolve;});
-  await guest.route('**/meshy.glb*',async route=>{modelRequested=true;await modelGate;await route.continue();});
+  await guest.route('**/runtime*.glb*',async route=>{modelRequested=true;await modelGate;await route.continue();});
   await guest.goto(guestUrl.href,{waitUntil:'commit'});
   try{
    await page.waitForFunction(()=>m0.state().multiplayer.players===2,null,{timeout:45000});
@@ -44,7 +44,7 @@ test('rangers share a six-person showcase, reconnect, and leave cleanly',async({
   await guest.waitForFunction(()=>window.m0?.state().ready,null,{timeout:90000});
   expect(await guest.evaluate(()=>window.testConnections.length)).toBe(rtcBeforeScene);
   expect((await guest.evaluate(()=>m0.networkReport())).rtcCreated).toBe(rtcBeforeScene);
-  await guest.unroute('**/meshy.glb*');
+  await guest.unroute('**/runtime*.glb*');
   console.log('PASS: connection before 3D loading, preserved through slow model loading');
   if(await guest.locator('#pause').isVisible())await guest.locator('#resume').click();
   await page.waitForFunction(()=>m0.state().multiplayer.remotes.some(r=>r.ready),null,{timeout:45000});
@@ -88,7 +88,7 @@ test('rangers share a six-person showcase, reconnect, and leave cleanly',async({
   console.log('PASS: six participants');
   const assets=await page.evaluate(()=>{
    const {scene}=m0.inspect(),meshes=scene.meshes.filter(m=>m.skeleton&&m.getTotalVertices()>20000);
-   return {rigs:meshes.length,skeletons:new Set(meshes.map(m=>m.skeleton)).size,materials:new Set(meshes.map(m=>m.material)).size,geometry:new Set(meshes.map(m=>m.geometry)).size,loads:performance.getEntriesByType('resource').filter(r=>/meshy.*\.glb/.test(r.name)&&r.initiatorType!=='script').length};
+   return {rigs:meshes.length,skeletons:new Set(meshes.map(m=>m.skeleton)).size,materials:new Set(meshes.map(m=>m.material)).size,geometry:new Set(meshes.map(m=>m.geometry)).size,loads:performance.getEntriesByType('resource').filter(r=>/runtime.*\.glb/.test(r.name)&&r.initiatorType!=='script').length};
   });
   expect(assets).toEqual({rigs:6,skeletons:6,materials:1,geometry:1,loads:1});
   const cloakCount=await page.evaluate(()=>{

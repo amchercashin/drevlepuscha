@@ -13,10 +13,21 @@ export function relief(e:number,n:number):number {
  const terrace=2.8*g(e+48,25)*g(n-45,50);
  return bed+banks+spurs-sideA-sideB+ridge+terrace+.13*Math.sin(e*.42)*Math.sin(n*.31);
 }
+// Fixed terrain: reuse exact Float64 vertex heights across collision, camera and
+// foliage queries. Bounded to the forest plus a border; outside remains analytic.
+const terrainCols=263,terrainRows=327;
+const terrainHeights=new Float64Array(terrainCols*terrainRows),terrainReady=new Uint8Array(terrainHeights.length);
+function vertexHeight(e:number,n:number){
+ const x=e/2+131,z=n/2+131;
+ if(x<0||x>=terrainCols||z<0||z>=terrainRows)return relief(e,n);
+ const index=z*terrainCols+x;
+ if(!terrainReady[index]){terrainHeights[index]=relief(e,n);terrainReady[index]=1;}
+ return terrainHeights[index];
+}
 /** Original two metre triangles, also the seam reference for the detail tiles. */
 export function showcaseBaseHeight(e:number,n:number):number {
  const x=Math.floor(e/2)*2,z=Math.floor(n/2)*2,u=(e-x)/2,v=(n-z)/2;
- const a=relief(x,z),b=relief(x+2,z),c=relief(x,z+2),d=relief(x+2,z+2);
+ const a=vertexHeight(x,z),b=vertexHeight(x+2,z),c=vertexHeight(x,z+2),d=vertexHeight(x+2,z+2);
  return u+v<=1?a+(b-a)*u+(c-a)*v:d+(c-d)*(1-u)+(b-d)*(1-v);
 }
 export const SHOWCASE_GROUND={minE:-256,maxE:256,minN:-256,maxN:384,step:.25,tile:8,radius:2} as const;

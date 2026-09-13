@@ -28,7 +28,7 @@ test('frozen original probe connects independently of the showcase',async({page,
 test('failed entrance stays light, exports a report and can continue solo',async({page})=>{
  test.setTimeout(90000);
  const errors=[],models=[];page.on('pageerror',e=>errors.push(e.message));
- page.on('request',r=>{if(r.url().includes('meshy.glb'))models.push(r.url());});
+ page.on('request',r=>{if(/runtime.*\.glb/.test(r.url()))models.push(r.url());});
  await page.clock.install();
  await page.routeWebSocket(/wss:\/\//,socket=>socket.close());
  const invite=new URLSearchParams({room:crypto.randomUUID(),host:crypto.randomUUID(),key:crypto.randomUUID()});

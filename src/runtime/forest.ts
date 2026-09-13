@@ -97,7 +97,7 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   }
   return shadowMeshes;
  }
- let lockNear=false,forceSwitch=false;
+ let lockNear=false,forceSwitch=false,detailScale=1,smoothTransitions=true;
  function update(camera:Point3,feet:Point3,dt:number){
   horizon.update(camera,feet);
   for(const [id,t] of active)if(!horizon.detailed(id)){t.instances.forEach(m=>m.dispose());for(const pair of t.fades.values())pair.forEach(m=>m.dispose());active.delete(id);}
@@ -106,13 +106,13 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
    let t=active.get(p.id);
    // Whole cells hand off to identical far-LOD batches, without alpha overlap or gaps.
    if(!horizon.detailed(p.id)){if(t){t.instances.forEach(m=>m.dispose());for(const pair of t.fades.values())pair.forEach(m=>m.dispose());active.delete(p.id);}continue;}
-   const distance=Math.max(0,centreDistance-6*Math.max(p.width,p.depth));
+   const distance=Math.max(0,centreDistance-6*Math.max(p.width,p.depth))/detailScale;
    const directLevel=distance<=22?0:distance<=53?1:2;
    if(!t){const level=lockNear?0:directLevel;t={placement:p,level,instances:instances(p,level),fades:new Map(),previous:-1,transition:1,opacity:familyFor(p).materials.map(()=>1)};active.set(p.id,t);}
    // A forced reset goes straight to the final LOD, avoiding a mass 0→1→2
    // transition in the following frame after switching the diagnostic checkbox.
    const next=lockNear?0:forceSwitch?directLevel:treeLevel(distance,t.level);
-   if(next!==t.level&&(t.previous<0||forceSwitch)){if(forceSwitch){for(const pair of t.fades.values())pair.forEach(m=>m.setEnabled(false));t.previous=-1;t.transition=1;}else{t.previous=t.level;t.transition=0;}t.instances.forEach(m=>m.dispose());t.instances=instances(p,next);t.level=next;}
+   if(next!==t.level&&(t.previous<0||forceSwitch)){if(forceSwitch||!smoothTransitions){for(const pair of t.fades.values())pair.forEach(m=>m.setEnabled(false));t.previous=-1;t.transition=1;}else{t.previous=t.level;t.transition=0;}t.instances.forEach(m=>m.dispose());t.instances=instances(p,next);t.level=next;}
    if(t.previous>=0){t.transition=Math.min(1,t.transition+dt/0.25);if(t.transition===1){fades(t,t.previous).forEach(m=>m.setEnabled(false));t.previous=-1;}}
    for(const [i,m] of t.instances.entries()){
     let blocked=false;
@@ -136,5 +136,5 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   }
   forceSwitch=false;
  }
- return {shadowCasters,boxes,update,stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:variety?'Три семейства · процедурные варианты':selected?.label,variety,families:families.map((f,i)=>({id:f.id,trees:familyCounts[i],triangles:f.data.triangles})),colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:data.levels[0].length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:families.reduce((n,f)=>n+f.templates.reduce((a,b)=>a+b.length,0),0)+horizon.stats().geometryBuffers,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
+ return {shadowCasters,boxes,update,setDetail:(scale:number,smooth:boolean)=>{detailScale=scale;smoothTransitions=smooth;horizon.setDetail(scale);forceSwitch=true;},stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:variety?'Три семейства · процедурные варианты':selected?.label,variety,families:families.map((f,i)=>({id:f.id,trees:familyCounts[i],triangles:f.data.triangles})),colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:data.levels[0].length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,detailScale,smoothTransitions,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:families.reduce((n,f)=>n+f.templates.reduce((a,b)=>a+b.length,0),0)+horizon.stats().geometryBuffers,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
 }

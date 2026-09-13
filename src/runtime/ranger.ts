@@ -10,7 +10,7 @@ import {PBRMaterial} from '@babylonjs/core/Materials/PBR/pbrMaterial.js';
 import {RangerPalette} from './ranger-palette.ts';
 import {Color3} from '@babylonjs/core/Maths/math.color.js';
 import {CLOAK_COLORS} from '../domain/cloak-colors.ts';
-import rangerUrl from '../../assets/characters/ranger/meshy.glb?url';
+import rangerUrl from '../../assets/characters/ranger/runtime.glb?url';
 
 const SOURCES={Idle:'restpose',Walk:'Walking',Run:'Running'} as const;
 type Gait=keyof typeof SOURCES;

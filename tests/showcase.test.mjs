@@ -20,6 +20,14 @@ test('showcase retains its original large-scale terrain',()=>{
   assert.ok(Math.abs(showcaseBaseHeight(e+1,n+1)-expected)<1e-10);
  }
 });
+test('cached terrain remains exact across both triangles and beyond cache edges',()=>{
+ for(const e of [-1000,-262,-261.7,-256.3,-.1,0,17.4,261.9,264,999])for(const n of [-1000,-264,-260.9,0,100.6,388.3,999]){
+  const x=Math.floor(e/2)*2,z=Math.floor(n/2)*2,u=(e-x)/2,v=(n-z)/2;
+  const a=relief(x,z),b=relief(x+2,z),c=relief(x,z+2),d=relief(x+2,z+2);
+  const expected=u+v<=1?a+(b-a)*u+(c-a)*v:d+(c-d)*(1-u)+(b-d)*(1-v);
+  assert.equal(showcaseBaseHeight(e,n),expected);assert.equal(showcaseBaseHeight(e,n),expected);
+ }
+});
 test('detail support uses the rendered quarter-metre triangles throughout the showcase',()=>{
  const step=SHOWCASE_GROUND.step;
  for(let e=-240;e<250;e+=14.75)for(let n=-240;n<370;n+=14.75){

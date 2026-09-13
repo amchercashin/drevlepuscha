@@ -15,6 +15,8 @@ import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent.js';
 import './style.css';
 import {renderResolution} from './runtime/resolution.ts';
 import type {ResolutionQuality} from './runtime/resolution.ts';
+import {AutoQuality,QUALITY_PROFILES,recommendedQuality,showcaseResolution} from './runtime/showcase-quality.ts';
+import type {ShowcaseQuality} from './runtime/showcase-quality.ts';
 import {performanceReport} from './runtime/performance-report.ts';
 import {FOREST_BOUNDS} from './domain/forest.ts';
 import {createForest} from './runtime/forest.ts';
@@ -57,7 +59,7 @@ try {
   camera.fov=config.travel.fovVerticalDeg*Math.PI/180;scene.activeCamera=camera;
   const forestMode=showcaseEnabled||new URLSearchParams(location.search).get('scene')==='m1';
   const minimumPitch=showcaseEnabled?-70:config.travel.pitchMinDeg;
-  const world=createWorld(scene,forestMode), instrumentation=new SceneInstrumentation(scene);
+  const world=await startup.stage('Рельеф и предметы…',async()=>createWorld(scene,forestMode)), instrumentation=new SceneInstrumentation(scene);
   const ranger=showcaseEnabled
     ?await startup.stage('Следопыт и анимации…',async()=>{
       const {createRanger}=await import('./runtime/ranger.ts');return createRanger(scene,world.player);
@@ -127,6 +129,38 @@ try {
   for(const button of document.querySelectorAll<HTMLButtonElement>('[data-checkpoint]')) {
     button.onclick=()=>{reset(button.dataset.checkpoint as keyof typeof CHECKPOINTS);focusScene();};
   }
+  const qualitySelect=document.querySelector<HTMLSelectElement>('#resolution-quality')!;
+  let quality:ShowcaseQuality=showcaseEnabled?'auto':'high';
+  const qualityKey=showcaseEnabled?'showcase-quality-v2':'resolution-quality';
+  try{const saved=localStorage.getItem(qualityKey);if(['performance','balanced','high','native',...(showcaseEnabled?['auto']:[])].includes(saved??''))quality=saved as ShowcaseQuality;}catch{}
+  const recommended=recommendedQuality(matchMedia('(pointer: coarse)').matches,(navigator as Navigator&{deviceMemory?:number}).deviceMemory);
+  const automaticQuality=new AutoQuality(recommended);
+  let effectiveQuality:ResolutionQuality=quality==='auto'?automaticQuality.effective:quality;
+  const qualityInfo=document.createElement('small');
+  if(showcaseEnabled){
+   document.querySelector('label[for="resolution-quality"]')!.textContent='Качество графики';
+   qualitySelect.innerHTML='<option value="auto">Авто · по устройству и скорости</option><option value="performance">Экономно</option><option value="balanced">Среднее</option><option value="high">Высокое</option><option value="native">По экрану · полная детализация</option>';
+   qualityInfo.id='quality-info';qualitySelect.after(qualityInfo);
+  }
+  qualitySelect.value=quality;
+  let internalDpr=1;
+  function resize(){
+   const size=(showcaseEnabled?showcaseResolution:renderResolution)(canvas.clientWidth,canvas.clientHeight,window.devicePixelRatio,effectiveQuality,Math.min(8192,engine!.getCaps().maxTextureSize));
+   internalDpr=size.scale;engine!.setSize(size.width,size.height);
+   const label={performance:'экономное',balanced:'среднее',high:'высокое',native:'по экрану'}[effectiveQuality];
+   qualityInfo.textContent=`${quality==='auto'?'Авто: ':''}${label} · ${size.width} × ${size.height}. Чёткость, дальность деталей, плавность LOD и материал земли.`;
+  }
+  function applyQuality(){
+   effectiveQuality=quality==='auto'?automaticQuality.effective:quality;
+   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);}
+   resize();
+  }
+  qualitySelect.onchange=()=>{quality=qualitySelect.value as ShowcaseQuality;automaticQuality.effective=recommended;automaticQuality.reset();try{localStorage.setItem(qualityKey,quality);}catch{}applyQuality();};
+  window.addEventListener('resize',resize);applyQuality();
+  let densityQuery:MediaQueryList;
+  function watchDensity(){densityQuery?.removeEventListener('change',densityChanged);densityQuery=matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);densityQuery.addEventListener('change',densityChanged);}
+  function densityChanged(){resize();watchDensity();}watchDensity();
+
   const startFeet={x:player.e,y:groundHeight(player.e,player.n),z:-player.n};
   await startup.stage('Готовим место входа…',()=>Promise.all([
    waitForTextures(scene.textures.filter(t=>!t.isRenderTarget),(ready,total)=>startup.progress(`Материалы леса · ${ready}/${total}`)),
@@ -170,21 +204,6 @@ try {
   window.addEventListener('keyup',e=>keys.delete(e.code));
   bindInputFocus(canvas,()=>{keys.clear();dragging=false;touch.reset();multiplayer?.stopMotion();previousTime=performance.now();});
   engine.onContextLostObservable.add(()=>fail('Графический контекст потерян. Закройте лишние графические приложения и перезагрузите стенд.'));
-  const qualitySelect=document.querySelector<HTMLSelectElement>('#resolution-quality')!;
-  let quality:ResolutionQuality='high';
-  try{const saved=localStorage.getItem('resolution-quality');if(['performance','balanced','high','native'].includes(saved??''))quality=saved as ResolutionQuality;}catch{/* Storage can be unavailable. */}
-  qualitySelect.value=quality;
-  let internalDpr=1;
-  function resize() {
-    const size=renderResolution(canvas.clientWidth,canvas.clientHeight,window.devicePixelRatio,quality,Math.min(8192,engine!.getCaps().maxTextureSize));
-    internalDpr=size.scale;engine!.setSize(size.width,size.height);
-  }
-  qualitySelect.onchange=()=>{quality=qualitySelect.value as ResolutionQuality;try{localStorage.setItem('resolution-quality',quality);}catch{}resize();};
-  window.addEventListener('resize',resize);resize();
-  // Retina density can change when moving a window between monitors without changing its CSS size.
-  let densityQuery:MediaQueryList;
-  function watchDensity(){densityQuery?.removeEventListener('change',densityChanged);densityQuery=matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);densityQuery.addEventListener('change',densityChanged);}
-  function densityChanged(){resize();watchDensity();}watchDensity();
 
   function state() {
     const pos={x:camera.position.x,y:camera.position.y,z:camera.position.z};
@@ -199,14 +218,14 @@ try {
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
       render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,
         triangles:scene.getActiveIndices()/3,shadowTriangles:shadowPassTriangles,mainTriangles:scene.getActiveIndices()/3-shadowPassTriangles,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
-        gpu:renderer.info,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality},
+        gpu:renderer.info,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality,effectiveQuality,recommendedQuality:recommended},
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,groundTrial:world.groundTrial?.stats()??null,
       lighting:sunlight?{daylight:daylight?.stats()??null,air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
   const disposePerformanceReport=showcaseEnabled?performanceReport(
    ()=>{samples.length=0;frameCosts.length=0;collect=true;},
-   ()=>{collect=false;const s=state();return {frames:[...samples],costs:[...frameCosts],context:{render:s.render,forest:s.forest,floor:s.floor,
+   ()=>{collect=false;const s=state();return {frames:[...samples],costs:[...frameCosts],context:{loading:s.loading,startupResources:performance.getEntriesByType('resource').filter((e):e is PerformanceResourceTiming=>e instanceof PerformanceResourceTiming).sort((a,b)=>b.duration-a.duration).slice(0,25).map(e=>({path:new URL(e.name,location.href).pathname,startMs:e.startTime,durationMs:e.duration,transferBytes:e.transferSize})),render:s.render,groundTrial:s.groundTrial,forest:s.forest,floor:s.floor,
     players:s.multiplayer?.players??1,roomPhase:s.multiplayer?.phase??'solo',ranger:s.ranger,
     memory:{meshes:scene.meshes.length,geometries:scene.geometries.length,textures:scene.textures.length,materials:scene.materials.length,
      jsHeapBytes:(performance as Performance&{memory?:{usedJSHeapSize:number}}).memory?.usedJSHeapSize??null}}};}
@@ -321,6 +340,10 @@ try {
 
       shadowPassTriangles=0;
       scene.render();frameCount++;
+      if(showcaseEnabled&&quality==='auto'&&startup.readyAt!==null){
+       if(paused||document.hidden||document.querySelector<HTMLDetailsElement>('#diagnostics')!.open||document.querySelector<HTMLInputElement>('#near-only')!.checked)automaticQuality.reset();
+       else if(automaticQuality.sample(rawDt))applyQuality();
+      }
       if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({cpuMs:performance.now()-now,gpuMs:(engine!.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
       if(now-uiTime>400){
         uiTime=now;
