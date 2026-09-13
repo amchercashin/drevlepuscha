@@ -5,6 +5,8 @@ import type {Scene} from '@babylonjs/core/scene.js';
 import {TransformNode} from '@babylonjs/core/Meshes/transformNode.js';
 import {Quaternion} from '@babylonjs/core/Maths/math.vector.js';
 import type {AnimationGroup} from '@babylonjs/core/Animations/animationGroup.js';
+import {PBRMaterial} from '@babylonjs/core/Materials/PBR/pbrMaterial.js';
+import {RangerPalette} from './ranger-palette.ts';
 import rangerUrl from '../../assets/characters/ranger/meshy.glb?url';
 
 const SOURCES={Idle:'restpose',Walk:'Walking',Run:'Running'} as const;
@@ -47,6 +49,7 @@ export async function createRanger(scene:Scene,parent:TransformNode){
   animation.setKeys(animation.getKeys().map(key=>({...key,value:neutral.clone()})));
  }
  asset.addAllToScene();
+ for(const material of asset.materials)if(material instanceof PBRMaterial)new RangerPalette(material);
  // Meshy faces +Z; the showcase moves forward along -Z.
  const orientation=new TransformNode('ranger-facing',scene);
  orientation.parent=parent;orientation.rotation.y=Math.PI;
