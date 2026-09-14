@@ -1,6 +1,10 @@
+import {PersistentRoom} from './persistent-room.ts';
+import {isPersistent,sessionInvitationHash} from './persistent-protocol.ts';
+import type {SessionInvitation as Invitation} from './persistent-protocol.ts';
+import type {WalkSession} from './session.ts';
 import {WalkRoom} from './room.ts';
 import {cleanName} from './protocol.ts';
-import type {Invitation, Position} from './protocol.ts';
+import type {Position} from './protocol.ts';
 
 // The lightweight entrance and the forest must join exactly the same room.
 export const SHOWCASE_ROOM={capacity:6,appId:'drevlepuscha-showcase-v1'};
@@ -20,15 +24,14 @@ export function showcaseName(){
 let prepared:ReturnType<typeof makeGuest>|null=null;
 function makeGuest(invite:Invitation){
  let lastSpawn:Position|null=null,onSpawn:((p:Position)=>void)|null=null,claimed=false;
- const room=new WalkRoom(invite,false,showcaseName(),{...SHOWCASE_ROOM,
-  onSpawn:p=>{lastSpawn=p;onSpawn?.(p);},
- });
+ const options={...SHOWCASE_ROOM,onSpawn:(p:Position)=>{lastSpawn=p;onSpawn?.(p);}};
+ const room:WalkSession=isPersistent(invite)?new PersistentRoom(invite,showcaseName(),options):new WalkRoom(invite,false,showcaseName(),options);
  const unload=()=>{void room.leave();};
  window.addEventListener('pagehide',unload,{once:true});
  return {
   room,
   claim(invitation:Invitation){
-   if(claimed||invitation.room!==invite.room||invitation.host!==invite.host||invitation.key!==invite.key)return null;
+   if(claimed||sessionInvitationHash(invitation)!==sessionInvitationHash(invite))return null;
    claimed=true;return this;
   },
   attach(applySpawn:(p:Position)=>void){onSpawn=applySpawn;if(lastSpawn)applySpawn(lastSpawn);},

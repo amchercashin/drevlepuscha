@@ -3,12 +3,8 @@ import type {Room, MessageAction} from '@trystero-p2p/core';
 import {Admission, MAX_PLAYERS, PROTOCOL, cleanName, record, validPosition, validRoster} from './protocol.ts';
 import type {Invitation, Player, Position} from './protocol.ts';
 
-export const RELAYS = ['wss://public:public@public.cloud.shiftr.io', 'wss://broker.emqx.io:8084/mqtt'];
-export const ICE_SERVERS: RTCIceServer[] = [
-  {urls: 'stun:stun.cloudflare.com:3478'},
-  {urls: 'stun:global.stun.twilio.com:3478'},
-  {urls: 'stun:stun.l.google.com:19302'},
-];
+import {RELAYS,ICE_SERVERS} from './transport-config.ts';
+export {RELAYS,ICE_SERVERS} from './transport-config.ts';
 export type Phase = 'starting' | 'waiting' | 'joining' | 'connected' | 'reconnecting' | 'full' | 'ended' | 'error';
 export type RoomOptions = {capacity?: number; appId?: string; initial?: Position; spawn?: (slot: number) => Position; onSpawn?: (position: Position) => void};
 type RtcAttempt = {id: number; startedAt: number; state: string; ice: string; gathering: string; localDescription: string; remoteDescription: string; localTypes: Record<string,number>; remoteTypes: Record<string,number>; failed: boolean};

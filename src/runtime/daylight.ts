@@ -7,6 +7,8 @@ import type {HemisphericLight} from '@babylonjs/core/Lights/hemisphericLight.js'
 import {daylightAt,normalizeHour,CYCLE_SECONDS} from '../domain/daylight.ts';
 import {createDaySky} from './day-sky.ts';
 import {createShowcaseSky} from './showcase-sky.ts';
+import {clockHour} from '../network/persistent-protocol.ts';
+import type {WorldClock} from '../network/persistent-protocol.ts';
 import './daylight.css';
 
 type Air={setRays:(enabled:boolean)=>void}|null;
@@ -14,6 +16,7 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
  const animatedSky=showcaseSky?createShowcaseSky(scene,camera):null;
  const sky=animatedSky??createDaySky(scene,camera);
  const foliage=scene.materials.filter((m):m is StandardMaterial=>m instanceof StandardMaterial&&['grass','floor-leaves','cover-mid','cover-far'].includes(m.name)).map(m=>({material:m,emission:m.emissiveColor.clone()}));
+ let sharedClock:WorldClock|null=null,previous:{hours:number;automatic:boolean}|null=null;
  let hours=12,automatic=showcaseSky,rays=false,last=-1,current=daylightAt(hours);
  const controls=document.createElement('section');controls.className='daylight-controls';controls.setAttribute('aria-label','Время суток');
  controls.innerHTML=`<div class="daylight-heading"><strong>Свет и небо</strong><output id="day-time-value">12:00</output></div>
@@ -44,15 +47,25 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
   for(const {material,emission} of foliage)emission.scaleToRef(current.emissionScale,material.emissiveColor);
   sky.update(current);sync();
  }
- function setTime(hour:number){hours=normalizeHour(hour);automatic=false;auto.checked=false;apply();sync(true);}
- function setAutomatic(value:boolean){automatic=value;auto.checked=value;}
+ function setTime(hour:number){if(sharedClock)return;hours=normalizeHour(hour);automatic=false;auto.checked=false;apply();sync(true);}
+ function setAutomatic(value:boolean){if(sharedClock)return;automatic=value;auto.checked=value;}
+ function setClock(clock:WorldClock|null){
+  if(!!clock!==!!sharedClock){
+   if(clock){previous={hours,automatic};auto.checked=true;}
+   else if(previous){hours=previous.hours;automatic=previous.automatic;auto.checked=automatic;previous=null;}
+   range.disabled=auto.disabled=!!clock;
+   for(const b of controls.querySelectorAll<HTMLButtonElement>('button[data-hour]'))b.disabled=!!clock;
+   controls.title=clock?'Время задаётся постоянной комнатой':'';
+  }
+  sharedClock=clock;
+ }
  function setRays(value:boolean){rays=Boolean(value);rayToggle.checked=rays;air?.setRays(rays);}
  function setFog(value:number){const density=Math.max(0,Math.min(.04,value));scene.fogDensity=density;fogRange.value=density.toFixed(3);fogOutput.value=density.toFixed(3);}
  for(const b of controls.querySelectorAll<HTMLButtonElement>('button[data-hour]'))b.onclick=()=>setTime(Number(b.dataset.hour));
  range.oninput=()=>setTime(Number(range.value));auto.onchange=()=>setAutomatic(auto.checked);rayToggle.onchange=()=>setRays(rayToggle.checked);fogRange.oninput=()=>setFog(Number(fogRange.value));
- function update(dt:number){if(automatic&&dt>0)hours=normalizeHour(hours+Math.min(dt,.05)*24/CYCLE_SECONDS);animatedSky?.animate(dt);apply();}
+ function update(dt:number){if(sharedClock)hours=clockHour(sharedClock);else if(automatic&&dt>0)hours=normalizeHour(hours+Math.min(dt,.05)*24/CYCLE_SECONDS);animatedSky?.animate(dt);apply();}
  const details=document.querySelector<HTMLDetailsElement>('#diagnostics')!;
  const opened=()=>{if(details.open)sync(true);};details.addEventListener('toggle',opened);
  scene.onDisposeObservable.add(()=>{controls.remove();details.removeEventListener('toggle',opened);});setFog(scene.fogDensity);auto.checked=automatic;apply();sync(true);
- return {update,setTime,setAutomatic,setRays,setFog,stats:()=>({...current,automatic,rays,fogDensity:scene.fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
+ return {update,setClock,setTime,setAutomatic,setRays,setFog,stats:()=>({...current,automatic:sharedClock?true:automatic,sharedClock:!!sharedClock,rays,fogDensity:scene.fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
 }

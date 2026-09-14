@@ -1,4 +1,5 @@
-import type {Invitation} from './protocol.ts';
+import {isPersistent} from './persistent-protocol.ts';
+import type {SessionInvitation as Invitation} from './persistent-protocol.ts';
 import {prepareShowcaseGuest,closePreparedGuest} from './showcase-session.ts';
 
 /** Connect like the lightweight probe, before importing the forest or WebGPU.
@@ -14,7 +15,7 @@ export async function enterShowcase(invite:Invitation){
  controls.innerHTML='<button id="connection-retry" type="button" hidden>Попробовать снова</button><button id="connection-solo" type="button">Пока гулять одному</button><button id="connection-report" type="button">Скачать результат связи</button>';
  resume.after(controls);
  title.textContent='Встречаемся в лесу';
- caption.textContent='Ведущий должен держать свою вкладку открытой.';
+ caption.textContent=isPersistent(invite)?'Постоянная комната · сервер должен быть запущен.':'Ведущий должен держать свою вкладку открытой.';
  resume.disabled=true;resume.textContent='Подключаемся…';
  const retry=controls.querySelector<HTMLButtonElement>('#connection-retry')!;
  retry.onclick=()=>location.reload();
@@ -33,7 +34,7 @@ export async function enterShowcase(invite:Invitation){
     if(room.phase==='connected'){performance.mark('room:connected-before-scene');finish();return;}
     const failed=['error','ended','full'].includes(room.phase);
     retry.hidden=!failed;
-    description.textContent=room.phase==='error'?'Пока не удалось связаться с ведущим. Проверьте, что его вкладка открыта, или сохраните результат связи.':room.detail||(room.phase==='joining'?'Ищем комнату друга…':'Восстанавливаем связь с комнатой…');
+    description.textContent=room.phase==='error'&&!isPersistent(invite)?'Пока не удалось связаться с ведущим. Проверьте, что его вкладка открыта, или сохраните результат связи.':room.detail||(room.phase==='joining'?'Ищем комнату друга…':'Восстанавливаем связь с комнатой…');
     resume.textContent=failed?(room.phase==='full'?'Комната заполнена':'Связь пока не установлена'):'Подключаемся…';
    };
    const timer=setInterval(update,200);update();

@@ -22,7 +22,9 @@
     "world:build": "node tools/world/build.mjs && node tools/world/assets.mjs",
     "test:showcase": "playwright test showcase.spec.mjs",
     "test:map": "playwright test map.spec.mjs",
-    "textures:prepare": "node tools/prepare-runtime-textures.mjs"
+    "textures:prepare": "node tools/prepare-runtime-textures.mjs",
+    "server": "node tools/patch-trystero.mjs && node --experimental-strip-types server/index.mjs",
+    "test:server": "node --experimental-strip-types --test tests/persistent-*.test.mjs"
   },
   "packageManager": "npm@10.9.8",
   "devDependencies": {
@@ -35,6 +37,7 @@
     "@babylonjs/lite": "1.28.0",
     "@babylonjs/loaders": "9.25.0",
     "@trystero-p2p/core": "0.25.4",
-    "mqtt": "5.15.2"
+    "mqtt": "5.15.2",
+    "werift": "0.24.4"
   }
 }

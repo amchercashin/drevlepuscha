@@ -2,7 +2,7 @@ import './showcase.css';
 import './style.css';
 import {enableShowcase} from './domain/showcase.ts';
 import {preloadShowcase} from './runtime/showcase-assets.ts';
-import {parseInvitation} from './network/protocol.ts';
+import {parseSessionInvitation as parseInvitation} from './network/persistent-protocol.ts';
 const params=new URLSearchParams(location.search);
 try {
 if(params.get('engine')==='lite'){
@@ -14,6 +14,9 @@ if(params.get('engine')==='lite'){
  else{
   if(scene!=='m0'&&scene!=='m1'){
    enableShowcase();
+   // Opening an invitation after leaving can be a same-document hash navigation.
+   // Re-enter through the lightweight connection gate in that case as well.
+   window.addEventListener('hashchange',()=>{if(parseInvitation(location.hash))location.reload();});
    const invite=parseInvitation(location.hash);
    if(invite)await (await import('./network/showcase-entrance.ts')).enterShowcase(invite);
   }else document.body.classList.remove('showcase');

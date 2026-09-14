@@ -290,6 +290,7 @@ try {
           player.heading=normalizeAzimuth(player.heading+shortestAngleDelta(player.heading,heading)*(1-Math.exp(-dt/0.1)));
         }
       }
+      daylight?.setClock(multiplayer?.clock()??null);
       daylight?.update(paused?0:dt);
       ranger?.update(paused?0:dt,actualSpeed,running);
       const h=groundHeight(player.e,player.n);

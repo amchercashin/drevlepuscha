@@ -2,9 +2,13 @@ import {TransformNode} from '@babylonjs/core/Meshes/transformNode.js';
 import {Matrix, Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 import type {FreeCamera} from '@babylonjs/core/Cameras/freeCamera.js';
+import {createVoice} from '../network/voice.ts';
 import {WalkRoom} from '../network/room.ts';
 import {SHOWCASE_ROOM,showcaseName,claimShowcaseGuest} from '../network/showcase-session.ts';
-import {COLORS, invitationHash, parseInvitation} from '../network/protocol.ts';
+import {COLORS} from '../network/protocol.ts';
+import {PersistentRoom} from '../network/persistent-room.ts';
+import {isPersistent,parseSessionInvitation as parseInvitation,sessionInvitationHash as invitationHash} from '../network/persistent-protocol.ts';
+import type {WalkSession} from '../network/session.ts';
 import type {Player, Position} from '../network/protocol.ts';
 import {FOREST_BOUNDS as B} from '../domain/forest.ts';
 import {groundHeight} from '../domain/harness.ts';
@@ -24,7 +28,8 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
  const soloCloak=localRanger.state().cloakColor;
  let cloakColors:string[]=[];
  let uiKey='';
- let room:WalkRoom|null=null,invite=parseInvitation(location.hash),lastUi=0,disposed=false;
+ let voice:ReturnType<typeof createVoice>|null=null;
+ let room:WalkSession|null=null,invite=parseInvitation(location.hash),lastUi=0,disposed=false;
  const labels=document.createElement('div');labels.className='walker-labels';document.body.append(labels);
  const mine=document.createElement('span');mine.className='walker-name mine';mine.textContent=name;labels.append(mine);
  const panel=document.createElement('section');panel.className='friends-panel';panel.setAttribute('aria-label','Совместная прогулка');
@@ -42,10 +47,17 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
  }
  function start(host:boolean){
   const options={...SHOWCASE_ROOM,initial:packPosition(player),spawn,
-   onSpawn:(p:Position)=>{const destination=unpack(p);if(canStand(destination.e,destination.n))Object.assign(player,destination);}};
+   onSpawn:(p:Position)=>{const destination=unpack(p);
+    if(canStand(destination.e,destination.n)){Object.assign(player,destination);return;}
+    for(const radius of [1.5,3,5,8])for(let i=0;i<12;i++){
+     const angle=i*Math.PI/6,e=destination.e+Math.cos(angle)*radius,n=destination.n+Math.sin(angle)*radius;
+     if(e>B.minE+1&&e<B.maxE-1&&n>B.minN+1&&n<B.maxN-1&&canStand(e,n)){Object.assign(player,{e,n,heading:destination.heading});return;}
+    }
+   }};
   const prepared=!host&&invite?claimShowcaseGuest(invite):null;
-  room=host?WalkRoom.create(name,options):prepared?.room??new WalkRoom(invite!,false,name,options);
+  room=host?WalkRoom.create(name,options):prepared?.room??(invite&&isPersistent(invite)?new PersistentRoom(invite,name,options):new WalkRoom(invite!,false,name,options));
   prepared?.attach(options.onSpawn);
+  if(room instanceof PersistentRoom)voice=createVoice(room,details);
   invite=room.invite;
   cloakColors=roomCloakColors(invite.room);
   // Drop debug/experimental query parameters when sharing the ordinary showcase.
@@ -54,7 +66,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   details.open=true;renderUi();
  }
  function clearRemotes(){for(const remote of remotes.values()){remote.rig?.dispose();remote.root.dispose();remote.label.remove();}remotes.clear();}
- async function leave(){await room?.leave();room=null;invite=null;clearRemotes();history.replaceState(null,'',location.pathname+location.search);link.hidden=true;renderUi();}
+ async function leave(){voice?.dispose();voice=null;await room?.leave();room=null;invite=null;clearRemotes();history.replaceState(null,'',location.pathname+location.search);link.hidden=true;renderUi();}
  button.onclick=async()=>{
   button.disabled=true;
   try{
@@ -81,7 +93,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   const texts={starting:'Создаём комнату…',waiting:'Ждём друзей',joining:'Подключаемся…',connected:'Гуляем вместе',reconnecting:'Восстанавливаем связь…',full:'Комната заполнена',ended:'Комната закрыта',error:'Не удалось подключиться'};
   el('friends-status').textContent=room?`${texts[room.phase]} · ${room.players.size}/${CAPACITY}`:'Прогулка на шестерых';
   panel.dataset.phase=phase??'solo';
-  el('friends-help').textContent=room?(room.detail||(room.host?'Держи вкладку открытой: ты ведущий этой комнаты.':'Ведущий должен оставаться в комнате.')):'Создай комнату и отправь ссылку друзьям. Они появятся рядом с тобой.';
+  el('friends-help').textContent=room?(room.detail||(room.persistent?'Постоянная комната · время общее для всех.':room.host?'Держи вкладку открытой: ты ведущий этой комнаты.':'Ведущий должен оставаться в комнате.')):'Создай комнату и отправь ссылку друзьям. Они появятся рядом с тобой.';
   el('friends-leave').hidden=!room;el('friends-report').hidden=!room;
   el('friends-retry').hidden=!room||room.host||!['full','error','reconnecting'].includes(room.phase);
   const list=el('friends-list');list.replaceChildren();
@@ -129,8 +141,9 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
    if(performance.now()-lastUi>100){lastUi=performance.now();placeLabel(mine,player);for(const r of remotes.values())placeLabel(r.label,r.pose);}
   },
   shadowMeshes:()=>[...remotes.values()].filter(r=>r.root.isEnabled()).flatMap(r=>r.root.getChildMeshes()),
-  state:()=>({phase:room?.phase??'solo',name,capacity:CAPACITY,players:room?.players.size??1,remotes:[...remotes.values()].map(r=>({...r.pose,ready:!!r.rig,failed:r.failed,animation:r.rig?.state()}))}),
+  clock:()=>room?.clock?.()??null,
+  state:()=>({voice:voice?.state()??null,persistent:room?.persistent??false,phase:room?.phase??'solo',name,capacity:CAPACITY,players:room?.players.size??1,remotes:[...remotes.values()].map(r=>({...r.pose,ready:!!r.rig,failed:r.failed,animation:r.rig?.state()}))}),
   diagnostics:()=>room?.diagnostics(),
-  dispose(){disposed=true;clearInterval(timer);void room?.leave();clearRemotes();labels.remove();panel.remove();},
+  dispose(){disposed=true;voice?.dispose();clearInterval(timer);void room?.leave();clearRemotes();labels.remove();panel.remove();},
  };
 }
