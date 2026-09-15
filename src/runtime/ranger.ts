@@ -61,7 +61,7 @@ async function loadSource(scene:Scene){
 }
 
 /** Shared geometry/materials, independent skeletons and animation tracks per walker. */
-export async function createRanger(scene:Scene,parent:TransformNode,id='',initialCloak=CLOAK_COLORS[crypto.getRandomValues(new Uint32Array(1))[0]%CLOAK_COLORS.length] as string){
+export async function createRanger(scene:Scene,parent:TransformNode,id='',initialCloak=CLOAK_COLORS[0] as string){
  let source=sources.get(scene);
  if(!source){source=loadSource(scene);sources.set(scene,source);}
  const asset=await source;

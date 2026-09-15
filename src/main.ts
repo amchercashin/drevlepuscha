@@ -19,7 +19,6 @@ import {AutoQuality,QUALITY_PROFILES,recommendedQuality,showcaseResolution} from
 import type {ShowcaseQuality} from './runtime/showcase-quality.ts';
 import {performanceReport} from './runtime/performance-report.ts';
 import {createRanger} from './runtime/ranger.ts';
-import {cloakPreviewRequested,createCloakPreview} from './runtime/cloak-preview.ts';
 import {FOREST_BOUNDS} from './domain/forest.ts';
 import {createForest} from './runtime/forest.ts';
 import type { WebGPUEngine } from '@babylonjs/core/Engines/webgpuEngine.js';
@@ -171,8 +170,6 @@ try {
   let cameraLift=0;
   const multiplayer=showcaseEnabled?(await import('./runtime/showcase-multiplayer.ts')).createShowcaseMultiplayer(scene,camera,player,(e,n)=>walkerIsClear({e,n},world.boxes),ranger!):null;
   const atlas=showcaseEnabled?createShowcaseMap(()=>({...player,yaw}),setPaused,(e,n)=>{player.e=e;player.n=n;keys.clear();demo=false;}):null;
-  // Query-only offline dye inspection; ordinary visits never construct it.
-  if(showcaseEnabled&&ranger&&cloakPreviewRequested())createCloakPreview(ranger,hour=>daylight?.setTime(hour));
   if(showcaseEnabled){document.body.classList.add('showcase');document.title='Древлепуща — лесные ложбины';document.querySelector('h1')!.textContent='Лесные ложбины';document.querySelector('#pause-title')!.textContent='Там, где тропа уходит вниз';document.querySelector('#pause-description')!.textContent='Лесные берега, боковые промоины и солнечные просветы. Идите по тропе или поднимитесь на склон. M — карта рельефа.';document.querySelector('.muted')!.textContent='Шоукейс · 512 × 640 м. Большой мир сохранён как прототип по ?scene=world.';}
   const touch=createTouchControls(canvas,{
     active:()=>!paused,engage:()=>{demo=false;},

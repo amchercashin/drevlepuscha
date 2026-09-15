@@ -86,7 +86,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
  function renderUi(){
   const phase=room?.phase;
   const me=room?.players.get(room.id);
-  localRanger.setCloak(me?cloakColors[me.slot]:soloCloak);
+  localRanger.setCloak(me&&room!.players.size>1?cloakColors[me.slot]:soloCloak);
   const key=JSON.stringify([phase,room?.host,room?.detail,[...room?.players.values()??[]].map(p=>[p.id,p.name,p.slot])]);
   if(key===uiKey)return;uiKey=key;
   button.textContent=!room?'Пригласить друзей':['ended','full','error'].includes(phase!)?'Создать свою комнату':'Скопировать приглашение';
