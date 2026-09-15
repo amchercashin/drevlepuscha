@@ -132,7 +132,7 @@ export class ShowcaseAudio {
   listener.upX.value=0;listener.upY.value=1;listener.upZ.value=0;
   const sample=this.wind.sampleAt(eye.x,eye.y,eye.z);
   this.lastStrength=sample.strength01;this.lastGust=sample.gust01;
-  const levels=ambientWind(sample.strength01);
+  const levels=ambientWind(sample.strength01,sample.gust01,this.wind.canopyBend,this.wind.coverBend);
   if(this.active())this.elapsed+=Math.max(0,Math.min(dt,.1));
   if(this.elapsed>=this.anchorTime){
    this.anchorTime=this.elapsed+1;
@@ -148,7 +148,8 @@ export class ShowcaseAudio {
    if(loop){
     let level=(levels[asset.id]??.32*cricketGain)*phase*asset.trim;
     if(asset.id==='W06'&&!loop.anchor)level=0;
-    this.gains[asset.id]=level;loop.gain.gain.setTargetAtTime(level,ctx.currentTime,asset.id==='I01'?1.5:.18);
+    // Gusts already have the vegetation's smooth envelope; only de-click the audio gain.
+    this.gains[asset.id]=level;loop.gain.gain.setTargetAtTime(level,ctx.currentTime,asset.id==='I01'?1.5:.06);
    }else if(asset.kind!=='loop'&&this.active()&&this.elapsed>=(this.due.get(asset.id)??Infinity)){
     this.due.set(asset.id,this.elapsed+this.delay(asset.id));
     const chance=phase*(asset.id.startsWith('T')?.15+.85*sample.gust01:1);

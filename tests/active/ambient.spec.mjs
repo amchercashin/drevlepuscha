@@ -1,6 +1,27 @@
 import {test,expect} from '@playwright/test';
 test.use({screenshot:'off'});
 
+test('rustle rises and settles with one visible gust while strong background wind stays quiet',async({page})=>{
+ test.setTimeout(45000);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/?debug=1');await page.waitForFunction(()=>window.m0?.state().ready);
+ await page.evaluate(()=>m0.inspect().wind.configure({intensity:3.5,gustStrength:0}));
+ await page.locator('#resume').click();await page.waitForFunction(()=>m0.state().ambient.loops===7);
+ await page.waitForFunction(()=>m0.state().ambient.gust<.001);
+ const read=()=>page.evaluate(()=>{
+  const s=m0.state().ambient,a=m0.inspect().ambient;
+  return {gust:s.gust,air:s.gains.W01**2+s.gains.W02**2,
+   canopy:['W03','W04','W05'].reduce((sum,id)=>sum+a.loops.get(id).gain.gain.value**2,0)};
+ });
+ const quiet=await read();
+ await page.evaluate(()=>{m0.inspect().wind.configure({gustStrength:2});m0.inspect().wind.triggerGust();});
+ await page.waitForFunction(()=>m0.state().ambient.gust>.5);
+ const peak=await read();expect(peak.canopy).toBeGreaterThan(quiet.canopy*20);expect(peak.air).toBeLessThan(.14**2+1e-8);
+ await page.waitForFunction(()=>m0.state().ambient.gust<.015,null,{timeout:18000});
+ const settled=await read();expect(settled.canopy).toBeLessThan(peak.canopy/15);
+ expect(await page.evaluate(()=>m0.state().ambient.errors)).toEqual([]);expect(errors).toEqual([]);
+});
+
 test('forest audio follows scene wind and time, pauses and works for a room guest',async({page,browser})=>{
  test.setTimeout(180000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));

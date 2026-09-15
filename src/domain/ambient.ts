@@ -8,10 +8,13 @@ export function ambientPhase(hour:number,weights:PhaseWeights){
  const t=(h-hours[i])/(hours[i+1]-hours[i]),blend=t*t*(3-2*t);
  return values[i]+(values[i+1]-values[i])*blend;
 }
-/** No weather clock here: strength comes directly from the vegetation's WindSystem. */
-export function ambientWind(strength:number):Record<string,number>{
- const w=clamp(strength),air=.65*Math.pow(w,.7),canopy=.9*w,stage=2*w;
- return {W01:air*Math.sqrt(1-w),W02:air*Math.sqrt(w),
+/** Use the scene's separate gust signal: total strength saturates under the default wind. */
+export function ambientWind(strength:number,gust:number,canopyBend=1.25,coverBend=1.5):Record<string,number>{
+ const w=clamp(strength),g=clamp(gust);
+ // Quiet air persists between gusts. Rustle follows gusts, not the static tree lean.
+ const air=.14*w*(.45+.55*g),canopy=.45*clamp(w*canopyBend/1.25)*(.02+.98*g**1.3),stage=2*g;
+ const cover=.2*clamp(w*coverBend/1.5)*(.035+.965*g**1.15);
+ return {W01:air*Math.sqrt(1-g),W02:air*Math.sqrt(g),
   W03:canopy*Math.sqrt(Math.max(0,1-stage)),W04:canopy*Math.sqrt(1-Math.abs(stage-1)),
-  W05:canopy*Math.sqrt(Math.max(0,stage-1)),W06:.5*Math.pow(w,1.2)};
+  W05:canopy*Math.sqrt(Math.max(0,stage-1)),W06:cover};
 }
