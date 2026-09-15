@@ -1,0 +1,6 @@
+.wind-controls{border:1px solid #9cb69644;border-radius:8px;margin:12px 0;padding:10px 12px;min-width:0}
+.wind-controls legend{padding:0 5px;font-weight:600}
+.wind-controls label{display:block;margin:8px 0 4px}
+.wind-controls input[type=range],.wind-controls select{width:100%;box-sizing:border-box}
+.wind-controls output{float:right;font-variant-numeric:tabular-nums}
+.wind-controls small{display:block;margin-top:8px;line-height:1.4;opacity:.75}

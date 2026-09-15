@@ -1,3 +1,6 @@
+import type {WindSystem} from './wind.ts';
+import {VegetationWind,expandWindBounds} from './vegetation-wind.ts';
+import {ShadowDepthWrapper} from '@babylonjs/core/Materials/shadowDepthWrapper.js';
 import {showcaseTexture} from './showcase-textures.ts';
 import {loadJSON} from './asset-loading.ts';
 import {treeFamilySlot} from '../domain/tree-family.ts';
@@ -35,7 +38,7 @@ import dataURL from '../../assets/trees/game/tree.json?url';
 import barkURL from '../../assets/trees/bark.png';
 import canopyURL from '../../assets/trees/canopy.png';
 
-export async function createForest(scene:Scene,sun:DirectionalLight){
+export async function createForest(scene:Scene,sun:DirectionalLight,wind?:WindSystem){
  const selected=treeAsset(new URLSearchParams(location.search).get('tree')??'meshy-a');
  const additional=[[forkURL,forkTexture,.35],[youngURL,youngTexture,.16]] as const;
  const variety=selected?.id==='meshy-a'&&new URLSearchParams(location.search).get('variety')!=='0';
@@ -47,10 +50,11 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   const materialKey=JSON.stringify([urls,d.bakedColorFromLevel,d.doubleSided]),cached=materialSets.get(materialKey);
   const materials=cached?.materials??d.levels[0].map(({name})=>{const m=new StandardMaterial(`forest-${id}-${name}`,scene);m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.diffuseTexture=new Texture(showcaseTexture(urls[name]),scene,false,false);m.backFaceCulling=!(d.doubleSided?.[name]??false);new LodDither(m);return m;});
   const baked=cached?.baked??(d.bakedColorFromLevel===undefined?materials:materials.map(m=>{const copy=new StandardMaterial(m.name+'-baked',scene);copy.diffuseColor=Color3.White();copy.specularColor=Color3.Black();copy.backFaceCulling=m.backFaceCulling;new LodDither(copy);return copy;}));
-  if(!cached)for(const m of new Set([...materials,...baked])){new LeafTransmission(m,sun);if(selected?.id==='meshy-a')tonePlugins.push(new TreeTone(m));}
+  if(!cached)for(const m of new Set([...materials,...baked])){new LeafTransmission(m,sun);if(wind)new VegetationWind(m,wind,'tree');if(selected?.id==='meshy-a')tonePlugins.push(new TreeTone(m));}
   materialSets.set(materialKey,{materials,baked});
-  const templates=d.levels.map((parts,level)=>parts.map((p,i)=>{const m=new Mesh(`source-${id}-${level}-${p.name}`,scene);m.sideOrientation=1;const v=new VertexData();Object.assign(v,p);v.applyToMesh(m);m.material=level>=(d.bakedColorFromLevel??Infinity)?baked[i]:materials[i];if(selected?.id==='meshy-a'){m.registerInstancedBuffer('treeTone',3);m.instancedBuffers.treeTone=Vector3.Zero();}m.setEnabled(false);return m;}));
-  return {id,data:d,materials,templates,sink,collision:collisionGeometry(d.levels[0])};
+  const windTree=[d.levels[0].reduce((h,p)=>p.positions.reduce((v,y,i)=>i%3===1?Math.max(v,y):v,h),.1),id.includes('young')?1.3:id.includes('fork')?.9:.65];
+  const templates=d.levels.map((parts,level)=>parts.map((p,i)=>{const m=new Mesh(`source-${id}-${level}-${p.name}`,scene);m.sideOrientation=1;const v=new VertexData();Object.assign(v,p);v.applyToMesh(m);if(wind)m.metadata={windTree};m.material=level>=(d.bakedColorFromLevel??Infinity)?baked[i]:materials[i];if(selected?.id==='meshy-a'){m.registerInstancedBuffer('treeTone',3);m.instancedBuffers.treeTone=Vector3.Zero();}m.setEnabled(false);return m;}));
+  return {id,data:d,materials,templates,sink,windTree,collision:collisionGeometry(d.levels[0])};
  }
  const families=[family(selected?.id??'game',data,textureURLs)],variantCounts:[number,number]=[0,0];
  if(variety)for(const [familyIndex,[url,texture,sink]] of additional.entries()){
@@ -69,20 +73,21 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
   p.y=y-.08-f.sink*p.height-radius*Math.hypot(p.leanX,p.leanZ);
  }
  const tones=tonePlugins.length?new Map(placements.map(p=>[p.id,Vector3.FromArray(treeTone(p.id,p.e,p.n))])):undefined;
- const horizon=forestHorizon(placements,p=>familyFor(p).templates[2],tones);
+ const horizon=forestHorizon(placements,p=>familyFor(p).templates[2],tones,!!wind);
  interface ActiveTree {placement:TreePlacement;level:number;instances:InstancedMesh[];fades:Map<number,Mesh[]>;previous:number;transition:number;opacity:number[];}
  const active=new Map<string,ActiveTree>();
  const matrices=new Map(placements.map(p=>[p.id,Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n))]));
  const boxes=placements.map(p=>{const matrix=matrices.get(p.id)!;return {...treeCollider(p,familyFor(p).data.trunkRadius),collision:meshCollider(familyFor(p).collision,matrix.m,Matrix.Invert(matrix).m)};});
  const colliders=new Map(boxes.map(box=>[box.id,box.collision]));
- function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix(matrices.get(t.id)!);m.isPickable=false;if(m instanceof Mesh)m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
+ function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix(matrices.get(t.id)!);m.isPickable=false;if(wind){m.metadata={windTree:familyFor(t).windTree};expandWindBounds(m,familyFor(t).windTree[0]*.10*Math.max(t.height/t.width,t.height/t.depth,1));}if(m instanceof Mesh)m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={...m.metadata,treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
  function instances(t:TreePlacement,level:number){return familyFor(t).templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
  function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=familyFor(t.placement).templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
  // Persistent shared geometry and bounded matrix buffers; no per-cell mesh merge.
  const shadowMaterial=new StandardMaterial('forest-shadow-only',scene);
+ if(wind){new VegetationWind(shadowMaterial,wind,'tree');shadowMaterial.disableLighting=true;shadowMaterial.shadowDepthWrapper=new ShadowDepthWrapper(shadowMaterial,scene,{standalone:true,remappedVariables:['vNormalW','vertexOutputs.vNormalW']});scene.onDisposeObservable.add(()=>shadowMaterial.shadowDepthWrapper?.dispose());}
  const shadowGroups=families.map((family,i)=>({entries:[] as {p:TreePlacement;matrix:Matrix}[],buffer:new Float32Array(familyCounts[i]*16),meshes:family.templates[1].map((source,j)=>{
   const mesh=new Mesh(`forest-shadow-${i}-${j}`,scene);source.geometry!.copy(`shadow-geometry-${i}-${j}`).applyToMesh(mesh);
-  mesh.material=shadowMaterial;mesh.sideOrientation=1;mesh.layerMask=0;mesh.isPickable=false;mesh.freezeWorldMatrix();return mesh;
+  mesh.material=shadowMaterial;if(wind)mesh.metadata={windTree:family.windTree};mesh.sideOrientation=1;mesh.layerMask=0;mesh.isPickable=false;mesh.freezeWorldMatrix();return mesh;
  })}));
  for(const p of placements)shadowGroups[slots.get(p.id)!].entries.push({p,matrix:Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n))});
  for(const g of shadowGroups)for(const mesh of g.meshes){mesh.thinInstanceSetBuffer('matrix',g.buffer,16,false);mesh.setEnabled(false);}
@@ -93,7 +98,7 @@ export async function createForest(scene:Scene,sun:DirectionalLight){
    shadowCell=key;shadowMeshes=[];
    for(const g of shadowGroups){let count=0;
     for(const {p,matrix} of g.entries)if((p.e-e)**2+(p.n-n)**2<56*56)matrix.copyToArray(g.buffer,count++*16);
-    for(const mesh of g.meshes){mesh.thinInstanceCount=count;mesh.setEnabled(count>0);if(count){mesh.thinInstanceBufferUpdated('matrix');mesh.thinInstanceRefreshBoundingInfo();shadowMeshes.push(mesh);}}
+    for(const mesh of g.meshes){mesh.thinInstanceCount=count;mesh.setEnabled(count>0);if(count){mesh.thinInstanceBufferUpdated('matrix');mesh.thinInstanceRefreshBoundingInfo();if(wind)expandWindBounds(mesh,4);shadowMeshes.push(mesh);}}
    }
   }
   return shadowMeshes;

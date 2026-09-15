@@ -1,3 +1,4 @@
+import {expandWindBounds} from './vegetation-wind.ts';
 import {Mesh} from '@babylonjs/core/Meshes/mesh.js';
 import '@babylonjs/core/Meshes/thinInstanceMesh.js';
 import {Matrix,Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
@@ -5,7 +6,7 @@ import type {TreePlacement} from '../domain/forest.ts';
 import type {Point3} from '../domain/harness.ts';
 
 /** Spatial batches of the existing lowest LOD; identical transforms make the handoff seamless. */
-export function forestHorizon(placements:TreePlacement[],templates:Mesh[]|((p:TreePlacement)=>Mesh[]),tones?:ReadonlyMap<string,Vector3>){
+export function forestHorizon(placements:TreePlacement[],templates:Mesh[]|((p:TreePlacement)=>Mesh[]),tones?:ReadonlyMap<string,Vector3>,wind=false){
  const cells=new Map<string,{e:number;n:number;trees:TreePlacement[];meshes:Mesh[];detailed:boolean;min?:Vector3;max?:Vector3;fogHidden?:boolean}>();
  const membership=new Map<string,string>();
  const crownMargin=placements.reduce((r,p)=>Math.max(r,6*Math.max(p.width,p.depth)+8),0);
@@ -18,7 +19,7 @@ export function forestHorizon(placements:TreePlacement[],templates:Mesh[]|((p:Tr
    const matrices=new Float32Array(group.trees.length*16);
    group.trees.forEach((p,i)=>Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n)).copyToArray(matrices,i*16));
    const colors=tones?new Float32Array(group.trees.flatMap(p=>tones.get(p.id)!.asArray())):undefined;
-   cell.meshes.push(...group.sources.map((source,i)=>{const mesh=new Mesh(`horizon-${key}-${groupId}-${i}`,source.getScene());source.geometry!.copy(`horizon-geometry-${key}-${groupId}-${i}`).applyToMesh(mesh);mesh.material=source.material;mesh.sideOrientation=source.sideOrientation;mesh.isPickable=false;mesh.receiveShadows=true;mesh.thinInstanceSetBuffer('matrix',matrices,16,true);if(colors)mesh.thinInstanceSetBuffer('treeTone',colors,3,true);mesh.thinInstanceRefreshBoundingInfo();mesh.freezeWorldMatrix();return mesh;}));
+   cell.meshes.push(...group.sources.map((source,i)=>{const mesh=new Mesh(`horizon-${key}-${groupId}-${i}`,source.getScene());source.geometry!.copy(`horizon-geometry-${key}-${groupId}-${i}`).applyToMesh(mesh);mesh.material=source.material;if(wind)mesh.metadata={windTree:source.metadata.windTree};mesh.sideOrientation=source.sideOrientation;mesh.isPickable=false;mesh.receiveShadows=true;mesh.thinInstanceSetBuffer('matrix',matrices,16,true);if(colors)mesh.thinInstanceSetBuffer('treeTone',colors,3,true);mesh.thinInstanceRefreshBoundingInfo();if(wind)expandWindBounds(mesh,4);mesh.freezeWorldMatrix();return mesh;}));
   }
   cell.min=new Vector3(Infinity,Infinity,Infinity);cell.max=new Vector3(-Infinity,-Infinity,-Infinity);
   for(const mesh of cell.meshes){const box=mesh.getBoundingInfo().boundingBox;cell.min.minimizeInPlace(box.minimumWorld);cell.max.maximizeInPlace(box.maximumWorld);}

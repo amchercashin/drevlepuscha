@@ -8,8 +8,8 @@ import {createRandom,seedFor} from './seed.ts';
 
 export const FLOOR_CELL_M=8;
 export const FLOOR_HIDE_M=21;
-export interface FloorGeometry {positions:number[];indices:number[];colors:number[];uvs:number[];heights:number[]}
-const geometry=():FloorGeometry=>({positions:[],indices:[],colors:[],uvs:[],heights:[]});
+export interface FloorGeometry {positions:number[];indices:number[];colors:number[];uvs:number[];heights:number[];wind:number[]}
+const geometry=():FloorGeometry=>({positions:[],indices:[],colors:[],uvs:[],heights:[],wind:[]});
 /** Distance to the cell expanded for leaves crossing its edge. */
 export function floorCellDistance(e:number,n:number,cx:number,cz:number){
  return Math.hypot(Math.max(cx*8-1-e,0,e-((cx+1)*8+1)),Math.max(cz*8-1-n,0,n-((cz+1)*8+1)));
@@ -41,6 +41,7 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
    const x=e+(random()-.5)*.15,z=-n+(random()-.5)*.15,y=height(x,-z)-.025,k=grass.positions.length/3;
    for(const [t,side] of [[0,-1],[0,1],[.6,-1],[.6,1],[1,0]]){
     const width=w*(1-t*.7),bend=t*t*h*.45;
+    if(showcaseEnabled)grass.wind.push(x,z,t,x*.31+z*.17);
     vertex(grass,x+dx*bend-dz*width*side,y+t*h,z+dz*bend+dx*width*side,0,0,[grassBase[0]+t*.13,grassBase[1]+t*.16,grassBase[2]+t*.10]);
    }
    grass.indices.push(k,k+1,k+2,k+1,k+3,k+2,k+2,k+3,k+4);
@@ -64,6 +65,7 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
     for(const side of [-1,1]){
      const x=e+dx*t*length-dz*half*length*.85*side,z=-n+dz*t*length+dx*half*length*.85*side;
      // Lift strip above local terrain on slopes, preserving an arched silhouette.
+     if(showcaseEnabled)leaves.wind.push(e,-n,t,e*.31-n*.17);
      vertex(leaves,x,Math.max(y,height(x,-z)+.015),z,centreU+side*half*.5,baseV+.49*t,leafTint);
     }
     if(j<4){const q=k+j*2;leaves.indices.push(q,q+1,q+2,q+1,q+3,q+2);}

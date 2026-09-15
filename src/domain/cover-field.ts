@@ -5,14 +5,15 @@ import type {Box} from './harness.ts';
 import {FOREST_BOUNDS} from './forest.ts';
 import {createRandom,seedFor} from './seed.ts';
 export const COVER={nearStart:12,nearEnd:24,nearRadius:4,midStart:48,midEnd:90,midRadius:4} as const;
-export interface CoverGeometry {positions:number[];indices:number[];colors:number[];normals:number[];uvs:number[]}
+export interface CoverGeometry {positions:number[];indices:number[];colors:number[];normals:number[];uvs:number[];wind:number[]}
 /** Permanent coarse silhouettes plus a separate, additive middle layer. No moving placement seed. */
 export function makeCoverTile(cx:number,cz:number,layer:'far'|'mid',boxes:readonly Box[],height=groundHeight):CoverGeometry{
  const size=layer==='far'?64:32,grid=layer==='far'?16:20,step=size/grid;
- const e0=cx*size,n0=cz*size,g:CoverGeometry={positions:[],indices:[],colors:[],normals:[],uvs:[]};
+ const e0=cx*size,n0=cz*size,g:CoverGeometry={positions:[],indices:[],colors:[],normals:[],uvs:[],wind:[]};
  const nearby=boxes.filter(b=>b.max.x>=e0-1&&b.min.x<=e0+size+1&&b.max.z>=-n0-size-1&&b.min.z<=-n0+1);
+ let rootX=0,rootZ=0;
  function vertex(x:number,y:number,z:number,c:readonly number[],t:number,u=.75,v=.75){
-  g.positions.push(x,y,z);g.normals.push(0,1,0);g.uvs.push(u,v);g.colors.push(c[0]+t*.08,c[1]+t*.11,c[2]+t*.04,1);
+  if(showcaseEnabled)g.wind.push(rootX,rootZ,t,rootX*.31+rootZ*.17);g.positions.push(x,y,z);g.normals.push(0,1,0);g.uvs.push(u,v);g.colors.push(c[0]+t*.08,c[1]+t*.11,c[2]+t*.04,1);
  }
  for(let j=0;j<grid;j++)for(let i=0;i<grid;i++){
   const r=createRandom(seedFor('showcase-cover-v1',layer,cx*grid+i,cz*grid+j));
@@ -29,6 +30,7 @@ export function makeCoverTile(cx:number,cz:number,layer:'far'|'mid',boxes:readon
   for(let b=0;b<count;b++){
    const a=rotation+b*Math.PI*2/count,dx=Math.cos(a),dz=Math.sin(a),k=g.positions.length/3;
    if(fern){
+    rootX=e;rootZ=-n;
     const y=height(e,n)+.02,w=length*.18,x=e+dx*length*.52,z=-n+dz*length*.52;
     vertex(e,y,-n,c,0,.25,.505);
     vertex(x-dz*w,Math.max(y+h,height(x-dz*w,-z-dx*w)+.025),z+dx*w,c,.8,.10,.75);
@@ -37,6 +39,7 @@ export function makeCoverTile(cx:number,cz:number,layer:'far'|'mid',boxes:readon
     g.indices.push(k,k+1,k+2,k,k+2,k+3);
    }else{
     const x=e+(r()-.5)*.65,z=-n+(r()-.5)*.65,y=height(x,-z)-.02,w=.045+r()*.040;
+    rootX=x;rootZ=z;
     vertex(x-dz*w,y,z+dx*w,c,0);vertex(x+dz*w,y,z-dx*w,c,0);
     vertex(x+dx*h*.5,y+h,z+dz*h*.5,c,1);g.indices.push(k,k+1,k+2);
    }

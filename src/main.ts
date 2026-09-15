@@ -1,3 +1,5 @@
+import {WindSystem} from './runtime/wind.ts';
+import {createWindControls} from './runtime/wind-controls.ts';
 import {SceneStartup,FrameWorkBudget,bindInputFocus} from './runtime/startup.ts';
 import {createDaylight} from './runtime/daylight.ts';
 import {createGroundTrialControls} from './runtime/ground-trial.ts';
@@ -65,11 +67,14 @@ try {
   const ranger=showcaseEnabled
     ?await startup.stage('Следопыт и анимации…',()=>createRanger(scene,world.player)):null;
   if(new URLSearchParams(location.search).get('debug')==='1')engine.enableGPUTimingMeasurements=true;
-  const forest=forestMode?await startup.stage('Деревья и поверхность…',()=>createForest(scene,world.sun)):null;
+  const wind=showcaseEnabled?new WindSystem():undefined;
+  const disposeWindControls=wind?createWindControls(wind):undefined;
+  scene.onDisposeObservable.add(()=>{disposeWindControls?.();wind?.dispose();});
+  const forest=forestMode?await startup.stage('Деревья и поверхность…',()=>createForest(scene,world.sun,wind)):null;
   if(forest){camera.maxZ=1000;world.boxes.push(...forest.boxes);if(!showcaseEnabled)document.title='Древлепуща — лес M1';document.querySelector('.badge')!.textContent=forest.stats().assetLabel??'M1 · проба леса';document.querySelector('.muted')!.textContent=`${forest.stats().trees} деревьев · участок 512 × 640 м · автоматические LOD.`;}
   if(forest){for(const [id,label] of [['entrance','01 Вход'],['trunks','02 Папоротники'],['arch','03 Просвет'],['slope','04 К поляне']])document.querySelector(`[data-checkpoint="${id}"]`)!.textContent=label;document.querySelector('nav')!.insertAdjacentHTML('beforeend','<button data-checkpoint="outer" type="button">05 Дальний лес</button>');if(!showcaseEnabled)document.querySelector('#pause-description')!.textContent='Исследуйте лес 512 × 640 м. Кнопка «Дальний лес» переносит за границы старого стенда; к видимым деревьям можно подойти.';}
   const nearbyColliders=collisionGrid(world.boxes);
-  const floor=forest?createForestFloor(scene,world.boxes.map(({id,min,max})=>({id,min,max}))):null;
+  const floor=forest?createForestFloor(scene,world.boxes.map(({id,min,max})=>({id,min,max})),wind):null;
   const sunlight=forest?new ShadowGenerator(512,world.sun):null;
   if(sunlight){
    sunlight.setDarkness(0.18);sunlight.usePercentageCloserFiltering=true;sunlight.filteringQuality=ShadowGenerator.QUALITY_HIGH;
@@ -97,7 +102,7 @@ try {
   let yaw=0,yawTarget=0,pitch=showcaseEnabled?6:config.travel.pitchDefaultDeg,distance=config.travel.distanceM;
   let frameCount=0,previousTime=performance.now(),uiTime=0;
   const samples: number[]=[],maxSamples=60*60*5;
-  let collect=false;const frameCosts:{cpuMs:number;gpuMs:number}[]=[];
+  let collect=false;const frameCosts:{cpuMs:number;gpuMs:number;windCpuMs:number}[]=[];
   let demo=false,demoTime=0;
 
   const clamp=(x:number,a:number,b:number)=>Math.max(a,Math.min(b,x));
@@ -152,7 +157,7 @@ try {
   }
   function applyQuality(){
    effectiveQuality=quality==='auto'?automaticQuality.effective:quality;
-   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);}
+   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);wind?.setDetail(effectiveQuality!=='performance');}
    resize();
   }
   qualitySelect.onchange=()=>{quality=qualitySelect.value as ShowcaseQuality;automaticQuality.effective=recommended;automaticQuality.reset();try{localStorage.setItem(qualityKey,quality);}catch{}applyQuality();};
@@ -220,12 +225,13 @@ try {
         triangles:scene.getActiveIndices()/3,shadowTriangles:shadowPassTriangles,mainTriangles:scene.getActiveIndices()/3-shadowPassTriangles,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality,effectiveQuality,recommendedQuality:recommended},
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,groundTrial:world.groundTrial?.stats()??null,
+      wind:wind?.stats()??null,
       lighting:sunlight?{daylight:daylight?.stats()??null,air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
   const disposePerformanceReport=showcaseEnabled?performanceReport(
    ()=>{samples.length=0;frameCosts.length=0;collect=true;},
-   ()=>{collect=false;const s=state();return {frames:[...samples],costs:[...frameCosts],context:{loading:s.loading,startupResources:performance.getEntriesByType('resource').filter((e):e is PerformanceResourceTiming=>e instanceof PerformanceResourceTiming).sort((a,b)=>b.duration-a.duration).slice(0,25).map(e=>({path:new URL(e.name,location.href).pathname,startMs:e.startTime,durationMs:e.duration,transferBytes:e.transferSize})),render:s.render,groundTrial:s.groundTrial,forest:s.forest,floor:s.floor,
+   ()=>{collect=false;const s=state();return {frames:[...samples],costs:[...frameCosts],context:{loading:s.loading,startupResources:performance.getEntriesByType('resource').filter((e):e is PerformanceResourceTiming=>e instanceof PerformanceResourceTiming).sort((a,b)=>b.duration-a.duration).slice(0,25).map(e=>({path:new URL(e.name,location.href).pathname,startMs:e.startTime,durationMs:e.duration,transferBytes:e.transferSize})),render:s.render,groundTrial:s.groundTrial,forest:s.forest,floor:s.floor,wind:s.wind,
     players:s.multiplayer?.players??1,roomPhase:s.multiplayer?.phase??'solo',ranger:s.ranger,
     memory:{meshes:scene.meshes.length,geometries:scene.geometries.length,textures:scene.textures.length,materials:scene.materials.length,
      jsHeapBytes:(performance as Performance&{memory?:{usedJSHeapSize:number}}).memory?.usedJSHeapSize??null}}};}
@@ -236,7 +242,7 @@ try {
       state,reset,preset,setPaused,networkReport:()=>multiplayer?.diagnostics(),
       setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
-      inspect:()=>({scene,engine,world,forest}),
+      inspect:()=>({scene,engine,world,forest,wind}),
       obstacles:()=>world.boxes.map(({id,min,max,collision})=>({id,min:{...min},max:{...max},geometryCollision:!!collision})),
       teleport:(e:number,n:number,heading=0)=>{
         if(![e,n,heading].every(Number.isFinite)||e<(forest?FOREST_BOUNDS.minE+1:-23)||e>(forest?FOREST_BOUNDS.maxE-1:23)||n<(forest?FOREST_BOUNDS.minN+1:-11)||n>(forest?FOREST_BOUNDS.maxN-1:63))throw new Error('Outside harness');
@@ -259,7 +265,7 @@ try {
   engine.runRenderLoop(()=>{
     try {
       if(document.hidden){previousTime=performance.now();return;}
-      if(atlas?.isOpen())return; // Static atlas does not keep rendering the hidden 3D scene.
+      if(atlas?.isOpen()){previousTime=performance.now();return;} // Static atlas does not keep rendering the hidden 3D scene.
       const now=performance.now(),rawDt=now-previousTime;previousTime=now;
       const dt=Math.min(rawDt/1000,0.05);
       let actualSpeed=0,running=false;
@@ -291,6 +297,8 @@ try {
           player.heading=normalizeAzimuth(player.heading+shortestAngleDelta(player.heading,heading)*(1-Math.exp(-dt/0.1)));
         }
       }
+      wind?.setShared(multiplayer?.inRoom()??false);
+      wind?.update(paused?0:dt,camera.position);
       daylight?.setClock(multiplayer?.clock()??null);
       daylight?.update(paused?0:dt);
       ranger?.update(paused?0:dt,actualSpeed,running);
@@ -345,7 +353,7 @@ try {
        if(paused||document.hidden||document.querySelector<HTMLDetailsElement>('#diagnostics')!.open||document.querySelector<HTMLInputElement>('#near-only')!.checked)automaticQuality.reset();
        else if(automaticQuality.sample(rawDt))applyQuality();
       }
-      if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({cpuMs:performance.now()-now,gpuMs:(engine.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
+      if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({windCpuMs:wind?.lastCpuMs??0,cpuMs:performance.now()-now,gpuMs:(engine.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
       if(now-uiTime>400){
         uiTime=now;
         document.querySelector('#fps')!.textContent=`${Math.round(engine.getFps())} FPS`;

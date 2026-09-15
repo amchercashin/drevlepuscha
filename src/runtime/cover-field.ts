@@ -1,3 +1,5 @@
+import type {WindSystem} from './wind.ts';
+import {VegetationWind,expandWindBounds} from './vegetation-wind.ts';
 import {FrameWorkBudget} from './startup.ts';
 import {Material} from '@babylonjs/core/Materials/material.js';
 import type {BaseTexture} from '@babylonjs/core/Materials/Textures/baseTexture.js';
@@ -10,14 +12,15 @@ import type {Box,Point3} from '../domain/harness.ts';
 import {FOREST_BOUNDS} from '../domain/forest.ts';
 import {COVER} from '../domain/cover-field.ts';
 import {CoverFade} from './cover-fade.ts';
-export function createCoverField(scene:Scene,boxes:Box[],foliage:BaseTexture){
+export function createCoverField(scene:Scene,boxes:Box[],foliage:BaseTexture,wind?:WindSystem){
  const far=new StandardMaterial('cover-far',scene),mid=new StandardMaterial('cover-mid',scene);
  for(const m of [far,mid]){m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.emissiveColor=new Color3(.045,.075,.025);m.backFaceCulling=false;m.twoSidedLighting=true;m.diffuseTexture=foliage;m.useAlphaFromDiffuseTexture=true;m.transparencyMode=Material.MATERIAL_ALPHATEST;m.alphaCutOff=.45;}
- const fade=new CoverFade(mid,COVER.midStart,COVER.midEnd),field:Mesh[]=[],cells=new Map<string,Mesh>();
+ if(wind){new VegetationWind(mid,wind,'fern');new VegetationWind(far,wind,'far');}
+ const fade=new CoverFade(mid,COVER.midStart,COVER.midEnd,!!wind),field:Mesh[]=[],cells=new Map<string,Mesh>();
  let detailScale=1;
  type Job={x:number;z:number;key:string};
  type CoverJob=Job&{layer:'far'|'mid'};
- type Geometry={positions:Float32Array;indices:Uint32Array;colors:Float32Array;normals:Float32Array;uvs:Float32Array};
+ type Geometry={positions:Float32Array;indices:Uint32Array;colors:Float32Array;normals:Float32Array;uvs:Float32Array;wind:Float32Array};
  const worker=new Worker(new URL('./floor.worker.ts',import.meta.url),{type:'module'});
  worker.postMessage({type:'init',boxes});
  let inflight:CoverJob|null=null,completed:{job:CoverJob;geometry:Geometry}|null=null,workerError='',workerMaxBuildMs=0;
@@ -28,7 +31,7 @@ export function createCoverField(scene:Scene,boxes:Box[],foliage:BaseTexture){
  for(let z=FOREST_BOUNDS.minN/64;z<FOREST_BOUNDS.maxN/64;z++)for(let x=FOREST_BOUNDS.minE/64;x<FOREST_BOUNDS.maxE/64;x++)farQueue.push({x,z,key:`${x}:${z}`});
  function build(job:CoverJob,g:Geometry){
   const {layer}=job,start=performance.now(),m=new Mesh(`cover-${layer}-${job.key}`,scene),d=new VertexData();
-  Object.assign(d,g);d.applyToMesh(m);m.material=layer==='far'?far:mid;m.isPickable=false;m.receiveShadows=true;m.freezeWorldMatrix();
+  Object.assign(d,g);d.applyToMesh(m);if(wind){m.setVerticesData('plantWind',g.wind,false,4);expandWindBounds(m,.25);}m.material=layer==='far'?far:mid;m.isPickable=false;m.receiveShadows=true;m.freezeWorldMatrix();
   m.metadata={x:job.x,z:job.z,layer};lastBuildMs=performance.now()-start;maxBuildMs=Math.max(maxBuildMs,lastBuildMs);return m;
  }
  const distance=(job:Job,feet:Point3,size:number)=>Math.hypot(Math.max(job.x*size-feet.x,0,feet.x-(job.x+1)*size),Math.max(job.z*size+feet.z,0,-feet.z-(job.z+1)*size));

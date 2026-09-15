@@ -1,3 +1,5 @@
+import type {WindSystem} from './wind.ts';
+import {VegetationWind,expandWindBounds} from './vegetation-wind.ts';
 import {showcaseTexture} from './showcase-textures.ts';
 import {FrameWorkBudget,prepareUntil} from './startup.ts';
 import type {PackedFloor} from './floor.worker.ts';
@@ -35,7 +37,7 @@ class GrassDistance extends MaterialPluginBase {
 export function soilTexture(scene:Scene){
  const texture=new Texture(showcaseTexture(soilURL),scene);texture.wrapU=Texture.MIRROR_ADDRESSMODE;texture.wrapV=Texture.MIRROR_ADDRESSMODE;texture.anisotropicFilteringLevel=4;return texture;
 }
-export function createForestFloor(scene:Scene,boxes:Box[]){
+export function createForestFloor(scene:Scene,boxes:Box[],wind?:WindSystem){
  // Engine vectors have prototype getters, which structuredClone does not preserve.
  // Both foliage workers receive plain coordinates so rock/log exclusions stay exact.
  boxes=boxes.map(b=>({id:b.id,min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z}}));
@@ -44,8 +46,9 @@ export function createForestFloor(scene:Scene,boxes:Box[]){
  if(showcaseEnabled){leaves.emissiveColor=new Color3(.12,.17,.065);grass.emissiveColor=new Color3(.045,.075,.025);}
  leaves.diffuseTexture=new Texture(showcaseTexture(foliageURL),scene);leaves.diffuseTexture.hasAlpha=true;leaves.useAlphaFromDiffuseTexture=true;leaves.transparencyMode=Material.MATERIAL_ALPHATEST;leaves.alphaCutOff=.45;
  leaves.diffuseTexture.wrapU=Texture.CLAMP_ADDRESSMODE;leaves.diffuseTexture.wrapV=Texture.CLAMP_ADDRESSMODE;
- const distances=showcaseEnabled?[new CoverFade(grass,COVER.nearStart,COVER.nearEnd),new CoverFade(leaves,COVER.nearStart,COVER.nearEnd)]:[new GrassDistance(grass),new GrassDistance(leaves)];
- const field=showcaseEnabled?createCoverField(scene,boxes,leaves.diffuseTexture):null;
+ if(wind){new VegetationWind(grass,wind,'grass');new VegetationWind(leaves,wind,'fern');}
+ const distances=showcaseEnabled?[new CoverFade(grass,COVER.nearStart,COVER.nearEnd,!!wind),new CoverFade(leaves,COVER.nearStart,COVER.nearEnd,!!wind)]:[new GrassDistance(grass),new GrassDistance(leaves)];
+ const field=showcaseEnabled?createCoverField(scene,boxes,leaves.diffuseTexture,wind):null;
  const radius=showcaseEnabled?COVER.nearRadius:3;let hideM=showcaseEnabled?COVER.nearEnd:FLOOR_HIDE_M;
  let lastBuildMs=0,maxBuildMs=0,preparationMaxBuildMs=0;
  let anchor:Point3={x:0,y:0,z:0};
@@ -57,7 +60,7 @@ export function createForestFloor(scene:Scene,boxes:Box[]){
   // Bent foliage normals favour the sky fill instead of black vertical cards.
   for(let i=0;i<normals.length;i+=3){normals[i+1]=Math.max(.65,Math.abs(normals[i+1]));const l=Math.hypot(normals[i],normals[i+1],normals[i+2]);for(let j=0;j<3;j++)normals[i+j]/=l;}}
   const data=new VertexData();Object.assign(data,{positions:g.positions,indices:g.indices,colors:g.colors,uvs:g.uvs,normals});
-  const m=new Mesh(name,scene);data.applyToMesh(m);if(!showcaseEnabled)m.setVerticesData('bladeHeight',g.heights,false,1);m.material=material;m.isPickable=false;m.receiveShadows=true;m.freezeWorldMatrix();return [m];
+  const m=new Mesh(name,scene);data.applyToMesh(m);if(wind){m.setVerticesData('plantWind',g.wind,false,4);expandWindBounds(m,.35);}if(!showcaseEnabled)m.setVerticesData('bladeHeight',g.heights,false,1);m.material=material;m.isPickable=false;m.receiveShadows=true;m.freezeWorldMatrix();return [m];
  }
  type Job={x:number;z:number;key:string};
  const worker=showcaseEnabled?new Worker(new URL('./floor.worker.ts',import.meta.url),{type:'module'}):null;

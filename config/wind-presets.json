@@ -1,0 +1,4 @@
+{
+  "forest": { "base": 0.22, "gust": 0.40, "decay": 5.5, "scale": 1 },
+  "enchanted": { "base": 0.25, "gust": 0.47, "decay": 7.5, "scale": 0.78 }
+}

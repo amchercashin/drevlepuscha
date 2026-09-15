@@ -142,6 +142,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   },
   shadowMeshes:()=>[...remotes.values()].filter(r=>r.root.isEnabled()).flatMap(r=>r.root.getChildMeshes()),
   clock:()=>room?.clock?.()??null,
+  inRoom:()=>!!room&&!['ended','full','error'].includes(room.phase),
   state:()=>({voice:voice?.state()??null,persistent:room?.persistent??false,phase:room?.phase??'solo',name,capacity:CAPACITY,players:room?.players.size??1,remotes:[...remotes.values()].map(r=>({...r.pose,ready:!!r.rig,failed:r.failed,animation:r.rig?.state()}))}),
   diagnostics:()=>room?.diagnostics(),
   dispose(){disposed=true;voice?.dispose();clearInterval(timer);void room?.leave();clearRemotes();labels.remove();panel.remove();},
