@@ -31,9 +31,10 @@ test('gusts have asymmetric smooth attack/release and directions cross zero by t
 });
 test('wind attributes retain all previous seeded geometry and pin bases along each strip',()=>{
  enableShowcase();
- const expected={grass:'e45046c6e48c75d3817652dc76eac36c72a42945ea0d614ce0f60ae8fd990cf6',leaves:'e3630cc0ec47d47da5ad9f7721cb89032f633e064ad245a17623a1aed4b23516',mid:'49f631435458d85757e4a3becc46444c8bda2efaaab871a800497f44198e3d13',far:'1e56f4b931c3db4ca717271d639f9b6150ee80b7878e472ba83d07f62d778447'};
+ // Compare geometry to a micrometre; native trigonometry can differ below that across CPUs.
+ const expected={"grass":"70aff940c3d6af8e5a64ef00eaa8306cb188dedbfead03afdc3697a8281ae545","leaves":"6cffd9c62826322cdeee6fd02ef4eaeb37a022216b808293689cc03f60fdddc6","mid":"61f3b91f5538056e7bbb570eac4ee661fec85ebb9b2e4d710a1dadf35d0a5104","far":"55ece9037dc0e9a6cd7a4feab69024616de80ae5e131fb66324dc3e05ec5fa66"};
  for(const [name,g] of Object.entries({...makeFloorPatch(1,1,[]),mid:makeCoverTile(0,0,'mid',[]),far:makeCoverTile(0,0,'far',[])})){
-  const {wind,...old}=g;assert.equal(createHash('sha256').update(JSON.stringify(old)).digest('hex'),expected[name]);
+  const {wind,...old}=g;assert.equal(createHash('sha256').update(JSON.stringify(old,(_,v)=>typeof v==='number'?Math.round(v*1e6)/1e6:v)).digest('hex'),expected[name]);
   assert.equal(wind.length,g.positions.length/3*4);assert.ok(wind.every(Number.isFinite));
   const weights=wind.filter((_,i)=>i%4===2);assert.ok(weights.includes(0)&&weights.includes(1));assert.ok(weights.every(t=>t>=0&&t<=1));
   if(name==='grass')for(let i=0;i<weights.length;i+=5)assert.deepEqual(weights.slice(i,i+5),[0,0,.6,.6,1]);
