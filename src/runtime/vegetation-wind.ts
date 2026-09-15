@@ -17,7 +17,8 @@ export class VegetationWind extends MaterialPluginBase {
  constructor(material:Material,private wind:WindSystem,private kind:'tree'|'grass'|'fern'|'far'){
   super(material,'VegetationWind',200,{VEGETATION_WIND:true,WIND_DETAIL:true},true,false);
   this.registerForExtraEvents=true;this._enable(true);
-  this.unsubscribe=wind.onChange(()=>this.markAllDefinesAsDirty());
+  let enabled=wind.enabled,detail=wind.detail;
+  this.unsubscribe=wind.onChange(()=>{if(enabled!==wind.enabled||detail!==wind.detail){enabled=wind.enabled;detail=wind.detail;this.markAllDefinesAsDirty();}});
  }
  override isCompatible(language:ShaderLanguage){return language===ShaderLanguage.WGSL;}
  override prepareDefines(defines:MaterialDefines){if(this.kind==='tree')defines.NORMAL=true;Object.assign(defines,{VEGETATION_WIND:this.wind.enabled,WIND_DETAIL:this.wind.detail&&this.kind!=='far'});}
@@ -25,13 +26,14 @@ export class VegetationWind extends MaterialPluginBase {
  override getUniforms(){return {ubo:[
   {name:'windDirection',size:2,type:'vec2'},{name:'windWeather',size:4,type:'vec4'},
   {name:'windPhases',size:3,type:'vec3'},{name:'windMotion',size:2,type:'vec2'},
-  {name:'windPlant',size:2,type:'vec2'},{name:'windEye',size:3,type:'vec3'},
+  {name:'windPlant',size:2,type:'vec2'},{name:'windResponse',size:2,type:'vec2'},{name:'windEye',size:3,type:'vec3'},
  ]};}
  override hardBindForSubMesh(ubo:UniformBuffer,_scene:Scene,_engine:AbstractEngine,subMesh:SubMesh){
   const w=this.wind,s=w.snapshot,p=subMesh.getRenderingMesh().metadata?.windTree??[20,1];
   ubo.updateFloat2('windDirection',...s.directionToXZ);ubo.updateFloat4('windWeather',s.base,s.gust,w.intensity,s.scale);
   ubo.updateFloat3('windPhases',...s.fieldPhases);ubo.updateFloat2('windMotion',...s.motionPhases);
   ubo.updateFloat2('windPlant',this.kind==='tree'?p[0]:this.kind==='grass'?.16:.10,p[1]);
+  ubo.updateFloat2('windResponse',w.canopyBend,w.coverBend);
   ubo.updateFloat3('windEye',w.eye.x,w.eye.y,w.eye.z);
  }
  override getCustomCode(type:string):Record<string,string>|null{

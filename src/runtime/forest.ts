@@ -79,7 +79,7 @@ export async function createForest(scene:Scene,sun:DirectionalLight,wind?:WindSy
  const matrices=new Map(placements.map(p=>[p.id,Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n))]));
  const boxes=placements.map(p=>{const matrix=matrices.get(p.id)!;return {...treeCollider(p,familyFor(p).data.trunkRadius),collision:meshCollider(familyFor(p).collision,matrix.m,Matrix.Invert(matrix).m)};});
  const colliders=new Map(boxes.map(box=>[box.id,box.collision]));
- function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix(matrices.get(t.id)!);m.isPickable=false;if(wind){m.metadata={windTree:familyFor(t).windTree};expandWindBounds(m,familyFor(t).windTree[0]*.10*Math.max(t.height/t.width,t.height/t.depth,1));}if(m instanceof Mesh)m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={...m.metadata,treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
+ function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix(matrices.get(t.id)!);m.isPickable=false;if(wind){m.metadata={windTree:familyFor(t).windTree};expandWindBounds(m,familyFor(t).windTree[0]*.36*Math.max(t.height/t.width,t.height/t.depth,1));}if(m instanceof Mesh)m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={...m.metadata,treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
  function instances(t:TreePlacement,level:number){return familyFor(t).templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
  function fades(t:ActiveTree,level:number){let pair=t.fades.get(level);if(!pair){pair=familyFor(t.placement).templates[level].map((p,i)=>{const m=new Mesh(`${t.placement.id}-lod${level}-${i}-fade`,scene);p.geometry!.applyToMesh(m);m.material=p.material;m.sideOrientation=1;transform(m,t.placement);m.setEnabled(false);return m;});t.fades.set(level,pair);}return pair;}
  // Persistent shared geometry and bounded matrix buffers; no per-cell mesh merge.
@@ -98,7 +98,7 @@ export async function createForest(scene:Scene,sun:DirectionalLight,wind?:WindSy
    shadowCell=key;shadowMeshes=[];
    for(const g of shadowGroups){let count=0;
     for(const {p,matrix} of g.entries)if((p.e-e)**2+(p.n-n)**2<56*56)matrix.copyToArray(g.buffer,count++*16);
-    for(const mesh of g.meshes){mesh.thinInstanceCount=count;mesh.setEnabled(count>0);if(count){mesh.thinInstanceBufferUpdated('matrix');mesh.thinInstanceRefreshBoundingInfo();if(wind)expandWindBounds(mesh,4);shadowMeshes.push(mesh);}}
+    for(const mesh of g.meshes){mesh.thinInstanceCount=count;mesh.setEnabled(count>0);if(count){mesh.thinInstanceBufferUpdated('matrix');mesh.thinInstanceRefreshBoundingInfo();if(wind)expandWindBounds(mesh,g.entries.reduce((r,e)=>Math.max(r,e.p.height*mesh.metadata.windTree[0]*.36),0));shadowMeshes.push(mesh);}}
    }
   }
   return shadowMeshes;

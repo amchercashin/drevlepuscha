@@ -6,7 +6,7 @@ fn forestWindField(root: vec2f, phases: vec3f, weather: vec4f) -> vec2f {
   +0.17*sin(dot(p,vec2f(0.047,-0.151))-phases.y)
   +0.11*sin(dot(p,vec2f(-0.181,0.031))-phases.z);
  let gust=weather.y*(0.25+0.75*field);
- return vec2f(min(1.0,weather.x*(0.78+0.22*field)+gust),gust);
+ return vec2f(min(1.0,weather.x*(0.78+0.22*field)+gust),min(1.0,gust));
 }`;
 
 export const treeWindWGSL=`
@@ -17,7 +17,7 @@ let windT=clamp((positionUpdated.y/windHeight-0.18)/0.82,0.0,1.0);
 let windWeight=windT*windT*(3.0-2.0*windT);
 let windPhase=dot(windRoot,vec2f(0.31,0.17));
 let windSway=1.0+0.18*sin(uniforms.windMotion.x+windPhase);
-let windAmount=windHeight*length(finalWorld[1].xyz)*0.04*uniforms.windPlant.y*windField.x*uniforms.windWeather.z*windSway;
+let windAmount=windHeight*length(finalWorld[1].xyz)*min(0.35,0.04*uniforms.windPlant.y*windField.x*uniforms.windWeather.z*uniforms.windResponse.x*windSway);
 let windDelta=vec3f(uniforms.windDirection.x,0.0,uniforms.windDirection.y)*windAmount;
 worldPos=vec4f(worldPos.xyz+windDelta*windWeight,worldPos.w);
 #ifdef NORMAL
@@ -38,5 +38,5 @@ if(windDistance<48.0){
  windSway+=0.24*sin(uniforms.windMotion.y+vertexInputs.plantWind.w)*(1.0-smoothstep(12.0,48.0,windDistance));
 }
 #endif
-worldPos=vec4f(worldPos.xyz+vec3f(uniforms.windDirection.x,0.0,uniforms.windDirection.y)*uniforms.windPlant.x*windField.x*uniforms.windWeather.z*windT*windT*windSway,worldPos.w);
+worldPos=vec4f(worldPos.xyz+vec3f(uniforms.windDirection.x,0.0,uniforms.windDirection.y)*min(0.25,uniforms.windPlant.x*windField.x*uniforms.windWeather.z*uniforms.windResponse.y*windSway)*windT*windT,worldPos.w);
 `;

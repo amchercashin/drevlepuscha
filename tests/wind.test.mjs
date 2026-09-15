@@ -41,3 +41,26 @@ test('wind attributes retain all previous seeded geometry and pin bases along ea
   if(name==='leaves')for(let i=0;i<weights.length;i+=10)assert.deepEqual(weights.slice(i,i+10),[0,0,.25,.25,.5,.5,.75,.75,1,1]);
  }
 });
+
+
+test('expanded preferences clamp extremes, preserve legacy saves and allow separate canopy/cover response',async()=>{
+ const {DEFAULT_WIND,updateWindSettings}=await import('../src/domain/wind-settings.ts');
+ const saved=updateWindSettings(DEFAULT_WIND,{intensity:1.5,preset:'enchanted'});
+ assert.equal(saved.canopyBend,1);assert.equal(saved.coverBend,1);assert.equal(saved.intensity,1.5);
+ const wide=updateWindSettings(saved,{intensity:9,canopyBend:9,coverBend:0,gustStrength:NaN,motionSpeed:-1,gustFrequency:Infinity});
+ assert.equal(wide.intensity,6);assert.equal(wide.canopyBend,4);assert.equal(wide.coverBend,0);assert.equal(wide.gustStrength,1);assert.equal(wide.motionSpeed,.25);assert.equal(wide.gustFrequency,1);
+ assert.equal(DEFAULT_WIND.intensity,1);
+});
+test('manual gust and extended strength preserve normalized audio samples and continuous phases',()=>{
+ const mild=new WindWeather(presets.forest),strong=new WindWeather(presets.forest);
+ strong.setTuning(4,3,2.5);strong.triggerGust();
+ let mildPeak=0,strongPeak=0;
+ for(let i=0;i<60*12;i++){
+  mild.update(1/60);strong.update(1/60);
+  const a=mild.sampleAt(0,0,0),b=strong.sampleAt(0,0,0);
+  mildPeak=Math.max(mildPeak,a.gust01);strongPeak=Math.max(strongPeak,b.gust01);
+  for(const value of [b.strength01,b.gust01,b.turbulence01])assert.ok(value>=0&&value<=1);
+ }
+ assert.ok(strongPeak>mildPeak*2);
+ const phase=[...strong.snapshot.motionPhases];strong.setTuning(0,.25,.25);assert.deepEqual(strong.snapshot.motionPhases,phase);
+});

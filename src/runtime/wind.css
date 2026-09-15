@@ -4,3 +4,5 @@
 .wind-controls input[type=range],.wind-controls select{width:100%;box-sizing:border-box}
 .wind-controls output{float:right;font-variant-numeric:tabular-nums}
 .wind-controls small{display:block;margin-top:8px;line-height:1.4;opacity:.75}
+.wind-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.wind-buttons button{min-width:0;margin:0;padding:8px 4px;font-size:12px}
