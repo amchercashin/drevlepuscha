@@ -5,6 +5,18 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {openRoomStorage} from '../server/storage.mjs';
 import {parseSessionInvitation,sessionInvitationHash,verifyServer,proofBytes,encodeBytes,clockHour,validSnapshot} from '../src/network/persistent-protocol.ts';
+import {PersistentWorld} from '../src/domain/persistent-world.ts';
+import {ROOM_CAPACITY} from '../src/domain/room-config.ts';
+import {MAX_PLAYERS} from '../src/network/protocol.ts';
+
+test('full persistent world fits the wire protocol while browser rooms keep their default',()=>{
+ const world=new PersistentWorld({epochMs:1000,now:()=>2000});
+ assert.equal(ROOM_CAPACITY,6);assert.equal(MAX_PLAYERS,4);
+ for(let i=0;i<ROOM_CAPACITY;i++)assert.ok(world.admit(`player0${i}`,'Гость'));
+ assert.equal(world.admit('overflow','Гость'),null);
+ const state=world.snapshot(),peers=Object.fromEntries(state.players.map(p=>[p.id,`peer-${p.id}`]));
+ assert.equal(validSnapshot({v:1,...state,peers}),true);
+});
 
 test('stable identity, exclusive process, recovery and signed connection binding',async t=>{
  const dir=mkdtempSync(join(tmpdir(),'drevle-room-'));t.after(()=>rmSync(dir,{recursive:true,force:true}));

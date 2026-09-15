@@ -1,6 +1,8 @@
 import {invitationHash,parseInvitation,record,validRoster} from './protocol.ts';
 import type {Invitation,Player} from './protocol.ts';
-export const ROOM_VERSION=1, ROOM_CAPACITY=6, ROOM_APP='drevlepuscha-persistent-v1';
+import {ROOM_CAPACITY} from '../domain/room-config.ts';
+export {ROOM_CAPACITY} from '../domain/room-config.ts';
+export const ROOM_VERSION=1, ROOM_APP='drevlepuscha-persistent-v1';
 export type PersistentInvitation={kind:'persistent';room:string;key:string;serverKey:string};
 export type SessionInvitation=Invitation|PersistentInvitation;
 export type ClockSample={epochMs:number;serverMs:number;cycleSeconds:number};

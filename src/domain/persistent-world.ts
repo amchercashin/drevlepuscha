@@ -1,6 +1,6 @@
 import { validPosition, cleanName, type Player } from '../network/protocol.ts';
 
-const CAPACITY = 6;
+import { ROOM_CAPACITY } from './room-config.ts';
 const CYCLE_SECONDS = 1200;
 const MIN_MOVE_INTERVAL_MS = 30;
 const ID_PATTERN = /^[a-zA-Z0-9_-]{8,64}$/;
@@ -109,7 +109,7 @@ export class PersistentWorld {
   private firstFreeSlot(): number | null {
     const used = new Set<number>();
     for (const player of this.players.values()) used.add(player.slot);
-    for (let slot = 0; slot < CAPACITY; slot++) {
+    for (let slot = 0; slot < ROOM_CAPACITY; slot++) {
       if (!used.has(slot)) return slot;
     }
     return null;

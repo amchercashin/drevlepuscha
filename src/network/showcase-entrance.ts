@@ -29,11 +29,12 @@ export async function enterShowcase(invite:Invitation){
   await new Promise<void>(resolve=>{
    let finished=false;
    const finish=()=>{if(finished)return;finished=true;clearInterval(timer);resolve();};
+   const solo=controls.querySelector<HTMLButtonElement>('#connection-solo')!;
    const update=()=>{
     controls.dataset.phase=room.phase;
     if(room.phase==='connected'){performance.mark('room:connected-before-scene');finish();return;}
     const failed=['error','ended','full'].includes(room.phase);
-    retry.hidden=!failed;
+    retry.hidden=!failed;solo.textContent=failed?'Продолжить одному':'Пока гулять одному';
     description.textContent=room.phase==='error'&&!isPersistent(invite)?'Пока не удалось связаться с ведущим. Проверьте, что его вкладка открыта, или сохраните результат связи.':room.detail||(room.phase==='joining'?'Ищем комнату друга…':'Восстанавливаем связь с комнатой…');
     resume.textContent=failed?(room.phase==='full'?'Комната заполнена':'Связь пока не установлена'):'Подключаемся…';
    };

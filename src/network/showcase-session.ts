@@ -4,10 +4,11 @@ import type {SessionInvitation as Invitation} from './persistent-protocol.ts';
 import type {WalkSession} from './session.ts';
 import {WalkRoom} from './room.ts';
 import {cleanName} from './protocol.ts';
+import {ROOM_CAPACITY} from '../domain/room-config.ts';
 import type {Position} from './protocol.ts';
 
 // The lightweight entrance and the forest must join exactly the same room.
-export const SHOWCASE_ROOM={capacity:6,appId:'drevlepuscha-showcase-v1'};
+export const SHOWCASE_ROOM={capacity:ROOM_CAPACITY,appId:'drevlepuscha-showcase-v1'};
 let nameForPage:string|null=null;
 export function showcaseName(){
  if(nameForPage)return nameForPage;

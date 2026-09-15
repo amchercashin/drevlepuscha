@@ -41,7 +41,7 @@ const metrics=document.querySelector<HTMLElement>('#metrics')!;
 const startup=new SceneStartup(resume);
 const keys=new Set<string>();
 let paused=true, dragging=false;
-let engine: WebGPUEngine | undefined;
+let engineForCleanup: WebGPUEngine | undefined;
 const errors: string[]=[];
 
 function fail(message: string) {
@@ -54,7 +54,8 @@ function fail(message: string) {
 }
 
 try {
-  const renderer=await startup.stage('Запускаем графику…',()=>createRenderer(canvas,new URLSearchParams(location.search).get('debug')==='1'));engine=renderer.engine;canvas=renderer.canvas;
+  const renderer=await startup.stage('Запускаем графику…',()=>createRenderer(canvas,new URLSearchParams(location.search).get('debug')==='1'));
+  const engine=renderer.engine;engineForCleanup=engine;canvas=renderer.canvas;
   const scene=new Scene(engine);scene.useRightHandedSystem=true;
   const camera=new FreeCamera('travel',new Vector3(0,2,5),scene);
   camera.inputs.clear();camera.minZ=config.travel.nearClipM;camera.maxZ=100;
@@ -145,8 +146,8 @@ try {
   qualitySelect.value=quality;
   let internalDpr=1;
   function resize(){
-   const size=(showcaseEnabled?showcaseResolution:renderResolution)(canvas.clientWidth,canvas.clientHeight,window.devicePixelRatio,effectiveQuality,Math.min(8192,engine!.getCaps().maxTextureSize));
-   internalDpr=size.scale;engine!.setSize(size.width,size.height);
+   const size=(showcaseEnabled?showcaseResolution:renderResolution)(canvas.clientWidth,canvas.clientHeight,window.devicePixelRatio,effectiveQuality,Math.min(8192,engine.getCaps().maxTextureSize));
+   internalDpr=size.scale;engine.setSize(size.width,size.height);
    const label={performance:'экономное',balanced:'среднее',high:'высокое',native:'по экрану'}[effectiveQuality];
    qualityInfo.textContent=`${quality==='auto'?'Авто: ':''}${label} · ${size.width} × ${size.height}. Чёткость, дальность деталей, плавность LOD и материал земли.`;
   }
@@ -218,7 +219,7 @@ try {
       camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas?.isOpen()??false,
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
-      render:{width:engine!.getRenderWidth(),height:engine!.getRenderHeight(),backend:renderer.kind,
+      render:{width:engine.getRenderWidth(),height:engine.getRenderHeight(),backend:renderer.kind,
         triangles:scene.getActiveIndices()/3,shadowTriangles:shadowPassTriangles,mainTriangles:scene.getActiveIndices()/3-shadowPassTriangles,drawCalls:instrumentation.drawCallsCounter.current,meshes:scene.meshes.length,
         gpu:renderer.info,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality,effectiveQuality,recommendedQuality:recommended},
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,groundTrial:world.groundTrial?.stats()??null,
@@ -347,19 +348,19 @@ try {
        if(paused||document.hidden||document.querySelector<HTMLDetailsElement>('#diagnostics')!.open||document.querySelector<HTMLInputElement>('#near-only')!.checked)automaticQuality.reset();
        else if(automaticQuality.sample(rawDt))applyQuality();
       }
-      if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({cpuMs:performance.now()-now,gpuMs:(engine!.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
+      if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({cpuMs:performance.now()-now,gpuMs:(engine.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
       if(now-uiTime>400){
         uiTime=now;
-        document.querySelector('#fps')!.textContent=`${Math.round(engine!.getFps())} FPS`;
+        document.querySelector('#fps')!.textContent=`${Math.round(engine.getFps())} FPS`;
         if(document.querySelector<HTMLDetailsElement>('#diagnostics')!.open){
          const triangles=scene.getActiveIndices()/3;
-         metrics.textContent=`${engine!.getRenderWidth()} × ${engine!.getRenderHeight()} · WebGPU\n${Math.round(triangles-shadowPassTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(shadowPassTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(triangles).toLocaleString('ru-RU')}\n${instrumentation.drawCallsCounter.current} вызовов отрисовки\nКамера ${Math.hypot(camera.position.x-anchor.x,camera.position.y-anchor.y,camera.position.z-anchor.z).toFixed(2)} м · наклон ${pitch.toFixed(0)}°`;
+         metrics.textContent=`${engine.getRenderWidth()} × ${engine.getRenderHeight()} · WebGPU\n${Math.round(triangles-shadowPassTriangles).toLocaleString('ru-RU')} треуг. в основном кадре\n${Math.round(shadowPassTriangles).toLocaleString('ru-RU')} в тенях · сумма ${Math.round(triangles).toLocaleString('ru-RU')}\n${instrumentation.drawCallsCounter.current} вызовов отрисовки\nКамера ${Math.hypot(camera.position.x-anchor.x,camera.position.y-anchor.y,camera.position.z-anchor.z).toFixed(2)} м · наклон ${pitch.toFixed(0)}°`;
          if(forest){const f=forest.stats();metrics.textContent+=`\nДеревья: ${f.trees} · LOD ${f.lodCounts.join(' / ')}`;}
         }
         document.querySelector('#location')!.textContent=forest&&(Math.abs(player.e)>24||player.n<-12||player.n>64)?'Большой лес':player.n<10?'Западный вход':player.n<19?'Между стволами':player.n<30?(forest?'Лесная тропа':'Низкая арка'):player.n<47?'Подъём к свету':'Верхняя поляна';
       }
-    }catch(error){engine!.stopRenderLoop();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
+    }catch(error){engine.stopRenderLoop();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
   });
   await startup.reveal(()=>frameCount>2&&scene.isReady(),focusScene);
-  window.addEventListener('pagehide',()=>{disposePerformanceReport?.();multiplayer?.dispose();scene.dispose();engine!.dispose();},{once:true});
-} catch(error) {engine?.dispose();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
+  window.addEventListener('pagehide',()=>{disposePerformanceReport?.();multiplayer?.dispose();scene.dispose();engine.dispose();},{once:true});
+} catch(error) {engineForCleanup?.dispose();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
