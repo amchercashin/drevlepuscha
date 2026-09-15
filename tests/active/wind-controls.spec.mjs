@@ -16,6 +16,6 @@ test('expanded wind controls persist, preview gusts and render at their maximum'
  await expect(page.locator('#wind-intensity')).toHaveValue('600');await expect(page.locator('#wind-canopyBend')).toHaveValue('400');
  await page.locator('#invite-friends').click();await expect(page.locator('#wind-canopyBend')).toBeDisabled();await expect(page.locator('#wind-storm')).toBeDisabled();await expect(page.locator('#wind-gust')).toBeDisabled();
  await page.locator('#friends-leave').click();await expect(page.locator('#wind-canopyBend')).toBeEnabled();await expect(page.locator('#wind-canopyBend')).toHaveValue('400');
- await page.locator('#wind-reset').click();await expect(page.locator('#wind-intensity')).toHaveValue('100');await expect(page.locator('#wind-canopyBend')).toHaveValue('100');
- expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('showcase-wind-v1')).gustStrength)).toBe(1);expect(errors).toEqual([]);
+ await page.locator('#wind-reset').click();await expect(page.locator('#wind-intensity')).toHaveValue('350');await expect(page.locator('#wind-canopyBend')).toHaveValue('125');
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('showcase-wind-v1')).gustStrength)).toBe(2);expect(errors).toEqual([]);
 });

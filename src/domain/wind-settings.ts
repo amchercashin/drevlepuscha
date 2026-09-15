@@ -9,7 +9,7 @@ export const WIND_SLIDERS={
 } as const;
 export type WindKnob=keyof typeof WIND_SLIDERS;
 export type WindSettings={enabled:boolean;preset:WindPreset}&Record<WindKnob,number>;
-export const DEFAULT_WIND:WindSettings={enabled:true,intensity:1,preset:'forest',gustStrength:1,gustFrequency:1,canopyBend:1,coverBend:1,motionSpeed:1};
+export const DEFAULT_WIND:WindSettings={enabled:true,intensity:3.5,preset:'forest',gustStrength:2,gustFrequency:1,canopyBend:1.25,coverBend:1.5,motionSpeed:1};
 /** Partial updates preserve old saved preferences; unknown/non-finite values are ignored. */
 export function updateWindSettings(current:WindSettings,patch:Partial<WindSettings>){
  const result={...current};

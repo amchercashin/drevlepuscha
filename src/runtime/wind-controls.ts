@@ -29,7 +29,7 @@ export function createWindControls(wind:WindSystem){
  enabled.onchange=()=>change({enabled:enabled.checked});preset.onchange=()=>change({preset:preset.value as WindSettings['preset']});
  for(const {key,input} of ranges)input.oninput=()=>change({[key]:Number(input.value)/100});
  controls.querySelector<HTMLButtonElement>('#wind-reset')!.onclick=()=>change(DEFAULT_WIND);
- controls.querySelector<HTMLButtonElement>('#wind-strong')!.onclick=()=>change({...DEFAULT_WIND,intensity:3.5,gustStrength:2,canopyBend:2,coverBend:1.5});
+ controls.querySelector<HTMLButtonElement>('#wind-strong')!.onclick=()=>change(DEFAULT_WIND);
  controls.querySelector<HTMLButtonElement>('#wind-storm')!.onclick=()=>change({...DEFAULT_WIND,preset:'enchanted',intensity:6,gustStrength:3,gustFrequency:2,canopyBend:3,coverBend:2,motionSpeed:1.5});
  controls.querySelector<HTMLButtonElement>('#wind-gust')!.onclick=()=>wind.triggerGust();
  const unsubscribe=wind.onChange(sync);sync();return ()=>{unsubscribe();controls.remove();};

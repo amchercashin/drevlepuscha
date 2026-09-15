@@ -14,9 +14,10 @@ export class WindSystem {
  readonly snapshot:WindSnapshot={...this.weather.snapshot,directionToXZ:[...this.weather.snapshot.directionToXZ],fieldPhases:[0,0,0],motionPhases:[0,0]};
  readonly eye:Point3={x:0,y:0,z:0};
  shared=false;enabled=true;detail=true;lastCpuMs=0;
- private gain=1;
- canopyBend=1;coverBend=1;
+ private gain=DEFAULT_WIND.intensity;
+ canopyBend=DEFAULT_WIND.canopyBend;coverBend=DEFAULT_WIND.coverBend;
  private listeners=new Set<()=>void>();
+ constructor(){this.apply();}
  onChange(listener:()=>void){this.listeners.add(listener);return ()=>this.listeners.delete(listener);}
  private changed(){for(const listener of this.listeners)listener();}
  configure(settings:Partial<WindSettings>){

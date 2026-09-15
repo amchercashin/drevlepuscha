@@ -46,10 +46,10 @@ test('wind attributes retain all previous seeded geometry and pin bases along ea
 test('expanded preferences clamp extremes, preserve legacy saves and allow separate canopy/cover response',async()=>{
  const {DEFAULT_WIND,updateWindSettings}=await import('../src/domain/wind-settings.ts');
  const saved=updateWindSettings(DEFAULT_WIND,{intensity:1.5,preset:'enchanted'});
- assert.equal(saved.canopyBend,1);assert.equal(saved.coverBend,1);assert.equal(saved.intensity,1.5);
+ assert.equal(saved.canopyBend,1.25);assert.equal(saved.coverBend,1.5);assert.equal(saved.intensity,1.5);
  const wide=updateWindSettings(saved,{intensity:9,canopyBend:9,coverBend:0,gustStrength:NaN,motionSpeed:-1,gustFrequency:Infinity});
- assert.equal(wide.intensity,6);assert.equal(wide.canopyBend,4);assert.equal(wide.coverBend,0);assert.equal(wide.gustStrength,1);assert.equal(wide.motionSpeed,.25);assert.equal(wide.gustFrequency,1);
- assert.equal(DEFAULT_WIND.intensity,1);
+ assert.equal(wide.intensity,6);assert.equal(wide.canopyBend,4);assert.equal(wide.coverBend,0);assert.equal(wide.gustStrength,2);assert.equal(wide.motionSpeed,.25);assert.equal(wide.gustFrequency,1);
+ assert.equal(DEFAULT_WIND.intensity,3.5);
 });
 test('manual gust and extended strength preserve normalized audio samples and continuous phases',()=>{
  const mild=new WindWeather(presets.forest),strong=new WindWeather(presets.forest);
