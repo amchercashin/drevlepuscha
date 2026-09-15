@@ -20,16 +20,19 @@ export class RangerPalette extends MaterialPluginBase {
   if(type!=='fragment')return null;
   return {CUSTOM_FRAGMENT_BEFORE_LIGHTS:`
    let rangerLuma=dot(surfaceAlbedo,vec3f(0.2126,0.7152,0.0722));
-   // The single atlas mixes cloth, face, leather and metal. Select the original
-   // green fabric before grading, preserving its woven detail and baked shading.
-   let rangerCloth=smoothstep(0.015,0.09,(surfaceAlbedo.g-surfaceAlbedo.r)/max(rangerLuma,0.02))
-    *smoothstep(0.03,0.16,(surfaceAlbedo.g-surfaceAlbedo.b)/max(rangerLuma,0.02));
-   // A colour-based falloff protects warm skin/leather in the shared atlas.
-   let rangerWarm=smoothstep(0.08,0.28,(surfaceAlbedo.r-surfaceAlbedo.g)/max(rangerLuma,0.02));
-   let rangerMuted=mix(vec3f(rangerLuma),surfaceAlbedo,0.90);
-   let rangerForest=rangerMuted*vec3f(0.92,1.03,0.96);
-   surfaceAlbedo=mix(surfaceAlbedo,rangerForest,1.0-rangerWarm);
-   surfaceAlbedo=mix(surfaceAlbedo,rangerLuma*uniforms.rangerCloakTone,rangerCloth);
+   // The single atlas mixes cloth, face, leather and metal. The cloak fabric is
+   // a muted olive: red and green stay close while blue sits clearly lower.
+   // Selecting on (green - blue) with no red requirement covers every woven
+   // patch, so dyeing keeps the baked folds and the fringe detail.
+   let rangerCloth=smoothstep(0.06,0.22,(surfaceAlbedo.g-surfaceAlbedo.b)/max(rangerLuma,0.02));
+   // Warm skin and leather (red clearly above green) and neutral metal
+   // (green ≈ blue) must stay untouched.
+   let rangerWarm=smoothstep(0.10,0.26,(surfaceAlbedo.r-surfaceAlbedo.g)/max(rangerLuma,0.02));
+   let rangerMask=rangerCloth*(1.0-rangerWarm);
+   // Keep luminance (folds, weave shading) and re-tint it with the dye hue.
+   // The tone is luma-normalised, so switching dye keeps overall brightness.
+   let rangerDyed=rangerLuma*uniforms.rangerCloakTone;
+   surfaceAlbedo=mix(surfaceAlbedo,rangerDyed,rangerMask);
   `};
  }
 }
