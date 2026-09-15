@@ -67,5 +67,5 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
  const details=document.querySelector<HTMLDetailsElement>('#diagnostics')!;
  const opened=()=>{if(details.open)sync(true);};details.addEventListener('toggle',opened);
  scene.onDisposeObservable.add(()=>{controls.remove();details.removeEventListener('toggle',opened);});setFog(scene.fogDensity);auto.checked=automatic;apply();sync(true);
- return {update,setClock,setTime,setAutomatic,setRays,setFog,stats:()=>({...current,automatic:sharedClock?true:automatic,sharedClock:!!sharedClock,rays,fogDensity:scene.fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
+ return {update,setClock,setTime,setAutomatic,setRays,setFog,hour:()=>hours,stats:()=>({...current,automatic:sharedClock?true:automatic,sharedClock:!!sharedClock,rays,fogDensity:scene.fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
 }

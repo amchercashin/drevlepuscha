@@ -1,5 +1,6 @@
 import {WindSystem} from './runtime/wind.ts';
 import {createWindControls} from './runtime/wind-controls.ts';
+import {ShowcaseAudio} from './runtime/showcase-audio.ts';
 import {SceneStartup,FrameWorkBudget,bindInputFocus} from './runtime/startup.ts';
 import {createDaylight} from './runtime/daylight.ts';
 import {createGroundTrialControls} from './runtime/ground-trial.ts';
@@ -89,6 +90,8 @@ try {
   if(sunlight){sunlight.getShadowMap()!.onBeforeRenderObservable.add(()=>{shadowPassStart=scene.getActiveIndices();});sunlight.getShadowMap()!.onAfterRenderObservable.add(()=>{shadowPassTriangles=(scene.getActiveIndices()-shadowPassStart)/3;});}
   const air=sunlight&&new URLSearchParams(location.search).get('air')!=='0'?createForestAir(scene,camera,sunlight,world.sun):null;
   const daylight=showcaseEnabled?createDaylight(scene,camera,world.sun,world.fill,air,true):null;
+  const ambient=wind?new ShowcaseAudio(wind,forest?.boxes??[]):undefined;
+  scene.onDisposeObservable.add(()=>ambient?.dispose());
   const lightDirection=world.sun.direction.normalizeToNew(),lightRight=Vector3.Cross(Vector3.Up(),lightDirection).normalize(),lightUp=Vector3.Cross(lightDirection,lightRight).normalize();
   const forestControls=document.querySelector<HTMLElement>('#forest-controls')!;forestControls.hidden=!forest;
   const weatherSelect=document.querySelector<HTMLSelectElement>('#forest-weather')!;
@@ -108,11 +111,12 @@ try {
   const clamp=(x:number,a:number,b:number)=>Math.max(a,Math.min(b,x));
   function setPaused(value:boolean) {
     paused=value;keys.clear();dragging=false;
+    ambient?.setPaused(value);
     pausePanel.hidden=!value;
     if(value) {multiplayer?.stopMotion();document.querySelector('#pause-title')!.textContent='Прогулка на паузе';resume.textContent='Продолжить';}
     previousTime=performance.now();
   }
-  function focusScene() {setPaused(false);canvas.focus({preventScroll:true});}
+  function focusScene() {setPaused(false);void ambient?.start();canvas.focus({preventScroll:true});}
   const groundControls=world.groundTrial?createGroundTrialControls(world.groundTrial,focusScene,()=>{player.e=0;player.n=0;player.heading=0;keys.clear();demo=false;}):null;
   function reset(checkpoint:keyof typeof CHECKPOINTS='entrance') {
     if(checkpoint==='outer'&&!forest)return;
@@ -184,6 +188,7 @@ try {
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('pointerdown',e=>{
     if(paused)return;canvas.focus();
+    void ambient?.start();
     if(e.button===2){dragging=true;canvas.setPointerCapture(e.pointerId);e.preventDefault();}
   });
   canvas.addEventListener('pointermove',e=>{
@@ -226,6 +231,7 @@ try {
         gpu:renderer.info,devicePixelRatio:window.devicePixelRatio,internalDpr,resolutionQuality:quality,effectiveQuality,recommendedQuality:recommended},
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,groundTrial:world.groundTrial?.stats()??null,
       wind:wind?.stats()??null,
+      ambient:ambient?.stats()??null,
       lighting:sunlight?{daylight:daylight?.stats()??null,air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
@@ -242,7 +248,7 @@ try {
       state,reset,preset,setPaused,networkReport:()=>multiplayer?.diagnostics(),
       setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
-      inspect:()=>({scene,engine,world,forest,wind}),
+      inspect:()=>({scene,engine,world,forest,wind,ambient}),
       obstacles:()=>world.boxes.map(({id,min,max,collision})=>({id,min:{...min},max:{...max},geometryCollision:!!collision})),
       teleport:(e:number,n:number,heading=0)=>{
         if(![e,n,heading].every(Number.isFinite)||e<(forest?FOREST_BOUNDS.minE+1:-23)||e>(forest?FOREST_BOUNDS.maxE-1:23)||n<(forest?FOREST_BOUNDS.minN+1:-11)||n>(forest?FOREST_BOUNDS.maxN-1:63))throw new Error('Outside harness');
@@ -317,6 +323,7 @@ try {
       // Babylon setTarget nudges equal-Z positions by Epsilon at cardinal angles. Keep the chosen orbit exact.
       camera.position.set(desired.x,desired.y,desired.z);
       multiplayer?.update(dt,paused?0:actualSpeed,!paused&&running);
+      ambient?.update(dt,daylight?.hour()??12,camera.position,camera.getForwardRay().direction);
       const feet={x:player.e,y:h,z:-player.n};
       for(const mesh of [...world.occluders,...(showcaseEnabled?[]:[world.ground])]) {
         const bounds=mesh.getBoundingInfo().boundingBox;
