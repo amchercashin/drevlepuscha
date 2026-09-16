@@ -5,6 +5,7 @@ import {skyModeFromParams} from '../src/domain/sky-scene.ts';
 import {createCloudLayerPixels,createCirrusLayerPixels,SKY_LAYER_SIZE} from '../src/domain/sky-noise.ts';
 import {DEFAULT_ATMOSPHERE,WEATHER_PRESETS,advanceClouds,normalizeAtmosphere,skyAppearanceAt,skyAppearanceKey,weatherPreset,moonPhaseAt,MOON_CYCLE_DAYS,CLOUD_DRIFT_RATE} from '../src/domain/sky-appearance.ts';
 import {STAR_LAYERS,domeSamples,starAngleAt,legacyStarAngleAt,starFieldSteps,starFieldLevel} from '../src/domain/star-field.ts';
+import {MOON_TEXTURE_PNG_BASE64,MOON_TEXTURE_SIZE} from '../src/domain/moon-texture.ts';
 
 test('new sky is opt-in, and the previous sky stays available for comparison',()=>{
  assert.equal(skyModeFromParams(new URLSearchParams('')),'showcase');
@@ -126,6 +127,16 @@ test('moon phase is available to the architecture but stays a full moon on stage
  assert.ok(moonPhaseAt(0,'cycle').illumination<1e-9);
  assert.ok(moonPhaseAt(-MOON_CYCLE_DAYS*.25,'cycle').illumination>0);
  assert.throws(()=>moonPhaseAt(NaN,'cycle'));
+});
+
+test('the painted moon ships as a decodable square PNG inside the build',()=>{
+ const png=Buffer.from(MOON_TEXTURE_PNG_BASE64,'base64');
+ assert.deepEqual([...png.subarray(0,8)],[0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a],'must carry PNG bytes, not raw pixels');
+ assert.equal(png.readUInt32BE(16),MOON_TEXTURE_SIZE);assert.equal(png.readUInt32BE(20),MOON_TEXTURE_SIZE);
+ assert.equal(png[24],8,'eight bits per channel');assert.equal(png[25],6,'RGBA');
+ // A blank or half-written disc would still decode, so bound the payload instead.
+ assert.ok(png.length>20000&&png.length<900000,`unexpected moon payload ${png.length} bytes`);
+ assert.equal(MOON_TEXTURE_SIZE,512);
 });
 
 test('cloud layers are tileable noise, not flat or repeated artwork',()=>{
