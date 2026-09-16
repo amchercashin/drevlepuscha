@@ -3,6 +3,9 @@ import {createWindControls} from './runtime/wind-controls.ts';
 import {ShowcaseAudio} from './runtime/showcase-audio.ts';
 import {SceneStartup,FrameWorkBudget,bindInputFocus} from './runtime/startup.ts';
 import {createDaylight} from './runtime/daylight.ts';
+import {createSkyControls} from './runtime/sky-controls.ts';
+import {skyModeFromParams} from './domain/sky-scene.ts';
+import type {Atmosphere} from './domain/sky-appearance.ts';
 import {createGroundTrialControls} from './runtime/ground-trial.ts';
 import {waitForTextures} from './runtime/texture-ready.ts';
 import {showcaseEnabled,terrainCameraLift,showcasePath} from './domain/showcase.ts';
@@ -89,7 +92,10 @@ try {
   let shadowPassTriangles=0,shadowPassStart=0;
   if(sunlight){sunlight.getShadowMap()!.onBeforeRenderObservable.add(()=>{shadowPassStart=scene.getActiveIndices();});sunlight.getShadowMap()!.onAfterRenderObservable.add(()=>{shadowPassTriangles=(scene.getActiveIndices()-shadowPassStart)/3;});}
   const air=sunlight&&new URLSearchParams(location.search).get('air')!=='0'?createForestAir(scene,camera,sunlight,world.sun):null;
-  const daylight=showcaseEnabled?createDaylight(scene,camera,world.sun,world.fill,air,true):null;
+  const skyMode=skyModeFromParams(new URLSearchParams(location.search));
+  const daylight=showcaseEnabled?createDaylight(scene,camera,world.sun,world.fill,air,{sky:skyMode,newSky:{wind:{azimuth:Math.PI*.75,speed:1}}}):null;
+  const disposeSkyControls=showcaseEnabled&&skyMode==='new'&&daylight?createSkyControls({configure:patch=>daylight.setSkyAppearance(patch),settings:()=>daylight.settings()!}):undefined;
+  scene.onDisposeObservable.add(()=>disposeSkyControls?.());
   const ambient=wind?new ShowcaseAudio(wind,forest?.boxes??[]):undefined;
   scene.onDisposeObservable.add(()=>ambient?.dispose());
   const lightDirection=world.sun.direction.normalizeToNew(),lightRight=Vector3.Cross(Vector3.Up(),lightDirection).normalize(),lightUp=Vector3.Cross(lightDirection,lightRight).normalize();
@@ -232,7 +238,7 @@ try {
       errors:[...errors],seed:targets.fixedSeed,sceneVersion:showcaseEnabled?'ravine-showcase-v1':forest?'m1-2':'m0-4',demo,forest:forest?.stats()??null,floor:floor?.stats()??null,groundTrial:world.groundTrial?.stats()??null,
       wind:wind?.stats()??null,
       ambient:ambient?.stats()??null,
-      lighting:sunlight?{daylight:daylight?.stats()??null,air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
+      lighting:sunlight?{daylight:daylight?.stats()??null,sky:daylight?.sky()??null,air:air?.stats(),filter:sunlight.filter,mapSize:sunlight.getShadowMapForRendering()?.getSize().width??0,probe:Vector3.TransformCoordinates(new Vector3(0,0,-10),sunlight.getTransformMatrix()).asArray()}:null,
     };
   }
   const disposePerformanceReport=showcaseEnabled?performanceReport(
@@ -248,6 +254,7 @@ try {
       state,reset,preset,setPaused,networkReport:()=>multiplayer?.diagnostics(),
       setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
+      setSkyAppearance:(patch:Partial<Atmosphere>)=>daylight?.setSkyAppearance(patch),skyAppearance:()=>daylight?.settings()??null,sky:()=>daylight?.sky()??null,skyDiagnostics:()=>daylight?.skyDiagnostics()??null,
       inspect:()=>({scene,engine,world,forest,wind,ambient}),
       obstacles:()=>world.boxes.map(({id,min,max,collision})=>({id,min:{...min},max:{...max},geometryCollision:!!collision})),
       teleport:(e:number,n:number,heading=0)=>{
@@ -305,6 +312,8 @@ try {
       }
       wind?.setShared(multiplayer?.inRoom()??false);
       wind?.update(paused?0:dt,camera.position);
+      // The sky takes the wind's own direction; it never rolls a second weather system.
+      if(wind)daylight?.setCloudWind(Math.atan2(wind.snapshot.directionToXZ[1],wind.snapshot.directionToXZ[0]),.45+.55*wind.intensity);
       daylight?.setClock(multiplayer?.clock()??null);
       daylight?.update(paused?0:dt);
       ranger?.update(paused?0:dt,actualSpeed,running);

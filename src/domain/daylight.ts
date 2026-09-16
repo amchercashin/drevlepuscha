@@ -16,6 +16,10 @@ export function daylightAt(hour:number){
  const daylight=smooth(-.22,.20,elevation),sunPower=smooth(0,.22,elevation);
  const moonPower=smooth(0,.20,-elevation),source=elevation>=0?'sun':'moon';
  const sunset=(1-smooth(.08,.42,Math.abs(elevation)))*smooth(-.25,.0,elevation);
+ // Afterglow keeps sunset colour on the clouds once the disc itself is gone: it rises
+ // before sunset, peaks just under the horizon and fades through the evening. It stays
+ // continuous across the horizon, so the sky never loses its warmth in one frame.
+ const afterglow=Math.max(sunset,smooth(-.26,-.02,elevation)*(1-smooth(-.16,.01,elevation)));
  const mainColor:RGB=source==='sun'?mix([1,.51,.24],[1,.94,.78],smooth(.04,.42,elevation)):[.72,.82,1];
  const mainIntensity=source==='sun'?1.18*sunPower:.30*moonPower;
  const horizon=mix(mix([.035,.055,.085],[.78,.82,.70],daylight),[.78,.47,.25],sunset*.6);
@@ -24,7 +28,7 @@ export function daylightAt(hour:number){
   fillIntensity:.20+.26*daylight,fillColor:mix([.56,.68,.84],[.67,.80,.91],daylight),
   zenith:mix([.006,.014,.036],[.17,.38,.49],daylight),horizon,
   fogColor:mix(mix([.028,.044,.066],[.52,.68,.74],daylight),[.66,.44,.29],sunset*.45),
-  stars:1-smooth(-.22,.01,elevation),sunset,emissionScale:.045+.955*daylight,
+  stars:1-smooth(-.22,.01,elevation),sunset,afterglow,emissionScale:.045+.955*daylight,
   rayStrength:source==='sun'?sunPower*.30:moonPower*.035};
 }
 export type Daylight=ReturnType<typeof daylightAt>;

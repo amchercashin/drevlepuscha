@@ -1,0 +1,8 @@
+.sky-controls{border:1px solid #9cb69644;border-radius:8px;margin:12px 0;padding:10px 12px;min-width:0}
+.sky-controls legend{padding:0 5px;font-weight:600}
+.sky-controls label{display:block;margin:8px 0 4px}
+.sky-controls input[type=range],.sky-controls select{width:100%;box-sizing:border-box}
+.sky-controls output{float:right;font-variant-numeric:tabular-nums}
+.sky-controls small{display:block;margin-top:8px;line-height:1.4;opacity:.75}
+.sky-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.sky-buttons button{min-width:0;margin:0;padding:8px 4px;font-size:12px}
