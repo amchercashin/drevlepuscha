@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#192820" />
+    <link rel="icon" href="data:," />
+    <title>Древлепуща — лесные ложбины</title>
+    <script type="module" crossorigin src="./assets/main-BMFwHDdy.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-P2Xu9kJm.js">
+    <link rel="modulepreload" crossorigin href="./assets/variants-CrYHizpu.js">
+    <link rel="modulepreload" crossorigin href="./assets/showcase-9L0OWhEB.js">
+    <link rel="modulepreload" crossorigin href="./assets/asset-loading-BtRovdss.js">
+    <link rel="modulepreload" crossorigin href="./assets/tree-6Tqdmucq.js">
+    <link rel="modulepreload" crossorigin href="./assets/runtime-BvJfauha.js">
+    <link rel="modulepreload" crossorigin href="./assets/protocol-BPr9uova.js">
+    <link rel="modulepreload" crossorigin href="./assets/persistent-protocol-Um2PP_Xc.js">
+    <link rel="modulepreload" crossorigin href="./assets/preload-helper-HclGiUj8.js">
+    <link rel="stylesheet" crossorigin href="./assets/variants-EGn7TvAx.css">
+    <link rel="stylesheet" crossorigin href="./assets/style-BPjWkW-W.css">
+  </head>
+  <body class="showcase booting">
+    <canvas id="world" tabindex="0" aria-label="Трёхмерный стенд Древлепущи. WASD — движение, правая кнопка мыши — осмотр."></canvas>
+    <header class="masthead">
+      <div><p class="eyebrow">Древлепуща / полевой стенд</p><h1>Лесные ложбины</h1></div>
+      <div class="badge"><span class="dot"></span>Древлепуща · прогулка</div>
+    </header>
+    <aside class="diagnostics">
+      <details id="diagnostics">
+        <summary>Настройки <span id="fps">— FPS</span></summary>
+        <p id="metrics">Подготовка сцены…</p>
+        <label for="resolution-quality">Чёткость изображения</label><select id="resolution-quality"><option value="performance">Экономно</option><option value="balanced">Средняя</option><option value="high" selected>Высокая</option><option value="native">По экрану</option></select>
+        <label for="preset">Ракурс камеры</label><select id="preset"></select>
+        <button id="reset" type="button">Вернуться ко входу</button>
+        <div id="forest-controls" hidden><label for="forest-weather">Атмосфера леса</label><select id="forest-weather"><option value="clear">Ясно · лёгкая дымка</option><option value="mist">Туманный лес</option></select><label id="tree-color-label"><input type="checkbox" id="tree-color" checked> Разные оттенки деревьев</label><label><input type="checkbox" id="near-only"> Ближняя область без LOD — сравнение нагрузки</label></div>
+        <p><a href="?scene=world">Прогулка по всей карте</a> · <a href="./">Шоукейс</a></p>
+        <p class="muted">Лесные ложбины · настройки прогулки.</p>
+      </details>
+    </aside>
+    <section class="pause" id="pause" aria-label="Пауза">
+      <div class="pause-card">
+        <p class="eyebrow">Первая прогулка</p><h2 id="pause-title">Там, где тропа уходит вниз</h2>
+        <p id="pause-description">Лесные берега, боковые промоины и солнечные просветы. Прогулка скоро начнётся.</p>
+        <button id="resume" type="button" disabled>Открываем лес…</button>
+        <p class="small">Клавиатура и мышь · Esc — пауза</p>
+      </div>
+    </section>
+    <footer>
+      <div class="location"><span class="eyebrow">Сейчас</span><strong id="location">Западный вход</strong></div>
+      <nav aria-label="Участки проверки">
+        <button data-checkpoint="entrance" type="button">01 Вход</button><button data-checkpoint="trunks" type="button">02 Стволы</button><button data-checkpoint="arch" type="button">03 Арка</button><button data-checkpoint="slope" type="button">04 Склон</button>
+      </nav>
+      <div class="controls"><span><kbd>W A S D</kbd> идти</span><span><kbd>Shift</kbd> галоп · 54 км/ч</span><span><kbd>ПКМ</kbd> осмотр</span><span><kbd>Колесо</kbd> дистанция</span><span><kbd>Space</kbd> камера за спину</span></div>
+    </footer>
+  </body>
+</html>

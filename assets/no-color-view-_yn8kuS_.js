@@ -1,0 +1,1 @@
+import{t as e}from"./material-view-CayKGvKh.js";var t=32768;function n(n){let r=n._renderFeatures??{features:0,features2:0};return e(n,{features:r.features&-65,features2:(r.features2??0)|t})}export{n as createPbrNoColorMaterialView};

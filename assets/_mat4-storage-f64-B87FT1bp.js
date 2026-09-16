@@ -1,0 +1,1 @@
+import{n as e}from"./typed-arrays-BA5T_Fm6.js";var t=`@@MAT4_STORAGE_F64@@`;function n(){return new e(16)}n[t]=!0;export{n as allocateF64Mat4};

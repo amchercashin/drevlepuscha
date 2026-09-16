@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";import{Et as o}from"./fg-math-B7dimCqO.js";var s={type:t.Rotate3D,build:()=>({dataIn:[i(`a`,e.Vector3),i(`b`,e.Quaternion)],dataOut:[r(`value`,e.Vector3)]}),updateOutputs(e,t,r){let i=n(t,r,e,`a`),s=n(t,r,e,`b`);a(t,e,`value`,o(i,s))}};export{s as rotate3DDef};

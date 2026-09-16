@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";import{G as o}from"./fg-math-B7dimCqO.js";var s={type:t.InvertMatrix,build:()=>({dataIn:[i(`a`,e.Any)],dataOut:[r(`value`,e.Any)]}),updateOutputs(e,t,r){let i=n(t,r,e,`a`);a(t,e,`value`,o(i))}};export{s as invertMatrixDef};

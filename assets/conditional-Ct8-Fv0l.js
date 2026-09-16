@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";var o={type:t.Conditional,build:()=>({dataIn:[i(`condition`,e.Boolean,!1),i(`onTrue`,e.Any),i(`onFalse`,e.Any)],dataOut:[r(`value`,e.Any)]}),updateOutputs(e,t,r){let i=n(t,r,e,`condition`)?n(t,r,e,`onTrue`):n(t,r,e,`onFalse`);a(t,e,`value`,i)}};export{o as conditionalDef};

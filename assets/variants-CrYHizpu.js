@@ -1,0 +1,1 @@
+var e=``+new URL(`variants-BG7t3yPp.json`,import.meta.url).href,t=``+new URL(`variants-CmKB5IoD.json`,import.meta.url).href;export{e as n,t};

@@ -1,0 +1,1 @@
+import{D as e,T as t,a as n,c as r,n as i,r as a,t as o}from"./sockets-DSgJqhh6.js";var s={type:t.Branch,build:()=>({dataIn:[a(`condition`,e.Boolean,!1)],signalIn:[o(`in`)],signalOut:[i(`onTrue`),i(`onFalse`)]}),execute(e,t,i){r(t,i,e,`condition`)?n(t,i,e,`onTrue`):n(t,i,e,`onFalse`)}};export{s as branchDef};

@@ -1,0 +1,1 @@
+import{t as e}from"./material-view-CayKGvKh.js";import{o as t}from"./standard-flags-MCMtQTGn.js";function n(n){let r=n._renderFeatures??{features:0};return e(n,{features:r.features|t})}export{n as createStandardNoColorMaterialView};

@@ -1,0 +1,1 @@
+import{D as e,T as t,i as n,u as r}from"./sockets-DSgJqhh6.js";var i={type:t.Constant,build:()=>({dataOut:[n(`value`,e.Any)]}),updateOutputs(e,t){r(t,e,`value`,e.config?.value??void 0)}};export{i as constantDef};

@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";import{xt as o}from"./fg-math-B7dimCqO.js";var s={type:t.Random,build:()=>({dataIn:[i(`min`,e.Number,0),i(`max`,e.Number,1)],dataOut:[r(`value`,e.Number)]}),updateOutputs(e,t,r){let i=n(t,r,e,`min`),s=n(t,r,e,`max`);a(t,e,`value`,o(i,s))}};export{s as randomDef};

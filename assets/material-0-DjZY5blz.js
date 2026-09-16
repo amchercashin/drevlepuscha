@@ -1,0 +1,1 @@
+var e=``+new URL(`material-0-BX87y5xj.webp`,import.meta.url).href;export{e as t};

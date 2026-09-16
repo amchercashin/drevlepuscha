@@ -1,0 +1,1 @@
+var e=null;function t(t){e=t}function n(t,...n){let r=Error(e?.(t,n)??`#${t}`);throw r.lite=n,r}export{t as n,n as t};

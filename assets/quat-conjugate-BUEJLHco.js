@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";import{w as o}from"./fg-math-B7dimCqO.js";var s={type:t.Conjugate,build:()=>({dataIn:[i(`a`,e.Quaternion)],dataOut:[r(`value`,e.Quaternion)]}),updateOutputs(e,t,r){let i=n(t,r,e,`a`);a(t,e,`value`,o(i))}};export{s as quatConjugateDef};

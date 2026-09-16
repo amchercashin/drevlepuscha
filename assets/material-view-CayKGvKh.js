@@ -1,0 +1,1 @@
+function e(e,t){let r=n(e);return Object.create(r,{source:{value:r,enumerable:!0},_renderFeatures:{value:{features:t.features,features2:t.features2},writable:!0,enumerable:!0,configurable:!0}})}function t(e){let t=e;return!!t.source&&!!t._renderFeatures}function n(e){return t(e)?e.source:e}export{n,e as t};

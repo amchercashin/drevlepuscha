@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Сетевая поляна · Древлепуща</title>
+  <script type="module" crossorigin src="./assets/multiplayer-C1McOhfB.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/multiplayer-ytDo1e9-.css">
+</head>
+<body>
+  <main>
+    <header><a href="./">ДРЕВЛЕПУЩА</a><span>Совместная прогулка · проба связи</span></header>
+    <section class="intro"><div><p class="eyebrow">СЕТЕВАЯ ПОЛЯНА</p><h1>Встретимся здесь.</h1><p>Создай комнату, отправь ссылку друзьям и двигайтесь вместе.<br>До четырёх путников. Без регистрации.</p></div><div class="seal" aria-hidden="true">↟</div></section>
+    <section class="toolbar" aria-label="Управление комнатой">
+      <label>Твоё имя<input id="name" maxlength="24" placeholder="Путник" autocomplete="nickname"></label>
+      <button id="create" class="primary">Создать комнату</button>
+      <button id="copy" disabled>Скопировать приглашение</button>
+      <button id="retry" hidden>Подключиться снова</button>
+      <button id="leave" hidden class="quiet">Выйти</button>
+    </section>
+    <div id="invite-box" hidden><label for="invite">Одна ссылка для всей компании</label><input id="invite" readonly aria-label="Ссылка-приглашение"><span id="copy-status" role="status"></span></div>
+    <div class="room-heading"><div><span class="status-dot" id="dot"></span><strong id="status" role="status">Поляна ждёт гостей</strong></div><span id="count">0 из 4</span></div>
+    <p id="detail">Создатель комнаты остаётся ведущим — его вкладка должна быть открыта.</p>
+    <div class="play-layout">
+      <section id="field" tabindex="0" aria-label="Поле прогулки. Нажмите на точку или используйте стрелки и WASD.">
+        <div class="contour contour-one"></div><div class="contour contour-two"></div><div class="contour contour-three"></div>
+        <div class="trail"></div><span class="north" aria-hidden="true">С<br>↑</span>
+        <span class="field-label" aria-hidden="true">ПОЛЯНА ВСТРЕЧ</span>
+        <div id="target" hidden aria-hidden="true"></div><div id="markers"></div>
+        <p id="empty">Здесь появятся ваши маркеры</p>
+      </section>
+      <aside><p class="eyebrow">ПУТНИКИ</p><ol id="people"></ol><p class="aside-note">Золотой маркер — ведущий.<br>Каждый видит движения остальных.</p></aside>
+    </div>
+    <p class="controls"><span>↗ Нажми на поляну, чтобы идти</span><span>⌨ WASD или стрелки</span><span>↔ На телефоне — касание</span></p>
+    <section class="instructions"><strong>Проверяем настоящую связь</strong><p>Откройте приглашение на двух устройствах в разных сетях: например, домашний Wi-Fi и мобильный интернет. Для проверки доступа из России отключите VPN на обоих устройствах. Походите несколько минут и убедитесь, что видите движения друг друга.</p></section>
+    <details id="diagnostics"><summary>Результат проверки соединения</summary><p>Отчёт содержит состояние связи и тип маршрута, без IP-адресов, имён и ссылки комнаты. Резервный TURN пока не подключён; если прямое соединение не получится, отчёт поможет выбрать следующий шаг.</p><button id="report">Скачать результат</button><button id="report-copy">Скопировать результат</button><pre id="network-summary">Создайте комнату или откройте приглашение.</pre></details>
+    <footer>Древлепуща · маленький шаг к общей прогулке</footer>
+  </main>
+</body>
+</html>

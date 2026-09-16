@@ -1,0 +1,1 @@
+var e=null,t=null;function n(){return e??=new WeakMap,e}function r(e,r){n().set(e,r),t&&(e._preloadPending=r,t(e,r).then(()=>{e._preloadPending===r&&(e._preloadPending=void 0)},e=>console.error(e)))}function i(t){return e?.get(t)}function a(e){t=e}export{a as n,r,i as t};

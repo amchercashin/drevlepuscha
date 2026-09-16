@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";import{I as o}from"./fg-math-B7dimCqO.js";var s={type:t.ExtractVector3,build:()=>({dataIn:[i(`a`,e.Vector3)],dataOut:[r(`x`,e.Number),r(`y`,e.Number),r(`z`,e.Number)]}),updateOutputs(e,t,r){let[i,s,c]=o(n(t,r,e,`a`));a(t,e,`x`,i),a(t,e,`y`,s),a(t,e,`z`,c)}};export{s as extract3Def};

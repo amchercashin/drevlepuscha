@@ -1,0 +1,1 @@
+import{D as e,T as t,i as n,u as r}from"./sockets-DSgJqhh6.js";var i={type:t.GetVariable,build:()=>({dataOut:[n(`value`,e.Any)]}),updateOutputs(e,t){let n=e.config?.variable;r(t,e,`value`,t.userVariables[n])}};export{i as getVariableDef};

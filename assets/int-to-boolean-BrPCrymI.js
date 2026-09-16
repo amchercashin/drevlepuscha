@@ -1,0 +1,1 @@
+import{D as e,T as t,b as n,c as r,i,r as a,u as o}from"./sockets-DSgJqhh6.js";var s={type:t.IntToBoolean,build:()=>({dataIn:[a(`a`,e.Integer)],dataOut:[i(`value`,e.Boolean)]}),updateOutputs(e,t,i){let a=r(t,i,e,`a`);o(t,e,`value`,n(a)?a.value!==0:!!a)}};export{s as intToBooleanDef};

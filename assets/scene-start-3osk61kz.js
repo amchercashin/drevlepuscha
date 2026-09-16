@@ -1,0 +1,1 @@
+import{D as e,E as t,T as n,a as r,i,n as a,u as o}from"./sockets-DSgJqhh6.js";var s={type:n.SceneStart,build:()=>({dataOut:[i(`event`,e.Reference)],signalOut:[a(`out`),a(`done`)],event:t.Start}),updateOutputs(e,t){o(t,e,`event`,`/extensions/KHR_interactivity/events/sceneReady`)},execute(e,t,n){this.updateOutputs(e,t,n),r(t,n,e,`done`),r(t,n,e,`out`)}};export{s as sceneStartDef};

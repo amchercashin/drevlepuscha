@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";import{ht as o}from"./fg-math-B7dimCqO.js";var s={type:t.MathSlerp,build:()=>({dataIn:[i(`a`,e.Quaternion),i(`b`,e.Quaternion),i(`c`,e.Number)],dataOut:[r(`value`,e.Quaternion)]}),updateOutputs(e,t,r){a(t,e,`value`,o(n(t,r,e,`a`),n(t,r,e,`b`),n(t,r,e,`c`)))}};export{s as mathSlerpDef};

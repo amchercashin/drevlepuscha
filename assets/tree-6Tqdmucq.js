@@ -1,0 +1,1 @@
+var e=``+new URL(`tree-DJK434LW.json`,import.meta.url).href;export{e as t};

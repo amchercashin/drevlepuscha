@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "08fbb49",
+  "description": "Frozen original four-person WebRTC probe, without showcase changes or offer-pool patch. Static build for paired device checks.",
+  "dependenciesLockSHA256": "82b0bb3c21380d300c572eb5d13cf12c86ef59ad5184052481c60c2fc70ef199",
+  "files": {
+    "assets/multiplayer-C1McOhfB.js": "2b0315ea0b7521d871f31aa3a523b3e00bb7896f753b2886e02afbb586101b7f",
+    "assets/multiplayer-ytDo1e9-.css": "87611707ca656fee8fa2a4dc73c6285ccfb63ee539b850586157c26e13bca929",
+    "multiplayer.html": "f47eba50f5dbec6d82125ae731a5127f20b0fdbbb706e1bbff9ad421dfa1e12f"
+  }
+}

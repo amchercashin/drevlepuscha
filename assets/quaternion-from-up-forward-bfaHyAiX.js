@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";import{yt as o}from"./fg-math-B7dimCqO.js";var s={type:t.QuaternionFromUpForward,build:()=>({dataIn:[i(`a`,e.Vector3),i(`b`,e.Vector3)],dataOut:[r(`value`,e.Quaternion)]}),updateOutputs(e,t,r){a(t,e,`value`,o(n(t,r,e,`a`),n(t,r,e,`b`)))}};export{s as quaternionFromUpForwardDef};

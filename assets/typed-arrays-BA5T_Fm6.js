@@ -1,0 +1,1 @@
+var e=Float32Array,t=Float64Array,n=Uint32Array,r=Int32Array,i=Uint8Array;export{i as a,n as i,t as n,r,e as t};

@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";import{o}from"./fg-math-B7dimCqO.js";var s={type:t.AngleBetween,build:()=>({dataIn:[i(`a`,e.Quaternion),i(`b`,e.Quaternion)],dataOut:[r(`value`,e.Number)]}),updateOutputs(e,t,r){let i=n(t,r,e,`a`),s=n(t,r,e,`b`);a(t,e,`value`,o(i,s))}};export{s as angleBetweenDef};

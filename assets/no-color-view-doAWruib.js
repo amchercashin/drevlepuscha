@@ -1,0 +1,1 @@
+import{t as e}from"./material-view-CayKGvKh.js";function t(t){let n=t._renderFeatures??{features:0};return e(t,{features:n.features|1})}export{t as createNodeNoColorMaterialView};

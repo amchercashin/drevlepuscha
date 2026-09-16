@@ -1,0 +1,1 @@
+import{D as e,T as t,i as n,u as r}from"./sockets-DSgJqhh6.js";var i={type:t.E,build:()=>({dataOut:[n(`value`,e.Number)]}),updateOutputs(e,t){r(t,e,`value`,Math.E)}};export{i as eDef};

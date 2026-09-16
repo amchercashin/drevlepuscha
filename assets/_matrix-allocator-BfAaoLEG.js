@@ -1,0 +1,1 @@
+import{t as e}from"./typed-arrays-BA5T_Fm6.js";function t(){return new e(16)}var n;function r(){return(n??t)()}function i(e){n=e}export{r as n,i as t};

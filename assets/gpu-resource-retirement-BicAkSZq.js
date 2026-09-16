@@ -1,0 +1,1 @@
+function e(e){for(let t of e.splice(0))try{t()}catch{}}function t(e,t){(e._retirements??=[]).push(t)}function n(t){let n=t._retirements;if(!n)return;t._retirements=null;let r=t._retiring??=[];r.push(n),queueMicrotask(()=>{t._device.queue.onSubmittedWorkDone().then(()=>{let t=r.indexOf(n);t>=0&&r.splice(t,1),e(n)}).catch(()=>void 0)})}export{t as n,n as t};

@@ -1,0 +1,1 @@
+import{t as e}from"./material-view-CayKGvKh.js";function t(t){return e(t,{features:0})}export{t as createShaderNoColorMaterialView};

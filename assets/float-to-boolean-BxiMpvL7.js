@@ -1,0 +1,1 @@
+import{D as e,T as t,c as n,i as r,r as i,u as a}from"./sockets-DSgJqhh6.js";var o={type:t.FloatToBoolean,build:()=>({dataIn:[i(`a`,e.Number,0)],dataOut:[r(`value`,e.Boolean)]}),updateOutputs(e,t,r){a(t,e,`value`,!!n(t,r,e,`a`))}};export{o as floatToBooleanDef};
