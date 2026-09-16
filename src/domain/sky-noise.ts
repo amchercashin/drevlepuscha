@@ -78,8 +78,8 @@ export function createCloudLayerPixels(){
  const size=SKY_LAYER_SIZE,data=new Uint8Array(size*size*4);
  // Feature size is set here: a dome patch spans a few tenths of the map, so the
  // largest cloud masses sit near six cycles across the texture, not two.
- const coverage=field(size,[{n:6,weight:1,seed:311},{n:10,weight:.40,seed:419},{n:16,weight:.28,seed:523},{n:24,weight:.20,seed:631}]);
- const detail=field(size,[{n:12,weight:1,seed:733},{n:20,weight:.45,seed:839},{n:30,weight:.30,seed:941},{n:42,weight:.22,seed:1049}]);
+ const coverage=field(size,[{n:9,weight:1,seed:311},{n:14,weight:.40,seed:419},{n:22,weight:.28,seed:523},{n:33,weight:.20,seed:631}]);
+ const detail=field(size,[{n:16,weight:1,seed:733},{n:26,weight:.45,seed:839},{n:38,weight:.30,seed:941},{n:52,weight:.22,seed:1049}]);
  const warpX=lowField(size,16,[{n:5,weight:1,seed:1153},{n:9,weight:.35,seed:1259}]);
  const warpY=lowField(size,16,[{n:4,weight:1,seed:1361},{n:7,weight:.40,seed:1471}]);
  for(let i=0;i<size*size;i++){
@@ -94,7 +94,7 @@ export function createCloudLayerPixels(){
 /** RGBA high veil. R — thin streaks, G — a wider second scale, B — holes, A — drift weight. */
 export function createCirrusLayerPixels(){
  const size=SKY_LAYER_SIZE,data=new Uint8Array(size*size*4);
- const streaks=field(size,[{n:11,weight:1,seed:1571},{n:17,weight:.45,seed:1663},{n:23,weight:.30,seed:1753},{n:31,weight:.22,seed:1861}]);
+ const streaks=field(size,[{n:15,weight:1,seed:1571},{n:23,weight:.45,seed:1663},{n:32,weight:.30,seed:1753},{n:44,weight:.22,seed:1861}]);
  const broad=lowField(size,32,[{n:5,weight:1,seed:1951},{n:8,weight:.5,seed:2053},{n:13,weight:.26,seed:2143}]);
  const holes=lowField(size,16,[{n:6,weight:1,seed:2243},{n:10,weight:.4,seed:2339},{n:15,weight:.3,seed:2437}]);
  for(let i=0;i<size*size;i++){

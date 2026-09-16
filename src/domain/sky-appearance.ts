@@ -17,13 +17,13 @@ export type AtmosphereKnob=keyof typeof ATMOSPHERE_RANGES;
 
 export type Atmosphere={enabled:boolean}&Record<AtmosphereKnob,number>;
 /** Thin, high veil: few clouds, strong shape change, weak opacity. */
-export const DEFAULT_ATMOSPHERE:Atmosphere={enabled:true,coverage:.60,thickness:1,cloudDrift:1,shapeDrift:1,cirrusAmount:.55,moonScale:1,moonGlow:1,starDensity:1};
+export const DEFAULT_ATMOSPHERE:Atmosphere={enabled:true,coverage:.48,thickness:1,cloudDrift:1,shapeDrift:1,cirrusAmount:.55,moonScale:1,moonGlow:1,starDensity:1};
 const PRESET_NAMES=['clear','fair','overcast','rain','storm'] as const;
 export type WeatherPresetName=typeof PRESET_NAMES[number];
 /** Stage 2 vocabulary, expressed now as target sets of the same inputs. */
 export const WEATHER_PRESETS:Record<WeatherPresetName,Omit<Atmosphere,'enabled'>>={
  clear:{coverage:.16,thickness:.85,cloudDrift:1,shapeDrift:1,cirrusAmount:.35,moonScale:1,moonGlow:1,starDensity:1},
- fair:{coverage:.60,thickness:1,cloudDrift:1,shapeDrift:1,cirrusAmount:.55,moonScale:1,moonGlow:1,starDensity:1},
+ fair:{coverage:.48,thickness:1,cloudDrift:1,shapeDrift:1,cirrusAmount:.55,moonScale:1,moonGlow:1,starDensity:1},
  overcast:{coverage:1.00,thickness:1.35,cloudDrift:1.15,shapeDrift:.85,cirrusAmount:.75,moonScale:1,moonGlow:1,starDensity:1},
  rain:{coverage:1.12,thickness:1.9,cloudDrift:1.3,shapeDrift:.7,cirrusAmount:.5,moonScale:1,moonGlow:1,starDensity:1},
  storm:{coverage:1.24,thickness:2.7,cloudDrift:1.6,shapeDrift:.55,cirrusAmount:.3,moonScale:1,moonGlow:1,starDensity:1},

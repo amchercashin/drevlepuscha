@@ -93,7 +93,7 @@ try {
   if(sunlight){sunlight.getShadowMap()!.onBeforeRenderObservable.add(()=>{shadowPassStart=scene.getActiveIndices();});sunlight.getShadowMap()!.onAfterRenderObservable.add(()=>{shadowPassTriangles=(scene.getActiveIndices()-shadowPassStart)/3;});}
   const air=sunlight&&new URLSearchParams(location.search).get('air')!=='0'?createForestAir(scene,camera,sunlight,world.sun):null;
   const skyMode=skyModeFromParams(new URLSearchParams(location.search));
-  const daylight=showcaseEnabled?createDaylight(scene,camera,world.sun,world.fill,air,{sky:skyMode,newSky:{wind:{azimuth:Math.PI*.75,speed:1}}}):null;
+  const daylight=showcaseEnabled?await createDaylight(scene,camera,world.sun,world.fill,air,{sky:skyMode,newSky:{wind:{azimuth:Math.PI*.75,speed:1}}}):null;
   const disposeSkyControls=showcaseEnabled&&skyMode==='new'&&daylight?createSkyControls({configure:patch=>daylight.setSkyAppearance(patch),settings:()=>daylight.settings()!}):undefined;
   scene.onDisposeObservable.add(()=>disposeSkyControls?.());
   const ambient=wind?new ShowcaseAudio(wind,forest?.boxes??[]):undefined;

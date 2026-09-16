@@ -81,15 +81,25 @@ fn starTint(azimuth:f32,elevation:f32)->vec3f {
  let warm=hash21(floor(q)+vec2f(19.3,19.3));
  return mix(vec3f(1.0,0.93,0.80),vec3f(0.78,0.86,1.0),smoothMask(0.25,0.75,warm));
 }
-/** Stereo projection onto a plane above the dome: the uniforms.horizon streak stays bounded,
- * and the base map breaks it up with a second, finer scale. */
-fn projectDome(point:vec3f)->vec2f {return point.xz/(point.y+0.30)+0.5;}
-const CLOUD_SCALE:f32=0.42;
+/**
+ * Cloud layers are mapped by direction, not by a plane above the dome. A planar
+ * projection collapses everything near the zenith into a few texels, which is exactly
+ * where the sky is most visible, so the layer went flat overhead. Longitude and
+ * latitude wrap cleanly and keep one feature size across the whole dome.
+ */
+fn sphereUV(direction:vec3f,scale:f32)->vec2f {
+ return vec2f(atan2(direction.z,direction.x)/TWO_PI+0.5,asin(clamp(direction.y,-1.0,1.0))/3.14159265+0.5)*scale;
+}
+/** The seam at one half-turn is the same column on both sides when the map wraps. */
+fn wrappedUV(uv:vec2f)->vec2f {return fract(uv);}
+const CLOUD_SCALE:f32=0.50;
 /** Relief from a tangent-plane height difference: sunlit tops, cool undersides. */
 fn cloudLight(nearHeight:f32,farHeight:f32,rise:f32,toward:f32,slope:f32)->f32 {
  let edge=clamp((farHeight-nearHeight)*9.0,0.0,1.0);
  let face=clamp(slope*0.35+0.5,0.0,1.0);
- return clamp(0.06+0.52*edge+0.26*face+rise*0.30+toward*0.14-slope*0.26,0.0,1.0);
+ // Sunlit tops against cool undersides carry the form. Without this range a daytime
+ // cloud lands within a few percent of the sky and reads as haze, not as cloud.
+ return clamp(0.16+0.46*edge+0.24*face+rise*0.30+toward*0.14-slope*0.26,0.0,1.0);
 }
 @fragment fn main(input:FragmentInputs)->FragmentOutputs {
  let dir=normalize(fragmentInputs.skyDirection);
@@ -129,22 +139,21 @@ fn cloudLight(nearHeight:f32,farHeight:f32,rise:f32,toward:f32,slope:f32)->f32 {
  let sunsetDisc=mix(vec3f(1.0,0.16,0.09),vec3f(1.0,0.78,0.32),vertical);
  let sunBody=mix(vec3f(1.65,1.52,1.20),sunsetDisc,uniforms.sunset*0.92);
 
- // Two cloud layers over a planar dome projection.
- let dome=vec3f(dir.x,up,dir.z);
- let baseUV=(projectDome(dome)-0.5)*CLOUD_SCALE+0.5+uniforms.cloudOffset;
- let detailUV=baseUV*2.9-uniforms.cloudOffset*0.4+vec2f(0.19,0.07);
- let warpedBase=clamp(baseUV+uniforms.morphology*0.6,vec2f(0.06),vec2f(0.94));
- let warpedDetail=clamp(detailUV+uniforms.morphology*0.9,vec2f(0.06),vec2f(0.94));
+ // Two scales of the same drifting layer: broad masses, then their broken edges.
+ let baseUV=wrappedUV(sphereUV(dir,CLOUD_SCALE)+uniforms.cloudOffset);
+ let detailUV=wrappedUV(baseUV*2.4+vec2f(0.37,0.11)-uniforms.cloudOffset*0.35+uniforms.morphology*0.5);
+ let warpedBase=wrappedUV(baseUV+uniforms.morphology*0.6);
+ let warpedDetail=wrappedUV(detailUV+uniforms.morphology*0.4);
  let mass=textureSample(cloudMap,cloudMapSampler,warpedBase);
  let detail=textureSample(cloudMap,cloudMapSampler,warpedDetail);
  let warp=vec2f(mass.b,mass.a)*2.0-1.0;
- let shape=clamp(baseUV+warp*0.035+uniforms.morphology*0.35,vec2f(0.04),vec2f(0.96));
- let fine=clamp(shape*4.4+uniforms.morphology*1.4,vec2f(0.04),vec2f(0.96));
+ let shape=wrappedUV(baseUV+warp*0.035+uniforms.morphology*0.35);
+ let fine=wrappedUV(shape*3.6+uniforms.morphology*1.4);
  let sculpt=textureSample(cloudMap,cloudMapSampler,shape);
  let grains=textureSample(cloudMap,cloudMapSampler,fine);
  let density=sculpt.r*0.60+sculpt.g*0.14+grains.g*0.26;
  // Coverage decides how much sky is filled; density how solid each filled part is.
- let cover=smoothstep(0.28,1.20,uniforms.coverage);
+ let cover=smoothstep(0.45,1.16,uniforms.coverage);
  let cloud=smoothstep(mix(0.56,0.14,cover),mix(0.64,0.40,cover),density);
  let mask=clamp(cloud,0.0,1.0)*smoothstep(-0.012,0.10,dir.y);
  // Sun- and moon-relative height difference: no extra shadow map, no ray march.
@@ -153,7 +162,7 @@ fn cloudLight(nearHeight:f32,farHeight:f32,rise:f32,toward:f32,slope:f32)->f32 {
  let moonSlope=textureSample(cloudMap,cloudMapSampler,shape+uniforms.lunar.xz*0.02).r-textureSample(cloudMap,cloudMapSampler,shape-uniforms.lunar.xz*0.02).r;
  let sunLit=cloudLight(sculpt.r,textureSample(cloudMap,cloudMapSampler,shape+lightOffset).r,clamp((sculpt.g-detail.g)*2.4,-1.0,1.0),sunward,sunSlope);
  let moonLit=cloudLight(sculpt.r,textureSample(cloudMap,cloudMapSampler,shape+uniforms.lunar.xz*0.02).r,clamp((sculpt.g-detail.g)*2.0,-1.0,1.0),max(0.0,dot(dir,uniforms.lunar)),moonSlope);
- let cloudShade=mix(vec3f(0.055,0.072,0.12),vec3f(0.42,0.52,0.60),uniforms.daylight);
+ let cloudShade=mix(vec3f(0.055,0.072,0.12),vec3f(0.22,0.28,0.37),uniforms.daylight);
  let cloudLightColour=mix(vec3f(0.18,0.23,0.34),vec3f(1.0,0.97,0.88),uniforms.daylight);
  let warmShade=mix(cloudShade,vec3f(0.28,0.16,0.30),dusk*0.80);
  let warmLight=mix(cloudLightColour,vec3f(1.0,0.48,0.24),dusk*(0.45+sunward*0.55));
@@ -181,7 +190,7 @@ fn cloudLight(nearHeight:f32,farHeight:f32,rise:f32,toward:f32,slope:f32)->f32 {
  colour+=starTint(azimuth,elevation)*starLevel*uniforms.starDensity*uniforms.stars*smoothstep(0.0,0.14,dir.y)*(1.0-mask);
 
  // Cirrus: a second, thinner layer at another scale, drift and colour response.
- let cirrusUV=clamp(vec2f(dir.x,up*1.6+dir.z)*0.62+vec2f(-uniforms.cloudOffset.x*0.55,-uniforms.cloudOffset.y*0.40)+uniforms.morphology*0.08,vec2f(0.05),vec2f(0.95));
+ let cirrusUV=wrappedUV(sphereUV(dir,CLOUD_SCALE*1.75)+vec2f(-uniforms.cloudOffset.x*0.5,-uniforms.cloudOffset.y*0.85)+uniforms.morphology*0.1);
  let veil=textureSample(cirrusMap,cirrusMapSampler,cirrusUV);
  let veilShape=smoothstep(0.55,0.24,uniforms.cirrus)*mix(0.42,0.66,cover);
  let veilMask=smoothstep(veilShape,veilShape+0.34,veil.r*0.62+veil.a*0.28+veil.b*0.10)*smoothstep(-0.02,0.09,dir.y);

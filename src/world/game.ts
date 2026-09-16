@@ -211,7 +211,7 @@ try {
     window.addEventListener('pagehide', save);
     world = await startup.stage('Библиотека леса…',()=>WorldStreamer.create(scene, sun));
     const w = world;
-    const daylight=createDaylight(scene,camera,sun,ambient,null);
+    const daylight=await createDaylight(scene,camera,sun,ambient,null);
     const query = { height: (e: number, n: number) => w.data.height(e, n), ready: (e: number, n: number) => w.ready(e, n), waterDepth: (e: number, n: number) => w.data.waterDepth(e, n), blocked: (e: number, n: number) => w.blocked(e, n) };
     function state() { const anchor = new Vector3(player.e - w.origin.e, w.data.height(player.e, player.n) + .95, w.origin.n - player.n), actual = Vector3.Distance(anchor, camera.position), offset = cameraOffset(yaw + 180, Math.max(0, pitch), distance); return { ready: startup.readyAt!==null, loading:startup.stats(), paused, frames, player: { ...player, h: w.data.height(player.e, player.n) }, camera: { yaw, pitch, distance, currentDistance: actual, followError: Vector3.Distance(camera.position, anchor.add(new Vector3(offset.x, offset.y, offset.z))) }, render: { backend: renderer.kind, width: engine.getRenderWidth(), height: engine.getRenderHeight(), triangles: scene.getActiveIndices() / 3, drawCalls: sceneMetrics.drawCallsCounter.current, meshes: scene.meshes.length, gpuMs: gpuTime(), gpuTiming: engine.getCaps().timerQuery !== undefined, pixelBudget }, world: w.stats(), mapOpen: map.isOpen(), errors: [...errors], traversal: autoMove ? { index: autoMove.index, distance: autoMove.distance } : null, heap: (performance as unknown as {
             memory?: {

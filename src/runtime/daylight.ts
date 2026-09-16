@@ -10,7 +10,6 @@ import {createShowcaseSky} from './showcase-sky.ts';
 import {skyModeFromParams} from '../domain/sky-scene.ts';
 import type {SkyMode} from '../domain/sky-scene.ts';
 import type {NewSky,NewSkyOptions} from './new-sky.ts';
-import {createNewSky} from './new-sky.ts';
 import type {Atmosphere} from '../domain/sky-appearance.ts';
 import {clockHour} from '../network/persistent-protocol.ts';
 import type {WorldClock} from '../network/persistent-protocol.ts';
@@ -18,9 +17,11 @@ import './daylight.css';
 
 type Air={setRays:(enabled:boolean)=>void}|null;
 export type DaylightOptions={sky?:SkyMode;newSky?:NewSkyOptions;pausableSky?:boolean};
-export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fill:HemisphericLight,air:Air,options:DaylightOptions={}){
+export async function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fill:HemisphericLight,air:Air,options:DaylightOptions={}){
  const mode:SkyMode=options.sky??(options.pausableSky?'showcase':'legacy');
- const animatedSky=mode==='showcase'?createShowcaseSky(scene,camera):mode==='new'?createNewSky(scene,camera,options.newSky??{}):null;
+ // The second sky, its noise generator and the embedded moon are only fetched when
+ // that sky is actually asked for: the ordinary showcase pays nothing for them.
+ const animatedSky=mode==='showcase'?createShowcaseSky(scene,camera):mode==='new'?(await import('./new-sky.ts')).createNewSky(scene,camera,options.newSky??{}):null;
  const newSky=mode==='new'?(animatedSky as NewSky):null;
  const sky=animatedSky??createDaySky(scene,camera);
  const foliage=scene.materials.filter((m):m is StandardMaterial=>m instanceof StandardMaterial&&['grass','floor-leaves','cover-mid','cover-far'].includes(m.name)).map(m=>({material:m,emission:m.emissiveColor.clone()}));
