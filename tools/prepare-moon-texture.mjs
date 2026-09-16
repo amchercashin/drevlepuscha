@@ -67,12 +67,34 @@ if(image.width!==image.height)throw new Error(`The disc must be square, got ${im
 const {width:sourceSize,channels,pixels}=image;
 // An opaque disc on a dark ground still needs its corners cleared, or the sphere shows
 // a square. A source that carries real alpha is trusted instead.
-let alphaFromSource=channels===4;
+// An alpha channel only counts when it actually carries a cut-out; a fully opaque
+// one would leave the black ground in place and the sphere would show a dark ring.
+let alphaFromSource=false;
+if(channels===4){
+ let minimum=255;
+ for(let i=3;i<pixels.length;i+=4)if(pixels[i]<minimum)minimum=pixels[i];
+ alphaFromSource=minimum<32;
+}
 if(!alphaFromSource){
  const corners=[[0,0],[sourceSize-1,0],[0,sourceSize-1],[sourceSize-1,sourceSize-1]];
- const dark=corners.every(([x,y])=>pixels[(y*sourceSize+x)*channels]<16);
+ const dark=corners.every(([x,y])=>pixels[(y*sourceSize+x)*channels]<24);
  const centre=pixels[((sourceSize>>1)*sourceSize+(sourceSize>>1))*channels];
- alphaFromSource=dark&&centre>16;
+ if(!(dark&&centre>24))throw new Error('The source is neither a cut-out disc nor a lit disc on a dark ground');
+}
+// Half the measured width, so the limb keeps its own pixels instead of a dark ring.
+const edges=discRadius(pixels,sourceSize,channels);
+const discScale=sourceSize/SIZE;
+const radius=alphaFromSource?SIZE/2:Math.min(...[edges.left+edges.right,edges.up+edges.down].filter(v=>v>0))/2/discScale;
+if(!alphaFromSource&&!(radius>SIZE*.25))throw new Error('Could not find a lit disc in the source image');
+/** Radius of the lit disc in source pixels: the generated moon often touches the
+ * frame edge, and a fixed radius would either clip the limb or leave a dark ring. */
+function discRadius(pixels,size,channels){
+ const luminance=(x,y)=>{const i=(y*size+x)*channels;return (pixels[i]+pixels[i+1]+pixels[i+2])/3;};
+ const middle=size>>1,threshold=24;
+ const scan=(step,limit)=>{let last=0;for(let v=1;v<limit;v++){const x=middle+step*v,y=middle;if(x<0||x>=size)break;if(luminance(x,y)>threshold)last=v;}return last;};
+ const left=scan(-1,middle),right=scan(1,size-middle);
+ const vertical=(step,limit)=>{let last=0;for(let v=1;v<limit;v++){const y=middle+step*v;if(y<0||y>=size)break;if(luminance(middle,y)>threshold)last=v;}return last;};
+ return {left,right,up:vertical(-1,middle),down:vertical(1,size-middle)};
 }
 const output=new Uint8Array(SIZE*SIZE*4),scale=sourceSize/SIZE;
 for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){
@@ -85,7 +107,7 @@ for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){
  if(alphaFromSource){
   if(channels===4)alpha=bilinear(3);
   else{
-   const radius=SIZE/2,distance=Math.hypot(x+.5-radius,y+.5-radius);
+   const distance=Math.hypot(x+.5-radius,y+.5-radius);
    alpha=distance<=radius-1.5?255:distance>=radius?0:Math.round(255*(radius-distance)/1.5);
   }
  }
@@ -103,4 +125,4 @@ export const MOON_TEXTURE_SIZE=${SIZE};
 export const MOON_TEXTURE_PNG_BASE64=
 ${lines};
 `);
-console.log(JSON.stringify({source:basename(source),written:['assets/sky/moon.png','src/domain/moon-texture.ts'],size:SIZE,alphaFromSource,pngBytes:png.length}));
+console.log(JSON.stringify({source:basename(source),written:['assets/sky/moon.png','src/domain/moon-texture.ts'],size:SIZE,alphaFromSource,discDiameterPx:Math.round(radius*2),pngBytes:png.length}));
