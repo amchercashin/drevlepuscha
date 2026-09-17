@@ -12,7 +12,9 @@ test('LOD resources stay bounded and hidden UI stays quiet',async({page})=>{
  await page.waitForTimeout(1000);
  const initial=await page.evaluate(()=>m0.state());
  await page.locator('#diagnostics').evaluate(el=>el.open=true);
+ const nearInitially=await page.locator('#near-only').isChecked();
  for(let i=0;i<10;i++){await page.locator('#near-only').check();await page.waitForTimeout(80);await page.locator('#near-only').uncheck();await page.waitForTimeout(80);}
+ await page.locator('#near-only').setChecked(nearInitially);
  await page.waitForTimeout(1000);
  const restored=await page.evaluate(()=>m0.state());
  expect(restored.forest.transitions).toBe(0);expect(restored.render.meshes).toBe(initial.render.meshes);

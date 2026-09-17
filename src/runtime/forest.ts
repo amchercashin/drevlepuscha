@@ -103,7 +103,9 @@ export async function createForest(scene:Scene,sun:DirectionalLight,wind?:WindSy
   }
   return shadowMeshes;
  }
- let lockNear=false,forceSwitch=false,detailScale=1,smoothTransitions=true;
+ // The near field keeps the full model by default: the simplified silhouettes were
+ // visible in the middle ground, while the extra triangles stayed inside frame noise.
+ let lockNear=true,forceSwitch=false,detailScale=1,smoothTransitions=true;
  function update(camera:Point3,feet:Point3,dt:number){
   horizon.update(camera,feet);
   for(const [id,t] of active)if(!horizon.detailed(id)){t.instances.forEach(m=>m.dispose());for(const pair of t.fades.values())pair.forEach(m=>m.dispose());active.delete(id);}

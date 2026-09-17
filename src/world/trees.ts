@@ -11,6 +11,9 @@ import { fadeOpacity, occludesTraveller } from '../domain/harness.ts';
 import {PLAYER_RADIUS,PLAYER_HEIGHT} from '../domain/harness.ts';
 import {meshCollider,meshBlocksCylinder} from '../domain/mesh-collision.ts';
 import type {MeshCollider} from '../domain/mesh-collision.ts';
+/** Near trees keep the full model, as in the showcase: the simplified silhouettes
+ *  were visible and the extra triangles stayed inside frame noise on the target Mac. */
+const NEAR_BAND_LOD = 0;
 interface NearTree {
     t: TreeRecord;
     meshes: Mesh[];
@@ -130,7 +133,7 @@ export class Trees {
         }
     }
     create(t: TreeRecord, p: EN) {
-        const f = this.library.tree(t.family), level = Math.hypot(t.e - p.e, t.n - p.n) < 30 ? 0 : 1, source = f.variants[t.variant % f.variants.length][level] ?? f.variants[0][0];
+        const f = this.library.tree(t.family), level = NEAR_BAND_LOD, source = f.variants[t.variant % f.variants.length][level] ?? f.variants[0][0];
         const meshes = source.map((s, i) => { const m = new Mesh(t.id + '-' + i, this.scene); s.geometry!.applyToMesh(m); m.material = s.material; m.sideOrientation = 1; m.isPickable = false; m.receiveShadows = true; m.position.set(t.e - this.origin.e, t.h - (t.family === 0 ? .8 : .25) * t.scale, this.origin.n - t.n); m.scaling.set(t.width, t.scale, t.width); m.rotation.y = t.yaw; m.freezeWorldMatrix(treeMatrix(t,this.origin)); return m; });
         this.near.set(t.id, { t, meshes, level, opacity: 1 });
     }
@@ -159,7 +162,7 @@ export class Trees {
         }
         const feet = { x: p.e - this.origin.e, y: h, z: this.origin.n - p.n };
         for (const t of this.near.values()) {
-            const distance = Math.hypot(t.t.e - p.e, t.t.n - p.n), level = distance < (t.level === 0 ? 34 : 27) ? 0 : 1;
+            const distance = Math.hypot(t.t.e - p.e, t.t.n - p.n), level = NEAR_BAND_LOD;
             if (level !== t.level) {
                 const source = this.library.tree(t.t.family).variants[t.t.variant % this.library.tree(t.t.family).variants.length][level];
                 if (source)

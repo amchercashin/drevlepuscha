@@ -100,7 +100,7 @@ try {
   weatherSelect.onchange=updateWeather;
   if(showcaseEnabled){document.querySelector<HTMLLabelElement>('label[for="forest-weather"]')!.hidden=true;weatherSelect.hidden=true;}
   const treeColor=document.querySelector<HTMLInputElement>('#tree-color')!;document.querySelector<HTMLElement>('#tree-color-label')!.hidden=!forest?.stats().colorVersion;treeColor.onchange=()=>forest?.setColorVariation(treeColor.checked);
-  document.querySelector<HTMLInputElement>('#near-only')!.onchange=e=>forest?.setNearOnly((e.target as HTMLInputElement).checked);
+  document.querySelector<HTMLInputElement>('#near-only')!.onchange=e=>{forest?.setNearOnly((e.target as HTMLInputElement).checked);automaticQuality.reset();};
   const player={e:0,n:0,heading:0};
   let yaw=0,yawTarget=0,pitch=showcaseEnabled?6:config.travel.pitchDefaultDeg,distance=config.travel.distanceM;
   let frameCount=0,previousTime=performance.now(),uiTime=0;
@@ -357,7 +357,7 @@ try {
       shadowPassTriangles=0;
       scene.render();frameCount++;
       if(showcaseEnabled&&quality==='auto'&&startup.readyAt!==null){
-       if(paused||document.hidden||document.querySelector<HTMLDetailsElement>('#diagnostics')!.open||document.querySelector<HTMLInputElement>('#near-only')!.checked)automaticQuality.reset();
+       if(paused||document.hidden||document.querySelector<HTMLDetailsElement>('#diagnostics')!.open)automaticQuality.reset();
        else if(automaticQuality.sample(rawDt))applyQuality();
       }
       if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({windCpuMs:wind?.lastCpuMs??0,cpuMs:performance.now()-now,gpuMs:(engine.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
