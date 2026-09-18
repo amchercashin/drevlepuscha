@@ -1,12 +1,14 @@
 /** Seeded, tileable sky data. Generated once at startup, never per frame. */
 export const SKY_TEXTURE_SIZE=256;
+export const CLOUD_TEXTURE_SIZE=256;
+export const MOON_TEXTURE_SIZE=256;
 const clamp=(v:number)=>Math.max(0,Math.min(1,v));
 function hash(x:number,y:number,seed:number){
  let h=Math.imul(x+seed,374761393)+Math.imul(y,668265263);
  h=Math.imul(h^(h>>>13),1274126177);
  return ((h^(h>>>16))>>>0)/4294967295;
 }
-function noise(u:number,v:number,frequency:number,seed:number){
+export function noise(u:number,v:number,frequency:number,seed:number){
  const x=u*frequency,y=v*frequency,ix=Math.floor(x),iy=Math.floor(y);
  const fx=x-ix,fy=y-iy,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
  const sample=(a:number,b:number)=>hash(((a%frequency)+frequency)%frequency,((b%frequency)+frequency)%frequency,seed);
@@ -17,18 +19,18 @@ function fbm(u:number,v:number,seed:number){
  return noise(u,v,4,seed)*.5+noise(u,v,8,seed+1)*.26+noise(u,v,16,seed+2)*.14+noise(u,v,32,seed+3)*.07+noise(u,v,64,seed+4)*.03;
 }
 export function createCloudPixels(){
- const size=SKY_TEXTURE_SIZE,data=new Uint8Array(size*size*4);
+ const size=CLOUD_TEXTURE_SIZE,data=new Uint8Array(size*size*4);
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
   const i=(y*size+x)*4,u=x/size,v=y/size;
   data[i]=Math.round(fbm(u,v,37)*255);
-  data[i+1]=Math.round(noise(u,v,16,71)*255);
-  data[i+2]=Math.round(noise(u,v,64,93)*255);data[i+3]=255;
+  data[i+1]=Math.round((noise(u,v,4,71)*.7+noise(u,v,8,72)*.3)*255);
+  data[i+2]=Math.round(noise(u,v,4,93)*255);data[i+3]=Math.round(noise(u,v,4,117)*255);
  }
  return data;
 }
 /** Lunar maria and crater relief, baked to albedo; no external image or runtime crater loops. */
 export function createMoonPixels(){
- const size=SKY_TEXTURE_SIZE,data=new Uint8Array(size*size*4),height=new Float32Array(size*size);
+ const size=MOON_TEXTURE_SIZE,data=new Uint8Array(size*size*4),height=new Float32Array(size*size);
  const maria=Array.from({length:9},(_,i)=>({x:.18+hash(i,1,51)*.64,y:.18+hash(i,2,51)*.64,rx:.06+hash(i,3,51)*.12,ry:.05+hash(i,4,51)*.11}));
  for(let i=0;i<90;i++){
   const cx=hash(i,1,192)*size,cy=hash(i,2,192)*size,r=2+hash(i,3,192)**3*24;

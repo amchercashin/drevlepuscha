@@ -10,3 +10,6 @@
 .diagnostics .daylight-controls label:has(input[type=checkbox]){min-height:36px;display:flex;align-items:center;gap:4px}
 
 .diagnostics .daylight-controls #fog-density-value{float:right;color:#d5dcb9;font-variant-numeric:tabular-nums}
+.sky-controls{margin-top:12px}
+.sky-controls summary{cursor:pointer;min-height:36px}
+.sky-controls output{float:right;color:#d5dcb9;font-variant-numeric:tabular-nums}

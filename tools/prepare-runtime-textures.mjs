@@ -5,7 +5,7 @@ import {dirname} from 'node:path';
 
 // cwebp is an authoring tool only; CI ships checked-in copies and verifies hashes.
 const walk=dir=>readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(dir+'/'+e.name):[dir+'/'+e.name]);
-const sources=walk('assets').filter(p=>/\/material-0\.jpg$/.test(p)||/^assets\/floor\/.*\.png$/.test(p));
+const sources=walk('assets').filter(p=>/\/material-0\.jpg$/.test(p)||/^assets\/floor\/.*\.png$/.test(p)||p==='assets/sky/moon-albedo.png');
 const hash=path=>createHash('sha256').update(readFileSync(path)).digest('hex');
 const entries=[];
 for(const source of sources){

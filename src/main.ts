@@ -3,6 +3,8 @@ import {createWindControls} from './runtime/wind-controls.ts';
 import {ShowcaseAudio} from './runtime/showcase-audio.ts';
 import {SceneStartup,FrameWorkBudget,bindInputFocus} from './runtime/startup.ts';
 import {createDaylight} from './runtime/daylight.ts';
+import {SKY_DEFAULTS} from './domain/sky.ts';
+import type {SkySettingsPatch} from './domain/sky.ts';
 import {createGroundTrialControls} from './runtime/ground-trial.ts';
 import {waitForTextures} from './runtime/texture-ready.ts';
 import {showcaseEnabled,terrainCameraLift,showcasePath} from './domain/showcase.ts';
@@ -161,7 +163,7 @@ try {
   }
   function applyQuality(){
    effectiveQuality=quality==='auto'?automaticQuality.effective:quality;
-   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);wind?.setDetail(effectiveQuality!=='performance');}
+   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);wind?.setDetail(effectiveQuality!=='performance');daylight?.setSkyQuality(profile.skyQuality);}
    resize();
   }
   qualitySelect.onchange=()=>{quality=qualitySelect.value as ShowcaseQuality;automaticQuality.effective=recommended;automaticQuality.reset();try{localStorage.setItem(qualityKey,quality);}catch{}applyQuality();};
@@ -248,6 +250,7 @@ try {
       state,reset,preset,setPaused,networkReport:()=>multiplayer?.diagnostics(),
       setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
+      setSky:(patch:SkySettingsPatch)=>daylight?.setSkySettings(patch),setSkyAnimationTime:(seconds:number)=>daylight?.setSkyAnimationTime(seconds),resetSky:()=>daylight?.setSkySettings(SKY_DEFAULTS),
       inspect:()=>({scene,engine,world,forest,wind,ambient}),
       obstacles:()=>world.boxes.map(({id,min,max,collision})=>({id,min:{...min},max:{...max},geometryCollision:!!collision})),
       teleport:(e:number,n:number,heading=0)=>{
@@ -374,5 +377,6 @@ try {
     }catch(error){engine.stopRenderLoop();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}
   });
   await startup.reveal(()=>frameCount>2&&scene.isReady(),focusScene);
+  void daylight?.loadSkyAssets();
   window.addEventListener('pagehide',()=>{disposePerformanceReport?.();multiplayer?.dispose();scene.dispose();engine.dispose();},{once:true});
 } catch(error) {engineForCleanup?.dispose();if(new URLSearchParams(location.search).get('debug')==='1')console.error(error);fail(String(error));}

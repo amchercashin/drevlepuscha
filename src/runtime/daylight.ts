@@ -7,6 +7,8 @@ import type {HemisphericLight} from '@babylonjs/core/Lights/hemisphericLight.js'
 import {daylightAt,normalizeHour,CYCLE_SECONDS} from '../domain/daylight.ts';
 import {createDaySky} from './day-sky.ts';
 import {createShowcaseSky} from './showcase-sky.ts';
+import {createSkyControls} from './sky-controls.ts';
+import type {SkySettingsPatch,SkyQuality} from '../domain/sky.ts';
 import {clockHour} from '../network/persistent-protocol.ts';
 import type {WorldClock} from '../network/persistent-protocol.ts';
 import './daylight.css';
@@ -38,8 +40,8 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
   output.value=text;range.value=String(hours);range.setAttribute('aria-valuetext',text);
   for(const b of controls.querySelectorAll<HTMLButtonElement>('button[data-hour]'))b.setAttribute('aria-pressed',String(Math.abs(Number(b.dataset.hour)-hours)<.03));
  }
- function apply(){
-  if(hours===last)return;last=hours;current=daylightAt(hours);
+ function apply(force=false){
+  if(!force&&hours===last)return;last=hours;current=daylightAt(hours);
   sun.direction.set(...current.direction);sun.intensity=current.mainIntensity;sun.diffuse.set(...current.mainColor);
   fill.intensity=current.fillIntensity;fill.diffuse.set(...current.fillColor);
   fill.groundColor.set(.2,.26,.2);fill.groundColor.scaleInPlace(.35+.65*current.daylight);
@@ -65,7 +67,11 @@ export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fi
  range.oninput=()=>setTime(Number(range.value));auto.onchange=()=>setAutomatic(auto.checked);rayToggle.onchange=()=>setRays(rayToggle.checked);fogRange.oninput=()=>setFog(Number(fogRange.value));
  function update(dt:number){if(sharedClock)hours=clockHour(sharedClock);else if(automatic&&dt>0)hours=normalizeHour(hours+Math.min(dt,.05)*24/CYCLE_SECONDS);animatedSky?.animate(dt);apply();}
  const details=document.querySelector<HTMLDetailsElement>('#diagnostics')!;
+ const skyControls=animatedSky?createSkyControls(controls,()=>animatedSky.stats().settings,setSkySettings):null;
+ function setSkySettings(patch:SkySettingsPatch){animatedSky?.setSettings(patch);skyControls?.sync();}
  const opened=()=>{if(details.open)sync(true);};details.addEventListener('toggle',opened);
- scene.onDisposeObservable.add(()=>{controls.remove();details.removeEventListener('toggle',opened);});setFog(scene.fogDensity);auto.checked=automatic;apply();sync(true);
- return {update,setClock,setTime,setAutomatic,setRays,setFog,hour:()=>hours,stats:()=>({...current,automatic:sharedClock?true:automatic,sharedClock:!!sharedClock,rays,fogDensity:scene.fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
+ scene.onDisposeObservable.add(()=>{skyControls?.dispose();controls.remove();details.removeEventListener('toggle',opened);});setFog(scene.fogDensity);auto.checked=automatic;apply();sync(true);
+ return {update,setClock,setTime,setAutomatic,setRays,setFog,hour:()=>hours,setSkySettings,
+  setSkyQuality:(quality:SkyQuality)=>animatedSky?.setQuality(quality),loadSkyAssets:()=>animatedSky?.loadArtAssets(),setSkyAnimationTime:(seconds:number)=>animatedSky?.setAnimationTime(seconds),
+  stats:()=>({...current,automatic:sharedClock?true:automatic,sharedClock:!!sharedClock,rays,fogDensity:scene.fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1,...(animatedSky?{sky:animatedSky.stats()}: {})})};
 }

@@ -1,7 +1,10 @@
 import {test,expect} from '@playwright/test';
+import {readFile,writeFile} from 'node:fs/promises';
 
 test('showcase starts and the traveller can move',async({page})=>{
+ test.setTimeout(90000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ page.on('console',m=>{if(/GPUValidationError|WebGPU uncaptured error|Error while parsing|shader.*error/i.test(m.text()))errors.push(m.text());});
  const network=await page.context().newCDPSession(page);
  await network.send('Network.enable');await network.send('Network.setCacheDisabled',{cacheDisabled:true});
  await page.goto('/?debug=1');await page.waitForFunction(()=>window.m0?.state().ready);
@@ -28,4 +31,87 @@ test('showcase starts and the traveller can move',async({page})=>{
  await page.keyboard.press('Escape');
  await page.waitForFunction(()=>m0.state().floor.pending===0&&m0.state().floor.field.farPending===0&&m0.state().floor.field.midPending===0);
  expect((await page.evaluate(()=>m0.state())).floor.field.farTiles).toBe(80);
+
+ // Exercise the real material at a stopped clock, including all quality branches.
+ await page.waitForFunction(()=>m0.state().lighting.daylight.sky.assetState==='ready');
+ const resourceState=()=>{
+  const {scene}=m0.inspect(),sky=scene.getMeshByName('showcase-sky');
+  return {skies:scene.meshes.filter(m=>m.name==='showcase-sky').length,subMeshes:sky.subMeshes.length,
+   shaderReady:sky.material.isReady(sky),shadows:scene.lights.filter(l=>l.getShadowGenerator?.()).length,
+   targets:scene.customRenderTargets.length,position:sky.position.asArray(),camera:scene.activeCamera.position.asArray()};
+ };
+ const resources=await page.evaluate(resourceState);
+ expect(resources).toMatchObject({skies:1,subMeshes:1,shaderReady:true,shadows:1});expect(resources.position).toEqual(resources.camera);
+ await page.evaluate(()=>{m0.setTime(0);m0.setSky({motionScale:0,low:{coverage:0},high:{coverage:0}});m0.setSkyAnimationTime(240);});
+ const clear=await page.evaluate(()=>m0.state().lighting.daylight);
+ expect(clear.hours).toBe(0);expect(clear.automatic).toBe(false);expect(clear.sky.moonSource).toBe('artwork');
+ expect(clear.sky.textures.moon).toEqual({width:512,height:512});
+ await page.locator('.sky-controls > summary').click();
+ await page.locator('#sky-coverage').fill('1');await page.locator('#sky-depth').fill('16');
+ await page.evaluate(()=>m0.setSky({high:{coverage:1,opticalDepth:16}}));
+ await page.waitForTimeout(100);
+ const dense=await page.evaluate(()=>m0.state().lighting.daylight);
+ expect(dense.hours).toBe(0);expect(dense.sky.settings.low).toMatchObject({coverage:1,opticalDepth:16});
+ expect(dense.sky.offsets).toEqual(clear.sky.offsets);
+ for(const [quality,expected] of [['performance',0],['balanced',1],['high',2]]){
+  await page.locator('#resolution-quality').selectOption(quality);await page.waitForTimeout(100);
+  const s=await page.evaluate(()=>m0.state().lighting.daylight.sky);
+  expect(s.quality).toBe(expected);expect(s.seed).toBe(clear.sky.seed);expect(s.offsets).toEqual(clear.sky.offsets);expect(s.settings).toEqual(dense.sky.settings);
+ }
+ for(const hour of [23.999,0,.001,7.5,12,17.5]){
+  await page.evaluate(h=>m0.setTime(h),hour);await page.waitForTimeout(60);
+  const daylight=await page.evaluate(()=>m0.state().lighting.daylight);
+  expect(Math.abs(daylight.hours-hour)).toBeLessThan(1e-10);
+ }
+ const finite=await page.evaluate(()=>{
+  const check=v=>typeof v==='number'?Number.isFinite(v):v&&typeof v==='object'?Object.values(v).every(check):true;
+  const {scene}=m0.inspect(),material=scene.getMeshByName('showcase-sky').material;
+  return check(m0.state().lighting.daylight.sky)&&check(material._floats)&&check(material._vectors2)&&check(material._vectors3)&&check(material._vectors4);
+ });expect(finite).toBe(true);
+ await page.evaluate(()=>{m0.setSky({motionScale:1});m0.setTime(0);});
+ const t=await page.evaluate(()=>m0.state().lighting.daylight.sky.animationSeconds);
+ await page.waitForTimeout(120);expect(await page.evaluate(()=>m0.state().lighting.daylight.sky.animationSeconds)).toBeGreaterThan(t);
+ await page.evaluate(()=>m0.setPaused(true));const paused=await page.evaluate(()=>m0.state().lighting.daylight.sky.animationSeconds);
+ await page.waitForTimeout(100);expect(await page.evaluate(()=>m0.state().lighting.daylight.sky.animationSeconds)).toBe(paused);
+ await page.evaluate(()=>{m0.setPaused(false);m0.resetSky();});
+ // Count actual sky draws over rendered frames, instead of trusting declared stats.
+ const draws=await page.evaluate(()=>new Promise(resolve=>{
+  const {scene}=m0.inspect(),sky=scene.getMeshByName('showcase-sky');let count=0;const samples=[];
+  const draw=sky.onBeforeDrawObservable.add(()=>count++);
+  const end=scene.onAfterRenderObservable.add(()=>{samples.push(count);count=0;if(samples.length===4){sky.onBeforeDrawObservable.remove(draw);scene.onAfterRenderObservable.remove(end);resolve(samples);}});
+ }));expect(draws).toEqual([1,1,1,1]);
+ const finalResources=await page.evaluate(resourceState);expect(finalResources.targets).toBe(resources.targets);expect(finalResources.shadows).toBe(1);
+
+ // Read actual rendered pixels at the moon: dense clouds must hide both disc and halo.
+ const occlusion=await page.evaluate(async()=>{
+  const {scene,engine}=m0.inspect(),sky=scene.getMeshByName('showcase-sky'),camera=scene.activeCamera;
+  const observer=scene.onBeforeRenderObservable.add(()=>camera.setTarget(camera.position.add(sky.material._vectors3.lunar.scale(100))));
+  async function sample(coverage,brightness){
+   m0.setSky({motionScale:0,low:{coverage,opticalDepth:16},high:{coverage,opticalDepth:16},moon:{brightness,halo:brightness/2},stars:{brightness}});
+   await new Promise(resolve=>scene.onAfterRenderObservable.addOnce(()=>scene.onAfterRenderObservable.addOnce(resolve)));
+   return Array.from(await engine.readPixels(Math.floor(engine.getRenderWidth()/2)-8,Math.floor(engine.getRenderHeight()/2)-8,16,16));
+  }
+  try{
+   m0.setTime(0);m0.setSkyAnimationTime(240);
+   const clearDark=await sample(0,0),clearLight=await sample(0,2),denseDark=await sample(1,0),denseLight=await sample(1,2);
+   const difference=(a,b)=>a.reduce((sum,v,i)=>sum+Math.abs(v-b[i]),0)/a.length;
+   return {clear:difference(clearDark,clearLight),dense:difference(denseDark,denseLight)};
+  }finally{scene.onBeforeRenderObservable.remove(observer);m0.resetSky();}
+ });
+ expect(occlusion.clear).toBeGreaterThan(20);expect(occlusion.dense).toBeLessThan(1);
+
+ // Optional single A/B comparison against a locally recorded pre-change baseline.
+ if(process.env.SKY_BASELINE){
+  await page.evaluate(()=>{m0.reset();m0.setPaused(false);m0.setTime(0);m0.setCamera(0,-15,6);document.querySelector('#diagnostics').open=false;});
+  await page.waitForFunction(()=>{const s=m0.state();return s.floor.pending===0&&s.floor.field.farPending===0&&s.floor.field.midPending===0&&s.forest.transitions===0;});
+  await page.waitForTimeout(2500);await page.evaluate(()=>m0.beginMeasurement());await page.waitForTimeout(6000);
+  const measured=await page.evaluate(()=>({frames:m0.endMeasurement(),costs:m0.frameCosts(),render:m0.state().render,camera:m0.state().camera,player:m0.state().player}));
+  const baseline=JSON.parse(await readFile(process.env.SKY_BASELINE,'utf8'));
+  expect(measured.render.width).toBe(baseline.render.width);expect(measured.camera).toEqual(baseline.camera);expect(measured.player).toEqual(baseline.player);
+  const median=a=>a.toSorted((a,b)=>a-b)[Math.floor(a.length/2)];
+  const summarize=r=>({frames:r.frames.length,frameP50:median(r.frames),cpuP50:median(r.costs.map(c=>c.cpuMs)),gpuP50:median(r.costs.map(c=>c.gpuMs))||null});
+  console.log('Sky A/B (actual device, GPU null means unavailable)',{before:summarize(baseline),after:summarize(measured)});
+  await writeFile('tmp/sky-after.json',JSON.stringify(measured,null,2));
+ }
+ expect((await page.evaluate(()=>m0.state())).errors).toEqual([]);expect(errors).toEqual([]);
 });
