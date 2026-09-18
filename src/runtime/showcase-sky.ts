@@ -11,7 +11,8 @@ import type {Camera} from '@babylonjs/core/Cameras/camera.js';
 import {daylightAt} from '../domain/daylight.ts';
 import type {Daylight} from '../domain/daylight.ts';
 import {createCloudPixels,createMoonPixels,CLOUD_TEXTURE_SIZE,MOON_TEXTURE_SIZE} from '../domain/sky-textures.ts';
-import {SKY_SEED,skySettings,cloudOffsets,advanceSkyTime,modulo,moonBasis,starRotation} from '../domain/sky.ts';
+import {SKY_SEED,skySettings,cloudOffsets,advanceSkyTime,modulo,moonBasis,starRotation,sourceTransmission} from '../domain/sky.ts';
+import type {Direction} from '../domain/daylight.ts';
 import type {SkySettingsPatch,SkyQuality,CloudOffsets} from '../domain/sky.ts';
 import {skyVertex,skyFragment} from './showcase-sky.wgsl.ts';
 import {moonAlbedoUrl} from './sky-assets.ts';
@@ -21,10 +22,11 @@ ShaderStore.ShadersStoreWGSL.showcaseSkyPixelShader=skyFragment;
 
 export function createShowcaseSky(scene:Scene,camera:Camera){
  const material=new ShaderMaterial('showcase-sky',scene,{vertex:'showcaseSky',fragment:'showcaseSky'},
-  {attributes:['position'],uniforms:['worldViewProjection','skyDepth','zenith','horizon','solar','lunar','moonRight','moonUp','lightSource','stars','starRotation','twinklePhase','daylight','sunset','quality','starSettings','moonSettings','lowShape','highShape','lowScale','highScale','lowBase','lowDetail','highBase','highDetail','warpOffset'],samplers:['cloudMap','moonMap'],shaderLanguage:ShaderLanguage.WGSL});
+  {attributes:['position'],uniforms:['worldViewProjection','skyDepth','zenith','horizon','solar','lunar','moonRight','moonUp','lightSource','moonIllumination','sourcePower','stars','starRotation','twinklePhase','daylight','sunset','quality','starSettings','moonSettings','lowShape','highShape','lowScale','highScale','lowBase','lowDetail','highBase','highDetail','warpOffset'],samplers:['cloudMap','moonMap'],shaderLanguage:ShaderLanguage.WGSL});
  material.setFloat('skyDepth',scene.getEngine().useReverseDepthBuffer?0.000001:0.999999);
  material.backFaceCulling=false;material.disableDepthWrite=true;material.fogEnabled=false;
- const clouds=RawTexture.CreateRGBATexture(createCloudPixels(),CLOUD_TEXTURE_SIZE,CLOUD_TEXTURE_SIZE,scene,true,false,Texture.TRILINEAR_SAMPLINGMODE);
+ const cloudPixels=createCloudPixels();
+ const clouds=RawTexture.CreateRGBATexture(cloudPixels,CLOUD_TEXTURE_SIZE,CLOUD_TEXTURE_SIZE,scene,true,false,Texture.TRILINEAR_SAMPLINGMODE);
  clouds.name='procedural-clouds';clouds.wrapU=clouds.wrapV=Texture.WRAP_ADDRESSMODE;clouds.gammaSpace=false;
  let moon:Texture=RawTexture.CreateRGBATexture(createMoonPixels(),MOON_TEXTURE_SIZE,MOON_TEXTURE_SIZE,scene,true,false,Texture.TRILINEAR_SAMPLINGMODE);
  moon.name='procedural-moon';moon.wrapU=moon.wrapV=Texture.CLAMP_ADDRESSMODE;moon.gammaSpace=false;
@@ -57,6 +59,7 @@ export function createShowcaseSky(scene:Scene,camera:Camera){
   material.setVector3('lightSource',source.set(...(s.source==='sun'?s.towardSun:s.towardMoon)));
   const basis=moonBasis(s.towardMoon);material.setVector3('moonRight',right.set(...basis.right));material.setVector3('moonUp',up.set(...basis.up));
   material.setFloat('stars',s.stars);vec2('starRotation',...starRotation(s.hours));
+  material.setFloat('moonIllumination',s.moonIllumination);material.setFloat('sourcePower',s.source==='moon'?s.moonIllumination**1.5:1);
   material.setFloat('daylight',s.daylight);material.setFloat('sunset',s.sunset);
  }
  function animate(dt:number){
@@ -101,5 +104,6 @@ export function createShowcaseSky(scene:Scene,camera:Camera){
  const cleanup=scene.onDisposeObservable.add(dispose);
  uploadSettings();uploadMotion();update(current);
  return {mesh,update,animate,setSettings,setQuality,setAnimationTime,loadArtAssets,dispose,
+  sampleTransmission:(toward:Direction)=>sourceTransmission(cloudPixels,CLOUD_TEXTURE_SIZE,toward,settings,offsets),
   stats:()=>({version:1,seed:SKY_SEED,quality,animationSeconds,settings:skySettings(settings),offsets:Object.fromEntries(Object.entries(offsets).map(([k,v])=>[k,[...v]])),moonSource,assetState,assetError,textures:{clouds:clouds.getSize(),moon:moon.getSize()},disposed})};
 }

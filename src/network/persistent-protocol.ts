@@ -34,7 +34,9 @@ export function validSnapshot(s:unknown):s is RoomSnapshot{
  const entries=Object.entries(s.peers);
  return entries.length===s.players.length&&entries.every(([id,peer])=>validId(peer)&&(s.players as Player[]).some(p=>p.id===id))&&new Set(entries.map(([,peer])=>peer)).size===entries.length;
 }
+export function clockElapsedSeconds(c:WorldClock,now=performance.now()){
+ return (c.serverMs+Math.max(0,now-c.receivedAt)-c.epochMs)/1000;
+}
 export function clockHour(c:WorldClock,now=performance.now()){
- const elapsed=c.serverMs+Math.max(0,now-c.receivedAt)-c.epochMs;
- return ((12+elapsed*24/(c.cycleSeconds*1000))%24+24)%24;
+ return ((12+24*clockElapsedSeconds(c,now)/c.cycleSeconds)%24+24)%24;
 }

@@ -5,6 +5,9 @@ import {SceneStartup,FrameWorkBudget,bindInputFocus} from './runtime/startup.ts'
 import {createDaylight} from './runtime/daylight.ts';
 import {SKY_DEFAULTS} from './domain/sky.ts';
 import type {SkySettingsPatch} from './domain/sky.ts';
+import type {MoonSettings} from './domain/moon.ts';
+import type {WeatherMode} from './domain/weather.ts';
+import {createRain} from './runtime/rain.ts';
 import {createGroundTrialControls} from './runtime/ground-trial.ts';
 import {waitForTextures} from './runtime/texture-ready.ts';
 import {showcaseEnabled,terrainCameraLift,showcasePath} from './domain/showcase.ts';
@@ -92,6 +95,8 @@ try {
   if(sunlight){sunlight.getShadowMap()!.onBeforeRenderObservable.add(()=>{shadowPassStart=scene.getActiveIndices();});sunlight.getShadowMap()!.onAfterRenderObservable.add(()=>{shadowPassTriangles=(scene.getActiveIndices()-shadowPassStart)/3;});}
   const air=sunlight&&new URLSearchParams(location.search).get('air')!=='0'?createForestAir(scene,camera,sunlight,world.sun):null;
   const daylight=showcaseEnabled?createDaylight(scene,camera,world.sun,world.fill,air,true):null;
+  // This forest has no authored roofs. Tree collision bounds are not rain shelters.
+  const rain=showcaseEnabled?createRain(scene,{groundHeightAt:(x,z)=>groundHeight(x,-z)}):null;
   const ambient=wind?new ShowcaseAudio(wind,forest?.boxes??[]):undefined;
   scene.onDisposeObservable.add(()=>ambient?.dispose());
   const lightDirection=world.sun.direction.normalizeToNew(),lightRight=Vector3.Cross(Vector3.Up(),lightDirection).normalize(),lightUp=Vector3.Cross(lightDirection,lightRight).normalize();
@@ -163,7 +168,7 @@ try {
   }
   function applyQuality(){
    effectiveQuality=quality==='auto'?automaticQuality.effective:quality;
-   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);wind?.setDetail(effectiveQuality!=='performance');daylight?.setSkyQuality(profile.skyQuality);}
+   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);wind?.setDetail(effectiveQuality!=='performance');daylight?.setSkyQuality(profile.skyQuality);rain?.setQuality(profile.skyQuality);}
    resize();
   }
   qualitySelect.onchange=()=>{quality=qualitySelect.value as ShowcaseQuality;automaticQuality.effective=recommended;automaticQuality.reset();try{localStorage.setItem(qualityKey,quality);}catch{}applyQuality();};
@@ -224,7 +229,7 @@ try {
     const currentDistance=Math.hypot(pos.x-anchor.x,pos.y-anchor.y,pos.z-anchor.z);
     const followError=Math.hypot(pos.x-anchor.x-offset.x,pos.y-anchor.y-offset.y-cameraLift,pos.z-anchor.z-offset.z);
     return {
-      ready:startup.readyAt!==null,loading:startup.stats(),frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},ranger:ranger?.state()??null,multiplayer:multiplayer?.state()??null,
+      ready:startup.readyAt!==null,loading:startup.stats(),frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},ranger:ranger?.state()??null,multiplayer:multiplayer?.state()??null,rain:rain?.stats()??null,
       camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas?.isOpen()??false,
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
@@ -251,7 +256,9 @@ try {
       setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
       setSky:(patch:SkySettingsPatch)=>daylight?.setSkySettings(patch),setSkyAnimationTime:(seconds:number)=>daylight?.setSkyAnimationTime(seconds),resetSky:()=>daylight?.setSkySettings(SKY_DEFAULTS),
-      inspect:()=>({scene,engine,world,forest,wind,ambient}),
+      setMoon:(patch:Partial<MoonSettings>)=>daylight?.setMoon(patch),setGameDay:(day:number)=>daylight?.setGameDay(day),
+      setWeather:(mode:Exclude<WeatherMode,'custom'>,seconds?:number)=>daylight?.setWeather(mode,seconds),setWeatherTime:(seconds:number)=>daylight?.setWeatherTime(seconds),
+      inspect:()=>({scene,engine,world,forest,wind,ambient,daylight}),
       obstacles:()=>world.boxes.map(({id,min,max,collision})=>({id,min:{...min},max:{...max},geometryCollision:!!collision})),
       teleport:(e:number,n:number,heading=0)=>{
         if(![e,n,heading].every(Number.isFinite)||e<(forest?FOREST_BOUNDS.minE+1:-23)||e>(forest?FOREST_BOUNDS.maxE-1:23)||n<(forest?FOREST_BOUNDS.minN+1:-11)||n>(forest?FOREST_BOUNDS.maxN-1:63))throw new Error('Outside harness');
@@ -326,6 +333,7 @@ try {
       // Babylon setTarget nudges equal-Z positions by Epsilon at cardinal angles. Keep the chosen orbit exact.
       camera.position.set(desired.x,desired.y,desired.z);
       multiplayer?.update(dt,paused?0:actualSpeed,!paused&&running);
+      rain?.update(paused?0:dt,camera.position,daylight?.precipitation()??0,daylight?.daylightAmount()??1);
       ambient?.update(dt,daylight?.hour()??12,camera.position,camera.getForwardRay().direction);
       const feet={x:player.e,y:h,z:-player.n};
       for(const mesh of [...world.occluders,...(showcaseEnabled?[]:[world.ground])]) {

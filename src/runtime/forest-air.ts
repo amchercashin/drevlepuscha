@@ -68,7 +68,7 @@ export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerato
  // Post-process sizes describe INPUT targets: full-resolution scene colour/depth
  // enter scatter, whose output goes directly into composite's half-size input.
  scatter.onSizeChangedObservable.add(()=>scatter.inputTexture.createDepthStencilTexture(0,false,false,1));
- const inverse=Matrix.Identity();let rays=false;
+ const inverse=Matrix.Identity();let rays=false,raysScale=1;
  // Fixed authored openings: never repositioned with the camera or the walker.
  const rayBases=[8,20,34,50].flatMap((n,i)=>{const e=showcasePath(n)+(i%2?2.5:-2.5);return [e,showcaseHeight(e,n)+.4,-n,2.6];});
  const airDensity=()=>scene.fogDensity<=0?0:Math.min(.026,.008+scene.fogDensity*1.08);
@@ -78,9 +78,9 @@ export function createForestAir(scene:Scene,camera:Camera,shadows:ShadowGenerato
   effect.setVector3('eye',camera.globalPosition);effect.setVector3('sunDirection',sun.direction.normalizeToNew().negate());
   effect.setFloat3('sunColor',sun.diffuse.r*sun.intensity,sun.diffuse.g*sun.intensity,sun.diffuse.b*sun.intensity);
   effect.setFloat('halfZ',engine.isNDCHalfZRange?1:0);effect.setFloat('airDensity',airDensity());
-  if(showcaseEnabled){effect.setArray4('rayBases',rayBases);effect.setFloat('rayPower',rays?.040:0);}
+  if(showcaseEnabled){effect.setArray4('rayBases',rayBases);effect.setFloat('rayPower',rays?.040*raysScale:0);}
   effect._bindTexture('sceneDepth',scatter.inputTexture.depthStencilTexture);if(!showcaseEnabled)effect.setDepthStencilTexture('sunDepth',shadows.getShadowMap());
  };
  composite.onApply=effect=>effect.setTextureFromPostProcess('sceneColor',scatter);
- return {setRays:(enabled:boolean)=>{rays=enabled;},stats:()=>({raysEnabled:rays,analyticBeams:showcaseEnabled&&rays?4:0,method:showcaseEnabled?'stable-height-haze':'shadowed-air',density:airDensity(),steps:showcaseEnabled?0:16,heightOriginM:showcaseEnabled?4:null,maxDistanceM:32,scale:0.5,extraGeometryPasses:0})};
+ return {setRays:(enabled:boolean)=>{rays=enabled;},setAtmosphere:(state:{raysScale:number})=>{raysScale=Math.max(0,Math.min(1,state.raysScale));},stats:()=>({raysEnabled:rays,raysScale,analyticBeams:showcaseEnabled&&rays&&raysScale>0?4:0,method:showcaseEnabled?'stable-height-haze':'shadowed-air',density:airDensity(),steps:showcaseEnabled?0:16,heightOriginM:showcaseEnabled?4:null,maxDistanceM:32,scale:0.5,extraGeometryPasses:0})};
 }

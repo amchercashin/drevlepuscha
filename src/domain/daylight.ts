@@ -1,5 +1,6 @@
 export type RGB=[number,number,number];
 export type Direction=[number,number,number];
+import type {MoonState} from './moon.ts';
 export const DAY_PRESETS={morning:7.5,day:12,sunset:17.5,night:0} as const;
 export const CYCLE_SECONDS=1200;
 export const smooth=(a:number,b:number,x:number)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
@@ -9,17 +10,19 @@ export function normalizeHour(hour:number){
  return ((hour%24)+24)%24;
 }
 /** Art-directed full-moon orbit, not astronomical ephemerides. EN uses north = -Z. */
-export function daylightAt(hour:number){
+export function daylightAt(hour:number,moon?:MoonState){
  const hours=normalizeHour(hour),angle=(hours-6)*Math.PI/12;
  const towardSun:Direction=[Math.cos(angle),Math.sin(angle)*.82,-Math.sin(angle)*Math.sqrt(1-.82**2)];
- const towardMoon=towardSun.map(v=>-v) as Direction,elevation=towardSun[1];
+ const towardMoon=moon?.direction??towardSun.map(v=>-v) as Direction,elevation=towardSun[1];
  const daylight=smooth(-.22,.20,elevation),sunPower=smooth(0,.22,elevation);
- const moonPower=smooth(0,.20,-elevation),source=elevation>=0?'sun':'moon';
+ const moonIllumination=moon?.illuminatedFraction??1;
+ // Direction changes only at zero power; never normalize a sum of opposite sources.
+ const moonPower=moon?smooth(0,.20,towardMoon[1])*moonIllumination**1.5*smooth(0,.14,-elevation):smooth(0,.20,-elevation),source=elevation>=0?'sun':'moon';
  const sunset=(1-smooth(.08,.42,Math.abs(elevation)))*smooth(-.25,.0,elevation);
  const mainColor:RGB=source==='sun'?mix([1,.51,.24],[1,.94,.78],smooth(.04,.42,elevation)):[.72,.82,1];
  const mainIntensity=source==='sun'?1.18*sunPower:.30*moonPower;
  const horizon=mix(mix([.035,.055,.085],[.78,.82,.70],daylight),[.78,.47,.25],sunset*.6);
- return {hours,towardSun,towardMoon,source,mainColor,mainIntensity,daylight,
+ return {hours,towardSun,towardMoon,moonPhase:moon?.phase??.5,moonIllumination,source,mainColor,mainIntensity,daylight,
   direction:(source==='sun'?towardSun:towardMoon).map(v=>-v) as Direction,
   fillIntensity:.20+.26*daylight,fillColor:mix([.56,.68,.84],[.67,.80,.91],daylight),
   zenith:mix([.006,.014,.036],[.17,.38,.49],daylight),horizon,

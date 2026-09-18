@@ -7,6 +7,8 @@ test('showcase starts and the traveller can move',async({page})=>{
  page.on('console',m=>{if(/GPUValidationError|WebGPU uncaptured error|Error while parsing|shader.*error/i.test(m.text()))errors.push(m.text());});
  const network=await page.context().newCDPSession(page);
  await network.send('Network.enable');await network.send('Network.setCacheDisabled',{cacheDisabled:true});
+ // Vite serves modules separately; retain texture entries after the module graph grows.
+ await page.addInitScript(()=>performance.setResourceTimingBufferSize(2000));
  await page.goto('/?debug=1');await page.waitForFunction(()=>window.m0?.state().ready);
  const textures=await page.evaluate(()=>performance.getEntriesByType('resource').filter(x=>x.name.endsWith('.webp')).map(x=>x.name));
  expect(textures.length).toBeGreaterThan(0);expect(new Set(textures).size).toBe(textures.length);
@@ -99,6 +101,78 @@ test('showcase starts and the traveller can move',async({page})=>{
   }finally{scene.onBeforeRenderObservable.remove(observer);m0.resetSky();}
  });
  expect(occlusion.clear).toBeGreaterThan(20);expect(occlusion.dense).toBeLessThan(1);
+
+ // B: the terminator actually changes rendered sides, and new moon cannot eclipse the sun.
+ const lunarPixels=await page.evaluate(async()=>{
+  const {scene,engine}=m0.inspect(),sky=scene.getMeshByName('showcase-sky'),camera=scene.activeCamera;
+  const observer=scene.onBeforeRenderObservable.add(()=>camera.setTarget(camera.position.add(sky.material._vectors3.lunar.scale(100))));
+  async function sample(phase,hour,brightness=1){
+   m0.setMoon({mode:'fixed',fixedPhase:phase});m0.setTime(hour);
+   m0.setSky({motionScale:0,low:{coverage:0},high:{coverage:0},moon:{brightness,halo:0},stars:{brightness:0}});
+   await new Promise(resolve=>scene.onAfterRenderObservable.addOnce(()=>scene.onAfterRenderObservable.addOnce(resolve)));
+   const pixels=Array.from(await engine.readPixels(Math.floor(engine.getRenderWidth()/2)-10,Math.floor(engine.getRenderHeight()/2)-10,20,20));
+   let left=0,right=0;for(let i=0;i<pixels.length;i+=4){const lum=(pixels[i]+pixels[i+1]+pixels[i+2])/3;if((i/4)%20<10)left+=lum;else right+=lum;}
+   return {pixels,left:left/200,right:right/200};
+  }
+  try{const first=await sample(.25,18),last=await sample(.75,6),newDark=await sample(0,12,0),newBright=await sample(0,12,2);
+   return {first:first.left-first.right,last:last.left-last.right,eclipseDifference:newDark.pixels.reduce((s,v,i)=>s+Math.abs(v-newBright.pixels[i]),0)/newDark.pixels.length};
+  }finally{scene.onBeforeRenderObservable.remove(observer);m0.setMoon({mode:'cycle'});m0.resetSky();}
+ });
+ expect(Math.abs(lunarPixels.first)).toBeGreaterThan(20);expect(lunarPixels.first*lunarPixels.last).toBeLessThan(0);expect(lunarPixels.eclipseDifference).toBeLessThan(1);
+
+ // C: use the real settings select, complete its transitions with a stopped day clock.
+ await page.evaluate(()=>{m0.setTime(12);m0.setFog(.007);m0.setWeather('clear',0);m0.setRays(true);});
+ for(const preset of ['mixed','overcast','rain','downpour']){
+  await page.locator('#sky-weather').selectOption(preset);
+  await page.evaluate(()=>m0.setWeatherTime(m0.state().lighting.daylight.weather.seconds+13));
+  await page.waitForTimeout(100);
+  const state=await page.evaluate(()=>m0.state());
+  expect(state.lighting.daylight.hours).toBe(12);expect(state.lighting.daylight.weather.preset).toBe(preset);
+  expect(state.lighting.daylight.weather.baseFog).toBe(.007);
+  expect(state.rain.enabled).toBe(preset==='rain'||preset==='downpour');
+ }
+ const wet=await page.evaluate(()=>m0.state());
+ expect(wet.lighting.daylight.weather.mainIntensity).toBe(0);expect(wet.lighting.daylight.weather.fillIntensity).toBeGreaterThan(.1);
+ expect(wet.lighting.air.raysEnabled).toBe(true);expect(wet.lighting.air.raysScale).toBe(0);
+ expect(wet.rain.instances).toBe(1152);
+ const rainDraws=await page.evaluate(()=>new Promise(resolve=>{
+  const {scene}=m0.inspect(),mesh=scene.getMeshByName('showcase-rain');let draws=0;
+  const observer=mesh.onBeforeDrawObservable.add(()=>draws++);
+  scene.onAfterRenderObservable.addOnce(()=>{mesh.onBeforeDrawObservable.remove(observer);resolve({draws,ready:mesh.material.isReady(mesh,true),depthWrite:!mesh.material.disableDepthWrite});});
+ }));expect(rainDraws).toEqual({draws:1,ready:true,depthWrite:false});
+ const rainPixels=await page.evaluate(async()=>{
+  const {scene,engine}=m0.inspect(),mesh=scene.getMeshByName('showcase-rain');m0.setPaused(true);
+  async function sample(visible){mesh.isVisible=visible;await new Promise(resolve=>scene.onAfterRenderObservable.addOnce(()=>scene.onAfterRenderObservable.addOnce(resolve)));return await engine.readPixels(0,0,engine.getRenderWidth(),engine.getRenderHeight());}
+  try{const without=await sample(false),withRain=await sample(true);let changed=0;for(let i=0;i<without.length;i+=4)if(Math.abs(without[i]-withRain[i])+Math.abs(without[i+1]-withRain[i+1])+Math.abs(without[i+2]-withRain[i+2])>6)changed++;return changed;}
+  finally{mesh.isVisible=true;m0.setPaused(false);}
+ });expect(rainPixels).toBeGreaterThan(50);
+ const drops=await page.evaluate(()=>Array.from(m0.inspect().scene.getMeshByName('showcase-rain').getVertexBuffer('rainColumn').getData()).slice(0,64*4));
+ await page.locator('#resolution-quality').selectOption('performance');await page.waitForTimeout(60);
+ expect((await page.evaluate(()=>m0.state())).rain.instances).toBe(576);
+ expect(await page.evaluate(()=>Array.from(m0.inspect().scene.getMeshByName('showcase-rain').getVertexBuffer('rainColumn').getData()).slice(0,64*4))).toEqual(drops);
+ await page.locator('#resolution-quality').selectOption('high');
+ await page.locator('#sky-weather').selectOption('clear');
+ await page.evaluate(()=>m0.setWeatherTime(m0.state().lighting.daylight.weather.seconds+13));await page.waitForTimeout(60);
+ const dry=await page.evaluate(()=>m0.state());expect(dry.rain.enabled).toBe(false);expect(dry.lighting.daylight.fogDensity).toBe(.007);
+ expect(dry.lighting.air.raysEnabled).toBe(true);expect(dry.lighting.air.raysScale).toBe(1);
+ await page.locator('#sky-weather').selectOption('auto');
+ await page.evaluate(()=>m0.setWeatherTime(1000));
+ expect((await page.evaluate(()=>m0.state())).lighting.daylight.weather.mode).toBe('auto');
+
+ // Existing WorldClock, no new wire messages: restores the full local day/phase/weather.
+ const clockRestore=await page.evaluate(()=>{
+  const {daylight}=m0.inspect();m0.setGameDay(13);m0.setTime(7.25);m0.setMoon({mode:'fixed',fixedPhase:.25});m0.setWeather('mixed',0);
+  const before=daylight.stats();
+  daylight.setClock({epochMs:1000000,serverMs:1000000+1200000*42,receivedAt:performance.now(),cycleSeconds:1200});daylight.update(0);
+  const shared=daylight.stats();daylight.setTime(3);daylight.setMoon({mode:'full'});daylight.setWeather('downpour',0);
+  const ignored=daylight.stats();daylight.setClock(null);const after=daylight.stats();
+  return {before,shared,ignored,after};
+ });
+ expect(clockRestore.shared.totalGameHours).toBeGreaterThanOrEqual(42*24+12);expect(clockRestore.shared.weather.scope).toBe('shared-clock');
+ expect(clockRestore.ignored.totalGameHours).toBe(clockRestore.shared.totalGameHours);expect(clockRestore.ignored.moon.mode).toBe('cycle');
+ expect(clockRestore.after.totalGameHours).toBe(clockRestore.before.totalGameHours);expect(clockRestore.after.moon).toEqual(clockRestore.before.moon);
+ expect(clockRestore.after.weather.state).toEqual(clockRestore.before.weather.state);expect(clockRestore.after.automatic).toBe(false);
+ const resourcesAfterWeather=await page.evaluate(resourceState);expect(resourcesAfterWeather.shadows).toBe(1);expect(resourcesAfterWeather.targets).toBe(resources.targets);
 
  // Optional single A/B comparison against a locally recorded pre-change baseline.
  if(process.env.SKY_BASELINE){

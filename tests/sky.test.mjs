@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SKY_DEFAULTS,skySettings,modulo,cloudOffsets,advanceSkyTime,starHash,starRotation,moonBasis} from '../src/domain/sky.ts';
+import {SKY_DEFAULTS,skySettings,modulo,cloudOffsets,advanceSkyTime,starHash,starRotation,moonBasis,sampleCloudChannel,cloudTransmissionAt,sourceTransmission} from '../src/domain/sky.ts';
+import {createCloudPixels,CLOUD_TEXTURE_SIZE} from '../src/domain/sky-textures.ts';
 
 test('nested sky patches preserve independent controls and do not share mutable defaults',()=>{
  const original=skySettings(),changed=skySettings(original,{low:{coverage:.9},moon:{halo:0}});
@@ -41,4 +42,17 @@ test('moon basis is finite and orthonormal at both poles and ordinary directions
   assert.ok(Math.abs(right.reduce((sum,v,i)=>sum+v*up[i],0))<1e-12);
  }
  assert.throws(()=>moonBasis([0,0,0]));assert.throws(()=>moonBasis([NaN,0,1]));
+});
+
+test('CPU cloud sampler uses texel centres, repeat and the GPU density endpoints',()=>{
+ const pixels=new Uint8Array([0,0,0,0,255,0,0,0,128,0,0,0,64,0,0,0]);
+ assert.equal(sampleCloudChannel(pixels,2,.25,.25,0),0);assert.equal(sampleCloudChannel(pixels,2,.75,.25,0),1);
+ assert.equal(sampleCloudChannel(pixels,2,-.25,.25,0),1);assert.equal(sampleCloudChannel(pixels,2,0,.25,0),.5);
+ const clouds=createCloudPixels(),settings=skySettings(),offset=cloudOffsets(12,settings);
+ for(const direction of [[0,1,0],[1,0,0],[0,.82,-Math.sqrt(1-.82**2)]]){
+  const clear=skySettings(settings,{low:{opticalDepth:0},high:{opticalDepth:0}});
+  const dense=skySettings(settings,{low:{coverage:1,opticalDepth:16}});
+  assert.equal(cloudTransmissionAt(clouds,CLOUD_TEXTURE_SIZE,direction,clear,offset),1);
+  assert.equal(sourceTransmission(clouds,CLOUD_TEXTURE_SIZE,direction,dense,offset),0);
+ }
 });

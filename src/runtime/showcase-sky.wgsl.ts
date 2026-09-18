@@ -10,6 +10,7 @@ export const skyFragment=`
 varying skyDirection:vec3f;
 uniform zenith:vec3f;uniform horizon:vec3f;uniform solar:vec3f;uniform lunar:vec3f;
 uniform moonRight:vec3f;uniform moonUp:vec3f;uniform lightSource:vec3f;
+uniform moonIllumination:f32;uniform sourcePower:f32;
 uniform stars:f32;uniform starRotation:vec2f;uniform twinklePhase:f32;
 uniform daylight:f32;uniform sunset:f32;uniform quality:f32;
 uniform starSettings:vec2f;uniform moonSettings:vec4f;
@@ -49,7 +50,7 @@ fn starField(dir:vec3f,pixel:f32,moonDistance:f32)->vec3f {
     let twinkle=1.0+uniforms.starSettings.y*sin(uniforms.twinklePhase*harmonic+phase);
     let tint=starRandom(c.x,c.y,5u);
     let colour=mix(mix(vec3f(0.79,0.87,1.0),vec3f(1.0),smoothstep(0.15,0.65,tint)),vec3f(1.0,0.88,0.74),smoothstep(0.86,1.0,tint));
-    let weakContrast=mix(0.57,1.0,medium)*(1.0-(1.0-medium)*exp(-moonDistance*moonDistance/0.08)*0.6);
+    let weakContrast=mix(mix(1.0,0.57,uniforms.moonIllumination),1.0,medium)*(1.0-(1.0-medium)*exp(-moonDistance*moonDistance/0.08)*0.6*uniforms.moonIllumination);
     result+=colour*(point+halo)*(0.55+0.45*medium+1.0*bright)*twinkle*weakContrast;
    }
   }
@@ -78,9 +79,12 @@ fn cloudColour(density:f32,mask:f32,sculpt:f32,dir:vec3f,sourceDistance:f32,sour
  let sunAA=max(fwidth(sunD),0.0003);let moonAA=max(fwidth(moonD),0.0003);
  let horizonMask=smoothstep(-0.035,0.015,dir.y);
  let sunVisible=smoothstep(-0.085,0.005,uniforms.solar.y)*horizonMask;
- let moonVisible=smoothstep(-0.085,0.005,uniforms.lunar.y)*horizonMask;
  let sunRadius=mix(0.031,0.048,1.0-smoothstep(0.0,0.32,abs(uniforms.solar.y)));
  let moonRadius=mix(0.040,0.052,1.0-smoothstep(0.0,0.30,abs(uniforms.lunar.y)))*uniforms.moonSettings.x;
+ // Coplanar artistic orbits do not simulate eclipses; also suppress occultation.
+ let separation=length(uniforms.lunar-uniforms.solar);
+ let noEclipse=smoothstep(sunRadius+moonRadius,(sunRadius+moonRadius)*1.6,separation);
+ let moonVisible=smoothstep(-0.085,0.005,uniforms.lunar.y)*horizonMask*noEclipse;
  let sunDisc=1.0-smoothstep(sunRadius-sunAA,sunRadius+sunAA,sunD);
  let moonDisc=1.0-smoothstep(moonRadius-moonAA,moonRadius+moonAA,moonD);
  let sunward=pow(max(0.0,dot(dir,uniforms.solar)),4.0);
@@ -91,6 +95,7 @@ fn cloudColour(density:f32,mask:f32,sculpt:f32,dir:vec3f,sourceDistance:f32,sour
  colour+=vec3f(0.43,0.12,0.035)*exp(-up*7.0)*sunward*sunset;
  colour=mix(colour,vec3f(0.53,0.20,0.36),exp(-pow((up-0.18)/0.15,2.0))*sunset*(0.12+0.25*sunward));
  colour+=vec3f(0.28,0.12,0.15)*twilight*exp(-up*9.0)*(1.0-uniforms.daylight)*0.3;
+ let atmosphere=colour;
  // Derivatives use the continuous direction, never wrapped longitude or fract(q).
  let rot=uniforms.starRotation;
  let starDirection=vec3f(rot.x*dir.x-rot.y*dir.z,dir.y,rot.y*dir.x+rot.x*dir.z);
@@ -105,12 +110,19 @@ fn cloudColour(density:f32,mask:f32,sculpt:f32,dir:vec3f,sourceDistance:f32,sour
  let vertical=clamp((dir.y-uniforms.solar.y)/sunRadius*0.5+0.5,0.0,1.0);
  let sunsetDisc=mix(vec3f(1.0,0.16,0.09),vec3f(1.0,0.78,0.32),vertical);
  colour=mix(colour,mix(vec3f(1.65,1.52,1.20),sunsetDisc,sunset*0.92),sunDisc*sunVisible);
- let moonXY=vec2f(dot(dir,uniforms.moonRight),dot(dir,uniforms.moonUp))/moonRadius;
+ // sin(angular radius) corresponding to the same chord radius used by moonDisc.
+ let projectedRadius=moonRadius*sqrt(1.0-moonRadius*moonRadius*0.25);
+ let moonXY=vec2f(dot(dir,uniforms.moonRight),dot(dir,uniforms.moonUp))/projectedRadius;
  let lunarTex=textureSample(moonMap,moonMapSampler,moonXY*vec2f(0.5,-0.5)+0.5).rgb;
  let relief=sqrt(max(0.0,1.0-dot(moonXY,moonXY)));
  let lunarShading=1.0-uniforms.moonSettings.w*(1.0-relief);
- colour+=(vec3f(0.38,0.52,0.83)*exp(-moonD*moonD/0.014)*0.18+vec3f(0.60,0.72,1.0)*exp(-moonD*moonD/0.0028)*0.22)*moonVisible*uniforms.moonSettings.z;
- colour=mix(colour,lunarTex*lunarShading*vec3f(0.91,0.97,1.10)*uniforms.moonSettings.y,moonDisc*moonVisible);
+ let moonLight=vec3f(dot(uniforms.solar,uniforms.moonRight),dot(uniforms.solar,uniforms.moonUp),-dot(uniforms.solar,uniforms.lunar));
+ let ndl=dot(vec3f(moonXY,relief),moonLight);let terminatorAA=max(fwidth(ndl),0.015);
+ let lit=smoothstep(-terminatorAA,terminatorAA,ndl);
+ let nightSide=mix(lunarTex*0.025,atmosphere,uniforms.daylight);
+ let daySide=lunarTex*lunarShading*vec3f(0.91,0.97,1.10)*uniforms.moonSettings.y;
+ colour+=(vec3f(0.38,0.52,0.83)*exp(-moonD*moonD/0.014)*0.18+vec3f(0.60,0.72,1.0)*exp(-moonD*moonD/0.0028)*0.22)*moonVisible*uniforms.moonSettings.z*uniforms.moonIllumination;
+ colour=mix(colour,mix(nightSide,daySide,lit),moonDisc*moonVisible);
 
  // Five shared density samples. Repeat samplers wrap continuous spatial coordinates.
  let p=dir.xz/(up+0.18);
@@ -135,7 +147,7 @@ fn cloudColour(density:f32,mask:f32,sculpt:f32,dir:vec3f,sourceDistance:f32,sour
  // Explicit gradients permit quality branches without per-pixel derivative hazards.
  if(uniforms.quality>=1.0) {let neighbour=textureSampleGrad(cloudMap,cloudMapSampler,lowUV+lightOffset,lowDx,lowDy).r;lowSculpt=clamp(0.5+(lowBase-neighbour)*9.0,0.0,1.0);}
  if(uniforms.quality>=2.0) {let offset=vec2f(lightOffset.x*0.8-lightOffset.y*0.6,lightOffset.x*0.6+lightOffset.y*0.8);let neighbour=textureSampleGrad(cloudMap,cloudMapSampler,highUV+offset,highDx,highDy).g;highSculpt=clamp(0.5+(highBase-neighbour)*7.0,0.0,1.0);}
- let sourceDistance=length(dir-uniforms.lightSource);let sourceVisible=smoothstep(0.0,0.20,uniforms.lightSource.y);
+ let sourceDistance=length(dir-uniforms.lightSource);let sourceVisible=smoothstep(0.0,0.20,uniforms.lightSource.y)*uniforms.sourcePower;
  let highColour=cloudColour(highDensity,highMask,highSculpt,dir,sourceDistance,sourceVisible);
  let lowColour=cloudColour(lowDensity,lowMask,lowSculpt,dir,sourceDistance,sourceVisible);
  colour=colour*highT+highColour*(1.0-highT);

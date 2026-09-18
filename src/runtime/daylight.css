@@ -13,3 +13,5 @@
 .sky-controls{margin-top:12px}
 .sky-controls summary{cursor:pointer;min-height:36px}
 .sky-controls output{float:right;color:#d5dcb9;font-variant-numeric:tabular-nums}
+.daylight-controls select{display:block;width:100%;min-height:40px;margin:4px 0 6px}
+.daylight-controls small{display:block;color:#b7c6b3;line-height:1.4;margin:4px 2px 12px}
