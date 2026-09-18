@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {ambientPhase,ambientWind} from '../src/domain/ambient.ts';
+import {ambientPhase,ambientWind,ambientRain} from '../src/domain/ambient.ts';
 
 const power=(gains,ids)=>ids.reduce((sum,id)=>sum+gains[id]**2,0);
 const canopyIds=['W03','W04','W05'];
@@ -36,9 +36,21 @@ test('day phases match lighting presets and wrap continuously across midnight',(
  for(const [h,key] of [[0,'night'],[7.5,'dawn'],[12,'day'],[17.5,'dusk'],[24,'night']])assert.equal(ambientPhase(h,weights),weights[key]);
  assert.ok(Math.abs(ambientPhase(23.999,weights)-ambientPhase(.001,weights))<1e-6);
 });
-test('all 15 shipped sounds match provenance; only four rejected sources were replaced',()=>{
+test('rain follows precipitation continuously, leaving dry wildlife intact and making downpour stronger',()=>{
+ assert.deepEqual(ambientRain(0),{precipitation:0,R01:0,R02:0,wildlife:1,wind:1});
+ assert.deepEqual(ambientRain(NaN),ambientRain(0));assert.deepEqual(ambientRain(3),ambientRain(1));
+ assert.equal(ambientRain(.4).R02,0);assert.equal(ambientRain(1).R01,0);
+ let previous=0;
+ for(let i=0;i<=1000;i++){
+  const mix=ambientRain(i/1000),p=power(mix,['R01','R02']);
+  assert.ok(p>=previous-1e-12&&p-previous<.005);previous=p;
+  assert.ok(mix.wildlife>=.099&&mix.wind>=.75);
+ }
+ assert.ok(power(ambientRain(1),['R01','R02'])>power(ambientRain(.4),['R01','R02']));
+});
+test('all 17 shipped sounds match provenance; only four rejected sources were replaced',()=>{
  const bank=JSON.parse(readFileSync(new URL('../config/showcase-audio.json',import.meta.url)));
- assert.equal(bank.assets.length,15);assert.equal(new Set(bank.assets.map(a=>a.id)).size,15);
+ assert.equal(bank.assets.length,17);assert.equal(new Set(bank.assets.map(a=>a.id)).size,17);
  assert.deepEqual(bank.assets.filter(a=>a.replacement).map(a=>a.id),['W03','W06','T03','I01']);
  for(const asset of bank.assets){
   const bytes=readFileSync(new URL(`../public/audio/showcase/${asset.file}`,import.meta.url));

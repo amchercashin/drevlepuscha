@@ -1,5 +1,13 @@
 export type PhaseWeights={dawn:number;day:number;dusk:number;night:number};
 const clamp=(x:number)=>Math.max(0,Math.min(1,x));
+const smooth=(x:number)=>{const t=clamp(x);return t*t*(3-2*t);};
+/** Follow actual precipitation, including the delayed start/end of weather transitions. */
+export function ambientRain(precipitation:number){
+ const p=Number.isFinite(precipitation)?clamp(precipitation):0;
+ const heavy=smooth((p-.4)/.6),level=.6*smooth(p/.4)+.25*heavy;
+ return {precipitation:p,R01:level*Math.sqrt(1-heavy),R02:level*Math.sqrt(heavy),
+  wildlife:1-.9*smooth(p),wind:1-.25*smooth(p)};
+}
 /** The same four hours as the lighting controls, continuously interpolated overnight. */
 export function ambientPhase(hour:number,weights:PhaseWeights){
  const h=((hour%24)+24)%24;

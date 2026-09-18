@@ -134,7 +134,7 @@ test('showcase starts and the traveller can move',async({page})=>{
  const wet=await page.evaluate(()=>m0.state());
  expect(wet.lighting.daylight.weather.mainIntensity).toBe(0);expect(wet.lighting.daylight.weather.fillIntensity).toBeGreaterThan(.1);
  expect(wet.lighting.air.raysEnabled).toBe(true);expect(wet.lighting.air.raysScale).toBe(0);
- expect(wet.rain.instances).toBe(1152);
+ expect(wet.rain.instances).toBe(2304);
  const rainDraws=await page.evaluate(()=>new Promise(resolve=>{
   const {scene}=m0.inspect(),mesh=scene.getMeshByName('showcase-rain');let draws=0;
   const observer=mesh.onBeforeDrawObservable.add(()=>draws++);
@@ -148,7 +148,7 @@ test('showcase starts and the traveller can move',async({page})=>{
  });expect(rainPixels).toBeGreaterThan(50);
  const drops=await page.evaluate(()=>Array.from(m0.inspect().scene.getMeshByName('showcase-rain').getVertexBuffer('rainColumn').getData()).slice(0,64*4));
  await page.locator('#resolution-quality').selectOption('performance');await page.waitForTimeout(60);
- expect((await page.evaluate(()=>m0.state())).rain.instances).toBe(576);
+ expect((await page.evaluate(()=>m0.state())).rain.instances).toBe(1152);
  expect(await page.evaluate(()=>Array.from(m0.inspect().scene.getMeshByName('showcase-rain').getVertexBuffer('rainColumn').getData()).slice(0,64*4))).toEqual(drops);
  await page.locator('#resolution-quality').selectOption('high');
  await page.locator('#sky-weather').selectOption('clear');

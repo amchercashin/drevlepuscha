@@ -9,13 +9,14 @@ varying dropUV:vec2f;varying dropWorld:vec3f;varying dropFloor:f32;varying dropA
  let column=vertexInputs.rainColumn;let motion=vertexInputs.rainMotion;
  let phase=fract(uniforms.rainTime*motion.y/256.0+motion.x);
  let y=column.z+(1.0-phase)*24.0;
- let world=vec3f(column.x,y,column.y)+uniforms.cameraRight*vertexInputs.position.x*0.035+vec3f(0.0,vertexInputs.position.y*motion.z,0.0);
+ let heavy=smoothstep(0.4,1.0,uniforms.precipitation);
+ let world=vec3f(column.x,y,column.y)+uniforms.cameraRight*vertexInputs.position.x*(0.035+0.007*heavy)+vec3f(0.0,vertexInputs.position.y*motion.z*(1.0+0.55*heavy),0.0);
  let distance=length(world.xz-uniforms.eye.xz);
  let radial=1.0-smoothstep(12.0,16.0,distance);
  let respawn=smoothstep(0.0,0.055,phase)*(1.0-smoothstep(0.92,1.0,phase));
  let amount=smoothstep(motion.w,motion.w+0.08,uniforms.precipitation);
  vertexOutputs.dropUV=vertexInputs.position.xy+0.5;vertexOutputs.dropWorld=world;vertexOutputs.dropFloor=column.w;
- vertexOutputs.dropAlpha=radial*respawn*amount;
+ vertexOutputs.dropAlpha=radial*respawn*amount*(1.0+0.23*heavy);
  vertexOutputs.position=uniforms.viewProjection*vec4f(world,1.0);
 }`;
 export const rainFragment=`

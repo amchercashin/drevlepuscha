@@ -7,7 +7,7 @@ import '@babylonjs/core/Meshes/thinInstanceMesh.js';
 import {Matrix,Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 import type {SkyQuality} from '../domain/sky.ts';
-import {rainDrop,rainTiles,RAIN_TILE_SIZE,RAIN_PERIOD,RAIN_SEED} from '../domain/rain.ts';
+import {rainDrop,rainDropIndices,rainTiles,RAIN_TILE_SIZE,RAIN_PERIOD,RAIN_SEED} from '../domain/rain.ts';
 import {rainVertex,rainFragment} from './rain.wgsl.ts';
 
 ShaderStore.ShadersStoreWGSL.showcaseRainVertexShader=rainVertex;
@@ -22,13 +22,14 @@ export function createRain(scene:Scene,surface:RainSurface){
  material.backFaceCulling=false;material.disableDepthWrite=true;material.fogEnabled=false;mesh.material=material;
  const right=new Vector3(),colour=new Vector3();let seconds=0,quality:SkyQuality=2,precipitation=0,lastTile='',disposed=false,instances=0;
  function rebuild(x:number,z:number){
-  const count=quality===0?64:128,tiles=rainTiles(x,z);instances=tiles.length*count;
+  const indices=rainDropIndices(quality),tiles=rainTiles(x,z);instances=tiles.length*indices.length;
   const matrices=new Float32Array(instances*16),columns=new Float32Array(instances*4),motions=new Float32Array(instances*4);
   let i=0;
-  for(const [tx,tz] of tiles)for(let index=0;index<count;index++,i++){
+  for(const [tx,tz] of tiles)for(const index of indices){
    const d=rainDrop(tx,tz,index),ground=surface.groundHeightAt(d.x,d.z),shelter=surface.shelterHeightAt?.(d.x,d.z);
    columns.set([d.x,d.z,ground,Math.max(ground+.02,shelter??ground)],i*4);motions.set([d.phase,d.harmonic,d.length,d.threshold],i*4);
    matrices[i*16]=matrices[i*16+5]=matrices[i*16+10]=matrices[i*16+15]=1;
+   i++;
   }
   mesh.thinInstanceSetBuffer('matrix',matrices,16,true);mesh.thinInstanceSetBuffer('rainColumn',columns,4,true);mesh.thinInstanceSetBuffer('rainMotion',motions,4,true);
  }

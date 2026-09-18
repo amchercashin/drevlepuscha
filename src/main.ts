@@ -334,7 +334,7 @@ try {
       camera.position.set(desired.x,desired.y,desired.z);
       multiplayer?.update(dt,paused?0:actualSpeed,!paused&&running);
       rain?.update(paused?0:dt,camera.position,daylight?.precipitation()??0,daylight?.daylightAmount()??1);
-      ambient?.update(dt,daylight?.hour()??12,camera.position,camera.getForwardRay().direction);
+      ambient?.update(dt,daylight?.hour()??12,camera.position,camera.getForwardRay().direction,daylight?.precipitation()??0);
       const feet={x:player.e,y:h,z:-player.n};
       for(const mesh of [...world.occluders,...(showcaseEnabled?[]:[world.ground])]) {
         const bounds=mesh.getBoundingInfo().boundingBox;

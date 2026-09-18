@@ -1,9 +1,10 @@
 import bank from '../../config/showcase-audio.json';
-import {ambientPhase,ambientWind} from '../domain/ambient.ts';
+import {ambientPhase,ambientWind,ambientRain} from '../domain/ambient.ts';
 import type {Point3,Box} from '../domain/harness.ts';
 import type {WindSystem} from './wind.ts';
 
 type Asset=typeof bank.assets[number];
+const isWildlife=(asset:Asset)=>asset.id.startsWith('B')||asset.id.startsWith('I');
 type Loop={source:AudioBufferSourceNode;gain:GainNode;pan?:PannerNode;anchor?:Point3};
 const LOOP_IDS=bank.assets.filter(a=>a.kind==='loop').map(a=>a.id);
 const intervals:Record<string,[number,number]>={T01:[30,75],T02:[35,85],T03:[100,210],B01:[16,40],B02:[12,35],B03:[40,100],B04:[55,130],I02:[25,65]};
@@ -16,6 +17,8 @@ const cricketGain=10**(16/20);
 export class ShowcaseAudio {
  private context?:AudioContext;
  private master?:GainNode;
+ private wildlife?:GainNode;
+ private weather=ambientRain(0);
  private buffers=new Map<string,Promise<AudioBuffer>>();
  private loops=new Map<string,Loop>();
  private voices=new Set<AudioBufferSourceNode>();
@@ -66,7 +69,10 @@ export class ShowcaseAudio {
  async start(){
   if(this.disposed||this.volume===0)return;
   try{
-   if(!this.context){this.context=new AudioContext();this.master=this.context.createGain();this.master.gain.value=0;this.master.connect(this.context.destination);}
+   if(!this.context){
+    this.context=new AudioContext();this.master=this.context.createGain();this.master.gain.value=0;this.master.connect(this.context.destination);
+    this.wildlife=this.context.createGain();this.wildlife.gain.value=this.weather.wildlife;this.wildlife.connect(this.master);
+   }
    if(this.context.state==='suspended')await this.context.resume();
    this.applyMaster();
    if(this.loops.size===LOOP_IDS.length)return;
@@ -102,7 +108,8 @@ export class ShowcaseAudio {
   const ctx=this.context!,source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;source.loop=true;gain.gain.value=0;
   source.connect(gain);
   const pan=asset.channels===1?this.panner({x:0,y:0,z:0},3):undefined;
-  if(pan){gain.connect(pan);pan.connect(this.master!);}else gain.connect(this.master!);
+  const bus=isWildlife(asset)?this.wildlife!:this.master!;
+  if(pan){gain.connect(pan);pan.connect(bus);}else gain.connect(bus);
   this.loops.set(asset.id,{source,gain,pan});
   // Arbitrary phase prevents all bed textures starting together; no playback-rate modulation.
   source.start(0,Math.random()*buffer.duration);
@@ -116,15 +123,17 @@ export class ShowcaseAudio {
    const ctx=this.context!,source=ctx.createBufferSource(),gain=ctx.createGain(),pan=this.panner(position,asset.id==='T03'?12:8);
    source.buffer=buffer;gain.gain.value=(asset.group==='birds'?.65:.55)*asset.trim;
    const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=asset.id==='T03'?1400:12000;
-   source.connect(filter);filter.connect(gain);gain.connect(pan);pan.connect(this.master!);
+   source.connect(filter);filter.connect(gain);gain.connect(pan);pan.connect(isWildlife(asset)?this.wildlife!:this.master!);
    this.voices.add(source);this.eventsPlayed++;
    source.onended=()=>{this.voices.delete(source);source.disconnect();filter.disconnect();gain.disconnect();pan.disconnect();};
    source.start(); // Entire source, including the natural quiet tail. No duration argument.
   }catch{/* Logged at the loading boundary; retry only at a later event. */}
   finally{this.pendingEvents--;}
  }
- update(dt:number,hour:number,eye:Point3,forward:Point3){
+ update(dt:number,hour:number,eye:Point3,forward:Point3,precipitation=0){
+  this.weather=ambientRain(precipitation);
   const ctx=this.context;if(!ctx||this.disposed)return;
+  this.wildlife!.gain.setTargetAtTime(this.weather.wildlife,ctx.currentTime,.4);
   this.lastHour=hour;
   const listener=ctx.listener;
   listener.positionX.value=eye.x;listener.positionY.value=eye.y;listener.positionZ.value=eye.z;
@@ -146,13 +155,15 @@ export class ShowcaseAudio {
   for(const asset of bank.assets){
    const phase=ambientPhase(hour,asset.phaseWeights),loop=this.loops.get(asset.id);
    if(loop){
-    let level=(levels[asset.id]??.32*cricketGain)*phase*asset.trim;
+    const rain=asset.group==='precipitation';
+    let level=(rain?(asset.id==='R01'?this.weather.R01:this.weather.R02):
+     (levels[asset.id]!==undefined?levels[asset.id]*this.weather.wind:.32*cricketGain))*phase*asset.trim;
     if(asset.id==='W06'&&!loop.anchor)level=0;
     // Gusts already have the vegetation's smooth envelope; only de-click the audio gain.
-    this.gains[asset.id]=level;loop.gain.gain.setTargetAtTime(level,ctx.currentTime,asset.id==='I01'?1.5:.06);
+    this.gains[asset.id]=level;loop.gain.gain.setTargetAtTime(level,ctx.currentTime,rain?.25:asset.id==='I01'?1.5:.06);
    }else if(asset.kind!=='loop'&&this.active()&&this.elapsed>=(this.due.get(asset.id)??Infinity)){
     this.due.set(asset.id,this.elapsed+this.delay(asset.id));
-    const chance=phase*(asset.id.startsWith('T')?.15+.85*sample.gust01:1);
+    const chance=phase*(asset.id.startsWith('T')?.15+.85*sample.gust01:this.weather.wildlife);
     if(this.voices.size+this.pendingEvents>=2||this.elapsed-this.lastEvent<4||Math.random()>chance)continue;
     const distant=asset.id==='T03',min=distant?35:5,max=distant?85:45;
     const sites=this.nearby.filter(p=>{const d=Math.hypot(p.x-eye.x,p.z-eye.z);return d>=min&&d<=max;});
@@ -162,11 +173,11 @@ export class ShowcaseAudio {
    }
   }
  }
- stats(){return {version:bank.version,context:this.context?.state??'not-started',volume:this.volume,active:this.active(),loops:this.loops.size,loaded:[...this.loaded],voices:this.voices.size,eventsPlayed:this.eventsPlayed,strength:this.lastStrength,gust:this.lastGust,hour:this.lastHour,gains:{...this.gains},errors:[...this.issues]};}
+ stats(){return {version:bank.version,context:this.context?.state??'not-started',volume:this.volume,active:this.active(),loops:this.loops.size,loaded:[...this.loaded],voices:this.voices.size,eventsPlayed:this.eventsPlayed,strength:this.lastStrength,gust:this.lastGust,hour:this.lastHour,weather:{...this.weather},gains:{...this.gains},errors:[...this.issues]};}
  dispose(){
   this.disposed=true;this.abort.abort();document.removeEventListener('visibilitychange',this.visibility);this.panel.remove();
   for(const {source,gain,pan} of this.loops.values()){source.stop();source.disconnect();gain.disconnect();pan?.disconnect();}
   for(const source of this.voices)source.stop();
-  this.loops.clear();this.buffers.clear();this.master?.disconnect();void this.context?.close().catch(()=>{});
+  this.loops.clear();this.buffers.clear();this.wildlife?.disconnect();this.master?.disconnect();void this.context?.close().catch(()=>{});
  }
 }

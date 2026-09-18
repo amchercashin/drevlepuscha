@@ -1,5 +1,5 @@
 {
-  "version": "showcase-audio-v1",
+  "version": "showcase-audio-v2",
   "model": "Stable Audio 3 Medium",
   "assets": [
     {
@@ -345,6 +345,52 @@
       "sourceSha256": "eaa644fe98112adf5730737a5553c3eaa39ca2d90acf67e5804c20d3418e42a3",
       "sha256": "8a74189fc942757babff3b9beae2599b3c29238b0bcc8a1f657d69b84ef089ae",
       "sourceReview": "human_approved",
+      "replacement": false,
+      "warnings": [],
+      "trim": 1
+    },
+    {
+      "id": "R01",
+      "label": "Дождь в лиственном лесу",
+      "file": "R01-a67b213c69cb.opus",
+      "kind": "loop",
+      "group": "precipitation",
+      "channels": 2,
+      "duration": 19.5,
+      "rmsDb": -31.80738491084373,
+      "phaseWeights": {
+        "dawn": 1,
+        "day": 1,
+        "dusk": 1,
+        "night": 1
+      },
+      "seed": 2026091801,
+      "sourceSha256": "47715029fb9e8f2ba596460c73c25b9005b43db3dab515a1a1cdd68c6d13984e",
+      "sha256": "a67b213c69cb6b8ed604ce6b897ae9344a0bc3e208da1c961899f38e99e043e7",
+      "sourceReview": "candidate",
+      "replacement": false,
+      "warnings": [],
+      "trim": 1
+    },
+    {
+      "id": "R02",
+      "label": "Сильный лесной ливень",
+      "file": "R02-322b6fa6348f.opus",
+      "kind": "loop",
+      "group": "precipitation",
+      "channels": 2,
+      "duration": 10.25,
+      "rmsDb": -23.3367483253336,
+      "phaseWeights": {
+        "dawn": 1,
+        "day": 1,
+        "dusk": 1,
+        "night": 1
+      },
+      "seed": 2026091802,
+      "sourceSha256": "4bac67b7c6096a0ebed3d08003a9f934ef4a333efe94850e21698466a6a546cd",
+      "sha256": "322b6fa6348fe9a571ebd63452eda8fbbc93320e6e4ccd2b182db3ee4a60893b",
+      "sourceReview": "candidate",
       "replacement": false,
       "warnings": [],
       "trim": 1

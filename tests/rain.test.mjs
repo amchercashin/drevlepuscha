@@ -1,6 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {rainDrop,rainTiles,rainHeight,RAIN_PERIOD} from '../src/domain/rain.ts';
+import {rainDrop,rainDropIndices,rainTiles,rainHeight,RAIN_PERIOD} from '../src/domain/rain.ts';
+
+test('heavy rain adds reserved columns without changing ordinary rain or shared quality identities',()=>{
+ const high=rainDropIndices(2),low=rainDropIndices(0);
+ assert.equal(high.length,256);assert.equal(low.length,128);
+ assert.equal(new Set(low).size,low.length);assert.ok(low.every(i=>high.includes(i)));
+ assert.deepEqual(low.slice(0,64),high.slice(0,64));
+ for(const i of high.filter(i=>i>=128)){
+  const drop=rainDrop(-1,3,i);assert.ok(drop.threshold>=.55&&drop.threshold<=.92);
+ }
+ assert.equal(high.filter(i=>rainDrop(0,0,i).threshold<.4).length,
+  high.slice(0,128).filter(i=>rainDrop(0,0,i).threshold<.4).length);
+});
 
 test('rain tile overlap retains seeded drop positions when moving across positive and negative boundaries',()=>{
  for(const edge of [-16,0,16]){
