@@ -98,5 +98,15 @@ export class WildlifeWorld {
   return structuredClone({v:1,authorityEpoch:this.options.authorityEpoch,content:this.options.content,seq:Math.floor(this.time),simMs:this.time,eventWatermark:this.watermark,entities:[...this.agents.values()].sort((a,b)=>a.pose.id.localeCompare(b.pose.id)).map(a=>({...a.pose,point:this.position(a,this.time)})),recentEvents:this.recent});
  }
  stats(){return {...this.counters,activeEntities:this.agents.size,residentCells:this.cells.size,dormantRecords:this.dormant.size,pendingLeaves:this.pendingLeaves.size};}
+ /** Explicit exit to solo: retain visible poses, reset perception memory and event history. */
+ restoreVisible(frame:WildlifeFrame){
+  if(this.agents.size||frame.content.contentHash!==this.options.content.contentHash)throw Error('Cannot restore incompatible wildlife');
+  this.time=frame.simMs;this.nextDecision=(Math.floor(this.time/this.options.limits.decisionStepMs)+1)*this.options.limits.decisionStepMs;
+  for(const pose of frame.entities){if(pose.species!=='woodland-bird')continue;
+   const cell=[...this.cells.values()].find(c=>c.sites.some(s=>s.id===pose.siteId));const site=cell?.sites.find(s=>s.id===pose.siteId);
+   if(!cell||!site)throw Error('Unknown restored wildlife site');
+   this.agents.set(pose.id,{pose:structuredClone(pose),cellId:cell.id,site,decision:1,threatSince:null,quietSince:null,farSince:null});
+  }
+ }
  dispose(){this.disposed=true;this.cells.clear();this.agents.clear();this.dormant.clear();this.pendingLeaves.clear();this.recent=[];}
 }

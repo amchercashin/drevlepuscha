@@ -1,7 +1,9 @@
+import type {WildlifeSessionView} from './wildlife-session.ts';
 import type {Player,Position} from './protocol.ts';
 import type {Phase} from './room.ts';
 import type {SessionInvitation,WorldClock} from './persistent-protocol.ts';
 export interface WalkSession {
+ readonly wildlife?:WildlifeSessionView;
  readonly id:string;readonly host:boolean;readonly invite:SessionInvitation;
  readonly players:Map<string,Player>;readonly persistent?:boolean;
  phase:Phase;detail:string;

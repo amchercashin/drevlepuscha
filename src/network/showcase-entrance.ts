@@ -19,7 +19,7 @@ export async function enterShowcase(invite:Invitation){
  resume.disabled=true;resume.textContent='Подключаемся…';
  const retry=controls.querySelector<HTMLButtonElement>('#connection-retry')!;
  retry.onclick=()=>location.reload();
- const room=prepareShowcaseGuest(invite);
+ const room=await prepareShowcaseGuest(invite);
  controls.querySelector<HTMLButtonElement>('#connection-report')!.onclick=async()=>{
   const data={...await room.diagnostics(),scene:'showcase-entrance',userAgent:navigator.userAgent};
   const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
@@ -35,7 +35,7 @@ export async function enterShowcase(invite:Invitation){
     if(room.phase==='connected'){performance.mark('room:connected-before-scene');finish();return;}
     const failed=['error','ended','full'].includes(room.phase);
     retry.hidden=!failed;solo.textContent=failed?'Продолжить одному':'Пока гулять одному';
-    description.textContent=room.phase==='error'&&!isPersistent(invite)?'Пока не удалось связаться с ведущим. Проверьте, что его вкладка открыта, или сохраните результат связи.':room.detail||(room.phase==='joining'?'Ищем комнату друга…':'Восстанавливаем связь с комнатой…');
+    description.textContent=room.detail||(room.phase==='error'&&!isPersistent(invite)?'Пока не удалось связаться с ведущим. Проверьте, что его вкладка открыта, или сохраните результат связи.':room.phase==='joining'?'Ищем комнату друга…':'Восстанавливаем связь с комнатой…');
     resume.textContent=failed?(room.phase==='full'?'Комната заполнена':'Связь пока не установлена'):'Подключаемся…';
    };
    const timer=setInterval(update,200);update();

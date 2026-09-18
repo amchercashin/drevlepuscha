@@ -11,7 +11,9 @@ import {validatePackage} from '../../src/domain/wildlife/habitat.ts';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const sha=x=>createHash('sha256').update(x).digest('hex');
 export const inputs=[...treeInputs,...propInputs,'config/wildlife/showcase-sites.json','config/wildlife/species.json','config/wildlife/budgets.json','src/domain/showcase.ts','src/domain/forest-layout.ts','src/domain/forest-records.ts','src/domain/forest-props-layout.ts','src/domain/tree-family.ts','src/domain/seed.ts','src/domain/mesh-collision.ts','src/domain/wildlife/routes.ts','src/domain/wildlife/types.ts','tools/wildlife/scene-data.mjs','tools/wildlife/build.mjs'];
-export const sourceHashes=()=>Object.fromEntries(inputs.map(p=>[p,sha(readFileSync(resolve(root,p)))]));
+// All inputs are versioned text. Hash Git's LF form on Windows as well as Linux.
+export const sourceHash=text=>sha(text.replace(/\r\n/g,'\n'));
+export const sourceHashes=()=>Object.fromEntries(inputs.map(p=>[p,sourceHash(readFileSync(resolve(root,p),'utf8'))]));
 const xyz=p=>({x:p.e,y:p.h,z:-p.n});
 export function corridorClear(points,boxes,body){
  const nearby=boxes.filter(b=>{const c=b.collision;return points.some(p=>p.e>=c.min.x-30&&p.e<=c.max.x+30&&-p.n>=c.min.z-30&&-p.n<=c.max.z+30);});
@@ -53,7 +55,7 @@ export function compile(){
   if(!scene.boxes.some(b=>meshBlocksSegment(b.collision,eye,{...xyz(end),y:end.h+bird.heightM/2})))throw Error(`Refuge lacks cover: ${r.id}`);
   return prepareRoute(r.id,config.id,`cover-${i}`,points,bird,r.refuge.treeId);
  });
- const proxies=scene.boxes.filter(b=>Math.hypot((b.min.x+b.max.x)/2-home.e,-(b.min.z+b.max.z)/2-home.n)<64).map(b=>{const c=b.collision;return {id:b.id,min:{e:c.min.x,n:-c.max.z,h:c.min.y},max:{e:c.max.x,n:-c.min.z,h:c.max.y}};});
+ const proxies=scene.boxes.filter(b=>Math.hypot((b.min.x+b.max.x)/2-home.e,-(b.min.z+b.max.z)/2-home.n)<64).map(b=>{const c=b;return {id:b.id,min:{e:c.min.x,n:-c.max.z,h:c.min.y},max:{e:c.max.x,n:-c.min.z,h:c.max.y}};});
  const data={identity:{realmId:'showcase-ravines',contentHash:hash,behaviorVersion:1},limits:readJSON('config/wildlife/budgets.json'),bird,cells:[{id,contentHash:hash,sites:[{id:config.id,cellId:id,species:'woodland-bird',home,allowedRoutes:routes.map(r=>r.id),refuges:routes.map(r=>r.to),treeId:config.perch.treeId,maxResidents:1,tags:['test-episode','rigid-lower-perch']}],routes,neighbors:[],obstacles:proxies}]};
  validatePackage(data);return {data,hashes,scene};
 }

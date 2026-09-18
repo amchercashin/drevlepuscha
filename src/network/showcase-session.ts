@@ -1,3 +1,5 @@
+import {wildlifeDebug,loadShowcaseWildlife} from './showcase-wildlife-data.ts';
+import type {WildlifeSessionOptions} from './wildlife-session.ts';
 import {PersistentRoom} from './persistent-room.ts';
 import {isPersistent,sessionInvitationHash} from './persistent-protocol.ts';
 import type {SessionInvitation as Invitation} from './persistent-protocol.ts';
@@ -23,9 +25,9 @@ export function showcaseName(){
 }
 
 let prepared:ReturnType<typeof makeGuest>|null=null;
-function makeGuest(invite:Invitation){
+function makeGuest(invite:Invitation,wildlife?:WildlifeSessionOptions){
  let lastSpawn:Position|null=null,onSpawn:((p:Position)=>void)|null=null,claimed=false;
- const options={...SHOWCASE_ROOM,onSpawn:(p:Position)=>{lastSpawn=p;onSpawn?.(p);}};
+ const options={...SHOWCASE_ROOM,wildlife,onSpawn:(p:Position)=>{lastSpawn=p;onSpawn?.(p);}};
  const room:WalkSession=isPersistent(invite)?new PersistentRoom(invite,showcaseName(),options):new WalkRoom(invite,false,showcaseName(),options);
  const unload=()=>{void room.leave();};
  window.addEventListener('pagehide',unload,{once:true});
@@ -39,9 +41,10 @@ function makeGuest(invite:Invitation){
   async close(){window.removeEventListener('pagehide',unload);await room.leave();},
  };
 }
-export function prepareShowcaseGuest(invite:Invitation){
+export async function prepareShowcaseGuest(invite:Invitation){
  if(prepared)throw Error('Showcase guest already prepared');
- prepared=makeGuest(invite);return prepared.room;
+ const wildlife=wildlifeDebug()?{data:await loadShowcaseWildlife()}:undefined;
+ prepared=makeGuest(invite,wildlife);return prepared.room;
 }
 export const claimShowcaseGuest=(invite:Invitation)=>prepared?.claim(invite)??null;
 export async function closePreparedGuest(){const previous=prepared;prepared=null;await previous?.close();}

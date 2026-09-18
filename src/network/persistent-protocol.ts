@@ -1,3 +1,4 @@
+import type {WildlifeFrame} from '../domain/wildlife/types.ts';
 import {invitationHash,parseInvitation,record,validRoster} from './protocol.ts';
 import type {Invitation,Player} from './protocol.ts';
 import {ROOM_CAPACITY} from '../domain/room-config.ts';
@@ -7,7 +8,7 @@ export type PersistentInvitation={kind:'persistent';room:string;key:string;serve
 export type SessionInvitation=Invitation|PersistentInvitation;
 export type ClockSample={epochMs:number;serverMs:number;cycleSeconds:number};
 export type WorldClock=ClockSample & {receivedAt:number};
-export type RoomSnapshot={v:1;tick:number;players:Player[];peers:Record<string,string>;clock:ClockSample};
+export type RoomSnapshot={v:1;tick:number;players:Player[];peers:Record<string,string>;clock:ClockSample;wildlife?:WildlifeFrame};
 export const isPersistent=(i:SessionInvitation):i is PersistentInvitation=>'kind' in i&&i.kind==='persistent';
 export const validId=(s:unknown):s is string=>typeof s==='string'&&/^[a-zA-Z0-9_-]{8,64}$/.test(s);
 export const encodeBytes=(b:ArrayBuffer|Uint8Array)=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');

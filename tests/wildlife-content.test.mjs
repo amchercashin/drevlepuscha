@@ -6,7 +6,7 @@ import {generateForestPlacements} from '../src/domain/forest-layout.ts';
 import {forestPlacements} from '../src/domain/forest.ts';
 import {showcaseHeight,enableShowcase} from '../src/domain/showcase.ts';
 import {groundHeight} from '../src/domain/harness.ts';
-import {compile,sourceHashes} from '../tools/wildlife/build.mjs';
+import {compile,sourceHashes,sourceHash} from '../tools/wildlife/build.mjs';
 import {readJSON} from '../tools/wildlife/scene-data.mjs';
 import {validatePackage} from '../src/domain/wildlife/habitat.ts';
 import {transformAnchor} from '../src/domain/wildlife/routes.ts';
@@ -27,6 +27,7 @@ test('pre-refactor golden: all placements and final family seating remain identi
  for(const {placement:p,slot} of scene.records){const t=scene.catalog.get(p.id);assert.equal(t.familyId,scene.families[slot].id);assert.equal(t.modelToAbsoluteXYZ[13],Math.fround(p.y));assert.ok(Object.isFrozen(t.modelToAbsoluteXYZ));}
 });
 test('compiled content is reproducible, clear along the entire smoothed corridor, and rejects corruption',()=>{
+ assert.equal(sourceHash('a\r\nb\r\n'),sourceHash('a\nb\n'));
  const a=compile().data,b=compile().data;assert.deepEqual(a,b);validatePackage(a);
  const bad=structuredClone(a);bad.cells[0].routes[0].samples[1].distanceM=0;assert.throws(()=>validatePackage(bad),/arc length/);
  const stale=structuredClone(a);stale.cells[0].contentHash='bad';assert.throws(()=>validatePackage(stale),/hash/);

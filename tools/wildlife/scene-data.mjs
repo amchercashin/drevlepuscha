@@ -21,7 +21,9 @@ export function sceneData(){
  for(const path of propInputs){const asset=readJSON(path),key=path.split('/').at(-2),shapes=asset.variants.map(v=>collisionGeometry(v.levels[0]));
   for(const [i,input] of FOREST_PROP_LAYOUT[key].entries()){
    const g=shapes[i%shapes.length],p=propPlacement(input,true,g.root,showcaseHeight),matrix=Matrix.Compose(new Vector3(p.scale,p.scale,p.scale*.9),Quaternion.FromEulerAngles(0,p.yaw,0),new Vector3(p.e,p.y,-p.n));
-   const collision=meshCollider(g,matrix.m,Matrix.Invert(matrix).m);propBoxes.push({id:`${asset.sourceId}-${i}`,min:collision.min,max:collision.max,collision});
+   const collision=meshCollider(g,matrix.m,Matrix.Invert(matrix).m),id=`${asset.sourceId}-${i}`;
+   // Babylon clone keeps the legacy source suffix in mesh.id; do not rename existing props.
+   propBoxes.push({id:i<shapes.length?id:`${id}.${asset.sourceId}-${i%shapes.length}`,min:collision.min,max:collision.max,collision});
   }
  }
  return {records,families,matrices,catalog,treeBoxes,propBoxes,boxes:[...propBoxes,...treeBoxes]};

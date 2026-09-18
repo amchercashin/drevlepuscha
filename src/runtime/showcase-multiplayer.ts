@@ -1,3 +1,5 @@
+import {packShowcasePosition,unpackShowcasePosition} from '../domain/showcase-position.ts';
+import type {createShowcaseWildlife} from './showcase-wildlife.ts';
 import {TransformNode} from '@babylonjs/core/Meshes/transformNode.js';
 import {Matrix, Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import type {Scene} from '@babylonjs/core/scene.js';
@@ -21,9 +23,9 @@ type Walker = {e:number;n:number;heading:number};
 type Ranger = Awaited<ReturnType<typeof createRanger>>;
 type Remote = {root:TransformNode;rig:Ranger|null;label:HTMLElement;pose:Walker;failed:boolean};
 const CAPACITY=SHOWCASE_ROOM.capacity;
-export const packPosition=(p:Walker,speed=0,running=false):Position=>({x:(p.e-B.minE)/(B.maxE-B.minE),y:(p.n-B.minN)/(B.maxN-B.minN),heading:p.heading,speed,running,seq:0});
-const unpack=(p:Position):Walker=>({e:B.minE+p.x*(B.maxE-B.minE),n:B.minN+p.y*(B.maxN-B.minN),heading:p.heading??0});
-export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:Walker,canStand:(e:number,n:number)=>boolean,localRanger:Ranger){
+export const packPosition=(p:Walker,speed=0,running=false):Position=>packShowcasePosition({...p,headingDeg:p.heading,speedMps:speed,running});
+const unpack=(p:Position):Walker=>{const pose=unpackShowcasePosition(p);return {e:pose.e,n:pose.n,heading:pose.headingDeg};};
+export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:Walker,canStand:(e:number,n:number)=>boolean,localRanger:Ranger,wildlife?:ReturnType<typeof createShowcaseWildlife>){
  const name=showcaseName(),remotes=new Map<string,Remote>();
  const soloCloak=localRanger.state().cloakColor;
  let cloakColors:string[]=[];
@@ -46,7 +48,7 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   return packPosition(player);
  }
  function start(host:boolean){
-  const options={...SHOWCASE_ROOM,initial:packPosition(player),spawn,
+  const options={...SHOWCASE_ROOM,wildlife:host?wildlife?.hostOptions():wildlife?.guestOptions(),initial:packPosition(player),spawn,
    onSpawn:(p:Position)=>{const destination=unpack(p);
     if(canStand(destination.e,destination.n)){Object.assign(player,destination);return;}
     for(const radius of [1.5,3,5,8])for(let i=0;i<12;i++){
@@ -57,16 +59,17 @@ export function createShowcaseMultiplayer(scene:Scene,camera:FreeCamera,player:W
   const prepared=!host&&invite?claimShowcaseGuest(invite):null;
   room=host?WalkRoom.create(name,options):prepared?.room??(invite&&isPersistent(invite)?new PersistentRoom(invite,name,options):new WalkRoom(invite!,false,name,options));
   prepared?.attach(options.onSpawn);
+  wildlife?.attachSession(room);
   if(room instanceof PersistentRoom)voice=createVoice(room,details);
   invite=room.invite;
   cloakColors=roomCloakColors(invite.room);
   // Drop debug/experimental query parameters when sharing the ordinary showcase.
-  const url=new URL(location.href);url.search='';url.hash=invitationHash(invite);link.value=url.href;link.hidden=false;
+  const url=new URL(location.href);url.search=wildlife?'?debug=1&wildlife=1':'';url.hash=invitationHash(invite);link.value=url.href;link.hidden=false;
   history.replaceState(null,'',`${location.pathname}${location.search}#${invitationHash(invite)}`);
   details.open=true;renderUi();
  }
  function clearRemotes(){for(const remote of remotes.values()){remote.rig?.dispose();remote.root.dispose();remote.label.remove();}remotes.clear();}
- async function leave(){voice?.dispose();voice=null;await room?.leave();room=null;invite=null;clearRemotes();history.replaceState(null,'',location.pathname+location.search);link.hidden=true;renderUi();}
+ async function leave(){voice?.dispose();voice=null;await room?.leave();room=null;wildlife?.attachSession(null);invite=null;clearRemotes();history.replaceState(null,'',location.pathname+location.search);link.hidden=true;renderUi();}
  button.onclick=async()=>{
   button.disabled=true;
   try{

@@ -1,3 +1,4 @@
+import type {createShowcaseWildlife} from './runtime/showcase-wildlife.ts';
 import {WindSystem} from './runtime/wind.ts';
 import {createWindControls} from './runtime/wind-controls.ts';
 import {ShowcaseAudio} from './runtime/showcase-audio.ts';
@@ -166,9 +167,10 @@ try {
    const label={performance:'экономное',balanced:'среднее',high:'высокое',native:'по экрану'}[effectiveQuality];
    qualityInfo.textContent=`${quality==='auto'?'Авто: ':''}${label} · ${size.width} × ${size.height}. Чёткость, дальность деталей, плавность LOD и материал земли.`;
   }
+  let wildlife:ReturnType<typeof createShowcaseWildlife>|undefined;
   function applyQuality(){
    effectiveQuality=quality==='auto'?automaticQuality.effective:quality;
-   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);wind?.setDetail(effectiveQuality!=='performance');daylight?.setSkyQuality(profile.skyQuality);rain?.setQuality(profile.skyQuality);}
+   if(showcaseEnabled){const profile=QUALITY_PROFILES[effectiveQuality];forest?.setDetail(profile.treeDistance,profile.transitions);floor?.setDetail(profile.coverDistance);groundControls?.setMode(profile.groundMode);wind?.setDetail(effectiveQuality!=='performance');daylight?.setSkyQuality(profile.skyQuality);rain?.setQuality(profile.skyQuality);wildlife?.setQuality(profile);}
    resize();
   }
   qualitySelect.onchange=()=>{quality=qualitySelect.value as ShowcaseQuality;automaticQuality.effective=recommended;automaticQuality.reset();try{localStorage.setItem(qualityKey,quality);}catch{}applyQuality();};
@@ -184,7 +186,15 @@ try {
    showcaseEnabled&&floor?floor.prepare(startFeet,()=>{}):undefined,
   ]));
   let cameraLift=0;
-  const multiplayer=showcaseEnabled?(await import('./runtime/showcase-multiplayer.ts')).createShowcaseMultiplayer(scene,camera,player,(e,n)=>walkerIsClear({e,n},world.boxes),ranger!):null;
+  let wildlifeMotion={speedMps:0,running:false};
+  const wildlifeRequested=showcaseEnabled&&new URLSearchParams(location.search).get('debug')==='1'&&new URLSearchParams(location.search).get('wildlife')==='1';
+  if(wildlifeRequested&&forest){
+   const [{loadShowcaseWildlife},{createShowcaseWildlife}]=await Promise.all([import('./network/showcase-wildlife-data.ts'),import('./runtime/showcase-wildlife.ts')]);
+   const content=await loadShowcaseWildlife();
+   wildlife=createShowcaseWildlife(scene,content,forest.treeCatalog(),sunlight,()=>({id:'solo',e:player.e,n:player.n,h:groundHeight(player.e,player.n),headingDeg:player.heading,...wildlifeMotion,observedAtMs:performance.now()}),()=>({totalGameHours:daylight?.stats().totalGameHours??12,daylight01:daylight?.daylightAmount()??1,precipitation01:daylight?.precipitation()??0}),!!location.hash);
+   wildlife.setQuality(QUALITY_PROFILES[effectiveQuality]);
+  }
+  const multiplayer=showcaseEnabled?(await import('./runtime/showcase-multiplayer.ts')).createShowcaseMultiplayer(scene,camera,player,(e,n)=>walkerIsClear({e,n},world.boxes),ranger!,wildlife):null;
   const atlas=showcaseEnabled?createShowcaseMap(()=>({...player,yaw}),setPaused,(e,n)=>{player.e=e;player.n=n;keys.clear();demo=false;}):null;
   if(showcaseEnabled){document.body.classList.add('showcase');document.title='Древлепуща — лесные ложбины';document.querySelector('h1')!.textContent='Лесные ложбины';document.querySelector('#pause-title')!.textContent='Там, где тропа уходит вниз';document.querySelector('#pause-description')!.textContent='Лесные берега, боковые промоины и солнечные просветы. Идите по тропе или поднимитесь на склон. M — карта рельефа.';document.querySelector('.muted')!.textContent='Шоукейс · 512 × 640 м. Большой мир сохранён как прототип по ?scene=world.';}
   const touch=createTouchControls(canvas,{
@@ -229,7 +239,7 @@ try {
     const currentDistance=Math.hypot(pos.x-anchor.x,pos.y-anchor.y,pos.z-anchor.z);
     const followError=Math.hypot(pos.x-anchor.x-offset.x,pos.y-anchor.y-offset.y-cameraLift,pos.z-anchor.z-offset.z);
     return {
-      ready:startup.readyAt!==null,loading:startup.stats(),frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},ranger:ranger?.state()??null,multiplayer:multiplayer?.state()??null,rain:rain?.stats()??null,
+      ready:startup.readyAt!==null,loading:startup.stats(),frameCount,paused,player:{...player,h:groundHeight(player.e,player.n)},ranger:ranger?.state()??null,multiplayer:multiplayer?.state()??null,wildlife:wildlife?.stats()??null,rain:rain?.stats()??null,
       camera:{...pos,yaw,pitch,distance,currentDistance,followError,terrainLift:cameraLift,clearance:pos.y-groundHeight(pos.x,-pos.z)},mapOpen:atlas?.isOpen()??false,
       playerClear:walkerIsClear(player,world.boxes),
       faded:[...world.occluders,...(forest?.meshes??[]),world.ground].filter(m=>m.isEnabled()&&m.visibility<1).map(m=>({id:m.id,opacity:m.visibility})),
@@ -252,7 +262,7 @@ try {
   // Local QA seam; absent on ordinary visits. No synthetic FPS or replacement rendering.
   if(new URLSearchParams(location.search).get('debug')==='1') {
     Object.assign(window,{m0:{
-      state,reset,preset,setPaused,networkReport:()=>multiplayer?.diagnostics(),
+      state,reset,preset,setPaused,wildlife:wildlife?{state:wildlife.stats,inspectRoutes:wildlife.inspectRoutes,setProbe:(enabled:boolean)=>{if(typeof enabled!=='boolean')throw Error('Expected probe boolean');wildlife!.setProbe(enabled);},dispose:wildlife.dispose}:undefined,networkReport:()=>multiplayer?.diagnostics(),
       setGroundMode:groundControls?.setMode,
       setTime:(hour:number)=>daylight?.setTime(hour),setAutomatic:(enabled:boolean)=>daylight?.setAutomatic(enabled),setRays:(enabled:boolean)=>daylight?.setRays(enabled),setFog:(density:number)=>daylight?.setFog(density),
       setSky:(patch:SkySettingsPatch)=>daylight?.setSkySettings(patch),setSkyAnimationTime:(seconds:number)=>daylight?.setSkyAnimationTime(seconds),resetSky:()=>daylight?.setSkySettings(SKY_DEFAULTS),
@@ -333,6 +343,8 @@ try {
       // Babylon setTarget nudges equal-Z positions by Epsilon at cardinal angles. Keep the chosen orbit exact.
       camera.position.set(desired.x,desired.y,desired.z);
       multiplayer?.update(dt,paused?0:actualSpeed,!paused&&running);
+      wildlifeMotion={speedMps:paused?0:actualSpeed,running:!paused&&running};
+      wildlife?.update(dt,paused);
       rain?.update(paused?0:dt,camera.position,daylight?.precipitation()??0,daylight?.daylightAmount()??1);
       ambient?.update(dt,daylight?.hour()??12,camera.position,camera.getForwardRay().direction,daylight?.precipitation()??0);
       const feet={x:player.e,y:h,z:-player.n};
@@ -346,7 +358,7 @@ try {
       }
       forest?.update(desired,feet,dt);
       // Optional refinement resumes after a complete first frame, under one budget.
-      if(startup.readyAt!==null){const budget=new FrameWorkBudget();world.groundTrial?.update(feet,budget);floor?.update(feet,budget);}
+      if(startup.readyAt!==null){const budget=new FrameWorkBudget();world.groundTrial?.update(feet,budget);floor?.update(feet,budget);wildlife?.prepare(budget);}
       if(sunlight&&forest){
        if(daylight){
         const d=world.sun.direction.normalizeToNew(),az=Math.atan2(d.x,d.z),el=Math.asin(Math.max(-1,Math.min(1,d.y)));
@@ -361,7 +373,7 @@ try {
        for(const axis of [lightRight,lightUp]){const p=Vector3.Dot(origin,axis);origin.addInPlace(axis.scale(Math.round(p/texel)*texel-p));}
        world.sun.position.copyFrom(origin);
        const casters=forest.shadowCasters(feet);
-       sunlight.getShadowMap()!.renderList=[...casters,...world.occluders,...world.player.getChildMeshes(),...(multiplayer?.shadowMeshes()??[])];
+       sunlight.getShadowMap()!.renderList=[...casters,...world.occluders,...world.player.getChildMeshes(),...(multiplayer?.shadowMeshes()??[]),...(wildlife?.shadowMeshes({e:player.e,n:player.n,h})??[])];
 
       }
 

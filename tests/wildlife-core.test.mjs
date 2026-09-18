@@ -27,3 +27,19 @@ test('stable negative cells, origin-independent poses and pinning until all obse
  const p=a.entities[0].point;const b=localXYZ(p,{e:1024,n:-2048});assert.ok(Math.abs(b.x+1024-p.e)<1e-9);assert.ok(Math.abs(-2048-b.z-p.n)<1e-9);assert.deepEqual(a,w.snapshot());
  for(let t=200;t<=11000;t+=200)w.advance({simMs:t,observers:[],environment:env});assert.equal(w.stats().residentCells,0);assert.equal(w.stats().activeEntities,0);
 });
+
+test('six observers and oversubscribed test sites respect entity, event and sight budgets',()=>{
+ const cell=structuredClone(data.cells[0]);cell.sites=[];cell.routes=[];
+ for(let i=0;i<28;i++){
+  const s=structuredClone(site);s.id=`quota-${i}`;s.allowedRoutes=data.cells[0].routes.map(r=>`${r.id}-${i}`);cell.sites.push(s);
+  cell.routes.push(...data.cells[0].routes.map(r=>({...structuredClone(r),id:`${r.id}-${i}`,from:s.id})));
+ }
+ const world=new WildlifeWorld({content:data.identity,authorityEpoch:'quota-test',seed:'quota',cells:new Map([[cell.id,cell]]),limits:data.limits,bird:data.bird});
+ const observers=Array.from({length:6},(_,i)=>({...far,id:`player-${i}`,e:far.e+i}));
+ world.advance({simMs:0,observers,environment:env});assert.equal(world.stats().activeEntities,24);
+ const before=world.stats();world.advance({simMs:200,observers:observers.map(o=>({...near,id:o.id})),environment:env});
+ assert.ok(world.stats().visibilityTests-before.visibilityTests<=data.limits.maxVisibilityTestsPerStep);
+ for(let t=400;t<=2000;t+=200)world.advance({simMs:t,observers:observers.map(o=>({...near,id:o.id})),environment:env});
+ const frame=world.snapshot();assert.equal(frame.entities.length,24);assert.equal(new Set(frame.entities.map(e=>e.id)).size,24);assert.ok(frame.recentEvents.length<=32);
+ world.dispose();assert.equal(world.stats().activeEntities,0);assert.equal(world.stats().residentCells,0);
+});

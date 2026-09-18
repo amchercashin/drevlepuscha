@@ -1,10 +1,10 @@
 import type {ResolutionQuality} from './resolution.ts';
 export type ShowcaseQuality=ResolutionQuality|'auto';
 export const QUALITY_PROFILES={
- performance:{density:1,pixels:960*540,treeDistance:.48,coverDistance:.65,groundMode:1 as const,transitions:false,skyQuality:0 as const},
- balanced:{density:1.5,pixels:1280*720,treeDistance:.7,coverDistance:.8,groundMode:1 as const,transitions:false,skyQuality:1 as const},
- high:{density:2,pixels:2560*1440,treeDistance:1,coverDistance:1,groundMode:2 as const,transitions:true,skyQuality:2 as const},
- native:{density:2,pixels:Infinity,treeDistance:1,coverDistance:1,groundMode:2 as const,transitions:true,skyQuality:2 as const},
+ performance:{wildlifeShadows:1,density:1,pixels:960*540,treeDistance:.48,coverDistance:.65,groundMode:1 as const,transitions:false,skyQuality:0 as const},
+ balanced:{wildlifeShadows:2,density:1.5,pixels:1280*720,treeDistance:.7,coverDistance:.8,groundMode:1 as const,transitions:false,skyQuality:1 as const},
+ high:{wildlifeShadows:2,density:2,pixels:2560*1440,treeDistance:1,coverDistance:1,groundMode:2 as const,transitions:true,skyQuality:2 as const},
+ native:{wildlifeShadows:2,density:2,pixels:Infinity,treeDistance:1,coverDistance:1,groundMode:2 as const,transitions:true,skyQuality:2 as const},
 };
 export function recommendedQuality(touch:boolean,memory?:number):ResolutionQuality{
  return memory!==undefined&&memory<=4?'performance':touch?'balanced':'high';
