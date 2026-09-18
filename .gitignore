@@ -17,6 +17,8 @@ Thumbs.db
 *.blend2
 # Local-only references; never add with git add -f.
 references/private/
+.artwork/
+meshy_output/
 
 # Reproducible streaming pack from versioned authoring data.
 public/world/
