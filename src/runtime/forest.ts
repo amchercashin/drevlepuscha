@@ -1,9 +1,10 @@
 import type {WindSystem} from './wind.ts';
+import {showcaseEnabled} from '../domain/showcase.ts';
 import {VegetationWind,expandWindBounds} from './vegetation-wind.ts';
 import {ShadowDepthWrapper} from '@babylonjs/core/Materials/shadowDepthWrapper.js';
 import {showcaseTexture} from './showcase-textures.ts';
 import {loadJSON} from './asset-loading.ts';
-import {treeFamilySlot} from '../domain/tree-family.ts';
+import {finalizeForestPlacements,readonlyTreeCatalog} from '../domain/forest-records.ts';
 import {groundHeight} from '../domain/harness.ts';
 import {collisionGeometry,meshCollider,meshBlocksSegment} from '../domain/mesh-collision.ts';
 import forkURL from '../../assets/trees/fork-oak/variants.json?url';
@@ -63,21 +64,18 @@ export async function createForest(scene:Scene,sun:DirectionalLight,wind?:WindSy
   variantCounts[familyIndex]=asset.variants.length;
   for(const variant of asset.variants)families.push(family(variant.id,{...variant,version:asset.version,doubleSided:asset.doubleSided},{'material-0':texture},sink));
  }
- const placements=forestPlacements(data.rootRadius,data.placement);
- const slots=new Map(placements.map(p=>[p.id,variety?treeFamilySlot(p,variantCounts):0]));
+ const records=finalizeForestPlacements(forestPlacements(data.rootRadius,data.placement),families.map(f=>({id:f.id,version:f.data.version,rootRadius:f.data.rootRadius,sink:f.sink})),variantCounts,groundHeight,variety,showcaseEnabled);
+ const placements=records.map(r=>r.placement);
+ const slots=new Map(records.map(r=>[r.placement.id,r.slot]));
  const familyFor=(p:TreePlacement)=>families[slots.get(p.id)!];
  const familyCounts=families.map(()=>0);for(const slot of slots.values())familyCounts[slot]++;
- for(const p of placements)if(slots.get(p.id)!>0){
-  const f=familyFor(p),radius=(f.data.rootRadius??3.8)*Math.max(p.width,p.depth);let y=groundHeight(p.e,p.n);
-  for(let i=0;i<24;i++){const a=i*Math.PI/12;y=Math.min(y,groundHeight(p.e+Math.cos(a)*radius,p.n+Math.sin(a)*radius));}
-  p.y=y-.08-f.sink*p.height-radius*Math.hypot(p.leanX,p.leanZ);
- }
  const tones=tonePlugins.length?new Map(placements.map(p=>[p.id,Vector3.FromArray(treeTone(p.id,p.e,p.n))])):undefined;
  const horizon=forestHorizon(placements,p=>familyFor(p).templates[2],tones,!!wind);
  interface ActiveTree {placement:TreePlacement;level:number;instances:InstancedMesh[];fades:Map<number,Mesh[]>;previous:number;transition:number;opacity:number[];}
  const active=new Map<string,ActiveTree>();
  const matrices=new Map(placements.map(p=>[p.id,Matrix.Compose(new Vector3(p.width,p.height,p.depth),Quaternion.FromEulerAngles(p.leanX,p.yaw,p.leanZ),new Vector3(p.e,p.y,-p.n))]));
  const boxes=placements.map(p=>{const matrix=matrices.get(p.id)!;return {...treeCollider(p,familyFor(p).data.trunkRadius),collision:meshCollider(familyFor(p).collision,matrix.m,Matrix.Invert(matrix).m)};});
+ const catalog=readonlyTreeCatalog(placements.map((p,i)=>{const f=familyFor(p),b=boxes[i].collision;return {id:p.id,familyId:f.id,variantId:f.id,assetVersion:f.data.version,modelToAbsoluteXYZ:Array.from(matrices.get(p.id)!.m),bounds:{min:{e:b.min.x,n:-b.max.z,h:b.min.y},max:{e:b.max.x,n:-b.min.z,h:b.max.y}}};}));
  const colliders=new Map(boxes.map(box=>[box.id,box.collision]));
  function transform(m:Mesh|InstancedMesh,t:TreePlacement){m.position.set(t.e,t.y,-t.n);m.scaling.set(t.width,t.height,t.depth);m.rotation.set(t.leanX,t.yaw,t.leanZ);m.freezeWorldMatrix(matrices.get(t.id)!);m.isPickable=false;if(wind){m.metadata={windTree:familyFor(t).windTree};expandWindBounds(m,familyFor(t).windTree[0]*.36*Math.max(t.height/t.width,t.height/t.depth,1));}if(m instanceof Mesh)m.receiveShadows=true;const tone=tones?.get(t.id);if(tone){m.metadata={...m.metadata,treeTone:tone};if(m.instancedBuffers)m.instancedBuffers.treeTone=tone;}}
  function instances(t:TreePlacement,level:number){return familyFor(t).templates[level].map((p,i)=>{const m=p.createInstance(`${t.id}-lod${level}-${i}`);transform(m,t);return m;});}
@@ -144,5 +142,5 @@ export async function createForest(scene:Scene,sun:DirectionalLight,wind?:WindSy
   }
   forceSwitch=false;
  }
- return {shadowCasters,boxes,update,setDetail:(scale:number,smooth:boolean)=>{detailScale=scale;smoothTransitions=smooth;horizon.setDetail(scale);forceSwitch=true;},stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:variety?'Три семейства · процедурные варианты':selected?.label,variety,families:families.map((f,i)=>({id:f.id,trees:familyCounts[i],triangles:f.data.triangles})),colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:data.levels[0].length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,detailScale,smoothTransitions,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:families.reduce((n,f)=>n+f.templates.reduce((a,b)=>a+b.length,0),0)+horizon.stats().geometryBuffers,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
+ return {treeCatalog:()=>catalog,treeById:(id:string)=>catalog.get(id),shadowCasters,boxes,update,setDetail:(scale:number,smooth:boolean)=>{detailScale=scale;smoothTransitions=smooth;horizon.setDetail(scale);forceSwitch=true;},stats:()=>({version:FOREST_VERSION,asset:selected?.id??'game',assetLabel:variety?'Три семейства · процедурные варианты':selected?.label,variety,families:families.map((f,i)=>({id:f.id,trees:familyCounts[i],triangles:f.data.triangles})),colorVariation:tonePlugins.length>0&&tonePlugins[0].strength>0,colorVersion:tonePlugins.length?TREE_TONE_VERSION:null,trees:placements.length,activeTrees:active.size,trianglesPerLevel:data.triangles,materialsPerTree:data.levels[0].length,lodCounts:[0,1,2].map(l=>[...active.values()].filter(t=>t.level===l).length),lockNear,detailScale,smoothTransitions,transitions:[...active.values()].filter(t=>t.previous>=0).length,geometryBuffers:families.reduce((n,f)=>n+f.templates.reduce((a,b)=>a+b.length,0),0)+horizon.stats().geometryBuffers,horizon:horizon.stats()}),setColorVariation:(v:boolean)=>tonePlugins.forEach(p=>p.strength=v?1:0),setNearOnly:(v:boolean)=>{lockNear=v;forceSwitch=true;},get meshes(){return [...active.values()].flatMap(t=>[...t.fades.values()].flat());}};
 }

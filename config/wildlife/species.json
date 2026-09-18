@@ -1,0 +1,8 @@
+{
+  "woodland-bird": {
+    "alertRadiusM": 9, "fleeRadiusM": 5, "runningMultiplier": 1.5,
+    "confirmMs": 400, "recoverMs": 1600, "takeoffMs": 400,
+    "speedMps": 4, "observerClearanceM": 1.5, "cooldownMs": 90000,
+    "radiusM": 0.06, "heightM": 0.16
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "id": "trail-bird-01",
+  "status": "test-content-awaiting-art-review",
+  "perch": {
+    "treeId": "showcase--16--104",
+    "familyId": "meshy-fork-oak-v1-2",
+    "assetVersion": "forest-asset-warp-v1",
+    "anchorVersion": 1,
+    "point": [
+      -3.0546905398368835,
+      1.5162753661473591,
+      -2.664551710089048
+    ],
+    "normal": [
+      -0.0644044183981833,
+      0.9780981889363812,
+      -0.19792928962173037
+    ],
+    "triangle": 2785,
+    "part": "material-0"
+  },
+  "routes": [
+    {
+      "id": "flight-0",
+      "refuge": {
+        "treeId": "showcase-bank--91-1",
+        "familyId": "meshy-young-tree-v1-1",
+        "assetVersion": "forest-asset-warp-v1",
+        "anchorVersion": 1,
+        "point": [
+          1.2565083056688309,
+          5.236820001155138,
+          -0.61319999396801
+        ],
+        "normal": [
+          -0.2531573720162097,
+          0.965757300036777,
+          -0.05678188460698706
+        ],
+        "triangle": 472,
+        "part": "material-0"
+      },
+      "controls": [
+        {
+          "e": -9.713288081497721,
+          "n": -104.03038249345353,
+          "h": 7.340999207441339
+        },
+        {
+          "e": -11.305349464978192,
+          "n": -91.24909109521768,
+          "h": 7.340999207441339
+        }
+      ]
+    },
+    {
+      "id": "flight-1",
+      "refuge": {
+        "treeId": "showcase-0--104",
+        "familyId": "meshy-young-tree-v1-0",
+        "assetVersion": "forest-asset-warp-v1",
+        "anchorVersion": 1,
+        "point": [
+          -2.0768250028292337,
+          7.067056695620219,
+          -0.06490000057965517
+        ],
+        "normal": [
+          -0.270668496830801,
+          0.958953352367226,
+          0.08454012542582102
+        ],
+        "triangle": 623,
+        "part": "material-0"
+      },
+      "controls": [
+        {
+          "e": -9.713288081497721,
+          "n": -104.03038249345353,
+          "h": 14.065716318813706
+        },
+        {
+          "e": -9.800093421649184,
+          "n": -102.9689030711266,
+          "h": 14.065716318813706
+        }
+      ]
+    }
+  ]
+}

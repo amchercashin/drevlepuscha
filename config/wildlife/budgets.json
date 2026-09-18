@@ -1,0 +1,7 @@
+{
+  "maxActiveEntities": 24, "decisionStepMs": 200, "maxCatchUpSteps": 2,
+  "maxRecentEvents": 32, "maxVisibilityTestsPerStep": 24,
+  "maxResidentCells": 216, "maxDormantRecords": 384,
+  "activeRadiusM": 120, "exitRadiusM": 160, "exitDelayMs": 10000,
+  "eventLifetimeMs": 2000
+}

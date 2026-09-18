@@ -1,0 +1,31 @@
+{
+  "baseline": "bcb9d1a8e39c95457557ae6264a107eb4e2f58ee",
+  "source": "Unmodified forestPlacements + existing createForest extra-family seating, captured before refactor",
+  "cases": [
+    {
+      "mode": "legacy-m1",
+      "variation": false,
+      "count": 4967,
+      "sha256": "53e51c91a7d138c906f95edb35750fc03ede3cc2624740dd5ff4f57018ab051b"
+    },
+    {
+      "mode": "legacy-m1",
+      "variation": true,
+      "count": 4967,
+      "sha256": "2bd6282e4144a03081b2dfb97962c742b707ed983583338ae169f8560499728d"
+    },
+    {
+      "mode": "showcase",
+      "variation": false,
+      "count": 4372,
+      "sha256": "e0f9e3864990e777a13b4cd58d8fc58f3449bf5ec0b2edc4c7dad6ebbbadfce1"
+    },
+    {
+      "mode": "showcase",
+      "variation": true,
+      "count": 4372,
+      "sha256": "07ee7c8cebb2f9f1b3d639760abc095cedf65163d9a0b4feb44126b19f35d4fd"
+    }
+  ],
+  "finalShowcaseSha256": "219026569393b6d8167a0da90993559a34b4245c7866383d077d6a79bf7faceb"
+}
