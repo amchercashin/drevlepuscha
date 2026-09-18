@@ -25,7 +25,9 @@ fn starHash(x:i32,y:i32,salt:u32)->u32 {
 }
 fn starRandom(x:i32,y:i32,salt:u32)->f32 {return f32(starHash(x,y,salt)>>8u)/16777216.0;}
 fn starField(dir:vec3f,pixel:f32,moonDistance:f32)->vec3f {
- let q=vec2f(atan2(dir.z,dir.x)/6.283185307+0.5,acos(clamp(dir.y,-1.0,1.0))/3.141592654)*vec2f(360.0,180.0);
+ // Longitude is undefined exactly at either pole; its faded-out value must stay finite.
+ let longitude=atan2(dir.z,select(dir.x,0.000001,abs(dir.x)+abs(dir.z)<0.000001));
+ let q=vec2f(longitude/6.283185307+0.5,acos(clamp(dir.y,-1.0,1.0))/3.141592654)*vec2f(360.0,180.0);
  let cell=vec2i(floor(q));let latitudeScale=length(dir.xz);
  let stepAngle=vec2f(0.017453293*max(latitudeScale,0.001),0.017453293);
  var result=vec3f(0.0);
