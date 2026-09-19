@@ -10,24 +10,39 @@ import {cellId} from '../../src/domain/wildlife/ids.ts';
 import {validatePackage} from '../../src/domain/wildlife/habitat.ts';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const sha=x=>createHash('sha256').update(x).digest('hex');
-export const inputs=[...treeInputs,...propInputs,'config/wildlife/showcase-sites.json','config/wildlife/species.json','config/wildlife/budgets.json','src/domain/showcase.ts','src/domain/forest-layout.ts','src/domain/forest-records.ts','src/domain/forest-props-layout.ts','src/domain/tree-family.ts','src/domain/seed.ts','src/domain/mesh-collision.ts','src/domain/wildlife/routes.ts','src/domain/wildlife/types.ts','tools/wildlife/scene-data.mjs','tools/wildlife/build.mjs'];
+export const inputs=[...treeInputs,...propInputs,'config/wildlife/showcase-sites.json','config/wildlife/species.json','config/wildlife/budgets.json','config/wildlife/bird-envelope.json','public/wildlife/assets.json','src/domain/showcase.ts','src/domain/forest-layout.ts','src/domain/forest-records.ts','src/domain/forest-props-layout.ts','src/domain/tree-family.ts','src/domain/seed.ts','src/domain/mesh-collision.ts','src/domain/wildlife/routes.ts','src/domain/wildlife/types.ts','tools/wildlife/scene-data.mjs','tools/wildlife/build.mjs'];
 // All inputs are versioned text. Hash Git's LF form on Windows as well as Linux.
 export const sourceHash=text=>sha(text.replace(/\r\n/g,'\n'));
 export const sourceHashes=()=>Object.fromEntries(inputs.map(p=>[p,sourceHash(readFileSync(resolve(root,p),'utf8'))]));
 const xyz=p=>({x:p.e,y:p.h,z:-p.n});
-export function corridorClear(points,boxes,body){
+const envelope=readJSON('config/wildlife/bird-envelope.json');
+function mergedBands(frames){const bands=new Map();for(const f of frames)for(const b of f.bands){const previous=bands.get(b.bottom);if(!previous||previous.radius<b.radius)bands.set(b.bottom,b);}return [...bands.values()];}
+const flightBands=mergedBands(envelope.clips.fly_loop);
+const perchBands=mergedBands([...envelope.clips.perch_idle,...envelope.clips.alert]);
+function bodyBands(body,metres){
+ if(body.envelope!=='bird-v1')return [{bottom:0,top:body.heightM,radius:body.radiusM}];
+ if(body.forcePerch)return perchBands;
+ const frame=metres/body.speedMps*envelope.fps,poses=envelope.clips.takeoff;
+ return body.forceFlight||frame>=poses.length-1?flightBands:mergedBands([poses[Math.floor(frame)],poses[Math.ceil(frame)]]);
+}
+export function corridorClear(points,boxes,body,onBlocked=()=>{}){
+ let travelled=0;
  const nearby=boxes.filter(b=>{const c=b.collision;return points.some(p=>p.e>=c.min.x-30&&p.e<=c.max.x+30&&-p.n>=c.min.z-30&&-p.n<=c.max.z+30);});
  for(let i=1;i<points.length;i++){
   const a=points[i-1],b=points[i],steps=Math.ceil(distance(a,b)/.04);
   for(let j=0;j<=steps;j++){
    const t=j/steps,p={e:a.e+(b.e-a.e)*t,n:a.n+(b.n-a.n)*t,h:a.h+(b.h-a.h)*t};
    if(p.e< -256||p.e>256||p.n< -256||p.n>384||p.h<showcaseHeight(p.e,p.n)+.02)return false;
-   if(nearby.some(o=>meshBlocksCylinder(o.collision,xyz(p),body.radiusM+.021,body.heightM)))return false;
+   for(const band of bodyBands(body,travelled+distance(a,p))){
+    const blocked=nearby.find(o=>meshBlocksCylinder(o.collision,xyz({...p,h:p.h+band.bottom-.004}),band.radius+.021,band.top-band.bottom+.008));
+    if(blocked){onBlocked({obstacle:blocked.id,distanceM:travelled+distance(a,p),point:p,band});return false;}
+   }
   }
+  travelled+=distance(a,b);
  }
  return true;
 }
-function pathPoints(points){
+export function pathPoints(points){
  // Cubic Bezier, then validate the sampled curve, not just the four controls.
  const [a,b,c,d]=points,rough=distance(a,b)+distance(b,c)+distance(c,d),steps=Math.ceil(rough/.08);
  return Array.from({length:steps+1},(_,i)=>{const t=i/steps,u=1-t;return Object.fromEntries(['e','n','h'].map(k=>[k,u*u*u*a[k]+3*u*u*t*b[k]+3*u*t*t*c[k]+t*t*t*d[k]]));});
@@ -37,20 +52,22 @@ function prepareRoute(id,from,to,points,body,treeId){
  const bounds={min:{},max:{}};for(const k of ['e','n','h']){bounds.min[k]=Math.min(...points.map(p=>p[k]));bounds.max[k]=Math.max(...points.map(p=>p[k]));}
  return {id,kind:'flight',from,to,lengthM,samples,bounds,clearanceM:body.radiusM,maxSlopeDeg:90,treeId};
 }
-function anchorPoint(anchor,catalog){
+export function anchorPoint(anchor,catalog){
  const t=catalog.get(anchor.treeId);if(!t)throw Error(`Unknown treeId: ${anchor.treeId}`);
  if(t.familyId!==anchor.familyId||t.assetVersion!==anchor.assetVersion||anchor.anchorVersion!==1)throw Error(`Incompatible anchor: ${anchor.treeId}`);
  const result=transformAnchor(anchor.point,anchor.normal,t.modelToAbsoluteXYZ).point;
- return {...result,h:result.h+.035};
+ const offset=anchor.airOffset??{e:0,n:0,h:0};if(!Object.values(offset).every(Number.isFinite)||Math.hypot(offset.e,offset.n,offset.h)>6)throw Error('Invalid refuge air offset');
+ return {e:result.e+offset.e,n:result.n+offset.n,h:result.h+.035+offset.h};
 }
-export function compile(){
- const scene=sceneData(),config=readJSON('config/wildlife/showcase-sites.json'),bird=readJSON('config/wildlife/species.json')['woodland-bird'];
+export function compile(config=readJSON('config/wildlife/showcase-sites.json')){
+ const scene=sceneData(),bird=readJSON('config/wildlife/species.json')['woodland-bird'];
  const perchFamily=scene.families.find(f=>f.id===config.perch.familyId);
  if(!perchFamily||config.perch.point[1]>Math.max(...perchFamily.levels[0].flatMap(p=>p.positions.filter((_,i)=>i%3===1)))*.18)throw Error('Perch is above the rigid wind zone');
  const hashes=sourceHashes(),hash=sha(JSON.stringify(hashes)),home=anchorPoint(config.perch,scene.catalog),id=cellId(home.e,home.n);
+ if(!corridorClear([home,{...home,h:home.h+.001}],scene.boxes,{...bird,forcePerch:true}))throw Error('Perch intersects animated bird');
  const routes=config.routes.map((r,i)=>{
   const end=anchorPoint(r.refuge,scene.catalog),points=pathPoints([home,...r.controls,end]);
-  if(!corridorClear(points,scene.boxes,bird))throw Error(`Blocked wildlife flight corridor: ${r.id}`);
+  let blockage;if(!corridorClear(points,scene.boxes,bird,b=>blockage=b))throw Error(`Blocked wildlife flight corridor: ${r.id} ${JSON.stringify(blockage)}`);
   const eye={x:showcasePath(end.n),y:showcaseHeight(showcasePath(end.n),end.n)+1.6,z:-end.n};
   if(!scene.boxes.some(b=>meshBlocksSegment(b.collision,eye,{...xyz(end),y:end.h+bird.heightM/2})))throw Error(`Refuge lacks cover: ${r.id}`);
   return prepareRoute(r.id,config.id,`cover-${i}`,points,bird,r.refuge.treeId);

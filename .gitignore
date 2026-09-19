@@ -19,6 +19,7 @@ Thumbs.db
 references/private/
 .artwork/
 meshy_output/
+tools/wildlife/blender/__pycache__/
 
 # Reproducible streaming pack from versioned authoring data.
 public/world/

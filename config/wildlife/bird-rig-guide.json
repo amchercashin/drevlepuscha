@@ -1,0 +1,17 @@
+{
+  "species": "woodland-bird",
+  "sourceUnitsToMetres": 0.25,
+  "sourceGroundZ": -0.31699302792549133,
+  "front": "Blender -Y, glTF +Z",
+  "landmarks": {
+    "body": [0, -0.01, -0.03], "head": [0, -0.15, 0.16],
+    "shoulder": [0.14, 0.00, 0.085], "elbow": [0.32, 0.00, 0.08],
+    "wrist": [0.55, 0.00, 0.07], "tip": [0.93, 0.01, 0.06],
+    "tail": [0, 0.13, -0.06], "leg": [0.078, -0.015, -0.10], "foot": [0.09, -0.04, -0.275]
+  },
+  "foldDegrees": [90, -20, 20],
+  "fps": 50,
+  "clips": {"perch_idle": 4.0, "alert": 0.6, "takeoff": 0.4, "fly_loop": 0.24},
+  "lodTriangles": [1200, 480, 150],
+  "textureSize": 512
+}

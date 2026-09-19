@@ -1,7 +1,9 @@
 import type {Scene} from '@babylonjs/core/scene.js';
-import type {Mesh} from '@babylonjs/core/Meshes/mesh.js';
+import type {AbstractMesh} from '@babylonjs/core/Meshes/abstractMesh.js';
+import {TransformNode} from '@babylonjs/core/Meshes/transformNode.js';
 import {CreateSphere} from '@babylonjs/core/Meshes/Builders/sphereBuilder.js';
 import {StandardMaterial} from '@babylonjs/core/Materials/standardMaterial.js';
+import type {Material} from '@babylonjs/core/Materials/material.js';
 import {Color3} from '@babylonjs/core/Maths/math.color.js';
 import {Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import {CreateLines} from '@babylonjs/core/Meshes/Builders/linesBuilder.js';
@@ -9,40 +11,52 @@ import type {LinesMesh} from '@babylonjs/core/Meshes/linesMesh.js';
 import type {FrameWorkBudget} from '../startup.ts';
 import type {ENH,OriginEN,WildlifeFrame,WildlifePackage} from '../../domain/wildlife/types.ts';
 import {localXYZ,routeHeading,sampleRoute} from '../../domain/wildlife/routes.ts';
-/** Shared renderer takes absolute data and an origin; no showcase bounds or behavior. */
-export function createWildlifeRenderer(scene:Scene,data:WildlifePackage,attachMaterial:(material:StandardMaterial)=>void){
- const meshes=new Map<string,Mesh>(),material=new StandardMaterial('wildlife-TEST-material',scene);
+import {createBirdLibrary,type BirdArt} from './assets.ts';
+import {createBirdAnimator} from './animation.ts';
+type Visual={root:TransformNode;meshes:AbstractMesh[];lod:number;animator?:ReturnType<typeof createBirdAnimator>;dispose:()=>void};
+/** Shared renderer consumes absolute coordinates; the adapter supplies origin and observer. */
+export function createWildlifeRenderer(scene:Scene,data:WildlifePackage,attachMaterial:(material:Material)=>void,art:BirdArt|null=null){
+ const visuals=new Map<string,Visual>(),material=new StandardMaterial('wildlife-TEST-material',scene);
  material.diffuseColor=new Color3(1,.05,.7);material.specularColor=Color3.Black();attachMaterial(material);
- let frame:WildlifeFrame|null=null,origin:OriginEN={e:0,n:0},time=0,disposed=false,shadowLimit=1;
- const routes=new Map(data.cells.flatMap(c=>c.routes.map(r=>[`${c.id}/${r.id}`,r])));
+ const library=art?createBirdLibrary(scene,art,attachMaterial):null;
+ let frame:WildlifeFrame|null=null,origin:OriginEN={e:0,n:0},time=0,disposed=false,shadowLimit=1,detailLimit=4,detailDistance=15,observer:ENH={e:0,n:0,h:0};
+ const routes=new Map(data.cells.flatMap(c=>c.routes.map(r=>[`${c.id}/${r.id}`,r]))),desired=new Map<string,number>();
  const probes:LinesMesh[]=[];
+ function point(e:WildlifeFrame['entities'][number]){const route=e.route?routes.get(`${e.route.cellId}/${e.route.routeId}`):undefined,d=e.routeStartDistanceM+Math.max(0,time-e.routeStartMs)*e.speedMps/1000;return {p:route?sampleRoute(route,d).point:e.point,heading:route?routeHeading(route,d):e.headingDeg};}
  function apply(){
   for(const probe of probes)probe.position.set(-origin.e,0,origin.n);
   if(!frame)return;
-  const present=new Set(frame.entities.map(e=>e.id));
-  for(const [id,mesh] of meshes)if(!present.has(id)){mesh.dispose();meshes.delete(id);}
-  for(const e of frame.entities){const mesh=meshes.get(e.id);if(!mesh)continue;
-   const route=e.route?routes.get(`${e.route.cellId}/${e.route.routeId}`):undefined;
-   const d=e.routeStartDistanceM+Math.max(0,time-e.routeStartMs)*e.speedMps/1000,point=route?sampleRoute(route,d).point:e.point,pos=localXYZ(point,origin);
-   mesh.position.set(pos.x,pos.y+.08,pos.z);mesh.rotation.y=-(route?routeHeading(route,d):e.headingDeg)*Math.PI/180;
-   mesh.setEnabled(e.state!=='hidden');mesh.metadata={testOnly:true,entityId:e.id,state:e.state,generation:e.generation,absolutePoint:point};
+  const present=new Set(frame.entities.filter(e=>e.state!=='hidden').map(e=>e.id));
+  for(const [id,v] of visuals)if(!present.has(id)){v.dispose();visuals.delete(id);}
+  desired.clear();let detailed=0;
+  const entries=frame.entities.filter(e=>e.state!=='hidden').map(e=>({e,...point(e)})).sort((a,b)=>Math.hypot(a.p.e-observer.e,a.p.n-observer.n)-Math.hypot(b.p.e-observer.e,b.p.n-observer.n)||a.e.id.localeCompare(b.e.id));
+  for(const {e,p,heading} of entries){
+   const distance=Math.hypot(p.e-observer.e,p.n-observer.n),old=visuals.get(e.id),near=distance<detailDistance+(old?.lod===0?2:0);
+   const lod=library?(near&&detailed<detailLimit?(detailed++,0):distance<50+(old?.lod===1?4:0)?1:2):-1;desired.set(e.id,lod);if(library)library.request(lod);
+   if(!old)continue;const pos=localXYZ(p,origin);old.root.position.set(pos.x,pos.y+(old.lod<0?.08:0),pos.z);old.root.rotation.y=(old.lod<0?0:Math.PI)-heading*Math.PI/180;
+   old.root.metadata={testOnly:old.lod<0,entityId:e.id,state:e.state,generation:e.generation,absolutePoint:p,lod:old.lod};
+   old.animator?.update(e,time,old.lod===0?60:old.lod===1?12:6);
   }
  }
+ function make(id:string,lod:number):Visual{
+  if(lod<0){const root=CreateSphere(`TEST-bird:${id}`,{segments:4,diameter:1},scene);root.scaling.set(.12,.16,.12);root.material=material;root.receiveShadows=true;root.isPickable=false;return {root,meshes:[root],lod,dispose:()=>root.dispose()};}
+  const instance=library!.get(lod)!.instantiateModelsToScene(name=>`${id}:${name}`,false,{doNotInstantiate:true}),root=new TransformNode(`bird:${id}`,scene);
+  for(const node of instance.rootNodes)node.parent=root;
+  const meshes=root.getChildMeshes();for(const m of meshes){m.isPickable=false;m.receiveShadows=true;}
+  return {root,meshes,lod,animator:createBirdAnimator(instance.animationGroups,data.bird.takeoffMs),dispose(){instance.dispose();root.dispose();}};
+ }
  return {
-  update(next:WildlifeFrame|null,presentationMs:number,nextOrigin:OriginEN){if(disposed)return;frame=next;time=presentationMs;origin=nextOrigin;apply();},
-  prepare(budget:FrameWorkBudget){if(disposed||!frame)return;const entry=frame.entities.find(e=>e.state!=='hidden'&&!meshes.has(e.id));if(!entry||meshes.size>=data.limits.maxActiveEntities)return;
-   budget.run(()=>{if(disposed)return;const mesh=CreateSphere(`TEST-bird:${entry.id}`,{segments:4,diameter:1},scene);mesh.scaling.set(.12,.16,.12);mesh.material=material;mesh.receiveShadows=true;mesh.isPickable=false;meshes.set(entry.id,mesh);apply();});
-  },
-  setQuality(profile:{wildlifeShadows:number}){shadowLimit=profile.wildlifeShadows;},
-  setProbe(enabled:boolean){
-   if(disposed)return;for(const probe of probes)probe.dispose();probes.length=0;
-   if(enabled)for(const route of routes.values()){
-    const line=CreateLines(`TEST-route:${route.id}`,{points:route.samples.map(s=>new Vector3(s.point.e,s.point.h,-s.point.n))},scene);
-    line.color=new Color3(0,1,1);line.isPickable=false;line.position.set(-origin.e,0,origin.n);probes.push(line);
+  update(next:WildlifeFrame|null,presentationMs:number,nextOrigin:OriginEN,nextObserver?:ENH){if(disposed)return;frame=next;time=presentationMs;origin=nextOrigin;if(nextObserver)observer=nextObserver;apply();},
+  prepare(budget:FrameWorkBudget){if(disposed||!frame)return;
+   for(const [id,lod] of desired){const previous=visuals.get(id);if(previous?.lod===lod)continue;if(lod>=0&&!library!.get(lod)){if(!library!.failed(lod)||previous)continue;}
+    if(!previous&&visuals.size>=data.limits.maxActiveEntities)continue;
+    budget.run(()=>{if(disposed||!desired.has(id))return;const next=make(id,lod>=0&&!library!.get(lod)?-1:lod);previous?.dispose();visuals.set(id,next);apply();});break;
    }
   },
-  shadowMeshes(feet:ENH){return [...meshes.values()].filter(m=>m.isEnabled()&&Math.hypot(m.position.x+origin.e-feet.e,origin.n-m.position.z-feet.n)<24).sort((a,b)=>a.name.localeCompare(b.name)).slice(0,shadowLimit);},
-  stats(){return {testOnly:true,visibleMeshes:[...meshes.values()].filter(m=>m.isEnabled()).length,meshes:meshes.size,debugRoutes:probes.length,detailedSkeletons:0,pending:frame?.entities.filter(e=>e.state!=='hidden'&&!meshes.has(e.id)).length??0,origin:{...origin}};},
-  dispose(){if(disposed)return;disposed=true;for(const m of meshes.values())m.dispose();meshes.clear();for(const probe of probes)probe.dispose();probes.length=0;material.dispose();frame=null;},
+  setQuality(profile:{wildlifeShadows:number;wildlifeDetails?:number;wildlifeDistance?:number}){shadowLimit=profile.wildlifeShadows;detailLimit=profile.wildlifeDetails??4;detailDistance=profile.wildlifeDistance??15;},
+  setProbe(enabled:boolean){if(disposed)return;for(const probe of probes)probe.dispose();probes.length=0;if(enabled)for(const route of routes.values()){const line=CreateLines(`TEST-route:${route.id}`,{points:route.samples.map(s=>new Vector3(s.point.e,s.point.h,-s.point.n))},scene);line.color=new Color3(0,1,1);line.isPickable=false;line.position.set(-origin.e,0,origin.n);probes.push(line);}},
+  shadowMeshes(feet:ENH){return [...visuals.values()].filter(v=>Math.hypot(v.root.position.x+origin.e-feet.e,origin.n-v.root.position.z-feet.n)<24).sort((a,b)=>a.root.name.localeCompare(b.root.name)).slice(0,shadowLimit).flatMap(v=>v.meshes.filter(m=>m.getTotalVertices()>0));},
+  stats(){return {testOnly:!art,artStatus:art?'candidate':'test-only',visibleMeshes:visuals.size,meshes:visuals.size,debugRoutes:probes.length,detailedSkeletons:[...visuals.values()].filter(v=>v.lod===0).length,pending:[...desired].filter(([id,lod])=>visuals.get(id)?.lod!==lod).length,origin:{...origin},instances:[...visuals].map(([id,v])=>({id,lod:v.lod,...v.animator?.stats()})),...library?.stats()};},
+  dispose(){if(disposed)return;disposed=true;for(const v of visuals.values())v.dispose();visuals.clear();library?.dispose();for(const probe of probes)probe.dispose();probes.length=0;material.dispose();frame=null;},
  };
 }

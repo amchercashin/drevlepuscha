@@ -1,1 +1,353 @@
-{"status":"test-only","species":[],"reason":"W1/W2 debug fixtures only; Meshy geometry and Blender rigs are pending."}
+{
+  "v": 1,
+  "status": "candidate",
+  "species": [
+    {
+      "id": "woodland-bird",
+      "review": "pending-human-visual-review",
+      "front": "glTF +Z",
+      "footOffsetM": 0,
+      "clips": {
+        "perch_idle": {
+          "duration": 4,
+          "loop": true
+        },
+        "alert": {
+          "duration": 0.6,
+          "loop": false
+        },
+        "takeoff": {
+          "duration": 0.4,
+          "loop": false,
+          "supportChangePhase": 0
+        },
+        "fly_loop": {
+          "duration": 0.24,
+          "loop": true,
+          "nominalSpeedMps": 4
+        }
+      },
+      "lods": [
+        {
+          "level": 0,
+          "file": "woodland-bird/lod0.glb",
+          "sha256": "e171041d5bd330e519725685c6a98db781c9ba8d96e7a55d87bd887e471c472f",
+          "bytes": 537504,
+          "triangles": 1200,
+          "vertices": 2121,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 14,
+          "weighted": 2121,
+          "bounds": {
+            "min": [
+              -0.2375003546476364,
+              -0.000042472318455111235,
+              -0.09316790103912354
+            ],
+            "max": [
+              0.2374153584241867,
+              0.15839549899101257,
+              0.09343254566192627
+            ]
+          },
+          "images": [
+            {
+              "width": 512,
+              "height": 512
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.6000000238418579,
+              "tracks": 42
+            },
+            {
+              "name": "fly_loop",
+              "duration": 0.23999999463558197,
+              "tracks": 42
+            },
+            {
+              "name": "perch_idle",
+              "duration": 4,
+              "tracks": 42
+            },
+            {
+              "name": "takeoff",
+              "duration": 0.4000000059604645,
+              "tracks": 42
+            }
+          ],
+          "animationBoundsBlender": {
+            "perch_idle": {
+              "min": [
+                -0.06280180811882019,
+                -0.09363865852355957,
+                0.01128523051738739
+              ],
+              "max": [
+                0.06313858926296234,
+                0.11546145379543304,
+                0.1587628424167633
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.06280180811882019,
+                -0.09214428067207336,
+                0.01128523051738739
+              ],
+              "max": [
+                0.06313858926296234,
+                0.1143922507762909,
+                0.1592726707458496
+              ]
+            },
+            "takeoff": {
+              "min": [
+                -0.23750032484531403,
+                -0.13523656129837036,
+                -0.027668610215187073
+              ],
+              "max": [
+                0.23741532862186432,
+                0.1176445484161377,
+                0.19378145039081573
+              ]
+            },
+            "fly_loop": {
+              "min": [
+                -0.23750032484531403,
+                -0.13667476177215576,
+                -0.029947325587272644
+              ],
+              "max": [
+                0.23741532862186432,
+                0.11668847501277924,
+                0.1958301067352295
+              ]
+            }
+          }
+        },
+        {
+          "level": 1,
+          "file": "woodland-bird/lod1.glb",
+          "sha256": "946ee1a4f87328bfae945a253ea8b2c6e1eab8eed0235d7fa2a9226703ea0e0e",
+          "bytes": 476864,
+          "triangles": 480,
+          "vertices": 1038,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 14,
+          "weighted": 1038,
+          "bounds": {
+            "min": [
+              -0.23837152123451233,
+              -0.001120990258641541,
+              -0.09279744327068329
+            ],
+            "max": [
+              0.2381911426782608,
+              0.1579463928937912,
+              0.09343254566192627
+            ]
+          },
+          "images": [
+            {
+              "width": 512,
+              "height": 512
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.6000000238418579,
+              "tracks": 42
+            },
+            {
+              "name": "fly_loop",
+              "duration": 0.23999999463558197,
+              "tracks": 42
+            },
+            {
+              "name": "perch_idle",
+              "duration": 4,
+              "tracks": 42
+            },
+            {
+              "name": "takeoff",
+              "duration": 0.4000000059604645,
+              "tracks": 42
+            }
+          ],
+          "animationBoundsBlender": {
+            "perch_idle": {
+              "min": [
+                -0.061752066016197205,
+                -0.09363865852355957,
+                0.01179899089038372
+              ],
+              "max": [
+                0.06193627417087555,
+                0.1155732125043869,
+                0.15848739445209503
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.061752066016197205,
+                -0.09214428067207336,
+                0.01179899089038372
+              ],
+              "max": [
+                0.06193627417087555,
+                0.11443939805030823,
+                0.1593250334262848
+              ]
+            },
+            "takeoff": {
+              "min": [
+                -0.23837149143218994,
+                -0.135214701294899,
+                -0.027883566915988922
+              ],
+              "max": [
+                0.23819111287593842,
+                0.11788508296012878,
+                0.19420364499092102
+              ]
+            },
+            "fly_loop": {
+              "min": [
+                -0.23837149143218994,
+                -0.13667193055152893,
+                -0.030208416283130646
+              ],
+              "max": [
+                0.23819111287593842,
+                0.11705650389194489,
+                0.19628459215164185
+              ]
+            }
+          }
+        },
+        {
+          "level": 2,
+          "file": "woodland-bird/lod2.glb",
+          "sha256": "bf5590b0b91c0d3380b802901ad11ef720428b344b10e4cac2fc8e0bfd5bec43",
+          "bytes": 440968,
+          "triangles": 150,
+          "vertices": 386,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 14,
+          "weighted": 386,
+          "bounds": {
+            "min": [
+              -0.2393648326396942,
+              0.000008364804671145976,
+              -0.09282135963439941
+            ],
+            "max": [
+              0.23841160535812378,
+              0.15883667767047882,
+              0.08426172286272049
+            ]
+          },
+          "images": [
+            {
+              "width": 512,
+              "height": 512
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.6000000238418579,
+              "tracks": 42
+            },
+            {
+              "name": "fly_loop",
+              "duration": 0.23999999463558197,
+              "tracks": 42
+            },
+            {
+              "name": "perch_idle",
+              "duration": 4,
+              "tracks": 42
+            },
+            {
+              "name": "takeoff",
+              "duration": 0.4000000059604645,
+              "tracks": 42
+            }
+          ],
+          "animationBoundsBlender": {
+            "perch_idle": {
+              "min": [
+                -0.057061102241277695,
+                -0.08462323248386383,
+                0.012183289043605328
+              ],
+              "max": [
+                0.05900998413562775,
+                0.11541097611188889,
+                0.1591116487979889
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.057061102241277695,
+                -0.08284631371498108,
+                0.012183289043605328
+              ],
+              "max": [
+                0.05900998413562775,
+                0.11431862413883209,
+                0.15965120494365692
+              ]
+            },
+            "takeoff": {
+              "min": [
+                -0.23936480283737183,
+                -0.12880158424377441,
+                -0.02780311554670334
+              ],
+              "max": [
+                0.2384115755558014,
+                0.11763860285282135,
+                0.19245950877666473
+              ]
+            },
+            "fly_loop": {
+              "min": [
+                -0.23936480283737183,
+                -0.13029134273529053,
+                -0.030107535421848297
+              ],
+              "max": [
+                0.2384115755558014,
+                0.11673100292682648,
+                0.194719135761261
+              ]
+            }
+          }
+        }
+      ],
+      "provenance": {
+        "provider": "Meshy official MCP",
+        "model": "meshy-7",
+        "mcpVersion": "0.5.1",
+        "date": "2026-09-19",
+        "referencePrompt": "Single stylized woodland songbird for a 3D forest game, full body, neutral anatomical rigging pose. Both wings fully extended sideways, symmetric and almost horizontal, each wing visible tip to shoulder, clear elbow and wrist. Short thin legs and separate toes, straight tapered tail, small pointed beak. Grey-brown back, pale cream belly, muted rusty warm breast, dark eyes. Simple broad matte color blocks and sculpted feather groups, no tiny feather strands. Front three-quarter view slightly from above, even diffuse light, plain white background. No stand, props, text, collage or cast shadow.",
+        "referenceSha256": "58c2f0a823fe084cc398c2ff02670465f3e4ded60a8f4ab7ae842354c8768081",
+        "sourceSha256": "9c7fec45a7f7b7caa3f61623148d11e90a015dc0444d3ac8c39ed1a1e21352f7",
+        "blender": "5.2.1 LTS",
+        "recipe": "tools/wildlife/blender/export.py",
+        "rigGuideSha256": "fb294993c96db40d2dc3a7e781e0cbf92f8f6238797dc8dca3f54eed11d4dede",
+        "licensing": "Meshy-generated; source receipt retained privately; publication not authorized"
+      }
+    }
+  ]
+}

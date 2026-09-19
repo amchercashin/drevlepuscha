@@ -41,6 +41,12 @@ export class ShowcaseAudio {
  private issues:string[]=[];
  private loaded=new Set<string>();
  private eventsPlayed=0;
+ private visibleWildlife=false;
+ setWildlifeEventsEnabled(enabled:boolean){this.visibleWildlife=enabled;}
+ playWildlifeEvent(position:Point3,ageMs:number){
+  if(!this.visibleWildlife||!this.active()||this.context?.state!=='running'||ageMs<0||ageMs>500||this.voices.size+this.pendingEvents>=2)return;
+  void this.event(bank.assets.find(a=>a.id==='B04')!,position,performance.now()+500-ageMs);
+ }
  private panel=document.createElement('section');
  private status:HTMLElement;
  private visibility=()=>this.applyMaster();
@@ -75,6 +81,7 @@ export class ShowcaseAudio {
    }
    if(this.context.state==='suspended')await this.context.resume();
    this.applyMaster();
+   if(this.visibleWildlife)void this.load(bank.assets.find(a=>a.id==='B04')!).catch(()=>{});
    if(this.loops.size===LOOP_IDS.length)return;
    if(!this.starting){
     this.status.textContent='Загружаем звуки…';
@@ -115,11 +122,11 @@ export class ShowcaseAudio {
   source.start(0,Math.random()*buffer.duration);
  }
  private delay(id:string){const [lo,hi]=intervals[id];return lo+Math.random()*(hi-lo);}
- private async event(asset:Asset,position:Point3){
+ private async event(asset:Asset,position:Point3,deadline=Infinity){
   this.pendingEvents++;
   try{
    const buffer=await this.load(asset);
-   if(!this.active()||this.voices.size>=2)return;
+   if(!this.active()||this.voices.size>=2||performance.now()>deadline)return;
    const ctx=this.context!,source=ctx.createBufferSource(),gain=ctx.createGain(),pan=this.panner(position,asset.id==='T03'?12:8);
    source.buffer=buffer;gain.gain.value=(asset.group==='birds'?.65:.55)*asset.trim;
    const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=asset.id==='T03'?1400:12000;
@@ -153,6 +160,7 @@ export class ShowcaseAudio {
    }
   }
   for(const asset of bank.assets){
+   if(this.visibleWildlife&&asset.id==='B04')continue;
    const phase=ambientPhase(hour,asset.phaseWeights),loop=this.loops.get(asset.id);
    if(loop){
     const rain=asset.group==='precipitation';
