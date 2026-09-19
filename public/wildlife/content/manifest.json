@@ -2,11 +2,19 @@
   "v": 1,
   "status": "test-content",
   "realmId": "showcase-ravines",
-  "contentHash": "53b43208b9ad8fe8490ad1e8c5e1c8bb4192b552ceeb4b22639fc42c0a2bd201",
+  "contentHash": "39d7e804a0fd8df4aef4b2035fa965f424522ceaa81fc009547ddd1fd419eb4e",
   "behaviorVersion": 1,
   "file": "showcase/bird.json",
-  "sha256": "102c83dc27907048c9be833f53d658c243bce8272ef250aa6db4c67e31c6d78c",
+  "sha256": "4d568f7c8fe19528d98cf0fd6dc657a1e1c3a391ff807322f1e3a70e11e08048",
   "sourceHashes": {
+    "src/domain/wildlife/world.ts": "6d05cbeb8baac84effde03acc1f4cf9f0d99a820d420b82d5ce771b5c11f8ef7",
+    "src/domain/wildlife/perception.ts": "6705dd11e7af50a131df055d95ab5db26718b048fc6b11ee553337ef16520010",
+    "src/domain/wildlife/ids.ts": "3b2f654995b07b0b5ea4f17f6d2b83125b1f4762923f77611306ad02072bb32e",
+    "config/wildlife/squirrel-site.json": "acc0768ef18fe3249a3cae6c2a7ea3eaadbd266274db11c02791f228b25fb80a",
+    "config/wildlife/deer-site.json": "4b6d9fdb874117a96356414c541b1e1b25547dc576f6af70ee529d1cca95fa67",
+    "src/domain/wildlife/behavior.ts": "ab6c9ea3a9fae03fc4a2c3101a5e947b5dcfe39b3e56d6ac0af04cb771159bda",
+    "src/domain/wildlife/habitat.ts": "86ac0852022f114a486b69a39cbe9a2e96ec8ab9939fed5418d352e148085176",
+    "tools/wildlife/land-build.mjs": "186024fa6dcaa0334e3401d27f358485d7c790c7e555100fd845acb7dd22abff",
     "assets/trees/meshy-a/tree.json": "3e5a486577fcf80ffb34f2a676529cfd3c85ce24d501e0188407ec4ed9d14e5e",
     "assets/trees/fork-oak/variants.json": "99e0980c2a2046d6d5ebdda0b26ce93ac008d51a604c0b1af82dad4e459ab08d",
     "assets/trees/young-tree/variants.json": "72cf96968b05ec252e64f632305944d132a5b577a76f702391b967aa49a927a0",
@@ -19,7 +27,7 @@
     "config/wildlife/species.json": "1b0b0224450fc658705f7ac53451c2188c377442303b9748152db6514a5bfefc",
     "config/wildlife/budgets.json": "7d0ffc71cdc446c65bce51b2015af2665e8475a6e7b0ab05ae73f635095897c9",
     "config/wildlife/bird-envelope.json": "b646ff005a7f4c6b3594375f69ed48b71b241eb4aeba7723375edb15bae09891",
-    "public/wildlife/assets.json": "de0f21b47db9c0c44cd1e6c3eef0167047dee61ccf534c2e6023248154a2c307",
+    "public/wildlife/assets.json": "f2583934a82fb2e816848f8e1497b60dcd530153c5dd092364209e0e5b8bcac6",
     "src/domain/showcase.ts": "274d24eb8e79961686b73df337697b3027c8c019f04f3c0e6f283679e39b24d1",
     "src/domain/forest-layout.ts": "72b7912d4540f9be1337ed21997b7f893fda8ba874d6db9780a49d57c457e1b9",
     "src/domain/forest-records.ts": "69ddfed15a0c8ca9c0a383ba842ff63eae022fd7e387a578d7e872e52255f6d8",
@@ -27,9 +35,9 @@
     "src/domain/tree-family.ts": "38baa5cf0114b31763992b1d11cc2233fde2365b8e764563fedd958c4f729e8f",
     "src/domain/seed.ts": "9cb5d2bd4d3123d33f6a08915f9140afc91cf707ac05f2767b511c44854f854a",
     "src/domain/mesh-collision.ts": "c21202f67b875b056d322405e8b1545cb199644ef59915bc791da89d11934941",
-    "src/domain/wildlife/routes.ts": "b043aa901325ccd72724dc0d0f0c1eee9525aeec283978aed2ca556dcd3b5074",
-    "src/domain/wildlife/types.ts": "f693d2d419cacba6c83f868985237fae066d02262ada5705cc0c363a205c2fdc",
+    "src/domain/wildlife/routes.ts": "8076def4c7566528fbf8014fbe3508ab4bd402b67c1937a5c61bdd6d9d0b123f",
+    "src/domain/wildlife/types.ts": "5a27bf17ee4755abb658982ce561367fd0679a5c2865d23640d1e04dd8055bbb",
     "tools/wildlife/scene-data.mjs": "c059a01f5b9f996361af14410606992dd30bc100a5db3bac43ca88ed816ff5ee",
-    "tools/wildlife/build.mjs": "0bf9a8fcea9f59c57db8091095aecde6daeefe01506e27335bb15c793315b907"
+    "tools/wildlife/build.mjs": "8920ed6ed7c22ae888bdeaed7a63cac8bca3d50eb53f7f1245e0ef53cdb2b941"
   }
 }

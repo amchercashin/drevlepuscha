@@ -348,6 +348,810 @@
         "rigGuideSha256": "fb294993c96db40d2dc3a7e781e0cbf92f8f6238797dc8dca3f54eed11d4dede",
         "licensing": "Meshy-generated; source receipt retained privately; publication not authorized"
       }
+    },
+    {
+      "id": "red-squirrel",
+      "review": "pending-human-visual-review",
+      "front": "glTF +Z",
+      "footOffsetM": 0.008,
+      "clips": {
+        "forage_idle": {
+          "duration": 3,
+          "loop": true
+        },
+        "alert": {
+          "duration": 0.6,
+          "loop": false
+        },
+        "bound_ground": {
+          "duration": 0.5,
+          "loop": true,
+          "nominalSpeedMps": 0.8
+        },
+        "mount_trunk": {
+          "duration": 0.4,
+          "loop": false
+        },
+        "climb_up": {
+          "duration": 0.6,
+          "loop": true,
+          "nominalSpeedMps": 0.35
+        },
+        "trunk_idle": {
+          "duration": 3,
+          "loop": true
+        }
+      },
+      "lods": [
+        {
+          "level": 0,
+          "file": "red-squirrel/lod0.glb",
+          "sha256": "0ed064381c9c45ecbc95fdb17b1c78bb1ffe613739c5f62e20e4e17013b0e62b",
+          "bytes": 1747472,
+          "triangles": 2999,
+          "vertices": 4354,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 25,
+          "weighted": 4354,
+          "bounds": {
+            "min": [
+              -0.08140002936124802,
+              -0.000012219996278872713,
+              -0.2855015993118286
+            ],
+            "max": [
+              0.08145997673273087,
+              0.4665999412536621,
+              0.28539401292800903
+            ]
+          },
+          "images": [
+            {
+              "width": 1024,
+              "height": 1024
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.6000000238418579,
+              "tracks": 75
+            },
+            {
+              "name": "bound_ground",
+              "duration": 0.5,
+              "tracks": 75
+            },
+            {
+              "name": "climb_up",
+              "duration": 0.6000000238418579,
+              "tracks": 75
+            },
+            {
+              "name": "forage_idle",
+              "duration": 3,
+              "tracks": 75
+            },
+            {
+              "name": "mount_trunk",
+              "duration": 0.4000000059604645,
+              "tracks": 75
+            },
+            {
+              "name": "trunk_idle",
+              "duration": 3,
+              "tracks": 75
+            }
+          ],
+          "animationBoundsBlender": {
+            "forage_idle": {
+              "min": [
+                -0.08140002191066742,
+                -0.2860240042209625,
+                -0.000012222434634168167
+              ],
+              "max": [
+                0.08145996928215027,
+                0.2854946553707123,
+                0.4666000008583069
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.08140002191066742,
+                -0.28548672795295715,
+                -0.000012222434634168167
+              ],
+              "max": [
+                0.08145996928215027,
+                0.28549090027809143,
+                0.4666000008583069
+              ]
+            },
+            "bound_ground": {
+              "min": [
+                -0.0815616026520729,
+                -0.28539401292800903,
+                -0.00601345207542181
+              ],
+              "max": [
+                0.08172636479139328,
+                0.2854859232902527,
+                0.45559990406036377
+              ]
+            },
+            "mount_trunk": {
+              "min": [
+                -0.08140002191066742,
+                -0.28539401292800903,
+                -0.000012222434634168167
+              ],
+              "max": [
+                0.08145996928215027,
+                0.28549033403396606,
+                0.4665999412536621
+              ]
+            },
+            "climb_up": {
+              "min": [
+                -0.08152700215578079,
+                -0.28539401292800903,
+                -0.006224161945283413
+              ],
+              "max": [
+                0.08149404078722,
+                0.28547754883766174,
+                0.4495561122894287
+              ]
+            },
+            "trunk_idle": {
+              "min": [
+                -0.08140002191066742,
+                -0.2854894697666168,
+                -0.000012222434634168167
+              ],
+              "max": [
+                0.08145996928215027,
+                0.2854946553707123,
+                0.4666000008583069
+              ]
+            }
+          }
+        },
+        {
+          "level": 1,
+          "file": "red-squirrel/lod1.glb",
+          "sha256": "484533d0a4c2ee0bd1581f282299dc13a365c0299aed609b530e9b07fb02376e",
+          "bytes": 1621904,
+          "triangles": 1199,
+          "vertices": 2147,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 25,
+          "weighted": 2147,
+          "bounds": {
+            "min": [
+              -0.08025787770748138,
+              0.0003535267314873636,
+              -0.28558388352394104
+            ],
+            "max": [
+              0.08054104447364807,
+              0.46567702293395996,
+              0.2850796580314636
+            ]
+          },
+          "images": [
+            {
+              "width": 1024,
+              "height": 1024
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.6000000238418579,
+              "tracks": 75
+            },
+            {
+              "name": "bound_ground",
+              "duration": 0.5,
+              "tracks": 75
+            },
+            {
+              "name": "climb_up",
+              "duration": 0.6000000238418579,
+              "tracks": 75
+            },
+            {
+              "name": "forage_idle",
+              "duration": 3,
+              "tracks": 75
+            },
+            {
+              "name": "mount_trunk",
+              "duration": 0.4000000059604645,
+              "tracks": 75
+            },
+            {
+              "name": "trunk_idle",
+              "duration": 3,
+              "tracks": 75
+            }
+          ],
+          "animationBoundsBlender": {
+            "forage_idle": {
+              "min": [
+                -0.08025787770748138,
+                -0.28592151403427124,
+                0.0003535242285579443
+              ],
+              "max": [
+                0.08054104447364807,
+                0.28567036986351013,
+                0.46567708253860474
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.08025787770748138,
+                -0.28539177775382996,
+                0.0003535242285579443
+              ],
+              "max": [
+                0.08054104447364807,
+                0.285665363073349,
+                0.46567708253860474
+              ]
+            },
+            "bound_ground": {
+              "min": [
+                -0.08041997253894806,
+                -0.2850796580314636,
+                -0.006140890996903181
+              ],
+              "max": [
+                0.08080783486366272,
+                0.2856694161891937,
+                0.454677015542984
+              ]
+            },
+            "mount_trunk": {
+              "min": [
+                -0.08025787770748138,
+                -0.2850796580314636,
+                0.0003535242285579443
+              ],
+              "max": [
+                0.08054104447364807,
+                0.28563952445983887,
+                0.46567702293395996
+              ]
+            },
+            "climb_up": {
+              "min": [
+                -0.08038879185914993,
+                -0.2850796580314636,
+                -0.005727511830627918
+              ],
+              "max": [
+                0.08058164268732071,
+                0.28567174077033997,
+                0.4486331641674042
+              ]
+            },
+            "trunk_idle": {
+              "min": [
+                -0.08025787770748138,
+                -0.2853931188583374,
+                0.0003535242285579443
+              ],
+              "max": [
+                0.08054104447364807,
+                0.28567036986351013,
+                0.46567708253860474
+              ]
+            }
+          }
+        },
+        {
+          "level": 2,
+          "file": "red-squirrel/lod2.glb",
+          "sha256": "bca780282249a350cd3f1bcb29a62bd4aefd325bb06971df5b35cc083be0565a",
+          "bytes": 1539688,
+          "triangles": 299,
+          "vertices": 670,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 25,
+          "weighted": 670,
+          "bounds": {
+            "min": [
+              -0.08339416980743408,
+              0.0002643482876010239,
+              -0.29028111696243286
+            ],
+            "max": [
+              0.08312534540891647,
+              0.4611244797706604,
+              0.28559309244155884
+            ]
+          },
+          "images": [
+            {
+              "width": 1024,
+              "height": 1024
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.6000000238418579,
+              "tracks": 75
+            },
+            {
+              "name": "bound_ground",
+              "duration": 0.5,
+              "tracks": 75
+            },
+            {
+              "name": "climb_up",
+              "duration": 0.6000000238418579,
+              "tracks": 75
+            },
+            {
+              "name": "forage_idle",
+              "duration": 3,
+              "tracks": 75
+            },
+            {
+              "name": "mount_trunk",
+              "duration": 0.4000000059604645,
+              "tracks": 75
+            },
+            {
+              "name": "trunk_idle",
+              "duration": 3,
+              "tracks": 75
+            }
+          ],
+          "animationBoundsBlender": {
+            "forage_idle": {
+              "min": [
+                -0.08339416980743408,
+                -0.28564321994781494,
+                0.00026434590108692646
+              ],
+              "max": [
+                0.08312533795833588,
+                0.29031145572662354,
+                0.4611245393753052
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.08339416980743408,
+                -0.28562310338020325,
+                0.00026434590108692646
+              ],
+              "max": [
+                0.08312533795833588,
+                0.29031017422676086,
+                0.4611245393753052
+              ]
+            },
+            "bound_ground": {
+              "min": [
+                -0.08347949385643005,
+                -0.28559309244155884,
+                -0.003089488949626684
+              ],
+              "max": [
+                0.08366933465003967,
+                0.2902768552303314,
+                0.45012444257736206
+              ]
+            },
+            "mount_trunk": {
+              "min": [
+                -0.08339416980743408,
+                -0.28559309244155884,
+                0.00026434590108692646
+              ],
+              "max": [
+                0.08312533795833588,
+                0.2903030216693878,
+                0.4611245095729828
+              ]
+            },
+            "climb_up": {
+              "min": [
+                -0.08348247408866882,
+                -0.28559309244155884,
+                -0.0051041534170508385
+              ],
+              "max": [
+                0.08318662643432617,
+                0.29028892517089844,
+                0.444080650806427
+              ]
+            },
+            "trunk_idle": {
+              "min": [
+                -0.08339416980743408,
+                -0.2856278121471405,
+                0.00026434590108692646
+              ],
+              "max": [
+                0.08312533795833588,
+                0.29031145572662354,
+                0.4611245393753052
+              ]
+            }
+          }
+        }
+      ],
+      "provenance": {
+        "provider": "Meshy official MCP",
+        "model": "meshy-7",
+        "mcpVersion": "0.5.1",
+        "date": "2026-09-19",
+        "referencePrompt": "Single stylized red squirrel for a woodland 3D game. Natural quadruped standing neutrally on four separate feet, side three-quarter view, whole body visible. Four legs and joints clearly separated, no touching limbs. Long thick bushy tail curves upward behind the rump, clearly separated from back and head. Rusty brown body, cream chest, dark eyes, small ear tufts. Matte broad ochre and warm grey color blocks, simple sculpted fur masses, restrained book-illustration shapes, no photoreal fur strands. Even light, plain white background. No nut, clothing, props, ground or text.",
+        "referenceSha256": "939098d408b301092301e635be9db052c0893145ffce46624873ed64d3525d81",
+        "sourceSha256": "b48db9ca8ba391ca0ba63406cf923cbfbb97ed4a503476faccc951b6c1a949a8",
+        "blender": "5.2.1 LTS",
+        "recipe": "tools/wildlife/blender/land_export.py",
+        "rigGuideSha256": "8598a7a837432d8cf25c2ad2a77ffc380ae1ed0f657faa4e16214a25c55f3b12",
+        "licensing": "Meshy-generated; source receipt retained privately; publication not authorized"
+      }
+    },
+    {
+      "id": "roe-deer",
+      "review": "pending-human-visual-review",
+      "front": "glTF +Z",
+      "footOffsetM": 0.014,
+      "clips": {
+        "graze_idle": {
+          "duration": 4,
+          "loop": true
+        },
+        "alert": {
+          "duration": 0.7,
+          "loop": false
+        },
+        "walk_loop": {
+          "duration": 0.8,
+          "loop": true,
+          "nominalSpeedMps": 0.55
+        },
+        "run_loop": {
+          "duration": 0.5,
+          "loop": true,
+          "nominalSpeedMps": 2
+        }
+      },
+      "lods": [
+        {
+          "level": 0,
+          "file": "roe-deer/lod0.glb",
+          "sha256": "5292aedd2336da31a959df7db62c558f15bc334bc6b33bca4532e8b0cf3da928",
+          "bytes": 1633360,
+          "triangles": 5000,
+          "vertices": 4773,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 27,
+          "weighted": 4773,
+          "bounds": {
+            "min": [
+              -0.2553151845932007,
+              0.00009808751929085702,
+              -0.43301886320114136
+            ],
+            "max": [
+              0.2465275228023529,
+              1.103863000869751,
+              0.43169569969177246
+            ]
+          },
+          "images": [
+            {
+              "width": 1024,
+              "height": 1024
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.699999988079071,
+              "tracks": 81
+            },
+            {
+              "name": "graze_idle",
+              "duration": 4,
+              "tracks": 81
+            },
+            {
+              "name": "run_loop",
+              "duration": 0.5,
+              "tracks": 81
+            },
+            {
+              "name": "walk_loop",
+              "duration": 0.800000011920929,
+              "tracks": 81
+            }
+          ],
+          "animationBoundsBlender": {
+            "graze_idle": {
+              "min": [
+                -0.2553151845932007,
+                -0.6254225373268127,
+                0.00009806403977563605
+              ],
+              "max": [
+                0.19709467887878418,
+                0.4400235712528229,
+                1.048614263534546
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.2553151845932007,
+                -0.47601523995399475,
+                0.00009806403977563605
+              ],
+              "max": [
+                0.20703744888305664,
+                0.4400208592414856,
+                1.1072680950164795
+              ]
+            },
+            "walk_loop": {
+              "min": [
+                -0.25531521439552307,
+                -0.46579277515411377,
+                0.00009805988520383835
+              ],
+              "max": [
+                0.19709467887878418,
+                0.5203052759170532,
+                1.0828628540039062
+              ]
+            },
+            "run_loop": {
+              "min": [
+                -0.25531521439552307,
+                -0.46579277515411377,
+                0.00009806207526708022
+              ],
+              "max": [
+                0.19709467887878418,
+                0.5246755480766296,
+                1.0828628540039062
+              ]
+            }
+          }
+        },
+        {
+          "level": 1,
+          "file": "roe-deer/lod1.glb",
+          "sha256": "739b1c4b87b88057dc070e3dc604da152e3e8e757f8a624e1259621816e7dcc2",
+          "bytes": 1494664,
+          "triangles": 2000,
+          "vertices": 2452,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 27,
+          "weighted": 2452,
+          "bounds": {
+            "min": [
+              -0.25485533475875854,
+              -0.000021070445654913783,
+              -0.43278491497039795
+            ],
+            "max": [
+              0.2472890317440033,
+              1.1046074628829956,
+              0.4322250485420227
+            ]
+          },
+          "images": [
+            {
+              "width": 1024,
+              "height": 1024
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.699999988079071,
+              "tracks": 81
+            },
+            {
+              "name": "graze_idle",
+              "duration": 4,
+              "tracks": 81
+            },
+            {
+              "name": "run_loop",
+              "duration": 0.5,
+              "tracks": 81
+            },
+            {
+              "name": "walk_loop",
+              "duration": 0.800000011920929,
+              "tracks": 81
+            }
+          ],
+          "animationBoundsBlender": {
+            "graze_idle": {
+              "min": [
+                -0.25485533475875854,
+                -0.6239954233169556,
+                -0.000021081352315377444
+              ],
+              "max": [
+                0.1975308656692505,
+                0.44007983803749084,
+                1.04911470413208
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.25485533475875854,
+                -0.47528374195098877,
+                -0.000021081352315377444
+              ],
+              "max": [
+                0.20760385692119598,
+                0.4400770366191864,
+                1.1080206632614136
+              ]
+            },
+            "walk_loop": {
+              "min": [
+                -0.25485536456108093,
+                -0.46503251791000366,
+                -0.00002110764035023749
+              ],
+              "max": [
+                0.1975308656692505,
+                0.5202425122261047,
+                1.0836074352264404
+              ]
+            },
+            "run_loop": {
+              "min": [
+                -0.25485536456108093,
+                -0.46503251791000366,
+                -0.000021082425519125536
+              ],
+              "max": [
+                0.1975308656692505,
+                0.5247392654418945,
+                1.0836074352264404
+              ]
+            }
+          }
+        },
+        {
+          "level": 2,
+          "file": "roe-deer/lod2.glb",
+          "sha256": "9b73f4dceacfb0c457872d17ede82d725c5ee8de79f43b40126a90d8f7ee59a2",
+          "bytes": 1409884,
+          "triangles": 550,
+          "vertices": 989,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 27,
+          "weighted": 989,
+          "bounds": {
+            "min": [
+              -0.25902289152145386,
+              -0.00011185695620952174,
+              -0.43130698800086975
+            ],
+            "max": [
+              0.24649791419506073,
+              1.1072663068771362,
+              0.42901188135147095
+            ]
+          },
+          "images": [
+            {
+              "width": 1024,
+              "height": 1024
+            }
+          ],
+          "clips": [
+            {
+              "name": "alert",
+              "duration": 0.699999988079071,
+              "tracks": 81
+            },
+            {
+              "name": "graze_idle",
+              "duration": 4,
+              "tracks": 81
+            },
+            {
+              "name": "run_loop",
+              "duration": 0.5,
+              "tracks": 81
+            },
+            {
+              "name": "walk_loop",
+              "duration": 0.800000011920929,
+              "tracks": 81
+            }
+          ],
+          "animationBoundsBlender": {
+            "graze_idle": {
+              "min": [
+                -0.25902289152145386,
+                -0.6301594376564026,
+                -0.00011188307689735666
+              ],
+              "max": [
+                0.1997484564781189,
+                0.4379325211048126,
+                1.047104835510254
+              ]
+            },
+            "alert": {
+              "min": [
+                -0.25902289152145386,
+                -0.4705948233604431,
+                -0.00011188307689735666
+              ],
+              "max": [
+                0.21072843670845032,
+                0.43792954087257385,
+                1.1107635498046875
+              ]
+            },
+            "walk_loop": {
+              "min": [
+                -0.25902286171913147,
+                -0.46062520146369934,
+                -0.00011188459757249802
+              ],
+              "max": [
+                0.1997484564781189,
+                0.5193173289299011,
+                1.086266279220581
+              ]
+            },
+            "run_loop": {
+              "min": [
+                -0.25902289152145386,
+                -0.46062520146369934,
+                -0.00011186923802597448
+              ],
+              "max": [
+                0.1997484564781189,
+                0.5233356356620789,
+                1.0862759351730347
+              ]
+            }
+          }
+        }
+      ],
+      "provenance": {
+        "provider": "Meshy official MCP",
+        "model": "meshy-7",
+        "mcpVersion": "0.5.1",
+        "date": "2026-09-19",
+        "referencePrompt": "Single stylized roe deer without antlers, natural slender woodland animal, not a horse. Neutral four-legged standing pose, side three-quarter view, full body and all four separate hooves visible. Slender long legs with readable knees and hocks, compact torso, short delicate muzzle, large thick ears, very short tail. Restrained warm brown ochre body, pale cream rump, dark nose and eyes. Simple broad matte colors and continuous sculpted shapes fitting a forest illustrated storybook game. No fur strands, clothes, armor, props, grass or ground. Even diffuse light, white background.",
+        "referenceSha256": "89cb1c046e4bfbbeda4b5b746033e61346f63f9df1022d140f56e56a4ae1c74f",
+        "sourceSha256": "5f8cafab9d31d0b9472e166ba5175bc082ae05021259425234c15e2ecdc1f606",
+        "blender": "5.2.1 LTS",
+        "recipe": "tools/wildlife/blender/land_export.py",
+        "rigGuideSha256": "b012e6b45d987effdedd6aeb2da987e654b8856801e0afd3cc6577d07f02724f",
+        "licensing": "Meshy-generated; source receipt retained privately; publication not authorized"
+      }
     }
   ]
 }

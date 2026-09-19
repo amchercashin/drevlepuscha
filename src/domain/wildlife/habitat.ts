@@ -23,11 +23,12 @@ export function validateCell(value:unknown,hash:string):asserts value is Habitat
    previous=s.point;
   }
   if(Math.abs(length-r.lengthM)>1e-5)fail('route length');routes.set(r.id,r);
+  if(r.motion!==undefined){if(!list(r.motion,16)||r.motion.length<2)fail('route motion');let time=-1,metres=-1;for(const [i,k] of r.motion.entries()){if(!record(k)||!finite(k.atMs)||!finite(k.distanceM)||k.atMs<=time||k.distanceM<metres||k.distanceM>length+1e-5||!['ground-bound','mount','climb','trunk-idle','walk-away','flee','recover'].includes(String(k.state))||(i===0&&(k.atMs!==0||k.distanceM!==0)))fail('motion key');time=k.atMs;metres=k.distanceM;}if(Math.abs(metres-length)>1e-5)fail('motion endpoint');}
  }
  const sites=new Set<string>();
  for(const s of value.sites){
   if(!record(s)||!label(s.id)||sites.has(s.id)||s.cellId!==value.id||!['woodland-bird','red-squirrel','roe-deer'].includes(String(s.species))||!enh(s.home)||!strings(s.allowedRoutes,16)||!strings(s.refuges,16)||!strings(s.tags,16)||!natural(s.maxResidents)||Number(s.maxResidents)<1||Number(s.maxResidents)>4||(s.treeId!==undefined&&!label(s.treeId)))fail('site');
-  for(const id of s.allowedRoutes as string[]){const route=routes.get(id);if(!route||route.from!==s.id||!(s.refuges as string[]).includes(String(route.to)))fail('site route/refuge');const first=(route.samples as {point:ENH}[])[0].point;if(distance(first,s.home)>1e-5)fail('route discontinuity');}
+  for(const id of s.allowedRoutes as string[]){const route=routes.get(id);if(!route||route.from!==s.id||!(s.refuges as string[]).includes(String(route.to)))fail('site route/refuge');if(route.motion){const allowed=s.species==='red-squirrel'?['ground-bound','mount','climb','trunk-idle']:s.species==='roe-deer'?['walk-away','flee','recover']:[];if((route.motion as {state:string}[]).some(k=>!allowed.includes(k.state)))fail('species motion');}const first=(route.samples as {point:ENH}[])[0].point;if(distance(first,s.home)>1e-5)fail('route discontinuity');}
   if(!(s.allowedRoutes as string[]).length)fail('no escape route');sites.add(s.id);
  }
  for(const o of value.obstacles)if(!record(o)||!label(o.id)||!bounds(o))fail('obstacle proxy');

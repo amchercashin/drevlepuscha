@@ -1,10 +1,11 @@
 import type {BirdBehavior,HabitatCell,HabitatSite,PreparedRoute,WildlifeContentId,WildlifeEvent,WildlifeFrame,WildlifeLimits,WildlifePose,WildlifeStepInput} from './types.ts';
 import {entityId,choice} from './ids.ts';
-import {distance,routeHeading,sampleRoute} from './routes.ts';
+import {distance,routeHeading,sampleRoute,routeMotion,routeMetres} from './routes.ts';
+import {LAND_BEHAVIOR} from './behavior.ts';
 import {blocksSight,safeRoutes,threats} from './perception.ts';
 import {validateCell,enh,finite} from './habitat.ts';
 export interface WildlifeWorldOptions {content:WildlifeContentId;authorityEpoch:string;seed:string;cells:ReadonlyMap<string,HabitatCell>;limits:WildlifeLimits;bird:BirdBehavior;}
-interface Agent {pose:Extract<WildlifePose,{species:'woodland-bird'}>;cellId:string;site:HabitatSite;decision:number;threatSince:number|null;quietSince:number|null;farSince:number|null;}
+interface Agent {pose:WildlifePose;cellId:string;site:HabitatSite;decision:number;threatSince:number|null;quietSince:number|null;farSince:number|null;}
 /** The caller owns all clocks/timers. snapshot is a detached, side-effect-free read. */
 export class WildlifeWorld {
  private readonly options:WildlifeWorldOptions;
@@ -29,9 +30,9 @@ export class WildlifeWorld {
   this.cells.delete(id);this.pendingLeaves.delete(id);return true;
  }
  private route(a:Agent):PreparedRoute|undefined{return a.pose.route?this.cells.get(a.pose.route.cellId)?.routes.find(r=>r.id===a.pose.route!.routeId):undefined;}
- private position(a:Agent,time:number){const r=this.route(a);if(!r)return {...a.pose.point};const d=a.pose.routeStartDistanceM+Math.max(0,time-a.pose.routeStartMs)*a.pose.speedMps/1000;return sampleRoute(r,d).point;}
+ private position(a:Agent,time:number){const r=this.route(a);if(!r)return {...a.pose.point};const d=routeMetres(r,a.pose,time);return sampleRoute(r,d).point;}
  private retire(id:string,a:Agent,now:number){
-  this.agents.delete(id);this.dormant.delete(id);this.dormant.set(id,{generation:a.pose.generation,nextMs:now+this.options.bird.cooldownMs});
+  this.agents.delete(id);this.dormant.delete(id);this.dormant.set(id,{generation:a.pose.generation,nextMs:now+(LAND_BEHAVIOR[a.pose.species]??this.options.bird).cooldownMs});
   while(this.dormant.size>this.options.limits.maxDormantRecords)this.dormant.delete(this.dormant.keys().next().value!);
  }
  private decide(input:WildlifeStepInput,now:number,silent:boolean){
@@ -41,46 +42,57 @@ export class WildlifeWorld {
   for(const cell of [...this.cells.values()].sort((a,b)=>a.id.localeCompare(b.id))){
    if(this.pendingLeaves.has(cell.id))continue;
    for(const site of [...cell.sites].sort((a,b)=>a.id.localeCompare(b.id))){
-    if(site.species!=='woodland-bird')continue; // W4/W5 add their own typed FSMs.
+    const behavior=LAND_BEHAVIOR[site.species]??bird;
     for(let slot=0;slot<site.maxResidents;slot++){
      const id=entityId(content.realmId,cell.id,site.id,slot),dormant=this.dormant.get(id);
      if(this.agents.has(id)||this.agents.size>=limits.maxActiveEntities||(dormant&&now<dormant.nextMs)||input.environment.daylight01<.2||input.environment.precipitation01>.6)continue;
      const nearest=Math.min(...input.observers.map(o=>Math.hypot(o.e-site.home.e,o.n-site.home.n)));
-     if(nearest>limits.activeRadiusM||nearest<bird.alertRadiusM*2)continue;
-     this.agents.set(id,{cellId:cell.id,site,decision:0,threatSince:null,quietSince:null,farSince:null,pose:{id,generation:(dormant?.generation??-1)+1,species:'woodland-bird',siteId:site.id,state:'perched',stateSinceMs:now,point:{...site.home},headingDeg:0,route:null,routeStartMs:now,routeStartDistanceM:0,speedMps:0,animationVariant:choice(seed,id,0,3)}});
+     if(nearest>limits.activeRadiusM||nearest<behavior.alertRadiusM*2)continue;
+     this.agents.set(id,{cellId:cell.id,site,decision:0,threatSince:null,quietSince:null,farSince:null,pose:{id,generation:(dormant?.generation??-1)+1,species:site.species,siteId:site.id,state:site.species==='woodland-bird'?'perched':site.species==='red-squirrel'?'forage':'graze',stateSinceMs:now,point:{...site.home},headingDeg:0,route:null,routeStartMs:now,routeStartDistanceM:0,speedMps:0,animationVariant:choice(seed,id,0,3)} as WildlifePose});
     }
    }
   }
   for(const [id,a] of [...this.agents].sort(([a],[b])=>a.localeCompare(b))){
-   const p=a.pose,cell=this.cells.get(a.cellId)!;p.point=this.position(a,now);
+   const p=a.pose,cell=this.cells.get(a.cellId)!,behavior=LAND_BEHAVIOR[p.species]??bird;p.point=this.position(a,now);
    const near=Math.min(...input.observers.map(o=>Math.hypot(o.e-p.point.e,o.n-p.point.n)));
    if(near>limits.exitRadiusM){a.farSince??=now;if(now-a.farSince>=limits.exitDelayMs){this.retire(id,a,now);continue;}}else a.farSince=null;
    if(p.route){
-    const route=this.route(a)!;const travelled=p.routeStartDistanceM+Math.max(0,now-p.routeStartMs)*p.speedMps/1000;
+    let route=this.route(a)!;let travelled=routeMetres(route,p,now);
+    if(p.species!=='woodland-bird'&&travelled<route.lengthM){
+     const blocked=route.samples.some(s=>s.distanceM>travelled+.15&&s.distanceM<travelled+Math.max(2,p.speedMps)&&input.observers.some(o=>distance(s.point,{e:o.e,n:o.n,h:o.h+.5})<Math.min(behavior.observerClearanceM,distance(p.point,{e:o.e,n:o.n,h:o.h+.5})-.05)));
+     if(blocked){if(p.state!=='alert'){p.routeStartDistanceM=travelled;p.state='alert';p.stateSinceMs=now;p.speedMps=0;}continue;}
+     if(p.state==='alert'){p.routeStartMs+=now-p.stateSinceMs;p.routeStartDistanceM=0;}
+     if(p.species==='roe-deer'&&route.motion?.[0].state==='walk-away'&&near<behavior.fleeRadiusM){
+      const escape=cell.routes.find(r=>r.from===route.from&&r.to===route.to&&r.motion?.[0].state==='flee');
+      if(escape){p.route={cellId:a.cellId,routeId:escape.id};p.routeStartMs=now-travelled/2*1000;route=escape;}
+     }
+    }
     p.headingDeg=routeHeading(route,travelled);
+    const motion=routeMotion(route,now-p.routeStartMs);
+    if(motion&&p.state!=='hidden'){p.state=motion.state;p.stateSinceMs=p.routeStartMs+motion.sinceMs;p.speedMps=motion.speedMps;}
     if(travelled>=route.lengthM){
      // Stay visibly at the end if someone is inspecting the refuge nearby.
-     if(near>bird.alertRadiusM*1.5&&p.state!=='hidden'){p.state='hidden';p.stateSinceMs=now;}
-     if(p.state==='hidden'&&now-p.stateSinceMs>=bird.cooldownMs)this.retire(id,a,now);
+     if(near>behavior.alertRadiusM*1.5&&p.state!=='hidden'&&(!motion||now-p.stateSinceMs>2000)){const covered=input.observers.every(o=>{if(sightBudget<=0)return false;sightBudget--;this.counters.visibilityTests++;return cell.obstacles.some(b=>blocksSight({...o,h:o.h+1.6},{...p.point,h:p.point.h+.25},b));});if(covered){p.state='hidden';p.stateSinceMs=now;}}
+     if(p.state==='hidden'&&now-p.stateSinceMs>=behavior.cooldownMs)this.retire(id,a,p.stateSinceMs);
     }else if(now-p.stateSinceMs>=bird.takeoffMs&&p.state==='takeoff'){p.state='flying';p.stateSinceMs=now;}
     continue;
    }
-   const threat=threats(p.point,input.observers,bird,o=>{
+   const threat=threats(p.point,input.observers,behavior,o=>{
     if(sightBudget<=0)return true; // Conservative hearing/uncertainty, never unlimited raycasts.
     sightBudget--;this.counters.visibilityTests++;
     return !cell.obstacles.some(b=>b.id!==a.site.treeId&&blocksSight({...o,h:o.h+1.6},p.point,b));
    });
    if(threat.alert){
     a.quietSince=null;a.threatSince??=now;
-    if(p.state==='perched'&&now-a.threatSince>=bird.confirmMs){p.state='alert';p.stateSinceMs=now;}
-    if(p.state==='alert'&&threat.flee&&now-p.stateSinceMs>=bird.confirmMs){
-     const candidates=safeRoutes(cell.routes.filter(r=>a.site.allowedRoutes.includes(r.id)),input.observers,bird);
+    if(['perched','forage','graze'].includes(p.state)&&now-a.threatSince>=behavior.confirmMs){p.state='alert';p.stateSinceMs=now;}
+    if(p.state==='alert'&&(threat.flee||p.species==='roe-deer')&&now-p.stateSinceMs>=behavior.confirmMs){
+     const candidates=safeRoutes(cell.routes.filter(r=>a.site.allowedRoutes.includes(r.id)&&(p.species!=='roe-deer'||r.motion?.[0].state===(threat.flee?'flee':'walk-away'))),input.observers,behavior);
      if(candidates.length){const best=candidates[0].safety,ties=candidates.filter(c=>c.safety===best),route=ties[choice(seed,id,++a.decision,ties.length)].route;
-      p.state='takeoff';p.stateSinceMs=now;p.route={cellId:a.cellId,routeId:route.id};p.routeStartMs=now;p.routeStartDistanceM=0;p.speedMps=bird.speedMps;
-      if(!silent){this.recent.push({seq:++this.watermark,entityId:id,entityGeneration:p.generation,kind:'bird-flush',atMs:now,position:{...p.point},cueVariant:choice(seed,id,a.decision,3)});}
+      p.state=route.motion?.[0].state??'takeoff';p.stateSinceMs=now;p.route={cellId:a.cellId,routeId:route.id};p.routeStartMs=now;p.routeStartDistanceM=0;p.speedMps=routeMotion(route,0)?.speedMps??bird.speedMps;
+      if(!silent){this.recent.push({seq:++this.watermark,entityId:id,entityGeneration:p.generation,kind:p.species==='woodland-bird'?'bird-flush':p.species==='red-squirrel'?'squirrel-scramble':'deer-startle',atMs:now,position:{...p.point},cueVariant:choice(seed,id,a.decision,3)});}
      }
     }
-   }else {a.threatSince=null;a.quietSince??=now;if(p.state==='alert'&&now-a.quietSince>=bird.recoverMs){p.state='perched';p.stateSinceMs=now;}}
+   }else {a.threatSince=null;a.quietSince??=now;if(p.state==='alert'&&now-a.quietSince>=behavior.recoverMs){p.state=p.species==='woodland-bird'?'perched':p.species==='red-squirrel'?'forage':'graze';p.stateSinceMs=now;}}
   }
   for(const id of [...this.pendingLeaves])this.leaveCell(id);
  }
@@ -102,7 +114,7 @@ export class WildlifeWorld {
  restoreVisible(frame:WildlifeFrame){
   if(this.agents.size||frame.content.contentHash!==this.options.content.contentHash)throw Error('Cannot restore incompatible wildlife');
   this.time=frame.simMs;this.nextDecision=(Math.floor(this.time/this.options.limits.decisionStepMs)+1)*this.options.limits.decisionStepMs;
-  for(const pose of frame.entities){if(pose.species!=='woodland-bird')continue;
+  for(const pose of frame.entities){
    const cell=[...this.cells.values()].find(c=>c.sites.some(s=>s.id===pose.siteId));const site=cell?.sites.find(s=>s.id===pose.siteId);
    if(!cell||!site)throw Error('Unknown restored wildlife site');
    this.agents.set(pose.id,{pose:structuredClone(pose),cellId:cell.id,site,decision:1,threatSince:null,quietSince:null,farSince:null});

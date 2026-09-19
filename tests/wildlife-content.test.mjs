@@ -43,7 +43,7 @@ test('anchor normal uses inverse transpose under nonuniform scale and tilt',()=>
 test('relocation reuses the model-space perch, but independently validates geometry and identities',()=>{
  const original=readJSON('config/wildlife/showcase-sites.json'),relocated=readJSON('config/wildlife/showcase-relocated-site.json');
  assert.deepEqual(original.perch.point,relocated.perch.point);assert.equal(original.perch.familyId,relocated.perch.familyId);assert.notEqual(original.perch.treeId,relocated.perch.treeId);
- const result=compile().data;assert.equal(result.cells.length,2);assert.equal(result.cells.flatMap(c=>c.sites).length,2);assert.equal(result.cells.flatMap(c=>c.routes).length,4);
+ const result=compile().data;assert.equal(result.cells.length,4);assert.equal(result.cells.flatMap(c=>c.sites).length,4);assert.equal(result.cells.flatMap(c=>c.routes).length,11);
  const homes=result.cells.map(c=>c.sites[0].home);assert.ok(Math.hypot(homes[0].e-homes[1].e,homes[0].n-homes[1].n)>400);
  const first=compile(original).data,second=compile(relocated).data;assert.notEqual(first.identity.contentHash,second.identity.contentHash);
  const bad=structuredClone(relocated);bad.perch.familyId='incompatible';assert.throws(()=>compile(bad),/rigid wind zone/);

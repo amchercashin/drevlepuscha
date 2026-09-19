@@ -1,0 +1,14 @@
+{
+ "species":"red-squirrel","meshName":"RedSquirrel","sourceUnitsToMetres":0.3,"sourceGroundZ":-0.7778419852256775,"front":"Blender -Y, glTF +Z",
+ "fps":50,"textureSize":1024,"lodTriangles":[3000,1200,300],
+ "clips":{"forage_idle":3.0,"alert":0.6,"bound_ground":0.5,"mount_trunk":0.4,"climb_up":0.6,"trunk_idle":3.0},
+ "locomotion":{"bound_ground":{"speedMps":0.8,"stance":0.35,"liftM":0.035},"climb_up":{"speedMps":0.35,"stance":0.55,"liftM":0.018}},
+ "landmarks":{
+  "hips":[0,0.15,-0.24],"spine":[0,-0.15,-0.23],"chest":[0,-0.44,-0.19],"neck":[0,-0.55,-0.08],"head":[0,-0.72,0.03],"nose":[0,-0.93,-0.06],
+  "ear":[0.14,-0.53,0.22],"earTip":[0.14,-0.52,0.39],
+  "frontHip":[0.16,-0.48,-0.25],"frontKnee":[0.16,-0.47,-0.52],"frontAnkle":[0.16,-0.54,-0.735],"frontToe":[0.16,-0.67,-0.775],
+  "rearHip":[0.17,0.13,-0.24],"rearKnee":[0.18,0.27,-0.59],"rearAnkle":[0.18,0.17,-0.73],"rearToe":[0.18,0.03,-0.775],
+  "tail":[[0,0.32,-0.26],[0,0.57,-0.16],[0,0.56,0.16],[0,0.52,0.47],[0,0.68,0.66],[0,0.9,0.48]]
+ },
+ "regions":{"headY":-0.54,"headZ":-0.1,"earZ":0.18,"tailY":0.34,"tailZ":-0.31,"legZ":-0.29,"frontSplitY":-0.22}
+}

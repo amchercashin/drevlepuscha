@@ -2,6 +2,7 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
+import {landEpisode} from './land-build.mjs';
 import {sceneData,readJSON,treeInputs,propInputs} from './scene-data.mjs';
 import {showcaseHeight,showcasePath} from '../../src/domain/showcase.ts';
 import {meshBlocksCylinder,meshBlocksSegment} from '../../src/domain/mesh-collision.ts';
@@ -10,7 +11,7 @@ import {cellId} from '../../src/domain/wildlife/ids.ts';
 import {validatePackage} from '../../src/domain/wildlife/habitat.ts';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const sha=x=>createHash('sha256').update(x).digest('hex');
-export const inputs=[...treeInputs,...propInputs,'config/wildlife/showcase-sites.json','config/wildlife/showcase-relocated-site.json','config/wildlife/species.json','config/wildlife/budgets.json','config/wildlife/bird-envelope.json','public/wildlife/assets.json','src/domain/showcase.ts','src/domain/forest-layout.ts','src/domain/forest-records.ts','src/domain/forest-props-layout.ts','src/domain/tree-family.ts','src/domain/seed.ts','src/domain/mesh-collision.ts','src/domain/wildlife/routes.ts','src/domain/wildlife/types.ts','tools/wildlife/scene-data.mjs','tools/wildlife/build.mjs'];
+export const inputs=['src/domain/wildlife/world.ts','src/domain/wildlife/perception.ts','src/domain/wildlife/ids.ts','config/wildlife/squirrel-site.json','config/wildlife/deer-site.json','src/domain/wildlife/behavior.ts','src/domain/wildlife/habitat.ts','tools/wildlife/land-build.mjs',...treeInputs,...propInputs,'config/wildlife/showcase-sites.json','config/wildlife/showcase-relocated-site.json','config/wildlife/species.json','config/wildlife/budgets.json','config/wildlife/bird-envelope.json','public/wildlife/assets.json','src/domain/showcase.ts','src/domain/forest-layout.ts','src/domain/forest-records.ts','src/domain/forest-props-layout.ts','src/domain/tree-family.ts','src/domain/seed.ts','src/domain/mesh-collision.ts','src/domain/wildlife/routes.ts','src/domain/wildlife/types.ts','tools/wildlife/scene-data.mjs','tools/wildlife/build.mjs'];
 // All inputs are versioned text. Hash Git's LF form on Windows as well as Linux.
 export const sourceHash=text=>sha(text.replace(/\r\n/g,'\n'));
 export const sourceHashes=()=>Object.fromEntries(inputs.map(p=>[p,sourceHash(readFileSync(resolve(root,p),'utf8'))]));
@@ -80,6 +81,10 @@ export function compile(configs=[readJSON('config/wildlife/showcase-sites.json')
  const previous=cells.get(id);
  if(previous){previous.sites.push(site);previous.routes.push(...routes);previous.obstacles=[...new Map([...previous.obstacles,...proxies].map(p=>[p.id,p])).values()];}
  else cells.set(id,{id,contentHash:hash,sites:[site],routes,neighbors:[],obstacles:proxies});
+ }
+ for(const path of ['config/wildlife/squirrel-site.json','config/wildlife/deer-site.json']){
+ const config=readJSON(path),land=landEpisode(config,scene,hash),previous=cells.get(land.id);if(previous){previous.sites.push(...land.sites);previous.routes.push(...land.routes);previous.obstacles=[...new Map([...previous.obstacles,...land.obstacles].map(o=>[o.id,o])).values()];}else cells.set(land.id,land);
+ if(config.tree){const b=config.tree;treeBindings.set(b.id,{id:b.id,familyId:b.familyId,assetVersion:b.assetVersion});}
  }
  const data={identity:{realmId:'showcase-ravines',contentHash:hash,behaviorVersion:1},limits:readJSON('config/wildlife/budgets.json'),bird,treeBindings:[...treeBindings.values()],cells:[...cells.values()]};
  validatePackage(data);return {data,hashes,scene};

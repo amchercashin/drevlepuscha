@@ -1,3 +1,4 @@
+import {blocksSight as wildlifeBlocksSight} from './domain/wildlife/perception.ts';
 import type {createShowcaseWildlife} from './runtime/showcase-wildlife.ts';
 import {WindSystem} from './runtime/wind.ts';
 import {createWindControls} from './runtime/wind-controls.ts';
@@ -190,20 +191,22 @@ try {
   const wildlifeRequested=showcaseEnabled&&new URLSearchParams(location.search).get('debug')==='1'&&new URLSearchParams(location.search).get('wildlife')==='1';
   if(wildlifeRequested&&forest){
    const [{loadShowcaseWildlife},{createShowcaseWildlife}]=await Promise.all([import('./network/showcase-wildlife-data.ts'),import('./runtime/showcase-wildlife.ts')]);
-   const art=new URLSearchParams(location.search).get('wildlifeTestModel')==='1'?null:await (await import('./runtime/wildlife/assets.ts')).fetchBirdArt().catch(()=>null);
+   const art=new URLSearchParams(location.search).get('wildlifeTestModel')==='1'?null:await (await import('./runtime/wildlife/assets.ts')).fetchWildlifeArt().catch(()=>null);
    ambient?.setWildlifeEventsEnabled(true);
    const content=await loadShowcaseWildlife();
    wildlife=createShowcaseWildlife(scene,content,forest.treeCatalog(),sunlight,()=>({id:'solo',e:player.e,n:player.n,h:groundHeight(player.e,player.n),headingDeg:player.heading,...wildlifeMotion,observedAtMs:performance.now()}),()=>({totalGameHours:daylight?.stats().totalGameHours??12,daylight01:daylight?.daylightAmount()??1,precipitation01:daylight?.precipitation()??0}),!!location.hash,art,(event,age)=>{if(event.kind==='bird-flush')ambient?.playWildlifeEvent({x:event.position.e,y:event.position.h,z:-event.position.n},age);});
    wildlife.setQuality(QUALITY_PROFILES[effectiveQuality]);
-   const sites=content.cells.flatMap(c=>c.sites);let home=sites[0].home;const review=document.createElement('div');
+   const sites=content.cells.flatMap(c=>c.sites);let selectedSite=sites[0],home=selectedSite.home;const review=document.createElement('div');
    review.style.cssText='position:fixed;left:12px;bottom:34px;z-index:11;display:flex;gap:6px';
-   const siteSelect=document.createElement('select');siteSelect.setAttribute('aria-label','Место птицы');sites.forEach((site,i)=>siteSelect.add(new Option(`Место ${i+1}`,site.id)));review.append(siteSelect);
-   siteSelect.onchange=()=>{home=sites.find(s=>s.id===siteSelect.value)!.home;};
-   for(const [label,metres] of [['К птице',7],['Подойти',3],['Отойти',25]] as const){
+   const siteSelect=document.createElement('select');siteSelect.setAttribute('aria-label','Место фауны');sites.forEach((site,i)=>siteSelect.add(new Option(`${({'woodland-bird':'Птица','red-squirrel':'Белка','roe-deer':'Косуля'})[site.species]} · ${i+1}`,site.id)));review.append(siteSelect);
+   siteSelect.onchange=()=>{selectedSite=sites.find(s=>s.id===siteSelect.value)!;home=selectedSite.home;};
+   for(const [label,metres] of [['К животному',7],['Подойти',3],['Отойти',25]] as const){
     const button=document.createElement('button');button.textContent=label;review.append(button);
-    button.onclick=()=>{const side=metres<=7?3:0,e=home.e-Math.sin(yaw*Math.PI/180)*metres+Math.cos(yaw*Math.PI/180)*side,n=home.n-Math.cos(yaw*Math.PI/180)*metres-Math.sin(yaw*Math.PI/180)*side;
-     if(!walkerIsClear({e,n},world.boxes)){button.title='Эта точка занята деревом. Поверните обзор и попробуйте снова.';return;}
-     player.e=e;player.n=n;player.heading=yaw;keys.clear();focusScene();
+    button.onclick=()=>{const range=selectedSite.species==='roe-deer'&&metres===25?40:selectedSite.species!=='woodland-bird'&&metres===3?2:metres,side=metres<=7?3:0,e=home.e-Math.sin(yaw*Math.PI/180)*range+Math.cos(yaw*Math.PI/180)*side,n=home.n-Math.cos(yaw*Math.PI/180)*range-Math.sin(yaw*Math.PI/180)*side;
+     const obstacles=content.cells.find(c=>c.id===selectedSite.cellId)!.obstacles;
+     const point=[0,-20,20,-40,40,-60,60,-90,90].map(degrees=>{const a=degrees*Math.PI/180,de=e-home.e,dn=n-home.n;return {e:home.e+de*Math.cos(a)-dn*Math.sin(a),n:home.n+de*Math.sin(a)+dn*Math.cos(a)};}).find(p=>walkerIsClear(p,world.boxes)&&(metres>7||!obstacles.some(b=>b.id!==selectedSite.treeId&&wildlifeBlocksSight({...p,h:groundHeight(p.e,p.n)+1.6},home,b))));
+     if(!point){button.title='Рядом нет свободной точки с обзором животного.';return;}button.title='';
+     player.e=point.e;player.n=point.n;player.heading=yaw;keys.clear();focusScene();
     };
    }
    document.body.append(review);scene.onDisposeObservable.add(()=>review.remove());

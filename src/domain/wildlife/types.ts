@@ -11,7 +11,7 @@ export interface WildlifeContentId {realmId:string;contentHash:string;behaviorVe
 export interface RouteRef {cellId:string;routeId:string;}
 export interface HabitatSite {id:string;cellId:string;species:SpeciesId;home:ENH;allowedRoutes:readonly string[];refuges:readonly string[];treeId?:string;maxResidents:number;tags:readonly string[];}
 export interface RouteSample {distanceM:number;point:ENH;normal:readonly [number,number,number];}
-export interface PreparedRoute {id:string;kind:'ground'|'flight'|'mount-trunk'|'climb'|'refuge';from:string;to:string;lengthM:number;samples:readonly RouteSample[];bounds:{min:ENH;max:ENH};clearanceM:number;maxSlopeDeg:number;treeId?:string;}
+export interface PreparedRoute {id:string;kind:'ground'|'flight'|'mount-trunk'|'climb'|'refuge';from:string;to:string;lengthM:number;samples:readonly RouteSample[];bounds:{min:ENH;max:ENH};clearanceM:number;maxSlopeDeg:number;treeId?:string;motion?:readonly {atMs:number;distanceM:number;state:SquirrelState|DeerState}[];}
 export interface ObstacleProxy {id:string;min:ENH;max:ENH;}
 export interface HabitatCell {id:string;contentHash:string;sites:readonly HabitatSite[];routes:readonly PreparedRoute[];neighbors:readonly string[];obstacles:readonly ObstacleProxy[];}
 export interface WildlifeEnvironment {totalGameHours:number;daylight01:number;precipitation01:number;}
