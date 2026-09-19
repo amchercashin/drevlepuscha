@@ -168,8 +168,10 @@ Baseline этого этапа: `6f63307` (`feat(wildlife): complete showcase co
 
 Финальный `npm run build` — **PASS** (TypeScript, content freshness, 10 GLB/2 Opus, Vite); **World pack unchanged**. В 321 текстовых файлах dist ключей Meshy и подписанных URL не найдено. Итоговый showcase contentHash: `25d5198e31d48363faa0dfeabac4e83644572e5e965b4f33eb1a15814458c2ea`. `git diff --check` PASS.
 
-## 2026-09-20 · Публикация для проверки с компьютера и телефона
+## 2026-09-19 · Публикация для проверки с компьютера и телефона
 
 Пользователь разрешил публикацию текущей версии для проверки на компьютере/телефоне. Это публикация кандидатов шоукейса, не художественная приёмка. W7 и карта по-прежнему отложены. Публичный вход проверки: `https://amchercashin.github.io/drevlepuscha/?debug=1&wildlife=1`; обычный `/` не включает wildlife автоматически.
 
 Перед отправкой поправлена только панель проверки: перенос кнопок на узком экране и положение выше джойстика при сенсорном вводе, статус ограничен шириной экрана. Прямой Playwright 390×844/hasTouch: кнопки в пределах viewport, джойстик не перекрыт, выбор белки/переход к реальной модели — PASS (11.5 с). Это проверка раскладки на Windows Chrome, не замер и не приёмка физического телефона. Кандидатные статусы и запрет production-acceptance для непринятых ассетов сохранены. Публикация штатным main → CI → GitHub Pages; итог CI/URL проверяется после отправки.
+
+Публикация подтверждена: commit `390280234c5b3cdaa29269a1ac286bbd9910c53d`, GitHub Actions [35468938980](https://github.com/amchercashin/drevlepuscha/actions/runs/35468938980), check/deploy **success**. С публичного Pages получен ожидаемый contentHash `25d5198e31d48363faa0dfeabac4e83644572e5e965b4f33eb1a15814458c2ea`; прямой Playwright по публичному HTTPS URL загрузил WebGPU, реальную птицу LOD0/alert и новую панель, без page errors и asset errors. Локальный лог: `tmp/wildlife-published-smoke.log`. Проверки на физическом телефоне пока нет. Удобная ссылка текущей проверки: `https://amchercashin.github.io/drevlepuscha/?debug=1&wildlife=1&v=3902802`. Авторизация пользователя касается опубликованного кандидата, статусы художественной/слуховой приёмки не изменены.
