@@ -33,11 +33,21 @@ def animate_land(arm,guide):
                         point=convert(p[limb+'Ankle'],guide);point.x*=sign;point.y+=y;point.z+=lift;ik(limb,side,point,offset)
             else:
                 rot('head',(0,0,1),math.sin(phase*2*math.pi)*(5 if name in ['forage_idle','trunk_idle'] else 12))
-                if name=='mount_trunk':rot('neck',(1,0,0),-12*math.sin(phase*math.pi))
+                if name=='mount_trunk':
+                    rot('neck',(1,0,0),-12*math.sin(phase*math.pi));bpy.context.view_layer.update()
+                    for limb in ['front','rear']:
+                        for side,sign in [('L',1),('R',-1)]:
+                            point=convert(p[limb+'Ankle'],guide);point.x*=sign;point.y+=(-.03 if limb=='front' else .015)*math.sin(phase*math.pi);point.z+=(-.045 if limb=='front' else .045)*math.sin(phase*math.pi);ik(limb,side,point,offset)
                 elif name=='forage_idle':rot('neck',(1,0,0),7*math.sin(phase*math.pi)**2)
             if guide['species']=='roe-deer':
                 rot('head',(0,0,1),guide.get('headNeutralYaw',0)+(math.sin(phase*2*math.pi)*5 if name=='alert' else 0))
-                if name=='graze_idle':rot('neck',(1,0,0),65+15*math.sin(phase*math.pi)**2)
+                if name=='graze_idle':
+                    offset.z=-.10;hips=arm.pose.bones['hips'];hips.location=hips.bone.matrix_local.to_quaternion().inverted()@offset
+                    head=arm.pose.bones['head'];basis=head.bone.matrix_local.to_quaternion();head.rotation_quaternion=basis.inverted()@Quaternion(Vector((1,0,0)),math.radians(-65))@Quaternion(Vector((0,0,1)),math.radians(guide.get('headNeutralYaw',0)))@basis
+                    rot('hips',(1,0,0),18);rot('chest',(1,0,0),60);rot('neck',(1,0,0),40+8*math.sin(phase*math.pi)**2);bpy.context.view_layer.update()
+                    for limb in ['front','rear']:
+                        for side,sign in [('L',1),('R',-1)]:
+                            point=convert(p[limb+'Ankle'],guide);point.x*=sign;ik(limb,side,point,offset)
             for i in range(len(p['tail'])-1):rot(f'tail.{i}',(0,0,1),math.sin(phase*2*math.pi-i*.2)*(2 if not moving else 3))
             for side,sign in [('L',1),('R',-1)]:rot('ear.'+side,(0,1,0),sign*math.sin(phase*2*math.pi)*3)
             for b in arm.pose.bones:

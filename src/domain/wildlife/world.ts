@@ -1,3 +1,4 @@
+import {wildlifeAdmission,wildlifeCooldown} from './activity.ts';
 import type {BirdBehavior,HabitatCell,HabitatSite,PreparedRoute,WildlifeContentId,WildlifeEvent,WildlifeFrame,WildlifeLimits,WildlifePose,WildlifeStepInput} from './types.ts';
 import {entityId,choice} from './ids.ts';
 import {distance,routeHeading,sampleRoute,routeMotion,routeMetres} from './routes.ts';
@@ -32,7 +33,7 @@ export class WildlifeWorld {
  private route(a:Agent):PreparedRoute|undefined{return a.pose.route?this.cells.get(a.pose.route.cellId)?.routes.find(r=>r.id===a.pose.route!.routeId):undefined;}
  private position(a:Agent,time:number){const r=this.route(a);if(!r)return {...a.pose.point};const d=routeMetres(r,a.pose,time);return sampleRoute(r,d).point;}
  private retire(id:string,a:Agent,now:number){
-  this.agents.delete(id);this.dormant.delete(id);this.dormant.set(id,{generation:a.pose.generation,nextMs:now+(LAND_BEHAVIOR[a.pose.species]??this.options.bird).cooldownMs});
+  this.agents.delete(id);this.dormant.delete(id);this.dormant.set(id,{generation:a.pose.generation,nextMs:now+wildlifeCooldown((LAND_BEHAVIOR[a.pose.species]??this.options.bird).cooldownMs,this.options.seed,id,a.pose.generation)});
   while(this.dormant.size>this.options.limits.maxDormantRecords)this.dormant.delete(this.dormant.keys().next().value!);
  }
  private decide(input:WildlifeStepInput,now:number,silent:boolean){
@@ -45,10 +46,10 @@ export class WildlifeWorld {
     const behavior=LAND_BEHAVIOR[site.species]??bird;
     for(let slot=0;slot<site.maxResidents;slot++){
      const id=entityId(content.realmId,cell.id,site.id,slot),dormant=this.dormant.get(id);
-     if(this.agents.has(id)||this.agents.size>=limits.maxActiveEntities||(dormant&&now<dormant.nextMs)||input.environment.daylight01<.2||input.environment.precipitation01>.6)continue;
+     if(this.agents.has(id)||this.agents.size>=limits.maxActiveEntities||(dormant&&now<dormant.nextMs)||!wildlifeAdmission(input.environment,site.species,seed,id,(dormant?.generation??-1)+1))continue;
      const nearest=Math.min(...input.observers.map(o=>Math.hypot(o.e-site.home.e,o.n-site.home.n)));
      if(nearest>limits.activeRadiusM||nearest<behavior.alertRadiusM*2)continue;
-     this.agents.set(id,{cellId:cell.id,site,decision:0,threatSince:null,quietSince:null,farSince:null,pose:{id,generation:(dormant?.generation??-1)+1,species:site.species,siteId:site.id,state:site.species==='woodland-bird'?'perched':site.species==='red-squirrel'?'forage':'graze',stateSinceMs:now,point:{...site.home},headingDeg:0,route:null,routeStartMs:now,routeStartDistanceM:0,speedMps:0,animationVariant:choice(seed,id,0,3)} as WildlifePose});
+     this.agents.set(id,{cellId:cell.id,site,decision:0,threatSince:null,quietSince:null,farSince:null,pose:{id,generation:(dormant?.generation??-1)+1,species:site.species,siteId:site.id,state:site.species==='woodland-bird'?'perched':site.species==='red-squirrel'?'forage':'graze',stateSinceMs:now,point:{...site.home},headingDeg:site.species==='woodland-bird'?0:routeHeading(cell.routes.find(r=>r.id===site.allowedRoutes[0])!,0),route:null,routeStartMs:now,routeStartDistanceM:0,speedMps:0,animationVariant:choice(seed,id,0,3)} as WildlifePose});
     }
    }
   }
@@ -73,7 +74,7 @@ export class WildlifeWorld {
     if(travelled>=route.lengthM){
      // Stay visibly at the end if someone is inspecting the refuge nearby.
      if(near>behavior.alertRadiusM*1.5&&p.state!=='hidden'&&(!motion||now-p.stateSinceMs>2000)){const covered=input.observers.every(o=>{if(sightBudget<=0)return false;sightBudget--;this.counters.visibilityTests++;return cell.obstacles.some(b=>blocksSight({...o,h:o.h+1.6},{...p.point,h:p.point.h+.25},b));});if(covered){p.state='hidden';p.stateSinceMs=now;}}
-     if(p.state==='hidden'&&now-p.stateSinceMs>=behavior.cooldownMs)this.retire(id,a,p.stateSinceMs);
+     if(p.state==='hidden'&&now-p.stateSinceMs>=wildlifeCooldown(behavior.cooldownMs,seed,id,p.generation))this.retire(id,a,p.stateSinceMs);
     }else if(now-p.stateSinceMs>=bird.takeoffMs&&p.state==='takeoff'){p.state='flying';p.stateSinceMs=now;}
     continue;
    }

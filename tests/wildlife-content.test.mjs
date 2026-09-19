@@ -1,3 +1,5 @@
+import {meshBlocksCylinder} from '../src/domain/mesh-collision.ts';
+import {contactEvidence} from '../tools/wildlife/contact-evidence.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
@@ -43,9 +45,16 @@ test('anchor normal uses inverse transpose under nonuniform scale and tilt',()=>
 test('relocation reuses the model-space perch, but independently validates geometry and identities',()=>{
  const original=readJSON('config/wildlife/showcase-sites.json'),relocated=readJSON('config/wildlife/showcase-relocated-site.json');
  assert.deepEqual(original.perch.point,relocated.perch.point);assert.equal(original.perch.familyId,relocated.perch.familyId);assert.notEqual(original.perch.treeId,relocated.perch.treeId);
- const result=compile().data;assert.equal(result.cells.length,4);assert.equal(result.cells.flatMap(c=>c.sites).length,4);assert.equal(result.cells.flatMap(c=>c.routes).length,11);
+ const result=compile().data;assert.equal(result.cells.length,5);assert.equal(result.cells.flatMap(c=>c.sites).length,5);assert.equal(result.cells.flatMap(c=>c.routes).length,12);
  const homes=result.cells.map(c=>c.sites[0].home);assert.ok(Math.hypot(homes[0].e-homes[1].e,homes[0].n-homes[1].n)>400);
  const first=compile(original).data,second=compile(relocated).data;assert.notEqual(first.identity.contentHash,second.identity.contentHash);
  const bad=structuredClone(relocated);bad.perch.familyId='incompatible';assert.throws(()=>compile(bad),/rigid wind zone/);
  const duplicate=structuredClone(result);duplicate.treeBindings.push({...duplicate.treeBindings[0]});assert.throws(()=>validatePackage(duplicate),/tree binding/);
 });
+test('two real squirrel supports preserve measured paw clearance across all LODs and differ in scale/tilt',()=>{
+ const original=readJSON('config/wildlife/squirrel-site.json'),relocated=readJSON('config/wildlife/squirrel-relocated-site.json');
+ assert.equal(original.tree.familyId,relocated.tree.familyId);assert.notEqual(original.tree.id,relocated.tree.id);assert.notDeepEqual(original.tree.modelToAbsoluteXYZ.slice(0,12),relocated.tree.modelToAbsoluteXYZ.slice(0,12));
+ for(const site of [original,relocated]){assert.deepEqual(site.contactEvidence,contactEvidence(site));assert.equal(site.lodContacts.length,3);assert.ok(site.bodyContact.maxGroundPenetrationM<=.005);assert.ok(site.bodyContact.maxBarkPenetrationM<=.005);for(const contact of site.groundContacts){assert.ok(contact.maxGapM<=.03);assert.ok(contact.maxPenetrationM<=.005);}for(const contact of site.lodContacts){assert.equal(contact.status,'numeric-contact-pass');assert.equal(contact.missing,0);assert.ok(contact.maxGapM<=.03);assert.ok(contact.maxPenetrationM<=.005);}}
+});
+
+test('local butterfly patches keep their complete flight envelope clear of real trees and props',()=>{const {scene}=compile(),patches=readJSON('config/wildlife/insect-sites.json');assert.equal(patches.length,3);for(const p of patches){assert.equal(p.h,showcaseHeight(p.e,p.n));assert.ok(!scene.boxes.some(b=>meshBlocksCylinder(b.collision,{x:p.e,y:p.h+.5,z:-p.n},1.4,.8)));}});

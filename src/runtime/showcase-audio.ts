@@ -1,10 +1,12 @@
+import wildlifeAudio from '../../config/wildlife/audio.json';
+import type {WildlifeEvent} from '../domain/wildlife/types.ts';
 import bank from '../../config/showcase-audio.json';
 import {ambientPhase,ambientWind,ambientRain} from '../domain/ambient.ts';
 import type {Point3,Box} from '../domain/harness.ts';
 import type {WindSystem} from './wind.ts';
 
-type Asset=typeof bank.assets[number];
-const isWildlife=(asset:Asset)=>asset.id.startsWith('B')||asset.id.startsWith('I');
+type Asset={id:string;file:string;group:string;channels:number;trim:number;basePath?:string};
+const isWildlife=(asset:Asset)=>asset.id.startsWith('B')||asset.id.startsWith('I')||asset.group==='visible_wildlife';
 type Loop={source:AudioBufferSourceNode;gain:GainNode;pan?:PannerNode;anchor?:Point3};
 const LOOP_IDS=bank.assets.filter(a=>a.kind==='loop').map(a=>a.id);
 const intervals:Record<string,[number,number]>={T01:[30,75],T02:[35,85],T03:[100,210],B01:[16,40],B02:[12,35],B03:[40,100],B04:[55,130],I02:[25,65]};
@@ -44,10 +46,14 @@ export class ShowcaseAudio {
  private wildlifeEventsPlayed=0;
  private lastWildlifeDelayMs:number|null=null;
  private visibleWildlife=false;
+ private cueCounts:Record<string,number>={};
+ private suppression:{position:Point3;until:number}[]=[];
  setWildlifeEventsEnabled(enabled:boolean){this.visibleWildlife=enabled;}
- playWildlifeEvent(position:Point3,ageMs:number){
+ playWildlifeEvent(position:Point3,ageMs:number,kind:WildlifeEvent['kind']='bird-flush'){
   if(!this.visibleWildlife||!this.active()||this.context?.state!=='running'||ageMs<0||ageMs>500||this.voices.size+this.pendingEvents>=2)return;
-  void this.event(bank.assets.find(a=>a.id==='B04')!,position,performance.now()+500-ageMs);
+  const cue=kind==='bird-flush'?bank.assets.find(a=>a.id==='B04'):wildlifeAudio.assets.find(a=>a.event===kind);if(!cue)return;
+  this.suppression.push({position:{...position},until:performance.now()+8000});if(this.suppression.length>8)this.suppression.shift();
+  void this.event(cue,position,performance.now()+500-ageMs,kind);
  }
  private panel=document.createElement('section');
  private status:HTMLElement;
@@ -83,7 +89,7 @@ export class ShowcaseAudio {
    }
    if(this.context.state==='suspended')await this.context.resume();
    this.applyMaster();
-   if(this.visibleWildlife)void this.load(bank.assets.find(a=>a.id==='B04')!).catch(()=>{});
+   if(this.visibleWildlife)for(const cue of [bank.assets.find(a=>a.id==='B04')!,...wildlifeAudio.assets])void this.load(cue).catch(()=>{});
    if(this.loops.size===LOOP_IDS.length)return;
    if(!this.starting){
     this.status.textContent='Загружаем звуки…';
@@ -98,7 +104,7 @@ export class ShowcaseAudio {
  private load(asset:Asset){
   let pending=this.buffers.get(asset.id);
   if(!pending){
-   pending=fetch(`${import.meta.env.BASE_URL}audio/showcase/${asset.file}`,{signal:this.abort.signal})
+   pending=fetch(`${import.meta.env.BASE_URL}${asset.basePath??'audio/showcase'}/${asset.file}`,{signal:this.abort.signal})
     .then(r=>{if(!r.ok)throw new Error(`Audio ${asset.id}: HTTP ${r.status}`);return r.arrayBuffer();})
     .then(data=>this.context!.decodeAudioData(data)).then(buffer=>{this.loaded.add(asset.id);return buffer;})
     .catch(error=>{this.buffers.delete(asset.id);this.report(error);throw error;});
@@ -124,11 +130,12 @@ export class ShowcaseAudio {
   source.start(0,Math.random()*buffer.duration);
  }
  private delay(id:string){const [lo,hi]=intervals[id];return lo+Math.random()*(hi-lo);}
- private async event(asset:Asset,position:Point3,deadline=Infinity){
+ private async event(asset:Asset,position:Point3,deadline=Infinity,cueKind?:WildlifeEvent['kind']){
   this.pendingEvents++;
   try{
    const buffer=await this.load(asset);
    if(!this.active()||this.voices.size>=2||performance.now()>deadline)return;
+   if(!cueKind&&['B01','B02'].includes(asset.id)&&this.suppression.some(s=>s.until>performance.now()&&Math.hypot(s.position.x-position.x,s.position.z-position.z)<24))return;
    const ctx=this.context!,source=ctx.createBufferSource(),gain=ctx.createGain(),pan=this.panner(position,asset.id==='T03'?12:8);
    source.buffer=buffer;gain.gain.value=(asset.group==='birds'?.65:.55)*asset.trim;
    const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=asset.id==='T03'?1400:12000;
@@ -136,12 +143,13 @@ export class ShowcaseAudio {
    this.voices.add(source);this.eventsPlayed++;
    source.onended=()=>{this.voices.delete(source);source.disconnect();filter.disconnect();gain.disconnect();pan.disconnect();};
    source.start(); // Entire source, including the natural quiet tail. No duration argument.
-   if(Number.isFinite(deadline)){this.wildlifeEventsPlayed++;this.lastWildlifeDelayMs=Math.max(0,500+performance.now()-deadline);}
+   if(Number.isFinite(deadline)){this.wildlifeEventsPlayed++;if(cueKind)this.cueCounts[cueKind]=(this.cueCounts[cueKind]??0)+1;this.lastWildlifeDelayMs=Math.max(0,500+performance.now()-deadline);}
   }catch{/* Logged at the loading boundary; retry only at a later event. */}
   finally{this.pendingEvents--;}
  }
  update(dt:number,hour:number,eye:Point3,forward:Point3,precipitation=0){
   this.weather=ambientRain(precipitation);
+  this.suppression=this.suppression.filter(s=>s.until>performance.now());
   const ctx=this.context;if(!ctx||this.disposed)return;
   this.wildlife!.gain.setTargetAtTime(this.weather.wildlife,ctx.currentTime,.4);
   this.lastHour=hour;
@@ -175,7 +183,7 @@ export class ShowcaseAudio {
    }else if(asset.kind!=='loop'&&this.active()&&this.elapsed>=(this.due.get(asset.id)??Infinity)){
     this.due.set(asset.id,this.elapsed+this.delay(asset.id));
     const chance=phase*(asset.id.startsWith('T')?.15+.85*sample.gust01:this.weather.wildlife);
-    if(this.voices.size+this.pendingEvents>=2||this.elapsed-this.lastEvent<4||Math.random()>chance)continue;
+    if(this.voices.size+this.pendingEvents>=(this.visibleWildlife?1:2)||this.elapsed-this.lastEvent<4||Math.random()>chance)continue;
     const distant=asset.id==='T03',min=distant?35:5,max=distant?85:45;
     const sites=this.nearby.filter(p=>{const d=Math.hypot(p.x-eye.x,p.z-eye.z);return d>=min&&d<=max;});
     if(!sites.length)continue;
@@ -184,7 +192,7 @@ export class ShowcaseAudio {
    }
   }
  }
- stats(){return {version:bank.version,context:this.context?.state??'not-started',volume:this.volume,active:this.active(),loops:this.loops.size,loaded:[...this.loaded],voices:this.voices.size,eventsPlayed:this.eventsPlayed,wildlifeEventsPlayed:this.wildlifeEventsPlayed,lastWildlifeDelayMs:this.lastWildlifeDelayMs,strength:this.lastStrength,gust:this.lastGust,hour:this.lastHour,weather:{...this.weather},gains:{...this.gains},errors:[...this.issues]};}
+ stats(){return {version:bank.version,context:this.context?.state??'not-started',volume:this.volume,active:this.active(),loops:this.loops.size,loaded:[...this.loaded],voices:this.voices.size,eventsPlayed:this.eventsPlayed,wildlifeEventsPlayed:this.wildlifeEventsPlayed,wildlifeCueCounts:{...this.cueCounts},wildlifeAudioStatus:wildlifeAudio.status,lastWildlifeDelayMs:this.lastWildlifeDelayMs,strength:this.lastStrength,gust:this.lastGust,hour:this.lastHour,weather:{...this.weather},gains:{...this.gains},errors:[...this.issues]};}
  dispose(){
   this.disposed=true;this.abort.abort();document.removeEventListener('visibilitychange',this.visibility);this.panel.remove();
   for(const {source,gain,pan} of this.loops.values()){source.stop();source.disconnect();gain.disconnect();pan?.disconnect();}

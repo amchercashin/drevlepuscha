@@ -12,7 +12,7 @@ import {Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
 import {createBirdAnimator} from '../src/runtime/wildlife/animation.ts';
 const manifest=JSON.parse(readFileSync('public/wildlife/assets.json'));
 test('candidate assets satisfy measured budgets, clips and hashes, but cannot pass production acceptance',()=>{
- assert.equal(validateAssets(manifest).length,9);assert.throws(()=>validateAssets(manifest,true),/No accepted/);
+ assert.equal(validateAssets(manifest).length,10);assert.throws(()=>validateAssets(manifest,true),/No accepted/);
  const bad=structuredClone(manifest);bad.species[0].lods[0].triangles=12;assert.throws(()=>validateAssets(bad),/Stale asset metric/);
  const hash=structuredClone(manifest);hash.species[0].lods[1].sha256='0'.repeat(64);assert.throws(()=>validateAssets(hash),/hash mismatch/);
  const path=structuredClone(manifest);path.species[0].lods[0].file='../other.glb';assert.throws(()=>validateAssets(path),/Invalid asset path/);

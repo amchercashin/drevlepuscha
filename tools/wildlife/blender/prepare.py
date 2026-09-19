@@ -1,5 +1,5 @@
-import bpy
-from mathutils import Vector
+import bpy,math
+from mathutils import Vector,Matrix
 def prepare(source, guide):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(source))
@@ -20,4 +20,5 @@ def prepare(source, guide):
                 node.image.scale(guide['textureSize'],guide['textureSize']);node.image.file_format='PNG';node.image.pack()
     return mesh,source_points
 def convert(point,guide):
+    if guide.get('sourceRotationXDeg'):point=Matrix.Rotation(math.radians(guide['sourceRotationXDeg']),3,'X')@Vector(point)
     return Vector((point[0],point[1],point[2]-guide['sourceGroundZ']))*guide['sourceUnitsToMetres']

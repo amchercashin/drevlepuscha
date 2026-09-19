@@ -4,10 +4,13 @@ import {LoadAssetContainerAsync} from '@babylonjs/core/Loading/sceneLoader.js';
 import type {Scene} from '@babylonjs/core/scene.js';
 import type {AssetContainer} from '@babylonjs/core/assetContainer.js';
 import type {Material} from '@babylonjs/core/Materials/material.js';
-export interface AnimalArt {id:import('../../domain/wildlife/types.ts').SpeciesId;footOffsetM:number;clips:Record<string,{duration:number;loop:boolean;nominalSpeedMps?:number}>;lods:{level:number;file:string;sha256:string}[];}
+export interface RenderArt {id:string;footOffsetM:number;clips:Record<string,{duration:number;loop:boolean;nominalSpeedMps?:number}>;lods:{level:number;file:string;sha256:string}[];}
+export type AnimalArt=RenderArt & {id:import('../../domain/wildlife/types.ts').SpeciesId};
+let manifestRequest:Promise<any>|undefined;
+async function fetchManifest(){return manifestRequest??=(async()=>{const response=await fetch(`${import.meta.env.BASE_URL}wildlife/assets.json`);if(!response.ok)throw Error('Не загрузился манифест фауны');return response.json();})();}
+export async function fetchButterflyArt():Promise<RenderArt|null>{const m=await fetchManifest(),a=m.decorative?.find((a:RenderArt)=>a.id==='woodland-butterfly');if(!a)return null;if(a.lods?.length!==1||a.lods[0].file!=='woodland-butterfly/model.glb'||!/^[a-f0-9]{64}$/.test(a.lods[0].sha256)||a.clips?.flutter?.duration!==.16)throw Error('Некорректная бабочка');return a;}
 export async function fetchWildlifeArt():Promise<AnimalArt[]|null>{
- const response=await fetch(`${import.meta.env.BASE_URL}wildlife/assets.json`);if(!response.ok)throw Error('Не загрузился манифест фауны');
- const manifest=await response.json();if(manifest.status==='test-only')return null;
+ const manifest=await fetchManifest();if(manifest.status==='test-only')return null;
  if(manifest.v!==1||!Array.isArray(manifest.species))throw Error('Некорректный манифест фауны');
  for(const art of manifest.species as AnimalArt[]){
   if(!['woodland-bird','red-squirrel','roe-deer'].includes(art.id)||art.lods?.length!==3||!Number.isFinite(art.footOffsetM)||art.lods.some((l,i)=>l.level!==i||l.file!==`${art.id}/lod${i}.glb`||!/^[a-f0-9]{64}$/.test(l.sha256)))throw Error('Некорректный ассет фауны');
@@ -16,7 +19,7 @@ export async function fetchWildlifeArt():Promise<AnimalArt[]|null>{
  return manifest.species;
 }
 /** Scene-owned templates; at most two loads, instances attach only in the shared frame budget. */
-export function createAnimalLibrary(scene:Scene,arts:AnimalArt[],attachMaterial:(m:Material)=>void){
+export function createAnimalLibrary(scene:Scene,arts:RenderArt[],attachMaterial:(m:Material)=>void){
  const ready=new Map<string,AssetContainer>(),requested=new Set<string>(),queue:string[]=[],errors=new Map<string,string>();let active=0,disposed=false;
  function pump(){
   while(!disposed&&active<2&&queue.length){const key=queue.shift()!;active++;const [species,level]=key.split('/'),art=arts.find(a=>a.id===species)!,spec=art.lods[Number(level)];
@@ -27,5 +30,5 @@ export function createAnimalLibrary(scene:Scene,arts:AnimalArt[],attachMaterial:
    }).catch(()=>{if(!disposed)errors.set(key,'Не удалось загрузить модель животного');}).finally(()=>{active--;pump();});
   }
  }
- return {arts,request(species:string,lod:number){const key=`${species}/${lod}`;if(disposed||requested.has(key))return;requested.add(key);queue.push(key);pump();},get:(species:string,lod:number)=>ready.get(`${species}/${lod}`),failed:(species:string,lod:number)=>errors.has(`${species}/${lod}`),stats:()=>({assetLoads:active,assetTemplates:ready.size,assetErrors:[...errors.values()]}),dispose(){if(disposed)return;disposed=true;queue.length=0;for(const asset of ready.values())asset.dispose();ready.clear();}};
+ return {arts,request(species:string,lod:number){const key=`${species}/${lod}`;if(disposed||requested.has(key))return;requested.add(key);queue.push(key);pump();},get:(species:string,lod:number)=>ready.get(`${species}/${lod}`),failed:(species:string,lod:number)=>errors.has(`${species}/${lod}`),stats:()=>({assetLoads:active,assetTemplates:ready.size,assetErrors:[...errors.values()]}),dispose(){if(disposed)return;disposed=true;queue.length=0;requested.clear();errors.clear();for(const asset of ready.values())asset.dispose();ready.clear();}};
 }

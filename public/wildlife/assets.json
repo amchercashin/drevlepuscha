@@ -353,7 +353,7 @@
       "id": "red-squirrel",
       "review": "pending-human-visual-review",
       "front": "glTF +Z",
-      "footOffsetM": 0.008,
+      "footOffsetM": 0.003,
       "clips": {
         "forage_idle": {
           "duration": 3,
@@ -386,8 +386,8 @@
         {
           "level": 0,
           "file": "red-squirrel/lod0.glb",
-          "sha256": "0ed064381c9c45ecbc95fdb17b1c78bb1ffe613739c5f62e20e4e17013b0e62b",
-          "bytes": 1747472,
+          "sha256": "17b518112d4b354a380c21d9d25bf8e9fd267faab14fe35ab90114ad3e77ea9a",
+          "bytes": 1753808,
           "triangles": 2999,
           "vertices": 4354,
           "primitives": 1,
@@ -483,12 +483,12 @@
             },
             "mount_trunk": {
               "min": [
-                -0.08140002191066742,
+                -0.08149337023496628,
                 -0.28539401292800903,
-                -0.000012222434634168167
+                -0.0014358400367200375
               ],
               "max": [
-                0.08145996928215027,
+                0.08155638724565506,
                 0.28549033403396606,
                 0.4665999412536621
               ]
@@ -522,8 +522,8 @@
         {
           "level": 1,
           "file": "red-squirrel/lod1.glb",
-          "sha256": "484533d0a4c2ee0bd1581f282299dc13a365c0299aed609b530e9b07fb02376e",
-          "bytes": 1621904,
+          "sha256": "75b53fc13dafe1e3b336b8d87587c5975938d9f341a7a85c871ab5063b46e6fa",
+          "bytes": 1628236,
           "triangles": 1199,
           "vertices": 2147,
           "primitives": 1,
@@ -619,12 +619,12 @@
             },
             "mount_trunk": {
               "min": [
-                -0.08025787770748138,
+                -0.08035505563020706,
                 -0.2850796580314636,
-                0.0003535242285579443
+                -0.0006749937310814857
               ],
               "max": [
-                0.08054104447364807,
+                0.08064425736665726,
                 0.28563952445983887,
                 0.46567702293395996
               ]
@@ -658,8 +658,8 @@
         {
           "level": 2,
           "file": "red-squirrel/lod2.glb",
-          "sha256": "bca780282249a350cd3f1bcb29a62bd4aefd325bb06971df5b35cc083be0565a",
-          "bytes": 1539688,
+          "sha256": "a44393c38ad8615f15f6d70c5b976a5f70423aff7bd72472bbe205d7cf95cd9d",
+          "bytes": 1546020,
           "triangles": 299,
           "vertices": 670,
           "primitives": 1,
@@ -755,12 +755,12 @@
             },
             "mount_trunk": {
               "min": [
-                -0.08339416980743408,
+                -0.0834648460149765,
                 -0.28559309244155884,
-                0.00026434590108692646
+                0.00028034771094098687
               ],
               "max": [
-                0.08312533795833588,
+                0.0832117423415184,
                 0.2903030216693878,
                 0.4611245095729828
               ]
@@ -835,8 +835,8 @@
         {
           "level": 0,
           "file": "roe-deer/lod0.glb",
-          "sha256": "5292aedd2336da31a959df7db62c558f15bc334bc6b33bca4532e8b0cf3da928",
-          "bytes": 1633360,
+          "sha256": "eaa5b75d0e7c5e4c44ac8be104bf29509f31f86a5e70e044b6cba743083dfd41",
+          "bytes": 1639548,
           "triangles": 5000,
           "vertices": 4773,
           "primitives": 1,
@@ -886,14 +886,14 @@
           "animationBoundsBlender": {
             "graze_idle": {
               "min": [
-                -0.2553151845932007,
-                -0.6254225373268127,
-                0.00009806403977563605
+                -0.2553151547908783,
+                -0.6545096039772034,
+                0.0000981472767307423
               ],
               "max": [
-                0.19709467887878418,
-                0.4400235712528229,
-                1.048614263534546
+                0.1970946490764618,
+                0.4496380090713501,
+                0.666095495223999
               ]
             },
             "alert": {
@@ -937,8 +937,8 @@
         {
           "level": 1,
           "file": "roe-deer/lod1.glb",
-          "sha256": "739b1c4b87b88057dc070e3dc604da152e3e8e757f8a624e1259621816e7dcc2",
-          "bytes": 1494664,
+          "sha256": "f11d7a5f7650f36cace5cae5820a43dbf88c2220ae938134c4c198d7330bdcca",
+          "bytes": 1500852,
           "triangles": 2000,
           "vertices": 2452,
           "primitives": 1,
@@ -988,14 +988,14 @@
           "animationBoundsBlender": {
             "graze_idle": {
               "min": [
-                -0.25485533475875854,
-                -0.6239954233169556,
-                -0.000021081352315377444
+                -0.25485530495643616,
+                -0.6542401313781738,
+                -0.000021075653421576135
               ],
               "max": [
-                0.1975308656692505,
-                0.44007983803749084,
-                1.04911470413208
+                0.1975308358669281,
+                0.44910216331481934,
+                0.6664974689483643
               ]
             },
             "alert": {
@@ -1039,8 +1039,8 @@
         {
           "level": 2,
           "file": "roe-deer/lod2.glb",
-          "sha256": "9b73f4dceacfb0c457872d17ede82d725c5ee8de79f43b40126a90d8f7ee59a2",
-          "bytes": 1409884,
+          "sha256": "d69635d6645c414f7c20a6b5ff08761e2f2302a1f3d4a03d8d1e27213700add4",
+          "bytes": 1416072,
           "triangles": 550,
           "vertices": 989,
           "primitives": 1,
@@ -1090,14 +1090,14 @@
           "animationBoundsBlender": {
             "graze_idle": {
               "min": [
-                -0.25902289152145386,
-                -0.6301594376564026,
-                -0.00011188307689735666
+                -0.2590228319168091,
+                -0.6572275161743164,
+                -0.00011178607383044437
               ],
               "max": [
-                0.1997484564781189,
-                0.4379325211048126,
-                1.047104835510254
+                0.1997484266757965,
+                0.44855979084968567,
+                0.6686572432518005
               ]
             },
             "alert": {
@@ -1151,6 +1151,66 @@
         "recipe": "tools/wildlife/blender/land_export.py",
         "rigGuideSha256": "b012e6b45d987effdedd6aeb2da987e654b8856801e0afd3cc6577d07f02724f",
         "licensing": "Meshy-generated; source receipt retained privately; publication not authorized"
+      }
+    }
+  ],
+  "decorative": [
+    {
+      "id": "woodland-butterfly",
+      "review": "pending-human-visual-review",
+      "front": "glTF +Z",
+      "footOffsetM": 0,
+      "clips": {
+        "flutter": {
+          "duration": 0.16,
+          "loop": true
+        }
+      },
+      "lods": [
+        {
+          "level": 0,
+          "file": "woodland-butterfly/model.glb",
+          "sha256": "7b537eef50be11b2d54aa18745e1c101a96b190da894e4b6ee9bc2ca7f3fee1d",
+          "bytes": 144592,
+          "triangles": 180,
+          "vertices": 428,
+          "primitives": 1,
+          "materials": 1,
+          "joints": 3,
+          "weighted": 428,
+          "bounds": {
+            "min": [
+              -0.06304596364498138,
+              -0.000021437603209051304,
+              -0.03901159390807152
+            ],
+            "max": [
+              0.06304149329662323,
+              0.009560002945363522,
+              0.03904517740011215
+            ]
+          },
+          "images": [
+            {
+              "width": 256,
+              "height": 256
+            }
+          ],
+          "clips": [
+            {
+              "name": "flutter",
+              "duration": 0.1599999964237213,
+              "tracks": 9
+            }
+          ]
+        }
+      ],
+      "provenance": {
+        "provider": "Meshy official MCP",
+        "model": "meshy-7",
+        "sourceSha256": "b0b1f7f539f71d92316bf7782b9200d55368812e5fba5c5acaaeb3c3d4c9202f",
+        "blender": "5.2.1 LTS",
+        "recipe": "tools/wildlife/blender/butterfly_export.py"
       }
     }
   ]

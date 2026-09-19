@@ -1,0 +1,60 @@
+{
+  "v": 1,
+  "status": "candidate-unheard",
+  "assets": [
+    {
+      "id": "WLS01",
+      "event": "squirrel-scramble",
+      "file": "WLS01-ee517e42641a.opus",
+      "basePath": "wildlife/audio",
+      "kind": "one_shot",
+      "group": "visible_wildlife",
+      "channels": 1,
+      "trim": 1,
+      "status": "candidate-unheard",
+      "sha256": "ee517e42641ad22789293432d8c42bdcd17c9665ae821b36809e7d4d4bc62a29",
+      "bytes": 36669,
+      "duration": 2.972166666666667,
+      "peakDb": -8.918232917785645,
+      "sourceSha256": "0027b114bb8b450c9785b39b2cf73c36234c6cbedc155bb14bc7aaa0e9a89511",
+      "sourceModel": "Stable Audio 3 Medium local",
+      "seed": 73919401,
+      "workflowSha256": "e68c8e90ba89512465f1d14fdf49b8f63aa0cb8d72e44b2774fb9fd743859fe2",
+      "processing": {
+        "leadingQuietTrimSeconds": 0,
+        "monoRmsRatio": 0.9999957084655762,
+        "tailTrimSeconds": 0,
+        "gainDb": 0,
+        "codec": "Opus 96 kbps mono 48 kHz"
+      },
+      "recipe": "tools/wildlife/prepare-audio.py"
+    },
+    {
+      "id": "WLD01",
+      "event": "deer-startle",
+      "file": "WLD01-c19b4355fc90.opus",
+      "basePath": "wildlife/audio",
+      "kind": "one_shot",
+      "group": "visible_wildlife",
+      "channels": 1,
+      "trim": 1,
+      "status": "candidate-unheard",
+      "sha256": "c19b4355fc906d9aeaf1c0392a30bcaab935e302b43d3b0728e60cebd7942fe5",
+      "bytes": 44769,
+      "duration": 3.5319166666666666,
+      "peakDb": -4.929394721984863,
+      "sourceSha256": "8ee3598c7c5552b19c7f34ce1229c30492cb9106b7b29fb3e74cb3a610ffbcd6",
+      "sourceModel": "Stable Audio 3 Medium local",
+      "seed": 73919402,
+      "workflowSha256": "471cb6be4b1e8d2d36489dcf5b0363645aa5bf95e0054240341d713c081fa93d",
+      "processing": {
+        "leadingQuietTrimSeconds": 0.4619375,
+        "monoRmsRatio": 0.9999966025352478,
+        "tailTrimSeconds": 0,
+        "gainDb": 0,
+        "codec": "Opus 96 kbps mono 48 kHz"
+      },
+      "recipe": "tools/wildlife/prepare-audio.py"
+    }
+  ]
+}

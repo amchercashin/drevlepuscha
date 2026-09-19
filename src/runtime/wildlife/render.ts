@@ -10,19 +10,21 @@ import {CreateLines} from '@babylonjs/core/Meshes/Builders/linesBuilder.js';
 import type {LinesMesh} from '@babylonjs/core/Meshes/linesMesh.js';
 import type {FrameWorkBudget} from '../startup.ts';
 import type {ENH,OriginEN,WildlifeFrame,WildlifePackage,SpeciesId} from '../../domain/wildlife/types.ts';
-import {localXYZ,routeHeading,sampleRoute,routeMetres} from '../../domain/wildlife/routes.ts';
-import {createAnimalLibrary,type AnimalArt} from './assets.ts';
+import {localXYZ,routeHeading,sampleRoute,routeMetres,routeBasis} from '../../domain/wildlife/routes.ts';
+import {createAnimalLibrary,type AnimalArt,type RenderArt} from './assets.ts';
 import {createBirdAnimator} from './animation.ts';
-type Visual={root:TransformNode;meshes:AbstractMesh[];lod:number;animator?:ReturnType<typeof createBirdAnimator>;dispose:()=>void};
+type Visual={root:TransformNode;meshes:AbstractMesh[];lod:number;rotationAt?:number;animator?:ReturnType<typeof createBirdAnimator>;dispose:()=>void};
 /** Shared renderer consumes absolute coordinates; the adapter supplies origin and observer. */
-export function createWildlifeRenderer(scene:Scene,data:WildlifePackage,attachMaterial:(material:Material)=>void,art:AnimalArt[]|null=null){
+export function createWildlifeRenderer(scene:Scene,data:WildlifePackage,attachMaterial:(material:Material)=>void,art:AnimalArt[]|null=null,decorative:RenderArt[]=[]){
  const visuals=new Map<string,Visual>(),material=new StandardMaterial('wildlife-TEST-material',scene);
  material.diffuseColor=new Color3(1,.05,.7);material.specularColor=Color3.Black();attachMaterial(material);
- const library=art?createAnimalLibrary(scene,art,attachMaterial):null;
+ const library=art?createAnimalLibrary(scene,[...art,...decorative],attachMaterial):null;
  let frame:WildlifeFrame|null=null,origin:OriginEN={e:0,n:0},time=0,disposed=false,shadowLimit=1,detailLimit=4,detailDistance=15,observer:ENH={e:0,n:0,h:0};
  const routes=new Map(data.cells.flatMap(c=>c.routes.map(r=>[`${c.id}/${r.id}`,r]))),desired=new Map<string,number>();
+ const sites=new Map(data.cells.flatMap(c=>c.sites.map(s=>[s.id,s] as const)));
  const probes:LinesMesh[]=[];
- function point(e:WildlifeFrame['entities'][number]){const route=e.route?routes.get(`${e.route.cellId}/${e.route.routeId}`):undefined,d=route?routeMetres(route,e,time):0,sample=route?sampleRoute(route,d):null;return {p:sample?.point??e.point,normal:sample?.normal??[0,0,1],forward:route?sampleRoute(route,Math.min(route.lengthM,d+(e.species==='roe-deer'?.65:.02))).point:null,back:route?sampleRoute(route,Math.max(0,d-(e.species==='roe-deer'?.65:.02))).point:null,heading:route?routeHeading(route,d):e.headingDeg};}
+ function point(e:WildlifeFrame['entities'][number]){const route=e.route?routes.get(`${e.route.cellId}/${e.route.routeId}`):undefined,site=sites.get(e.siteId)!,support=route??routes.get(`${site.cellId}/${site.allowedRoutes[0]}`),d=route?routeMetres(route,e,time):0,sample=route?sampleRoute(route,d):null;return {p:sample?.point??e.point,basis:support?routeBasis(support,d,e.species==='roe-deer'?.65:.02):null,heading:route?routeHeading(route,d):e.headingDeg};}
+
  function apply(){
   for(const probe of probes)probe.position.set(-origin.e,0,origin.n);
   if(!frame)return;
@@ -30,15 +32,14 @@ export function createWildlifeRenderer(scene:Scene,data:WildlifePackage,attachMa
   for(const [id,v] of visuals)if(!present.has(id)){v.dispose();visuals.delete(id);}
   desired.clear();let detailed=0;
   const entries=frame.entities.filter(e=>e.state!=='hidden').map(e=>({e,...point(e)})).sort((a,b)=>Math.hypot(a.p.e-observer.e,a.p.n-observer.n)-Math.hypot(b.p.e-observer.e,b.p.n-observer.n)||a.e.id.localeCompare(b.e.id));
-  for(const {e,p,heading,normal,forward,back} of entries){
+  for(const {e,p,heading,basis} of entries){
    const distance=Math.hypot(p.e-observer.e,p.n-observer.n),old=visuals.get(e.id),near=distance<detailDistance+(old?.lod===0?2:0);
    const lod=library?(near&&detailed<detailLimit?(detailed++,0):distance<50+(old?.lod===1?4:0)?1:2):-1;desired.set(e.id,lod);if(library)library.request(e.species,lod);
    if(!old)continue;const pos=localXYZ(p,origin);old.root.position.set(pos.x,pos.y+(old.lod<0?.08:0),pos.z);if(e.species==='woodland-bird'||old.lod<0){old.root.rotationQuaternion=null;old.root.rotation.y=(old.lod<0?0:Math.PI)-heading*Math.PI/180;}
    else {
-    const up=new Vector3(normal[0],normal[2],-normal[1]).normalize(),tangent=forward&&back?new Vector3(forward.e-back.e,forward.h-back.h,back.n-forward.n):new Vector3(Math.sin(heading*Math.PI/180),0,-Math.cos(heading*Math.PI/180));
-    if(tangent.lengthSquared()<1e-9)tangent.set(0,0,-1);
-    const f=tangent.subtract(up.scale(Vector3.Dot(tangent,up))).normalize(),right=Vector3.Cross(up,f).normalize(),corrected=Vector3.Cross(f,right).normalize();
-    const m=Matrix.Identity();Matrix.FromXYZAxesToRef(right,corrected,f,m);old.root.rotationQuaternion=Quaternion.FromRotationMatrix(m);
+    const vector=(p:readonly number[])=>new Vector3(p[0],p[2],-p[1]),up=vector(basis!.up),f=vector(basis!.forward),right=vector(basis!.right),corrected=Vector3.Cross(f,right).normalize();
+    const m=Matrix.Identity();Matrix.FromXYZAxesToRef(right,corrected,f,m);const rotation=Quaternion.FromRotationMatrix(m),previous=old.root.rotationQuaternion,delta=Math.max(0,time-(old.rotationAt??time));
+    old.root.rotationQuaternion=e.species==='roe-deer'&&previous?Quaternion.Slerp(previous,rotation,1-Math.exp(-delta/120)):rotation;old.rotationAt=time;
     const offset=art?.find(a=>a.id===e.species)?.footOffsetM??0;old.root.position.addInPlace(up.scale(offset));
    }
    old.root.metadata={testOnly:old.lod<0,entityId:e.id,state:e.state,generation:e.generation,absolutePoint:p,lod:old.lod};
@@ -53,6 +54,7 @@ export function createWildlifeRenderer(scene:Scene,data:WildlifePackage,attachMa
   return {root,meshes,lod,animator:createBirdAnimator(instance.animationGroups,data.bird.takeoffMs,art?.find(a=>a.id===species)),dispose(){instance.dispose();root.dispose();}};
  }
  return {
+  library,
   update(next:WildlifeFrame|null,presentationMs:number,nextOrigin:OriginEN,nextObserver?:ENH){if(disposed)return;frame=next;time=presentationMs;origin=nextOrigin;if(nextObserver)observer=nextObserver;apply();},
   prepare(budget:FrameWorkBudget){if(disposed||!frame)return;
    for(const [id,lod] of desired){const species=frame.entities.find(e=>e.id===id)!.species,previous=visuals.get(id);if(previous?.lod===lod)continue;if(lod>=0&&!library!.get(species,lod)){if(!library!.failed(species,lod)||previous)continue;}
@@ -64,6 +66,6 @@ export function createWildlifeRenderer(scene:Scene,data:WildlifePackage,attachMa
   setProbe(enabled:boolean){if(disposed)return;for(const probe of probes)probe.dispose();probes.length=0;if(enabled)for(const route of routes.values()){const line=CreateLines(`TEST-route:${route.id}`,{points:route.samples.map(s=>new Vector3(s.point.e,s.point.h,-s.point.n))},scene);line.color=new Color3(0,1,1);line.isPickable=false;line.position.set(-origin.e,0,origin.n);probes.push(line);}},
   shadowMeshes(feet:ENH){return [...visuals.values()].filter(v=>Math.hypot(v.root.position.x+origin.e-feet.e,origin.n-v.root.position.z-feet.n)<24).sort((a,b)=>a.root.name.localeCompare(b.root.name)).slice(0,shadowLimit).flatMap(v=>v.meshes.filter(m=>m.getTotalVertices()>0));},
   stats(){return {testOnly:!art,artStatus:art?'candidate':'test-only',visibleMeshes:visuals.size,meshes:visuals.size,debugRoutes:probes.length,detailedSkeletons:[...visuals.values()].filter(v=>v.lod===0).length,pending:[...desired].filter(([id,lod])=>visuals.get(id)?.lod!==lod).length,origin:{...origin},instances:[...visuals].map(([id,v])=>({id,lod:v.lod,...v.animator?.stats()})),...library?.stats()};},
-  dispose(){if(disposed)return;disposed=true;for(const v of visuals.values())v.dispose();visuals.clear();library?.dispose();for(const probe of probes)probe.dispose();probes.length=0;material.dispose();frame=null;},
+  dispose(){if(disposed)return;disposed=true;for(const v of visuals.values())v.dispose();visuals.clear();desired.clear();library?.dispose();for(const probe of probes)probe.dispose();probes.length=0;material.dispose();frame=null;},
  };
 }

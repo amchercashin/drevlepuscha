@@ -22,6 +22,7 @@ export function landEpisode(config,scene,hash){
   const mountLength=points.slice(groundEnd,mountEnd+1).reduce((d,s,i,a)=>d+(i?distance(a[i-1].point,s.point):0),0);
   routes.push(route(`${config.id}-escape`,points,[{index:0,state:'ground-bound'},{index:groundEnd,state:'mount',previousSpeed:.8},{index:mountEnd,state:'climb',previousSpeed:mountLength/.4},{index:points.length-1,state:'trunk-idle',previousSpeed:.35}],`${config.tree.id}-cover`));
  }else for(const corridor of config.corridors)for(const [mode,speed] of [['walk-away',.55],['flee',2]])routes.push(route(`${corridor.id}-${mode}`,corridor.samples,[{index:0,state:mode},{index:corridor.samples.length-1,state:'recover',previousSpeed:speed}],corridor.id));
+ if(config.species==='red-squirrel')for(const sample of [...config.mount,...config.climb])if(scene.boxes.some(b=>b.id!==tree.id&&meshBlocksCylinder(b.collision,{x:sample.point.e,y:sample.point.h-.3,z:-sample.point.n},.55,.9)))throw Error('Another collider blocks the contact route');
  // The grounded segment must remain clear of every collider, including its support tree.
  for(const r of routes)for(const s of r.samples){if(config.species==='red-squirrel'&&s.distanceM>r.motion[1].distanceM)break;
   if(scene.boxes.some(b=>meshBlocksCylinder(b.collision,{x:s.point.e,y:s.point.h+.008,z:-s.point.n},r.clearanceM,config.species==='red-squirrel'?.65:1.35)))throw Error(`Blocked land corridor ${r.id}`);

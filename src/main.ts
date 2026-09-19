@@ -114,7 +114,7 @@ try {
   let yaw=0,yawTarget=0,pitch=showcaseEnabled?6:config.travel.pitchDefaultDeg,distance=config.travel.distanceM;
   let frameCount=0,previousTime=performance.now(),uiTime=0;
   const samples: number[]=[],maxSamples=60*60*5;
-  let collect=false;const frameCosts:{cpuMs:number;gpuMs:number;windCpuMs:number}[]=[];
+  let collect=false;const frameCosts:{cpuMs:number;gpuMs:number;windCpuMs:number;wildlifeCpuMs:number}[]=[];
   let demo=false,demoTime=0;
 
   const clamp=(x:number,a:number,b:number)=>Math.max(a,Math.min(b,x));
@@ -192,9 +192,10 @@ try {
   if(wildlifeRequested&&forest){
    const [{loadShowcaseWildlife},{createShowcaseWildlife}]=await Promise.all([import('./network/showcase-wildlife-data.ts'),import('./runtime/showcase-wildlife.ts')]);
    const art=new URLSearchParams(location.search).get('wildlifeTestModel')==='1'?null:await (await import('./runtime/wildlife/assets.ts')).fetchWildlifeArt().catch(()=>null);
+   const localArt=art?await (await import('./runtime/wildlife/assets.ts')).fetchButterflyArt().catch(()=>null):null;
    ambient?.setWildlifeEventsEnabled(true);
    const content=await loadShowcaseWildlife();
-   wildlife=createShowcaseWildlife(scene,content,forest.treeCatalog(),sunlight,()=>({id:'solo',e:player.e,n:player.n,h:groundHeight(player.e,player.n),headingDeg:player.heading,...wildlifeMotion,observedAtMs:performance.now()}),()=>({totalGameHours:daylight?.stats().totalGameHours??12,daylight01:daylight?.daylightAmount()??1,precipitation01:daylight?.precipitation()??0}),!!location.hash,art,(event,age)=>{if(event.kind==='bird-flush')ambient?.playWildlifeEvent({x:event.position.e,y:event.position.h,z:-event.position.n},age);});
+   wildlife=createShowcaseWildlife(scene,content,forest.treeCatalog(),sunlight,()=>({id:'solo',e:player.e,n:player.n,h:groundHeight(player.e,player.n),headingDeg:player.heading,...wildlifeMotion,observedAtMs:performance.now()}),()=>({totalGameHours:daylight?.stats().totalGameHours??12,daylight01:daylight?.daylightAmount()??1,precipitation01:daylight?.precipitation()??0}),!!location.hash,art,(event,age)=>{ambient?.playWildlifeEvent({x:event.position.e,y:event.position.h,z:-event.position.n},age,event.kind);},localArt,p=>wind?.sampleAt(p.e,p.h,-p.n).strength01??0);
    wildlife.setQuality(QUALITY_PROFILES[effectiveQuality]);
    const sites=content.cells.flatMap(c=>c.sites);let selectedSite=sites[0],home=selectedSite.home;const review=document.createElement('div');
    review.style.cssText='position:fixed;left:12px;bottom:34px;z-index:11;display:flex;gap:6px';
@@ -271,7 +272,7 @@ try {
   }
   const disposePerformanceReport=showcaseEnabled?performanceReport(
    ()=>{samples.length=0;frameCosts.length=0;collect=true;},
-   ()=>{collect=false;const s=state();return {frames:[...samples],costs:[...frameCosts],context:{loading:s.loading,startupResources:performance.getEntriesByType('resource').filter((e):e is PerformanceResourceTiming=>e instanceof PerformanceResourceTiming).sort((a,b)=>b.duration-a.duration).slice(0,25).map(e=>({path:new URL(e.name,location.href).pathname,startMs:e.startTime,durationMs:e.duration,transferBytes:e.transferSize})),render:s.render,groundTrial:s.groundTrial,forest:s.forest,floor:s.floor,wind:s.wind,
+   ()=>{collect=false;const s=state();return {frames:[...samples],costs:[...frameCosts],context:{loading:s.loading,startupResources:performance.getEntriesByType('resource').filter((e):e is PerformanceResourceTiming=>e instanceof PerformanceResourceTiming).sort((a,b)=>b.duration-a.duration).slice(0,25).map(e=>({path:new URL(e.name,location.href).pathname,startMs:e.startTime,durationMs:e.duration,transferBytes:e.transferSize})),render:s.render,groundTrial:s.groundTrial,forest:s.forest,floor:s.floor,wind:s.wind,wildlife:s.wildlife,
     players:s.multiplayer?.players??1,roomPhase:s.multiplayer?.phase??'solo',ranger:s.ranger,
     memory:{meshes:scene.meshes.length,geometries:scene.geometries.length,textures:scene.textures.length,materials:scene.materials.length,
      jsHeapBytes:(performance as Performance&{memory?:{usedJSHeapSize:number}}).memory?.usedJSHeapSize??null}}};}
@@ -400,7 +401,7 @@ try {
        if(paused||document.hidden||document.querySelector<HTMLDetailsElement>('#diagnostics')!.open)automaticQuality.reset();
        else if(automaticQuality.sample(rawDt))applyQuality();
       }
-      if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({windCpuMs:wind?.lastCpuMs??0,cpuMs:performance.now()-now,gpuMs:(engine.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
+      if(collect&&!paused&&frameCosts.length<maxSamples)frameCosts.push({wildlifeCpuMs:wildlife?.timing()??0,windCpuMs:wind?.lastCpuMs??0,cpuMs:performance.now()-now,gpuMs:(engine.gpuTimeInFrameForMainPass?.counter.current??0)/1e6});
       if(now-uiTime>400){
         uiTime=now;
         document.querySelector('#fps')!.textContent=`${Math.round(engine.getFps())} FPS`;

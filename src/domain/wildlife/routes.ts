@@ -30,3 +30,12 @@ export function transformAnchor(point:readonly number[],normal:readonly number[]
  const len=Math.hypot(x,y,z);if(len<1e-9)throw Error('Invalid anchor normal');
  return {point:p,normal:[x/len,-z/len,y/len] as [number,number,number]};
 }
+
+/** Orthonormal support frame in metric ENH; +Z of exported GLB faces forward. */
+export function routeBasis(route:PreparedRoute,metres:number,lookM=.02){
+ const up=sampleRoute(route,metres).normal,a=sampleRoute(route,Math.max(0,metres-lookM)).point,b=sampleRoute(route,Math.min(route.lengthM,metres+lookM)).point;
+ const dot=(a:readonly number[],b:readonly number[])=>a.reduce((n,v,i)=>n+v*b[i],0),unit=(v:number[])=>{const l=Math.hypot(...v);return v.map(x=>x/l) as [number,number,number];},cross=(a:readonly number[],b:readonly number[])=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+ let raw=[b.e-a.e,b.n-a.n,b.h-a.h],tangent=raw.map((v,i)=>v-up[i]*dot(raw,up));
+ if(Math.hypot(...tangent)<1e-8){raw=Math.abs(up[2])<.9?[0,0,1]:[0,1,0];tangent=raw.map((v,i)=>v-up[i]*dot(raw,up));}
+ const forward=unit(tangent),right=unit(cross(up,forward));return {up,forward,right};
+}
