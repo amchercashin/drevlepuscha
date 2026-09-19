@@ -41,6 +41,8 @@ export class ShowcaseAudio {
  private issues:string[]=[];
  private loaded=new Set<string>();
  private eventsPlayed=0;
+ private wildlifeEventsPlayed=0;
+ private lastWildlifeDelayMs:number|null=null;
  private visibleWildlife=false;
  setWildlifeEventsEnabled(enabled:boolean){this.visibleWildlife=enabled;}
  playWildlifeEvent(position:Point3,ageMs:number){
@@ -134,6 +136,7 @@ export class ShowcaseAudio {
    this.voices.add(source);this.eventsPlayed++;
    source.onended=()=>{this.voices.delete(source);source.disconnect();filter.disconnect();gain.disconnect();pan.disconnect();};
    source.start(); // Entire source, including the natural quiet tail. No duration argument.
+   if(Number.isFinite(deadline)){this.wildlifeEventsPlayed++;this.lastWildlifeDelayMs=Math.max(0,500+performance.now()-deadline);}
   }catch{/* Logged at the loading boundary; retry only at a later event. */}
   finally{this.pendingEvents--;}
  }
@@ -181,7 +184,7 @@ export class ShowcaseAudio {
    }
   }
  }
- stats(){return {version:bank.version,context:this.context?.state??'not-started',volume:this.volume,active:this.active(),loops:this.loops.size,loaded:[...this.loaded],voices:this.voices.size,eventsPlayed:this.eventsPlayed,strength:this.lastStrength,gust:this.lastGust,hour:this.lastHour,weather:{...this.weather},gains:{...this.gains},errors:[...this.issues]};}
+ stats(){return {version:bank.version,context:this.context?.state??'not-started',volume:this.volume,active:this.active(),loops:this.loops.size,loaded:[...this.loaded],voices:this.voices.size,eventsPlayed:this.eventsPlayed,wildlifeEventsPlayed:this.wildlifeEventsPlayed,lastWildlifeDelayMs:this.lastWildlifeDelayMs,strength:this.lastStrength,gust:this.lastGust,hour:this.lastHour,weather:{...this.weather},gains:{...this.gains},errors:[...this.issues]};}
  dispose(){
   this.disposed=true;this.abort.abort();document.removeEventListener('visibilitychange',this.visibility);this.panel.remove();
   for(const {source,gain,pan} of this.loops.values()){source.stop();source.disconnect();gain.disconnect();pan?.disconnect();}

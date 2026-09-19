@@ -25,7 +25,7 @@ test('unsafe exits leave the bird alert; it cannot cross a blocking second obser
 test('stable negative cells, origin-independent poses and pinning until all observers leave',()=>{
  assert.equal(cellId(-.1,-64.1),'-1:-2');const w=make();w.advance({simMs:0,observers:[far],environment:env});const a=w.snapshot();assert.equal(w.leaveCell(data.cells[0].id),false);
  const p=a.entities[0].point;const b=localXYZ(p,{e:1024,n:-2048});assert.ok(Math.abs(b.x+1024-p.e)<1e-9);assert.ok(Math.abs(-2048-b.z-p.n)<1e-9);assert.deepEqual(a,w.snapshot());
- for(let t=200;t<=11000;t+=200)w.advance({simMs:t,observers:[],environment:env});assert.equal(w.stats().residentCells,0);assert.equal(w.stats().activeEntities,0);
+ for(let t=200;t<=11000;t+=200)w.advance({simMs:t,observers:[],environment:env});assert.equal(w.stats().residentCells,data.cells.length-1);assert.equal(w.stats().activeEntities,0);
 });
 
 test('six observers and oversubscribed test sites respect entity, event and sight budgets',()=>{

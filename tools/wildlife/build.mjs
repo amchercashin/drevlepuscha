@@ -10,7 +10,7 @@ import {cellId} from '../../src/domain/wildlife/ids.ts';
 import {validatePackage} from '../../src/domain/wildlife/habitat.ts';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const sha=x=>createHash('sha256').update(x).digest('hex');
-export const inputs=[...treeInputs,...propInputs,'config/wildlife/showcase-sites.json','config/wildlife/species.json','config/wildlife/budgets.json','config/wildlife/bird-envelope.json','public/wildlife/assets.json','src/domain/showcase.ts','src/domain/forest-layout.ts','src/domain/forest-records.ts','src/domain/forest-props-layout.ts','src/domain/tree-family.ts','src/domain/seed.ts','src/domain/mesh-collision.ts','src/domain/wildlife/routes.ts','src/domain/wildlife/types.ts','tools/wildlife/scene-data.mjs','tools/wildlife/build.mjs'];
+export const inputs=[...treeInputs,...propInputs,'config/wildlife/showcase-sites.json','config/wildlife/showcase-relocated-site.json','config/wildlife/species.json','config/wildlife/budgets.json','config/wildlife/bird-envelope.json','public/wildlife/assets.json','src/domain/showcase.ts','src/domain/forest-layout.ts','src/domain/forest-records.ts','src/domain/forest-props-layout.ts','src/domain/tree-family.ts','src/domain/seed.ts','src/domain/mesh-collision.ts','src/domain/wildlife/routes.ts','src/domain/wildlife/types.ts','tools/wildlife/scene-data.mjs','tools/wildlife/build.mjs'];
 // All inputs are versioned text. Hash Git's LF form on Windows as well as Linux.
 export const sourceHash=text=>sha(text.replace(/\r\n/g,'\n'));
 export const sourceHashes=()=>Object.fromEntries(inputs.map(p=>[p,sourceHash(readFileSync(resolve(root,p),'utf8'))]));
@@ -59,11 +59,14 @@ export function anchorPoint(anchor,catalog){
  const offset=anchor.airOffset??{e:0,n:0,h:0};if(!Object.values(offset).every(Number.isFinite)||Math.hypot(offset.e,offset.n,offset.h)>6)throw Error('Invalid refuge air offset');
  return {e:result.e+offset.e,n:result.n+offset.n,h:result.h+.035+offset.h};
 }
-export function compile(config=readJSON('config/wildlife/showcase-sites.json')){
- const scene=sceneData(),bird=readJSON('config/wildlife/species.json')['woodland-bird'];
+export function compile(configs=[readJSON('config/wildlife/showcase-sites.json'),readJSON('config/wildlife/showcase-relocated-site.json')]){
+ if(!Array.isArray(configs))configs=[configs];
+ const scene=sceneData(),bird=readJSON('config/wildlife/species.json')['woodland-bird'],hashes=sourceHashes(),hash=sha(JSON.stringify({hashes,configs})),cells=new Map(),treeBindings=new Map();
+ for(const config of configs){
+ for(const anchor of [config.perch,...config.routes.map(r=>r.refuge)])treeBindings.set(anchor.treeId,{id:anchor.treeId,familyId:anchor.familyId,assetVersion:anchor.assetVersion});
  const perchFamily=scene.families.find(f=>f.id===config.perch.familyId);
  if(!perchFamily||config.perch.point[1]>Math.max(...perchFamily.levels[0].flatMap(p=>p.positions.filter((_,i)=>i%3===1)))*.18)throw Error('Perch is above the rigid wind zone');
- const hashes=sourceHashes(),hash=sha(JSON.stringify(hashes)),home=anchorPoint(config.perch,scene.catalog),id=cellId(home.e,home.n);
+ const home=anchorPoint(config.perch,scene.catalog),id=cellId(home.e,home.n);
  if(!corridorClear([home,{...home,h:home.h+.001}],scene.boxes,{...bird,forcePerch:true}))throw Error('Perch intersects animated bird');
  const routes=config.routes.map((r,i)=>{
   const end=anchorPoint(r.refuge,scene.catalog),points=pathPoints([home,...r.controls,end]);
@@ -73,7 +76,12 @@ export function compile(config=readJSON('config/wildlife/showcase-sites.json')){
   return prepareRoute(r.id,config.id,`cover-${i}`,points,bird,r.refuge.treeId);
  });
  const proxies=scene.boxes.filter(b=>Math.hypot((b.min.x+b.max.x)/2-home.e,-(b.min.z+b.max.z)/2-home.n)<64).map(b=>{const c=b;return {id:b.id,min:{e:c.min.x,n:-c.max.z,h:c.min.y},max:{e:c.max.x,n:-c.min.z,h:c.max.y}};});
- const data={identity:{realmId:'showcase-ravines',contentHash:hash,behaviorVersion:1},limits:readJSON('config/wildlife/budgets.json'),bird,cells:[{id,contentHash:hash,sites:[{id:config.id,cellId:id,species:'woodland-bird',home,allowedRoutes:routes.map(r=>r.id),refuges:routes.map(r=>r.to),treeId:config.perch.treeId,maxResidents:1,tags:['test-episode','rigid-lower-perch']}],routes,neighbors:[],obstacles:proxies}]};
+ const site={id:config.id,cellId:id,species:'woodland-bird',home,allowedRoutes:routes.map(r=>r.id),refuges:routes.map(r=>r.to),treeId:config.perch.treeId,maxResidents:1,tags:['test-episode','rigid-lower-perch']};
+ const previous=cells.get(id);
+ if(previous){previous.sites.push(site);previous.routes.push(...routes);previous.obstacles=[...new Map([...previous.obstacles,...proxies].map(p=>[p.id,p])).values()];}
+ else cells.set(id,{id,contentHash:hash,sites:[site],routes,neighbors:[],obstacles:proxies});
+ }
+ const data={identity:{realmId:'showcase-ravines',contentHash:hash,behaviorVersion:1},limits:readJSON('config/wildlife/budgets.json'),bird,treeBindings:[...treeBindings.values()],cells:[...cells.values()]};
  validatePackage(data);return {data,hashes,scene};
 }
 /** Authoring helper: selects actual upward-facing triangles; writes a reviewable fixed config once. */
@@ -116,6 +124,6 @@ export function build(check=false){
  const files=[[resolve(dir,'showcase/bird.json'),json],[resolve(dir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n']];
  if(check){for(const [p,text] of files)if(readFileSync(p,'utf8')!==text)throw Error('Stale wildlife content; run npm run wildlife:build');}
  else {mkdirSync(resolve(dir,'showcase'),{recursive:true});for(const [p,text] of files)writeFileSync(p,text);}
- console.log(JSON.stringify({contentHash:data.identity.contentHash,sites:data.cells[0].sites.length,routes:data.cells[0].routes.length,bytes:json.length,check}));return data;
+ console.log(JSON.stringify({contentHash:data.identity.contentHash,sites:data.cells.reduce((n,c)=>n+c.sites.length,0),routes:data.cells.reduce((n,c)=>n+c.routes.length,0),bytes:json.length,check}));return data;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){if(process.argv.includes('--select'))selectSite();else build(process.argv.includes('--check'));}

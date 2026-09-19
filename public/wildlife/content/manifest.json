@@ -2,10 +2,10 @@
   "v": 1,
   "status": "test-content",
   "realmId": "showcase-ravines",
-  "contentHash": "6e13b6d3a2f9ffe52fb19747ee6a3ba12d4566644f0e902304b5be6325ff61ba",
+  "contentHash": "53b43208b9ad8fe8490ad1e8c5e1c8bb4192b552ceeb4b22639fc42c0a2bd201",
   "behaviorVersion": 1,
   "file": "showcase/bird.json",
-  "sha256": "3762ff2ed73d717f0de825a92464fb0730825d173ff1320a1a1a5a0923187778",
+  "sha256": "102c83dc27907048c9be833f53d658c243bce8272ef250aa6db4c67e31c6d78c",
   "sourceHashes": {
     "assets/trees/meshy-a/tree.json": "3e5a486577fcf80ffb34f2a676529cfd3c85ce24d501e0188407ec4ed9d14e5e",
     "assets/trees/fork-oak/variants.json": "99e0980c2a2046d6d5ebdda0b26ce93ac008d51a604c0b1af82dad4e459ab08d",
@@ -15,6 +15,7 @@
     "assets/props/old-stump/variants.json": "4d721c6a766453d4bba546f34c0cb843b1f4b43ef9abef64d7ccda657e69d902",
     "assets/props/fallen-log/variants.json": "37c0775fc8faae11e5230e0cbc614e2517fff5ad7f8d854258a4f46dd6b7a992",
     "config/wildlife/showcase-sites.json": "d4273866a70f844a10ccbfa515cbe36e844f88155fae3620b2323d0b533fa0c2",
+    "config/wildlife/showcase-relocated-site.json": "3e88228fee7712039a260fb3ff46106b8724951e5bb6a6fea8bdf2ae8f4df34f",
     "config/wildlife/species.json": "1b0b0224450fc658705f7ac53451c2188c377442303b9748152db6514a5bfefc",
     "config/wildlife/budgets.json": "7d0ffc71cdc446c65bce51b2015af2665e8475a6e7b0ab05ae73f635095897c9",
     "config/wildlife/bird-envelope.json": "b646ff005a7f4c6b3594375f69ed48b71b241eb4aeba7723375edb15bae09891",
@@ -27,8 +28,8 @@
     "src/domain/seed.ts": "9cb5d2bd4d3123d33f6a08915f9140afc91cf707ac05f2767b511c44854f854a",
     "src/domain/mesh-collision.ts": "c21202f67b875b056d322405e8b1545cb199644ef59915bc791da89d11934941",
     "src/domain/wildlife/routes.ts": "b043aa901325ccd72724dc0d0f0c1eee9525aeec283978aed2ca556dcd3b5074",
-    "src/domain/wildlife/types.ts": "2eb769f239279b6fb69adf54bf6e7145a83db08aaa108d87d9928827e0b95407",
+    "src/domain/wildlife/types.ts": "f693d2d419cacba6c83f868985237fae066d02262ada5705cc0c363a205c2fdc",
     "tools/wildlife/scene-data.mjs": "c059a01f5b9f996361af14410606992dd30bc100a5db3bac43ca88ed816ff5ee",
-    "tools/wildlife/build.mjs": "a5d03798b268634dd4f485e69980063adc04a7e2946b6316fe59a2e4ee95ca92"
+    "tools/wildlife/build.mjs": "0bf9a8fcea9f59c57db8091095aecde6daeefe01506e27335bb15c793315b907"
   }
 }

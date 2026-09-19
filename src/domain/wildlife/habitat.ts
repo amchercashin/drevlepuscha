@@ -39,4 +39,5 @@ export function validatePackage(value:unknown):asserts value is WildlifePackage{
  if(Number(l.maxActiveEntities)>24||Number(l.maxCatchUpSteps)>2||Number(l.maxRecentEvents)>32||Number(l.maxResidentCells)>216||Number(l.maxDormantRecords)>384||Number(l.maxVisibilityTestsPerStep)>128||l.decisionStepMs!==200||Number(l.activeRadiusM)>Number(l.exitRadiusM))fail('safety caps');
  for(const key of ['alertRadiusM','fleeRadiusM','runningMultiplier','confirmMs','recoverMs','takeoffMs','speedMps','observerClearanceM','cooldownMs'])if(!finite(value.bird[key])||Number(value.bird[key])<=0)fail(`bird ${key}`);
  const ids=new Set<string>();for(const cell of value.cells){validateCell(cell,String(value.identity.contentHash));if(ids.has(cell.id))fail('duplicate cell');ids.add(cell.id);}
+ if(value.treeBindings!==undefined){if(!list(value.treeBindings,1024))fail('tree bindings');const trees=new Set<string>();for(const t of value.treeBindings){if(!record(t)||!label(t.id)||!label(t.familyId)||!label(t.assetVersion)||trees.has(t.id))fail('tree binding');trees.add(t.id);}}
 }

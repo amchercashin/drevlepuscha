@@ -195,8 +195,10 @@ try {
    const content=await loadShowcaseWildlife();
    wildlife=createShowcaseWildlife(scene,content,forest.treeCatalog(),sunlight,()=>({id:'solo',e:player.e,n:player.n,h:groundHeight(player.e,player.n),headingDeg:player.heading,...wildlifeMotion,observedAtMs:performance.now()}),()=>({totalGameHours:daylight?.stats().totalGameHours??12,daylight01:daylight?.daylightAmount()??1,precipitation01:daylight?.precipitation()??0}),!!location.hash,art,(event,age)=>{if(event.kind==='bird-flush')ambient?.playWildlifeEvent({x:event.position.e,y:event.position.h,z:-event.position.n},age);});
    wildlife.setQuality(QUALITY_PROFILES[effectiveQuality]);
-   const home=content.cells[0].sites[0].home,review=document.createElement('div');
+   const sites=content.cells.flatMap(c=>c.sites);let home=sites[0].home;const review=document.createElement('div');
    review.style.cssText='position:fixed;left:12px;bottom:34px;z-index:11;display:flex;gap:6px';
+   const siteSelect=document.createElement('select');siteSelect.setAttribute('aria-label','Место птицы');sites.forEach((site,i)=>siteSelect.add(new Option(`Место ${i+1}`,site.id)));review.append(siteSelect);
+   siteSelect.onchange=()=>{home=sites.find(s=>s.id===siteSelect.value)!.home;};
    for(const [label,metres] of [['К птице',7],['Подойти',3],['Отойти',25]] as const){
     const button=document.createElement('button');button.textContent=label;review.append(button);
     button.onclick=()=>{const side=metres<=7?3:0,e=home.e-Math.sin(yaw*Math.PI/180)*metres+Math.cos(yaw*Math.PI/180)*side,n=home.n-Math.cos(yaw*Math.PI/180)*metres-Math.sin(yaw*Math.PI/180)*side;

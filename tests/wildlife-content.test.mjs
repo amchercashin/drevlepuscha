@@ -39,3 +39,13 @@ test('anchor normal uses inverse transpose under nonuniform scale and tilt',()=>
  const actual=transformAnchor([1,2,3],normal,tree.modelToAbsoluteXYZ),expected=Vector3.TransformNormal(Vector3.FromArray(normal),Matrix.Transpose(Matrix.Invert(m))).normalize();
  assert.ok(Math.hypot(actual.normal[0]-expected.x,actual.normal[1]+expected.z,actual.normal[2]-expected.y)<1e-6);
 });
+
+test('relocation reuses the model-space perch, but independently validates geometry and identities',()=>{
+ const original=readJSON('config/wildlife/showcase-sites.json'),relocated=readJSON('config/wildlife/showcase-relocated-site.json');
+ assert.deepEqual(original.perch.point,relocated.perch.point);assert.equal(original.perch.familyId,relocated.perch.familyId);assert.notEqual(original.perch.treeId,relocated.perch.treeId);
+ const result=compile().data;assert.equal(result.cells.length,2);assert.equal(result.cells.flatMap(c=>c.sites).length,2);assert.equal(result.cells.flatMap(c=>c.routes).length,4);
+ const homes=result.cells.map(c=>c.sites[0].home);assert.ok(Math.hypot(homes[0].e-homes[1].e,homes[0].n-homes[1].n)>400);
+ const first=compile(original).data,second=compile(relocated).data;assert.notEqual(first.identity.contentHash,second.identity.contentHash);
+ const bad=structuredClone(relocated);bad.perch.familyId='incompatible';assert.throws(()=>compile(bad),/rigid wind zone/);
+ const duplicate=structuredClone(result);duplicate.treeBindings.push({...duplicate.treeBindings[0]});assert.throws(()=>validatePackage(duplicate),/tree binding/);
+});

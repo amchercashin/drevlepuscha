@@ -7,13 +7,11 @@ import {WildlifeSession,WildlifeEvents} from '../network/wildlife-session.ts';
 import {WildlifeWorld} from '../domain/wildlife/world.ts';
 import {createWildlifeRenderer} from './wildlife/render.ts';
 import {CanopyShade} from './canopy-shade.ts';
-import sites from '../../config/wildlife/showcase-sites.json';
 import type {BirdArt} from './wildlife/assets.ts';
 import type {WildlifeEvent} from '../domain/wildlife/types.ts';
 import {Matrix,Vector3} from '@babylonjs/core/Maths/math.vector.js';
 export function createShowcaseWildlife(scene:Scene,data:WildlifePackage,catalog:ReadonlyTreeCatalog,shadows:ShadowGenerator|null,observer:()=>WildlifeObserver,environment:()=>WildlifeEnvironment,joining:boolean,art:BirdArt|null=null,onEvent?:(event:WildlifeEvent,ageMs:number)=>void){
- const anchors=[sites.perch,...sites.routes.map(r=>r.refuge)];
- for(const a of anchors){const t=catalog.get(a.treeId);if(!t||t.familyId!==a.familyId||t.assetVersion!==a.assetVersion)throw Error(`Несовместимая опора фауны: ${a.treeId}`);}
+ for(const a of data.treeBindings??[]){const t=catalog.get(a.id);if(!t||t.familyId!==a.familyId||t.assetVersion!==a.assetVersion)throw Error(`Несовместимая опора фауны: ${a.id}`);}
  const render=createWildlifeRenderer(scene,data,m=>{if(shadows)new CanopyShade(m,shadows);},art),events=new WildlifeEvents();
  let solo:WildlifeSession|null=null,session:WildlifeSessionView|null=null,unsubscribe:(()=>void)|null=null,frame:WildlifeFrame|null=null,soloMs=0,disposed=false;
  const delivered:number[]=[];let nextStatus=0;

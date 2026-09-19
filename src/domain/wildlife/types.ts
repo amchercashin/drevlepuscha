@@ -24,4 +24,4 @@ export type WildlifePose=PoseBase & ({species:'woodland-bird';state:BirdState}|{
 export interface WildlifeEvent {seq:number;entityId:string;entityGeneration:number;kind:'bird-flush'|'squirrel-scramble'|'deer-startle';atMs:number;position:ENH;cueVariant:number;}
 export interface WildlifeFrame {v:1;authorityEpoch:string;content:WildlifeContentId;seq:number;simMs:number;eventWatermark:number;entities:readonly WildlifePose[];recentEvents:readonly WildlifeEvent[];}
 export interface WildlifeRegionSource {readonly identity:WildlifeContentId;requestCells(ids:readonly string[],signal:AbortSignal):Promise<readonly HabitatCell[]>;getCell(id:string):HabitatCell|undefined;sampleGround(e:number,n:number):{ready:true;h:number}|{ready:false};findTree(id:string):WildlifeTreeDescriptor|undefined;}
-export interface WildlifePackage {identity:WildlifeContentId;limits:WildlifeLimits;bird:BirdBehavior;cells:readonly HabitatCell[];}
+export interface WildlifePackage {identity:WildlifeContentId;limits:WildlifeLimits;bird:BirdBehavior;cells:readonly HabitatCell[];treeBindings?:readonly {id:string;familyId:string;assetVersion:string}[];}
