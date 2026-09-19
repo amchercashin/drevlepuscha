@@ -1,4 +1,4 @@
-type Cost={cpuMs:number;gpuMs:number;windCpuMs?:number};
+type Cost={cpuMs:number;gpuMs:number;windCpuMs?:number;wildlifeCpuMs?:number};
 export function timingSummary(values:number[]){
  const sorted=values.filter(Number.isFinite).sort((a,b)=>a-b);
  if(!sorted.length)return null;
@@ -25,6 +25,7 @@ export function performanceReport(start:()=>void,finish:()=>{frames:number[];cos
    report={version:1,date:new Date().toISOString(),userAgent:navigator.userAgent,elapsedMs:performance.now()-began,
     scope:'Actual device; visible unpaused frames. CPU time measures application/render submission, not GPU completion.',
     fps:frameMs?1000/frameMs.mean:null,frameMs,cpuSubmitMs:timingSummary(costs.map(c=>c.cpuMs)),
+    wildlifeControllerMs:timingSummary(costs.map(c=>c.wildlifeCpuMs??0)),
     windControllerMs:timingSummary(costs.map(c=>c.windCpuMs??0)),
     gpuMainPassMs:timingSummary(costs.map(c=>c.gpuMs).filter(t=>t>0)),framesOver33Ms:frames.filter(t=>t>33.34).length,context};
    button.disabled=false;button.textContent='Скачать результат замера';
