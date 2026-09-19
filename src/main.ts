@@ -198,7 +198,7 @@ try {
    wildlife=createShowcaseWildlife(scene,content,forest.treeCatalog(),sunlight,()=>({id:'solo',e:player.e,n:player.n,h:groundHeight(player.e,player.n),headingDeg:player.heading,...wildlifeMotion,observedAtMs:performance.now()}),()=>({totalGameHours:daylight?.stats().totalGameHours??12,daylight01:daylight?.daylightAmount()??1,precipitation01:daylight?.precipitation()??0}),!!location.hash,art,(event,age)=>{ambient?.playWildlifeEvent({x:event.position.e,y:event.position.h,z:-event.position.n},age,event.kind);},localArt,p=>wind?.sampleAt(p.e,p.h,-p.n).strength01??0);
    wildlife.setQuality(QUALITY_PROFILES[effectiveQuality]);
    const sites=content.cells.flatMap(c=>c.sites);let selectedSite=sites[0],home=selectedSite.home;const review=document.createElement('div');
-   review.style.cssText='position:fixed;left:12px;bottom:34px;z-index:11;display:flex;gap:6px';
+   review.className='wildlife-review';
    const siteSelect=document.createElement('select');siteSelect.setAttribute('aria-label','Место фауны');sites.forEach((site,i)=>siteSelect.add(new Option(`${({'woodland-bird':'Птица','red-squirrel':'Белка','roe-deer':'Косуля'})[site.species]} · ${i+1}`,site.id)));review.append(siteSelect);
    siteSelect.onchange=()=>{selectedSite=sites.find(s=>s.id===siteSelect.value)!;home=selectedSite.home;};
    for(const [label,metres] of [['К животному',7],['Подойти',3],['Отойти',25]] as const){

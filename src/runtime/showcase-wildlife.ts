@@ -19,7 +19,7 @@ export function createShowcaseWildlife(scene:Scene,data:WildlifePackage,catalog:
  const render=createWildlifeRenderer(scene,data,m=>{if(shadows)new CanopyShade(m,shadows);},art,localArt?[localArt]:[]),insects=localArt&&render.library?createLocalInsects(scene,render.library,insectPatches,wind):null,events=new WildlifeEvents();
  let solo:WildlifeSession|null=null,session:WildlifeSessionView|null=null,unsubscribe:(()=>void)|null=null,frame:WildlifeFrame|null=null,soloMs=0,disposed=false;
  const delivered:number[]=[];let nextStatus=0,lastCpuMs=0,lastPrepareMs=0;
- const label=document.createElement('div');label.textContent=art?'Фауна · КАНДИДАТЫ':'Фауна · ТЕСТОВАЯ МОДЕЛЬ';label.style.cssText='position:fixed;left:12px;bottom:12px;color:#ffcf86;pointer-events:none;font:12px sans-serif;z-index:10';document.body.append(label);
+ const label=document.createElement('div');label.className='wildlife-status';label.textContent=art?'Фауна · КАНДИДАТЫ':'Фауна · ТЕСТОВАЯ МОДЕЛЬ';label.style.cssText='position:fixed;left:12px;color:#ffcf86;pointer-events:none;font:12px sans-serif;z-index:10';document.body.append(label);
  const marker=document.createElement('div');marker.textContent='↓ Птица';marker.style.cssText='position:fixed;pointer-events:none;color:#ffe0ac;font:12px sans-serif;text-shadow:0 1px 3px #000;transform:translate(-50%,-100%);z-index:9';document.body.append(marker);
  function bind(view:WildlifeSessionView){unsubscribe?.();session=view;unsubscribe=view.subscribe((next,initial)=>{frame=next;events.accept(next,initial);});view.setSceneReady(true);}
  function startSolo(restore:WildlifeFrame|null){
