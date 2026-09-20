@@ -32,6 +32,7 @@ import {createRegionWildlife} from './wildlife.ts';
 import {regionShade} from './shade.ts';
 import {renderResolution} from '../runtime/resolution.ts';
 import type {ResolutionQuality} from '../runtime/resolution.ts';
+import {createUndergrowth} from './undergrowth.ts';
 import {regionSight} from '../domain/regions/sight.ts';
 
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
@@ -41,19 +42,19 @@ const {engine,canvas}=renderer,scene=new Scene(engine);scene.useRightHandedSyste
 scene.clearColor=new Color4(.74,.8,.84,1);scene.fogMode=Scene.FOGMODE_EXP2;scene.fogDensity=.0005;scene.fogColor=new Color3(.76,.82,.84);
 const camera=new FreeCamera('region-camera',new Vector3(0,8,10),scene);camera.inputs.clear();camera.minZ=.1;camera.maxZ=6500;camera.fov=cameraConfig.travel.fovVerticalDeg*Math.PI/180;scene.activeCamera=camera;
 const sun=new DirectionalLight('sun',new Vector3(-.35,-.65,.6),scene),fill=new HemisphericLight('fill',Vector3.Up(),scene);
-const shadows=new ShadowGenerator(512,sun);shadows.usePercentageCloserFiltering=true;shadows.setDarkness(.2);sun.autoUpdateExtends=false;sun.autoCalcShadowZBounds=false;sun.shadowMinZ=1;sun.shadowMaxZ=120;sun.orthoLeft=sun.orthoBottom=-40;sun.orthoRight=sun.orthoTop=40;
+const shadows=new ShadowGenerator(1024,sun);shadows.usePercentageCloserFiltering=true;shadows.setDarkness(.12);sun.autoUpdateExtends=false;sun.autoCalcShadowZBounds=false;sun.shadowMinZ=1;sun.shadowMaxZ=120;sun.orthoLeft=sun.orthoBottom=-40;sun.orthoRight=sun.orthoTop=40;
 const wind=new WindSystem();createWindControls(wind);
 const world=await start.stage('Реки, холмы и лес…',()=>RegionWorld.create(scene,sun,wind));
 const structures=createStructures(scene,world),hero=new TransformNode('ranger',scene);
 const ranger=await start.stage('Следопыт…',()=>createRanger(scene,hero));
-const daylight=createDaylight(scene,camera,sun,fill,null,true);await daylight.loadSkyAssets();daylight.setFog(.0005);
+const daylight=createDaylight(scene,camera,sun,fill,null,true,true);await daylight.loadSkyAssets();daylight.setFog(.00035);daylight.setSkySettings({low:{scale:[.38,.43],detailScale:2.6},high:{scale:[.20,.7]}});
 const rain=createRain(scene,{origin:()=>({x:world.origin.e,z:-world.origin.n}),groundHeightAt:(x,z)=>world.data.height(x+world.origin.e,world.origin.n-z),shelterHeightAt:(x,z)=>{const e=x+world.origin.e,n=world.origin.n-z;return structures.colliders.find(c=>Math.abs(e-c.e)<c.width/2&&Math.abs(n-c.n)<c.depth/2)?.roof??null;}}),audio=new ShowcaseAudio(wind,[]);
 const session=new RegionSession(world.data.geo,world.data.manifest.version),saveKey='region:brandywine-bridge:session-v1';let restored=false,restoreNotice='';
 try{const stored=localStorage.getItem(saveKey);if(stored){session.restore(JSON.parse(stored));restored=true;}}catch(e){restoreNotice=String(e);}
 const player=session.state.player,actors=createRegionalActors(scene,world,session),shade=regionShade(scene,world.data.geo,()=>world.origin,shadows);
 world.floor.materials.forEach(shade);hero.getChildMeshes().forEach(m=>m.material&&shade(m.material));
 const wildlife=await start.stage('Птицы и лесные обитатели…',()=>createRegionWildlife(scene,world,shadows,wind,audio,shade));
-world.setWater(player.water);
+world.setWater(player.water);const undergrowth=createUndergrowth(scene,world);
 let paused=true,loading=true,yaw=75,pitch=6,distance=6,dragging=false,frames=0,previous=performance.now(),lastUi=0;
 const errors:string[]=[],keys=new Set<string>();
 try{const c=JSON.parse(localStorage.getItem('region:brandywine-bridge:camera')??'null');if(c&&[c.yaw,c.pitch,c.distance].every(Number.isFinite)){yaw=normalizeAzimuth(c.yaw);pitch=Math.max(-70,Math.min(cameraConfig.travel.pitchMaxDeg,c.pitch));distance=Math.max(cameraConfig.travel.distanceMinM,Math.min(cameraConfig.travel.distanceMaxM,c.distance));}}catch{}
@@ -100,10 +101,10 @@ engine.runRenderLoop(()=>{
   const budget=world.update(player,eye,h,dt);hero.position.set(player.e-world.origin.e,h,world.origin.n-player.n);hero.rotation.y=-player.heading*Math.PI/180;
   camera.position.set(eye.e-world.origin.e,eye.h,world.origin.n-eye.n);camera.setTarget(new Vector3(hero.position.x,h+.95+Math.tan(Math.max(0,-pitch)*Math.PI/180)*distance,hero.position.z));
   const active=paused||loading?0:dt;ranger.update(active,speed,running);wind.update(active,{x:eye.e,y:eye.h,z:-eye.n});daylight.update(active);rain.update(active,camera.position,daylight.precipitation(),daylight.daylightAmount());audio.update(active,daylight.hour(),{x:eye.e,y:eye.h,z:-eye.n},{x:Math.sin(yaw*Math.PI/180),y:0,z:-Math.cos(yaw*Math.PI/180)},daylight.precipitation());
-  structures.update(player,h,camera.position,dt,session.state.gateOpen,budget);actors.update(active,budget);wildlife.update(active,{id:'ranger',...player,h,speedMps:speed,headingDeg:player.heading,running,observedAtMs:session.state.clock*1000},{totalGameHours:daylight.stats().totalGameHours,daylight01:daylight.daylightAmount(),precipitation01:daylight.precipitation()},budget);
+  structures.update(player,h,camera.position,dt,session.state.gateOpen,budget);actors.update(active,budget);undergrowth.update(player,budget);wildlife.update(active,{id:'ranger',...player,h,speedMps:speed,headingDeg:player.heading,running,observedAtMs:session.state.clock*1000},{totalGameHours:daylight.stats().totalGameHours,daylight01:daylight.daylightAmount(),precipitation01:daylight.precipitation()},budget);
   sun.position.copyFrom(hero.position.subtract(sun.direction.scale(60)));shadows.getShadowMap()!.renderList=[...hero.getChildMeshes(),...world.trees.shadows(player),...actors.shadowMeshes(),...wildlife.shadowMeshes({...player,h}),...structures.meshes.filter(m=>m.isEnabled()&&Vector3.Distance(m.position,hero.position)<45)];scene.render();frames++;
   if(now-audioTreesAt>1000){audioTreesAt=now;audio.setTreePositions(world.trees.resident.map(t=>({x:t.e,y:t.h,z:-t.n})));const shore=Math.min(...world.data.geo.nearbyWater(player.e,player.n).map((q:any)=>Math.max(0,q.distance-q.width/2)));audio.setEnvironment(Math.min(1,world.trees.resident.filter(t=>Math.hypot(t.e-player.e,t.n-player.n)<65).length/25),Math.max(0,1-shore/65));}
-  if(now-lastUi>500){lastUi=now;if(!paused&&!loading)session.discover((e,n)=>regionSight({...player,h:player.height+1.65},{e,n,h:world.data.geo.surfaceHeight(e,n)+1},world.data.geo.surfaceHeight).visible);ui.update(nearbyAction()?.label??'');$('fps').textContent=Math.round(engine.getFps())+' FPS';$('metrics').textContent=`${world.terrain.patches.size} участков · ${world.trees.resident.length} деревьев рядом`;$('location').textContent=world.data.geo.zoneAt(player.e,player.n)?.name??'Пойма';}
+  if(now-lastUi>500){lastUi=now;if(!paused&&!loading)session.discover((e,n)=>regionSight({...player,h:player.height+1.65},{e,n,h:world.data.geo.surfaceHeight(e,n)+1},world.data.geo.surfaceHeight).visible);ui.update(nearbyAction()?.label??'');$('fps').textContent=Math.round(engine.getFps())+' FPS';$('metrics').textContent=`${world.terrain.patches.size} участков · ${world.trees.resident.length} деревьев рядом · кадр p95 ${state().frameMs.p95?.toFixed(1)??'—'} мс`;$('location').textContent=world.data.geo.zoneAt(player.e,player.n)?.name??'Пойма';}
   if(!loading&&now-saveAt>10000){saveAt=now;save();}
  }catch(e){if(!errors.includes(String(e))){errors.push(String(e));console.error(e);}setPaused(true);$('pause-description').textContent='Не удалось обновить сцену. '+String(e);}
 });

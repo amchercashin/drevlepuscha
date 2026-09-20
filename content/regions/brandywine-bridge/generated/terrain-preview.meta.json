@@ -16,11 +16,11 @@
     "minN": -1500,
     "maxN": 2500
   },
-  "minHeightM": -4.095980604112899,
-  "maxHeightM": 46.964514506460716,
+  "minHeightM": -4.096084956708684,
+  "maxHeightM": 46.80601559736088,
   "datum": "arbitrary local vertical datum; water at bridge = 0m",
   "containsBridgeDecks": false,
   "containsFinalRoadGrading": false,
-  "sha256": "363b949759e3e1d6344644894e2f4122d2bbebe7ea425d84aa339e042e012c52",
+  "sha256": "53e0ceb44223060d01ba662ed638219af278ee371d3d36d6d7f122a10cf58532",
   "generator": "tools/regions/authoring-core.mjs::previewHeight"
 }

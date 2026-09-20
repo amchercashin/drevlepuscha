@@ -14,7 +14,7 @@ const geometry=():FloorGeometry=>({positions:[],indices:[],colors:[],uvs:[],heig
 export function floorCellDistance(e:number,n:number,cx:number,cz:number){
  return Math.hypot(Math.max(cx*8-1-e,0,e-((cx+1)*8+1)),Math.max(cz*8-1-n,0,n-((cz+1)*8+1)));
 }
-export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeight,lush=showcaseEnabled,placementAllowed?:(e:number,n:number,r:number)=>boolean){
+export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeight,lush=showcaseEnabled,placementAllowed?:(e:number,n:number,r:number)=>boolean,regional?:'meadow'|'woodland'){
  const grass=geometry(),leaves=geometry(),random=createRandom(seedFor('m1-floor-art-v1',cx,cz));
  const nearby=boxes.filter(b=>b.max.x>=cx*8-1&&b.min.x<=(cx+1)*8+1&&b.max.z>=-(cz+1)*8-1&&b.min.z<=-cz*8+1);
  function allowed(e:number,n:number,r:number){
@@ -29,26 +29,26 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
   g.heights.push(Math.max(0,y-height(x,-z)+.06));
  }
  // Full-cell candidates with world-anchored patches; no repeating empty half of an 8 m tile.
- for(let i=0;i<(lush?205:65);i++){
-  const e=cx*8+(lush&&!showcaseEnabled?((i%20)+random())*.4:random()*8),n=cz*8+(lush&&!showcaseEnabled?(Math.floor(i/20)+random())*.4:random()*8);
+ for(let i=0;i<(regional==='meadow'?560:regional?300:lush?205:65);i++){
+  const e=cx*8+(lush&&!showcaseEnabled&&!regional?((i%20)+random())*.4:random()*8),n=cz*8+(lush&&!showcaseEnabled&&!regional?(Math.floor(i/20)+random())*.4:random()*8);
   const field=showcaseEnabled?groundPatch(e,n):null;
   const patch=field?.moss??(.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28));
   if(!allowed(e,n,.15)||random()>(showcaseEnabled?.15+patch*.7: lush?.42+patch*.53:patch*.8))continue;
-  const h=(lush?.20:.13)+random()*(lush?.27:.22),grassHue=random();
-  const grassBase=grassHue<.34?[.26,.50,.43]:grassHue<.68?[.36,.54,.30]:[.24,.45,.40];
+  const h=(regional==='meadow'?.24:lush?.20:.13)+random()*(regional==='meadow'?.32:lush?.27:.22),grassHue=random();
+  const grassBase=regional==='meadow'?[.26+grassHue*.13,.38+grassHue*.14,.13+grassHue*.07]:grassHue<.34?[.26,.50,.43]:grassHue<.68?[.36,.54,.30]:[.24,.45,.40];
   for(let blade=0;blade<(lush?3:4);blade++){
    const a=random()*Math.PI*2,dx=Math.cos(a),dz=Math.sin(a),w=(lush?.030:.017)+random()*(lush?.020:.014);
    const x=e+(random()-.5)*.15,z=-n+(random()-.5)*.15,y=height(x,-z)-.025,k=grass.positions.length/3;
    for(const [t,side] of [[0,-1],[0,1],[.6,-1],[.6,1],[1,0]]){
     const width=w*(1-t*.7),bend=t*t*h*.45;
-    if(showcaseEnabled)grass.wind.push(x,z,t,x*.31+z*.17);
+    if(showcaseEnabled||regional)grass.wind.push(x,z,t,x*.31+z*.17);
     vertex(grass,x+dx*bend-dz*width*side,y+t*h,z+dz*bend+dx*width*side,0,0,[grassBase[0]+t*.13,grassBase[1]+t*.16,grassBase[2]+t*.10]);
    }
    grass.indices.push(k,k+1,k+2,k+1,k+3,k+2,k+2,k+3,k+4);
   }
  }
  // One atlas and curved strips, no geometry for each fern leaflet.
- for(let plant=0;plant<(lush?126:14);plant++){
+ for(let plant=0;plant<(regional==='meadow'?5:lush?126:14);plant++){
   const e=cx*8+random()*8,n=cz*8+random()*8;
   const field=showcaseEnabled?groundPatch(e,n):null;
   const patch=field?.moss??(.5+.25*Math.sin(e*.35+n*.21)+.25*Math.sin(e*.71-n*.28));
@@ -65,7 +65,7 @@ export function makeFloorPatch(cx:number,cz:number,boxes:Box[],height=groundHeig
     for(const side of [-1,1]){
      const x=e+dx*t*length-dz*half*length*.85*side,z=-n+dz*t*length+dx*half*length*.85*side;
      // Lift strip above local terrain on slopes, preserving an arched silhouette.
-     if(showcaseEnabled)leaves.wind.push(e,-n,t,e*.31-n*.17);
+     if(showcaseEnabled||regional)leaves.wind.push(e,-n,t,e*.31-n*.17);
      vertex(leaves,x,Math.max(y,height(x,-z)+.015),z,centreU+side*half*.5,baseV+.49*t,leafTint);
     }
     if(j<4){const q=k+j*2;leaves.indices.push(q,q+1,q+2,q+1,q+3,q+2);}

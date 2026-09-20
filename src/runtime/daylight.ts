@@ -19,8 +19,8 @@ import './daylight.css';
 
 type Air={setRays:(enabled:boolean)=>void;setAtmosphere?:(state:{raysScale:number})=>void}|null;
 type LocalState={totalHours:number;automatic:boolean;moon:MoonSettings;weatherMode:WeatherMode;weatherSeconds:number;weather:WeatherState;transition:WeatherTransition|null;skySettings?:SkySettings;skyTime:number};
-export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fill:HemisphericLight,air:Air,showcaseSky=false){
- const animatedSky=showcaseSky?createShowcaseSky(scene,camera):null;
+export function createDaylight(scene:Scene,camera:Camera,sun:DirectionalLight,fill:HemisphericLight,air:Air,showcaseSky=false,landscapeDepth=false){
+ const animatedSky=showcaseSky?createShowcaseSky(scene,camera,landscapeDepth):null;
  const sky=animatedSky??createDaySky(scene,camera);
  const foliage=scene.materials.filter((m):m is StandardMaterial=>m instanceof StandardMaterial&&['grass','floor-leaves','cover-mid','cover-far'].includes(m.name)).map(m=>({material:m,emission:m.emissiveColor.clone()}));
  let sharedClock:WorldClock|null=null,previous:LocalState|null=null;

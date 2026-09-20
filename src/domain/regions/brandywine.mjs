@@ -7,7 +7,7 @@ export function regionGeography(source) {
   const zones=source.forests.map(f=>({id:f.id,name:f.name,tint:f.biome==='riparian'?[.32,.43,.29]:[.37,.42,.27],rules:{treeDensityPerM2:f.treeDensityPerM2,understoryCover:.6,deadwoodFraction:.12},speciesWeights:['oak','fork','young','conifer','willow'].map(k=>f.speciesWeights[k]??0)}));
   zones.push({id:'tributary-hills',name:'Лесистые склоны притока',tint:[.37,.44,.28],rules:{treeDensityPerM2:[.001,.0025],understoryCover:.6,deadwoodFraction:.12},speciesWeights:[.35,.25,.35,0,.05]});
   zones.push({id:'orchard',name:'Сад Бакленда',tint:[.45,.48,.28],rules:{treeDensityPerM2:[.001,.0015],understoryCover:.3,deadwoodFraction:0},speciesWeights:[0,0,1,0,0]});
-  zones.push({id:'fields',name:'Поля и луга',tint:[.5,.52,.32],rules:{treeDensityPerM2:[.00003,.00006],understoryCover:.25,deadwoodFraction:0},speciesWeights:[.75,.10,.15,0,0]});
+  zones.push({id:'fields',name:'Поля и луга',tint:[.38,.46,.23],rules:{treeDensityPerM2:[.00012,.00035],understoryCover:.25,deadwoodFraction:0},speciesWeights:[.9,.1,0,0,0]});
   return {regionSource:source,worldSeed:source.worldSeed,bounds:source.playBounds,zones,
     features:source.rivers.map(r=>({id:r.id,geometry:{type:'LineString',coordinates:r.stations.map(p=>p.slice(0,2))},water:{...r,widthM:r.stations[0][3]}}))};
 }
@@ -54,7 +54,8 @@ export function createBrandywineGeography(g) {
   };
   const nearbyWater=(e,n)=>padded.rivers.map(r=>{const q=nearestStation(e,n,r.stations);return {...q,h:q.level,feature:{id:r.id,water:{...r,widthM:q.width}}};});
   const exclusion=(e,n)=>nearbyWater(e,n).some(q=>q.distance<q.width/2+9)||REGION_BUILDINGS.some(b=>Math.abs(e-b.e)<b.width/2+8&&Math.abs(n-b.n)<b.depth/2+8)||s.pois.some(p=>distance(p.point,[e,n])<(p.id==='INN'?30:12))||s.hedges.some(h=>nearestOnLine(e,n,h.points).distance<h.widthM/2+4);
-  return {height,surfaceHeight,zoneAt,nearbyWater,exclusion,bridges,source:s,padded,ramps,
+  const coverExclusion=(e,n)=>REGION_BUILDINGS.some(b=>Math.abs(e-b.e)<b.width/2+.5&&Math.abs(n-b.n)<b.depth/2+.5);
+  return {height,surfaceHeight,zoneAt,nearbyWater,exclusion,coverExclusion,bridges,source:s,padded,ramps,
     waterAt:(e,n,state='normal')=>{const near=nearbyWater(e,n).filter(q=>q.distance<=q.width/2+64);if(!near.length)return null;const level=Math.max(...near.map(q=>q.level))+s.states.waterLevelsM[state],depth=level-surfaceHeight(e,n);return depth>=0?{level,depth,bodies:near.map(q=>q.feature.id)}:null;},
     forestAt:(e,n)=>zoneAt(e,n).id!=='fields'};
 }

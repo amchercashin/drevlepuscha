@@ -67,7 +67,7 @@ export class Trees {
         const wants = new Set<string>();
         this.nearQueue = [];
         for (const t of list)
-            if (Math.hypot(t.e - p.e, t.n - p.n) < 65) {
+            if (Math.hypot(t.e - p.e, t.n - p.n) < (this.data.options?.geographyKind==='brandywine'?120:65)) {
                 wants.add(t.id);
                 if (!this.near.has(t.id))
                     this.nearQueue.push(t);
@@ -112,7 +112,7 @@ export class Trees {
         }
         {
             let b = this.batches.get(key);
-            const t = records[0], family = this.library.tree(t.family), source = family.variants[0].at(-1)!;
+            const t = records[0], family = this.library.tree(t.family), source = this.data.options?.geographyKind==='brandywine'?(family.variants[0][1]??family.variants[0][0]):family.variants[0].at(-1)!;
             if (!b || b.buffer.length < records.length * 16 || b.meshes[0].metadata?.family !== family.id) {
                 b?.meshes.forEach(m => m.dispose());
                 const e = Math.floor(t.e / 256) * 256, n = Math.floor(t.n / 256) * 256, buffer = new Float32Array(Math.max(records.length, 600) * 16);

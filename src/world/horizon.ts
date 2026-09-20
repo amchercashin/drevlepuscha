@@ -18,7 +18,7 @@ export class Horizon {
     count = 0;
     generation = 0;
     completed:(()=>void)|undefined;
-    constructor(scene: Scene, public data: WorldData) { this.mesh = CreateSphere('grove-volumes', { segments: 2, diameter: 1 }, scene); const m = new StandardMaterial('grove-leaves', scene); m.diffuseColor = new Color3(.27, .36, .26); m.specularColor = Color3.Black(); this.mesh.material = m; this.mesh.thinInstanceSetBuffer('matrix', this.buffer, 16, false); this.mesh.isPickable = false; this.mesh.setEnabled(false); }
+    constructor(scene: Scene, public data: WorldData) { this.mesh = CreateSphere('grove-volumes', { segments: data.options.geographyKind==='brandywine'?6:2, diameter: 1 }, scene); const m = new StandardMaterial('grove-leaves', scene); m.diffuseColor = new Color3(.27, .36, .26); m.specularColor = Color3.Black(); this.mesh.material = m; this.mesh.thinInstanceSetBuffer('matrix', this.buffer, 16, false); this.mesh.isPickable = false; this.mesh.setEnabled(false); }
     update(p: EN,budget?:FrameWorkBudget) {
         if(this.completed){const upload=()=>{const work=this.completed!;this.completed=undefined;work();};if(budget)budget.run(upload);else upload();}
         const key = tileKey(p.e, p.n, 128);

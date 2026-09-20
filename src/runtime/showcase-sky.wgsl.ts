@@ -12,7 +12,7 @@ uniform zenith:vec3f;uniform horizon:vec3f;uniform solar:vec3f;uniform lunar:vec
 uniform moonRight:vec3f;uniform moonUp:vec3f;uniform lightSource:vec3f;
 uniform moonIllumination:f32;uniform sourcePower:f32;
 uniform stars:f32;uniform starRotation:vec2f;uniform twinklePhase:f32;
-uniform daylight:f32;uniform sunset:f32;uniform quality:f32;
+uniform landscapeDepth:f32;uniform daylight:f32;uniform sunset:f32;uniform quality:f32;
 uniform starSettings:vec2f;uniform moonSettings:vec4f;
 uniform lowShape:vec4f;uniform highShape:vec4f;uniform lowScale:vec2f;uniform highScale:vec2f;
 uniform lowBase:vec2f;uniform lowDetail:vec2f;uniform highBase:vec2f;uniform highDetail:vec2f;uniform warpOffset:vec2f;
@@ -141,7 +141,7 @@ fn cloudColour(density:f32,mask:f32,sculpt:f32,dir:vec3f,sourceDistance:f32,sour
  let highDensity=clamp(highBase*0.88+highDetail*0.12,0.0,1.0);
  let lowMask=cloudMask(lowDensity,uniforms.lowShape.x);let highMask=cloudMask(highDensity,uniforms.highShape.x);
  let lowT=transmission(lowDensity,lowMask,uniforms.lowShape.y);let highT=transmission(highDensity,highMask,uniforms.highShape.y);
- let lightOffset=uniforms.lightSource.xz*0.008;
+ let lightOffset=uniforms.lightSource.xz*mix(0.008,0.035,uniforms.landscapeDepth);
  let lowDx=dpdx(lowUV);let lowDy=dpdy(lowUV);let highDx=dpdx(highUV);let highDy=dpdy(highUV);
  var lowSculpt=0.5;var highSculpt=0.5;
  // Explicit gradients permit quality branches without per-pixel derivative hazards.
@@ -149,7 +149,16 @@ fn cloudColour(density:f32,mask:f32,sculpt:f32,dir:vec3f,sourceDistance:f32,sour
  if(uniforms.quality>=2.0) {let offset=vec2f(lightOffset.x*0.8-lightOffset.y*0.6,lightOffset.x*0.6+lightOffset.y*0.8);let neighbour=textureSampleGrad(cloudMap,cloudMapSampler,highUV+offset,highDx,highDy).g;highSculpt=clamp(0.5+(highBase-neighbour)*7.0,0.0,1.0);}
  let sourceDistance=length(dir-uniforms.lightSource);let sourceVisible=smoothstep(0.0,0.20,uniforms.lightSource.y)*uniforms.sourcePower;
  let highColour=cloudColour(highDensity,highMask,highSculpt,dir,sourceDistance,sourceVisible);
- let lowColour=cloudColour(lowDensity,lowMask,lowSculpt,dir,sourceDistance,sourceVisible);
+ var lowColour=cloudColour(lowDensity,lowMask,lowSculpt,dir,sourceDistance,sourceVisible);
+ if(uniforms.landscapeDepth>0.5){
+  // Thickness toward the light gives a shaded body, with finer detail reserved for the edge.
+  let shoulder=textureSampleGrad(cloudMap,cloudMapSampler,lowUV+lightOffset*2.7,lowDx,lowDy).r;
+  let body=clamp(.50+(lowBase-shoulder)*5.0+(lowSculpt-.5)*.5,0.0,1.0);
+  let shade=mix(vec3f(.035,.05,.09),vec3f(.39,.47,.59),uniforms.daylight);
+  let light=mix(vec3f(.12,.16,.25)*sourceVisible,mix(vec3f(1.0,.97,.91),vec3f(1.0,.56,.30),uniforms.sunset),uniforms.daylight);
+  lowColour=mix(shade,light,smoothstep(.08,.85,body));
+  lowColour=mix(uniforms.horizon,lowColour,smoothstep(.015,.25,dir.y));
+ }
  colour=colour*highT+highColour*(1.0-highT);
  colour=colour*lowT+lowColour*(1.0-lowT);
  fragmentOutputs.color=vec4f(colour,1.0);

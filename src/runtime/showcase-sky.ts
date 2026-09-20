@@ -20,9 +20,10 @@ import {moonAlbedoUrl} from './sky-assets.ts';
 ShaderStore.ShadersStoreWGSL.showcaseSkyVertexShader=skyVertex;
 ShaderStore.ShadersStoreWGSL.showcaseSkyPixelShader=skyFragment;
 
-export function createShowcaseSky(scene:Scene,camera:Camera){
+export function createShowcaseSky(scene:Scene,camera:Camera,landscapeDepth=false){
  const material=new ShaderMaterial('showcase-sky',scene,{vertex:'showcaseSky',fragment:'showcaseSky'},
-  {attributes:['position'],uniforms:['worldViewProjection','skyDepth','zenith','horizon','solar','lunar','moonRight','moonUp','lightSource','moonIllumination','sourcePower','stars','starRotation','twinklePhase','daylight','sunset','quality','starSettings','moonSettings','lowShape','highShape','lowScale','highScale','lowBase','lowDetail','highBase','highDetail','warpOffset'],samplers:['cloudMap','moonMap'],shaderLanguage:ShaderLanguage.WGSL});
+  {attributes:['position'],uniforms:['worldViewProjection','landscapeDepth','skyDepth','zenith','horizon','solar','lunar','moonRight','moonUp','lightSource','moonIllumination','sourcePower','stars','starRotation','twinklePhase','daylight','sunset','quality','starSettings','moonSettings','lowShape','highShape','lowScale','highScale','lowBase','lowDetail','highBase','highDetail','warpOffset'],samplers:['cloudMap','moonMap'],shaderLanguage:ShaderLanguage.WGSL});
+ material.setFloat('landscapeDepth',Number(landscapeDepth));
  material.setFloat('skyDepth',scene.getEngine().useReverseDepthBuffer?0.000001:0.999999);
  material.backFaceCulling=false;material.disableDepthWrite=true;material.fogEnabled=false;
  const cloudPixels=createCloudPixels();
@@ -54,7 +55,9 @@ export function createShowcaseSky(scene:Scene,camera:Camera){
  }
  function update(s:Daylight){
   if(disposed)return;current=s;
-  material.setColor3('zenith',top.set(...s.zenith));material.setColor3('horizon',bottom.set(...s.horizon));
+  top.set(...s.zenith);bottom.set(...s.horizon);
+  if(landscapeDepth){const t=s.daylight*(1-s.sunset);top.set(top.r+(.20-top.r)*t*.7,top.g+(.36-top.g)*t*.7,top.b+(.63-top.b)*t*.7);bottom.set(bottom.r+(.76-bottom.r)*t*.85,bottom.g+(.83-bottom.g)*t*.85,bottom.b+(.89-bottom.b)*t*.85);}
+  material.setColor3('zenith',top);material.setColor3('horizon',bottom);
   material.setVector3('solar',solar.set(...s.towardSun));material.setVector3('lunar',lunar.set(...s.towardMoon));
   material.setVector3('lightSource',source.set(...(s.source==='sun'?s.towardSun:s.towardMoon)));
   const basis=moonBasis(s.towardMoon);material.setVector3('moonRight',right.set(...basis.right));material.setVector3('moonUp',up.set(...basis.up));

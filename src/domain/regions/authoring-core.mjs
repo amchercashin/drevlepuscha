@@ -60,7 +60,13 @@ export function previewHeight(source, e, n, detailed = true) {
   }
   let bed = Infinity;
   for (const river of source.rivers) {
-    const q = nearestStation(e, n, river.stations), half = q.width / 2;
+    const q = nearestStation(e, n, river.stations);
+    const relief=detailed?source.terrainRefinement?.surfaceRelief:null;
+    let protectedWeight=1;
+    if(relief)for(const poi of source.pois.filter(p=>/BRIDGE|SHALLOWS|LANDING/.test(p.id)))protectedWeight*=smooth((distance([q.e,q.n],poi.point)-100)/150);
+    const along=q.alongM+(river.chainageOffsetM??0);
+    // Expand small coves outside the authored navigation corridor; never narrow its deep axis.
+    const half=q.width/2+(relief?protectedWeight*relief.shoreIrregularityM*(.5+.5*reliefNoise(along,0,45,source.worldSeed+922)):0);
     let depth = q.depth;
     if (river.id === 'the-water') {
       const ford = source.pois.find(p => p.id === 'WATER_SHALLOWS').point;
@@ -72,13 +78,23 @@ export function previewHeight(source, e, n, detailed = true) {
     } else {
       const profile = bankProfile(source, river, q, e, n, detailed);
       const bank = q.level + profile.heightM * smooth((q.distance - half) / profile.widthM);
-      const flood = q.level + profile.heightM + .002 * Math.max(0, q.distance - half - profile.widthM);
+      // The old constant floodplain target shaved off every hill behind the bank.
+      // Retain part of the authored relief on the dry terrace, blending from the graded shore.
+      const terrace = relief ? smooth((q.distance-half-profile.widthM)/65)*Math.max(0,h-source.terrain.baseHeightM)*.55 : 0;
+      const flood = q.level + profile.heightM + .002 * Math.max(0, q.distance - half - profile.widthM) + terrace;
       const target = q.distance < half + profile.widthM ? bank : flood;
       const weight = 1 - smooth((q.distance - profile.floodplainHalfWidthM) / profile.blendM);
       if (weight > 0) h = Math.min(h, h + (target - h) * weight);
     }
   }
-  return Number.isFinite(bed) ? bed : h;
+  if(Number.isFinite(bed))return bed;
+  const relief=detailed?source.terrainRefinement?.surfaceRelief:null;
+  if(relief){
+    const dry=smooth(Math.max(0,h-Math.max(...source.rivers.map(r=>nearestStation(e,n,r.stations).level)))/2);
+    let protect=1;for(const p of source.pois)protect*=smooth(distance([e,n],p.point)/(/LANDING|BRIDGE|SHALLOWS/.test(p.id)?32:8));
+    h+=dry*protect*(relief.shoulderAmplitudeM*reliefNoise(e,n,relief.shoulderScaleM,source.worldSeed+1409)+relief.hummockAmplitudeM*reliefNoise(e,n,relief.hummockScaleM,source.worldSeed+1721));
+  }
+  return h;
 }
 /** Side is relative to the downstream river axis; left/right never mean screen side. */
 export function bankProfile(source, river, q, e, n, detailed = true) {

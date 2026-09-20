@@ -2138,7 +2138,7 @@
     "Вспомогательные узлы снаружи/внутри ворот спроецированы на дорогу. Сад связан отдельным подъездом с развилкой; его POI не перемещён."
   ],
   "terrainRefinement": {
-    "version": "0.1.2",
+    "version": "0.2.0",
     "status": "direction-accepted-terrain-refined",
     "note": "Authored mesorelief candidate; preserves v0.1 POIs, river axes, road lines, graph and seed. Not production collision or completed road grading.",
     "forms": [
@@ -2253,6 +2253,62 @@
         ],
         "amplitudeM": 3.5,
         "rotationDeg": -25
+      },
+      {
+        "id": "inn-back-slope",
+        "name": "Склон за постоялым двором",
+        "center": [
+          -450,
+          80
+        ],
+        "radiusM": [
+          210,
+          150
+        ],
+        "amplitudeM": 10,
+        "rotationDeg": -25
+      },
+      {
+        "id": "east-bank-shoulder",
+        "name": "Холм над восточным берегом",
+        "center": [
+          320,
+          320
+        ],
+        "radiusM": [
+          180,
+          250
+        ],
+        "amplitudeM": 12,
+        "rotationDeg": 20
+      },
+      {
+        "id": "inn-meadow-knoll",
+        "name": "Луговая грива перед двором",
+        "center": [
+          -173,
+          -93
+        ],
+        "radiusM": [
+          38,
+          25
+        ],
+        "amplitudeM": 3.2,
+        "rotationDeg": 20
+      },
+      {
+        "id": "inn-meadow-swale",
+        "name": "Ложбинка вдоль луговой гривы",
+        "center": [
+          -155,
+          -142
+        ],
+        "radiusM": [
+          48,
+          19
+        ],
+        "amplitudeM": -1.2,
+        "rotationDeg": 15
       }
     ],
     "bankProfiles": [
@@ -2581,6 +2637,13 @@
         "floodplainHalfWidthM": 48,
         "blendM": 220
       }
-    ]
+    ],
+    "surfaceRelief": {
+      "shoulderAmplitudeM": 2.8,
+      "shoulderScaleM": 65,
+      "hummockAmplitudeM": 0.32,
+      "hummockScaleM": 7,
+      "shoreIrregularityM": 8
+    }
   }
 }

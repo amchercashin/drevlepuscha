@@ -82,6 +82,12 @@ test('landing refinements lower dry approaches and give gentle bank profiles', (
     assert.ok(1.5*bank.heightM/bank.widthM<.08,p.id); // analytic maximum slope of smooth bank profile
   }
 });
+test('dry river terrace retains a local hill instead of clipping it to a flat floodplain',()=>{
+ const raised=structuredClone(source),point=[-180,-95];
+ raised.terrainRefinement.forms.push({id:'terrace-test',center:point,radiusM:[30,30],amplitudeM:8,rotationDeg:0});
+ assert.ok(previewHeight(raised,...point)-previewHeight(source,...point)>3);
+ assert.equal(previewHeight(raised,0,0),previewHeight(source,0,0),'deep channel remains independent of dry terrain');
+});
 test('candidate creates a lower saddle between the lookout and ridge',()=>{
   const h=previewHeight(source,1230,825);
   const withoutSaddle=structuredClone(source);

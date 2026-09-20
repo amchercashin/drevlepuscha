@@ -38,7 +38,7 @@ scope.onmessage = async ({ data: m }) => {
                 const trail=trailAt(e,n);
                 return trail.distance>Math.max(.7,trail.width/2)+r+.4;
             };
-            const patch=makeFloorPatch(m.e/8,m.n/8,[],height,m.lush??true,allowed);
+            const patch=makeFloorPatch(m.e/8,m.n/8,[],height,m.lush??true,allowed,m.regional);
             const result=Object.fromEntries(Object.entries(patch).map(([key,g])=>{
                 const normals:number[]=[];VertexData.ComputeNormals(g.positions,g.indices,normals);
                 for(let i=0;i<normals.length;i+=3){normals[i+1]=Math.max(.65,Math.abs(normals[i+1]));const l=Math.hypot(normals[i],normals[i+1],normals[i+2]);for(let j=0;j<3;j++)normals[i+j]/=l;}

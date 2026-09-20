@@ -25,7 +25,7 @@ export class RegionWorld {
  constructor(public data:WorldData,public library:Library,public scene:Scene,public water:Awaited<ReturnType<typeof createRegionWater>>){
   this.terrain=new Terrain(scene,data);this.terrain.createFar();this.trees=new Trees(scene,data,library);
   this.props=new Props(scene,data,library,this.terrain);
-  this.floor=new Floor(scene,data,this.terrain,(e,n)=>this.trees.blocked(e,n)||this.props.blocked(e,n)||data.geo.exclusion(e,n)||(data.geo.waterAt(e,n,this.waterState)?.depth??0)>.02,library.wind);this.horizon=new Horizon(scene,data);
+  this.floor=new Floor(scene,data,this.terrain,(e,n)=>this.trees.blocked(e,n)||this.props.blocked(e,n)||data.geo.coverExclusion(e,n)||(data.geo.waterAt(e,n,this.waterState)?.depth??0)>.02,library.wind);this.horizon=new Horizon(scene,data);
   scene.onDisposeObservable.add(()=>data.dispose());
  }
  static async create(scene:Scene,sun:DirectionalLight,wind?:WindSystem){const data=await new WorldData({baseUrl:'regions/brandywine-bridge/world/',cacheNamespace:'brandywine-bridge-',geographyKind:'brandywine'}).init();let world:RegionWorld|undefined;const library=await new Library(scene,data,sun,wind,()=>world?.origin??{e:0,n:0}).init();world=new RegionWorld(data,library,scene,await createRegionWater(scene,data));return world;}
