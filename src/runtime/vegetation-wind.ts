@@ -14,8 +14,12 @@ import {windFieldWGSL,treeWindWGSL,coverWindWGSL} from './wind.wgsl.ts';
 
 export class VegetationWind extends MaterialPluginBase {
  private unsubscribe:()=>void;
- constructor(material:Material,private wind:WindSystem,private kind:'tree'|'grass'|'fern'|'far',private origin:()=>{e:number;n:number}=()=>({e:0,n:0})){
+ private wind:WindSystem;
+ private kind:'tree'|'grass'|'fern'|'far';
+ private origin:()=>{e:number;n:number};
+ constructor(material:Material,wind:WindSystem,kind:'tree'|'grass'|'fern'|'far',origin:()=>{e:number;n:number}=()=>({e:0,n:0})){
   super(material,'VegetationWind',200,{VEGETATION_WIND:true,WIND_DETAIL:true},true,false);
+  this.wind=wind;this.kind=kind;this.origin=origin;
   this.registerForExtraEvents=true;this._enable(true);
   let enabled=wind.enabled,detail=wind.detail;
   this.unsubscribe=wind.onChange(()=>{if(enabled!==wind.enabled||detail!==wind.detail){enabled=wind.enabled;detail=wind.detail;this.markAllDefinesAsDirty();}});
