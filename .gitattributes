@@ -24,3 +24,8 @@ content/geography/old-forest/generated/* linguist-generated=true
 # The template participates in portable generator hashes.
 tools/geography/atlas.html text eol=lf
 content/geography/old-forest/generated/atlas.html text eol=lf
+
+# Region previews are deterministic across Windows and CI.
+*.f32le binary
+content/regions/brandywine-bridge/generated/* linguist-generated=true
+public/regions/brandywine-bridge/preview/* text eol=lf linguist-generated=true

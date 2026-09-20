@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "errors": [],
+  "counts": {
+    "pois": 17,
+    "nodes": 31,
+    "edges": 40,
+    "crossings": 6
+  },
+  "storage": {
+    "bounds": {
+      "minE": -2048,
+      "maxE": 2560,
+      "minN": -1536,
+      "maxN": 2560
+    },
+    "columns": 9,
+    "rows": 8,
+    "count": 72
+  },
+  "forests": [
+    {
+      "id": "east-wood",
+      "areaKm2": 1.11455
+    },
+    {
+      "id": "west-grove",
+      "areaKm2": 0.2714
+    },
+    {
+      "id": "upper-willows",
+      "areaKm2": 0.077
+    }
+  ],
+  "preview": {
+    "columns": 251,
+    "rows": 251,
+    "bytes": 252004,
+    "min": -4.095980604112899,
+    "max": 44.77978638621716
+  },
+  "routeExamples": [
+    {
+      "from": "INN",
+      "to": "ROAD_LOOKOUT",
+      "lengthM": 1641,
+      "walkingMinutes": 17.1,
+      "note": "graph path, level-ground speed, no stops or 3D slope cost",
+      "edges": [
+        "inn-access",
+        "west-approach",
+        "main-bridge",
+        "east-approach",
+        "lookout-access"
+      ]
+    },
+    {
+      "from": "INN",
+      "to": "RANGER_SHELTER",
+      "lengthM": 2076,
+      "walkingMinutes": 21.6,
+      "note": "graph path, level-ground speed, no stops or 3D slope cost",
+      "edges": [
+        "inn-access",
+        "west-approach",
+        "main-bridge",
+        "bridge-bank",
+        "bank-shelter"
+      ]
+    },
+    {
+      "from": "INN",
+      "to": "UPPER_LANDING_W",
+      "lengthM": 2822,
+      "walkingMinutes": 29.4,
+      "note": "graph path, level-ground speed, no stops or 3D slope cost",
+      "edges": [
+        "grove-inn",
+        "grove-footbridge",
+        "tributary-footbridge",
+        "bridge-north-track",
+        "north-track-landing"
+      ]
+    },
+    {
+      "from": "INN",
+      "to": "BUCKLAND_ORCHARD",
+      "lengthM": 2114,
+      "walkingMinutes": 22,
+      "note": "graph path, level-ground speed, no stops or 3D slope cost",
+      "edges": [
+        "inn-access",
+        "west-approach",
+        "main-bridge",
+        "east-approach",
+        "gate-approach",
+        "north-gate",
+        "buckland-fields",
+        "orchard-access"
+      ]
+    }
+  ],
+  "limitations": [
+    "Analytical validation of authoring data, not engine runtime.",
+    "Axis intersections checked; all bank widths, slopes, structures, LOS and local collision require greybox tests.",
+    "Graph paths do not prohibit off-path walking.",
+    "No full-atlas registration and no production height tiles."
+  ]
+}

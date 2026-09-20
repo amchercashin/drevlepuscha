@@ -1,0 +1,6 @@
+{
+  "content/regions/brandywine-bridge/region-source.json": "50ca0586ffae8bcdb0da9f36cf0d926057d7ada838232222e2462eac36ea68f0",
+  "tools/regions/authoring-core.mjs": "63a8d5100f5d820145eb4d517ec1c16127f084f3a1ee4454f434c75294227ceb",
+  "tools/regions/terrain-review.mjs": "e3e66cca4b14cf7de582d2efb574f191275a0c9ad98c0e8823b854b99c8693e1",
+  "tools/regions/build-brandywine-preview.mjs": "54cbadef87515ae2b75aa274491bd27d65cabfad3afb3a2860a4d6939ddb54d7"
+}

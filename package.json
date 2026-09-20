@@ -27,7 +27,9 @@
     "test:map": "playwright test map.spec.mjs",
     "textures:prepare": "node tools/prepare-runtime-textures.mjs",
     "server": "node tools/patch-trystero.mjs && node --experimental-strip-types server/index.mjs",
-    "test:server": "node --experimental-strip-types --test tests/persistent-*.test.mjs"
+    "test:server": "node --experimental-strip-types --test tests/persistent-*.test.mjs",
+    "region:preview": "node tools/regions/build-brandywine-preview.mjs",
+    "test:region": "node --test tests/brandywine-*.test.mjs"
   },
   "packageManager": "npm@10.9.8",
   "devDependencies": {

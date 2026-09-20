@@ -1,0 +1,1453 @@
+{
+  "regionId": "brandywine-bridge",
+  "schemaVersion": "brandywine-topology-0.1",
+  "source": "region-source.json",
+  "nodes": [
+    {
+      "id": "INN",
+      "point": [
+        -220,
+        -120
+      ],
+      "name": "Постоялый двор"
+    },
+    {
+      "id": "ROAD_LOOKOUT",
+      "point": [
+        950,
+        450
+      ],
+      "name": "Обзорное плечо"
+    },
+    {
+      "id": "RANGER_SHELTER",
+      "point": [
+        800,
+        1000
+      ],
+      "name": "Укрытие следопытов"
+    },
+    {
+      "id": "UPPER_LANDING_W",
+      "point": [
+        -230,
+        1900
+      ],
+      "name": "Верхняя высадка · запад"
+    },
+    {
+      "id": "UPPER_LANDING_E",
+      "point": [
+        -70,
+        1900
+      ],
+      "name": "Верхняя высадка · восток"
+    },
+    {
+      "id": "WEST_GROVE",
+      "point": [
+        -1000,
+        750
+      ],
+      "name": "Западная роща"
+    },
+    {
+      "id": "WEST_FARM",
+      "point": [
+        -950,
+        -600
+      ],
+      "name": "Западное хозяйство"
+    },
+    {
+      "id": "FISHING_LANDING_W",
+      "point": [
+        20,
+        -600
+      ],
+      "name": "Рыбацкая стоянка"
+    },
+    {
+      "id": "FISHING_LANDING_E",
+      "point": [
+        200,
+        -620
+      ],
+      "name": "Высадка в Бакленде"
+    },
+    {
+      "id": "LOWER_COVE",
+      "point": [
+        -100,
+        -1000
+      ],
+      "name": "Нижняя заводь"
+    },
+    {
+      "id": "BUCKLAND_ORCHARD",
+      "point": [
+        850,
+        -800
+      ],
+      "name": "Сад Бакленда"
+    },
+    {
+      "id": "ROAD_W",
+      "point": [
+        -1600,
+        -200
+      ],
+      "name": "Выход на запад"
+    },
+    {
+      "id": "WEST_JUNCTION",
+      "point": [
+        -380,
+        -76
+      ],
+      "name": "Западная развилка"
+    },
+    {
+      "id": "BRIDGE_W",
+      "point": [
+        -80,
+        -16
+      ],
+      "name": "Западный устой"
+    },
+    {
+      "id": "BRIDGE_E",
+      "point": [
+        80,
+        19.2
+      ],
+      "name": "Восточный устой"
+    },
+    {
+      "id": "EAST_JUNCTION",
+      "point": [
+        500,
+        120
+      ],
+      "name": "Восточная развилка"
+    },
+    {
+      "id": "ROAD_E_ENTRY",
+      "point": [
+        1100,
+        350
+      ],
+      "name": "Вход с дороги в лес"
+    },
+    {
+      "id": "ROAD_E",
+      "point": [
+        2400,
+        850
+      ],
+      "name": "Дорога к Бри"
+    },
+    {
+      "id": "GATE_N",
+      "point": [
+        545.833333,
+        -155
+      ],
+      "name": "Снаружи ворот"
+    },
+    {
+      "id": "GATE_S",
+      "point": [
+        555.952381,
+        -205
+      ],
+      "name": "Внутри ворот"
+    },
+    {
+      "id": "BUCKLAND_EXIT",
+      "point": [
+        1150,
+        -1500
+      ],
+      "name": "Выход на юг Бакленда"
+    },
+    {
+      "id": "STOCK_EXIT",
+      "point": [
+        -300,
+        -1500
+      ],
+      "name": "Выход к Стоку"
+    },
+    {
+      "id": "RIDGE",
+      "point": [
+        1550,
+        1590
+      ],
+      "name": "Лесная гряда"
+    },
+    {
+      "id": "HOLLOW",
+      "point": [
+        1110,
+        1060
+      ],
+      "name": "Лесная ложбина"
+    },
+    {
+      "id": "EAST_BANK",
+      "point": [
+        150,
+        740
+      ],
+      "name": "Восточная береговая терраса"
+    },
+    {
+      "id": "NW_TRACK",
+      "point": [
+        -620,
+        1800
+      ],
+      "name": "Северная сухая грива"
+    },
+    {
+      "id": "FOOTBRIDGE_N",
+      "point": [
+        -842,
+        1424
+      ],
+      "name": "Мостик · север"
+    },
+    {
+      "id": "FOOTBRIDGE_S",
+      "point": [
+        -858,
+        1376
+      ],
+      "name": "Мостик · юг"
+    },
+    {
+      "id": "FORD_N",
+      "point": [
+        -1293,
+        1627
+      ],
+      "name": "Брод · север"
+    },
+    {
+      "id": "FORD_S",
+      "point": [
+        -1307,
+        1573
+      ],
+      "name": "Брод · юг"
+    },
+    {
+      "id": "BUCKLAND_BRANCH",
+      "point": [
+        775,
+        -800
+      ],
+      "name": "Развилка у сада"
+    }
+  ],
+  "crossings": [
+    {
+      "id": "main-bridge",
+      "kind": "bridge",
+      "waterId": "brandywine",
+      "endpoints": [
+        "BRIDGE_W",
+        "BRIDGE_E"
+      ],
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "deckHeightM": 6,
+      "enabledByDefault": true
+    },
+    {
+      "id": "tributary-footbridge",
+      "kind": "bridge",
+      "waterId": "the-water",
+      "endpoints": [
+        "FOOTBRIDGE_S",
+        "FOOTBRIDGE_N"
+      ],
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "deckHeightM": 3.6,
+      "enabledByDefault": true
+    },
+    {
+      "id": "tributary-ford",
+      "kind": "ford",
+      "waterId": "the-water",
+      "endpoints": [
+        "FORD_S",
+        "FORD_N"
+      ],
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "waterStates": [
+        "low",
+        "normal"
+      ],
+      "normalDepthM": 0.2,
+      "highDepthM": 0.7
+    },
+    {
+      "id": "north-gate",
+      "kind": "gate",
+      "barrierId": "high-hay",
+      "endpoints": [
+        "GATE_N",
+        "GATE_S"
+      ],
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ]
+    },
+    {
+      "id": "lower-boat",
+      "kind": "boat",
+      "waterId": "brandywine",
+      "endpoints": [
+        "FISHING_LANDING_W",
+        "FISHING_LANDING_E"
+      ],
+      "boatId": "fishing-boat-01",
+      "initialSide": 0,
+      "speedMps": 0.8,
+      "boardingSeconds": 30,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ]
+    },
+    {
+      "id": "upper-boat",
+      "kind": "boat",
+      "waterId": "brandywine",
+      "endpoints": [
+        "UPPER_LANDING_W",
+        "UPPER_LANDING_E"
+      ],
+      "boatId": "upper-boat-01",
+      "initialSide": 1,
+      "speedMps": 0.8,
+      "boardingSeconds": 30,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "road-west",
+      "from": "ROAD_W",
+      "to": "WEST_JUNCTION",
+      "kind": "road",
+      "points": [
+        [
+          -1600,
+          -200
+        ],
+        [
+          -900,
+          -150
+        ],
+        [
+          -400,
+          -80
+        ],
+        [
+          -380,
+          -76
+        ]
+      ],
+      "widthM": 6,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 1227.056
+    },
+    {
+      "id": "inn-access",
+      "from": "INN",
+      "to": "WEST_JUNCTION",
+      "kind": "road",
+      "points": [
+        [
+          -220,
+          -120
+        ],
+        [
+          -380,
+          -76
+        ]
+      ],
+      "widthM": 4,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 165.94
+    },
+    {
+      "id": "west-approach",
+      "from": "WEST_JUNCTION",
+      "to": "BRIDGE_W",
+      "kind": "road",
+      "points": [
+        [
+          -380,
+          -76
+        ],
+        [
+          -80,
+          -16
+        ]
+      ],
+      "widthM": 6,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 305.941
+    },
+    {
+      "id": "main-bridge",
+      "from": "BRIDGE_W",
+      "to": "BRIDGE_E",
+      "kind": "bridge",
+      "points": [
+        [
+          -80,
+          -16
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          80,
+          19.2
+        ]
+      ],
+      "widthM": 5.5,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "crossingId": "main-bridge",
+      "lengthM": 163.856
+    },
+    {
+      "id": "east-approach",
+      "from": "BRIDGE_E",
+      "to": "EAST_JUNCTION",
+      "kind": "road",
+      "points": [
+        [
+          80,
+          19.2
+        ],
+        [
+          500,
+          120
+        ]
+      ],
+      "widthM": 6,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 431.927
+    },
+    {
+      "id": "east-road-near",
+      "from": "EAST_JUNCTION",
+      "to": "ROAD_E_ENTRY",
+      "kind": "road",
+      "points": [
+        [
+          500,
+          120
+        ],
+        [
+          1100,
+          350
+        ]
+      ],
+      "widthM": 6,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 642.573
+    },
+    {
+      "id": "east-road-far",
+      "from": "ROAD_E_ENTRY",
+      "to": "ROAD_E",
+      "kind": "road",
+      "points": [
+        [
+          1100,
+          350
+        ],
+        [
+          1600,
+          650
+        ],
+        [
+          2400,
+          850
+        ]
+      ],
+      "widthM": 6,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 1407.716
+    },
+    {
+      "id": "gate-approach",
+      "from": "EAST_JUNCTION",
+      "to": "GATE_N",
+      "kind": "road",
+      "points": [
+        [
+          500,
+          120
+        ],
+        [
+          545.833333,
+          -155
+        ]
+      ],
+      "widthM": 4,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 278.793
+    },
+    {
+      "id": "north-gate",
+      "from": "GATE_N",
+      "to": "GATE_S",
+      "kind": "gate",
+      "points": [
+        [
+          545.833333,
+          -155
+        ],
+        [
+          550,
+          -180
+        ],
+        [
+          555.952381,
+          -205
+        ]
+      ],
+      "widthM": 7,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "crossingId": "north-gate",
+      "lengthM": 51.044
+    },
+    {
+      "id": "buckland-fields",
+      "from": "GATE_S",
+      "to": "BUCKLAND_BRANCH",
+      "kind": "road",
+      "points": [
+        [
+          555.952381,
+          -205
+        ],
+        [
+          650,
+          -600
+        ],
+        [
+          775,
+          -800
+        ]
+      ],
+      "widthM": 4,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 641.891
+    },
+    {
+      "id": "buckland-south",
+      "from": "BUCKLAND_BRANCH",
+      "to": "BUCKLAND_EXIT",
+      "kind": "road",
+      "points": [
+        [
+          775,
+          -800
+        ],
+        [
+          900,
+          -1000
+        ],
+        [
+          1150,
+          -1500
+        ]
+      ],
+      "widthM": 4,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 794.867
+    },
+    {
+      "id": "stock-road",
+      "from": "WEST_JUNCTION",
+      "to": "STOCK_EXIT",
+      "kind": "road",
+      "points": [
+        [
+          -380,
+          -76
+        ],
+        [
+          -550,
+          -450
+        ],
+        [
+          -450,
+          -950
+        ],
+        [
+          -300,
+          -1500
+        ]
+      ],
+      "widthM": 4,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 1490.813
+    },
+    {
+      "id": "farm-access",
+      "from": "WEST_FARM",
+      "to": "WEST_JUNCTION",
+      "kind": "road",
+      "points": [
+        [
+          -950,
+          -600
+        ],
+        [
+          -700,
+          -450
+        ],
+        [
+          -380,
+          -76
+        ]
+      ],
+      "widthM": 3,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 783.763
+    },
+    {
+      "id": "inn-lower-bank",
+      "from": "INN",
+      "to": "FISHING_LANDING_W",
+      "kind": "path",
+      "points": [
+        [
+          -220,
+          -120
+        ],
+        [
+          -110,
+          -260
+        ],
+        [
+          -90,
+          -360
+        ],
+        [
+          20,
+          -600
+        ]
+      ],
+      "widthM": 1.7,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 544.033
+    },
+    {
+      "id": "lower-boat",
+      "from": "FISHING_LANDING_W",
+      "to": "FISHING_LANDING_E",
+      "kind": "boat",
+      "points": [
+        [
+          20,
+          -600
+        ],
+        [
+          200,
+          -620
+        ]
+      ],
+      "widthM": 0,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "crossingId": "lower-boat",
+      "lengthM": 181.108
+    },
+    {
+      "id": "buckland-landing",
+      "from": "FISHING_LANDING_E",
+      "to": "BUCKLAND_ORCHARD",
+      "kind": "path",
+      "points": [
+        [
+          200,
+          -620
+        ],
+        [
+          410,
+          -760
+        ],
+        [
+          850,
+          -800
+        ]
+      ],
+      "widthM": 1.5,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 694.203
+    },
+    {
+      "id": "lower-cove",
+      "from": "FISHING_LANDING_W",
+      "to": "LOWER_COVE",
+      "kind": "path",
+      "points": [
+        [
+          20,
+          -600
+        ],
+        [
+          -90,
+          -850
+        ],
+        [
+          -100,
+          -1000
+        ]
+      ],
+      "widthM": 1.1,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 423.463
+    },
+    {
+      "id": "cove-farm",
+      "from": "LOWER_COVE",
+      "to": "WEST_FARM",
+      "kind": "path",
+      "points": [
+        [
+          -100,
+          -1000
+        ],
+        [
+          -510,
+          -1120
+        ],
+        [
+          -950,
+          -600
+        ]
+      ],
+      "widthM": 1.3,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1108.376
+    },
+    {
+      "id": "grove-inn",
+      "from": "WEST_GROVE",
+      "to": "INN",
+      "kind": "path",
+      "points": [
+        [
+          -1000,
+          750
+        ],
+        [
+          -820,
+          320
+        ],
+        [
+          -490,
+          100
+        ],
+        [
+          -220,
+          -120
+        ]
+      ],
+      "widthM": 1.5,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1211.047
+    },
+    {
+      "id": "grove-farm",
+      "from": "WEST_GROVE",
+      "to": "WEST_FARM",
+      "kind": "path",
+      "points": [
+        [
+          -1000,
+          750
+        ],
+        [
+          -1220,
+          140
+        ],
+        [
+          -950,
+          -600
+        ]
+      ],
+      "widthM": 1.5,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1436.178
+    },
+    {
+      "id": "grove-footbridge",
+      "from": "WEST_GROVE",
+      "to": "FOOTBRIDGE_S",
+      "kind": "path",
+      "points": [
+        [
+          -1000,
+          750
+        ],
+        [
+          -900,
+          1110
+        ],
+        [
+          -858,
+          1376
+        ]
+      ],
+      "widthM": 1.3,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 642.926
+    },
+    {
+      "id": "tributary-footbridge",
+      "from": "FOOTBRIDGE_S",
+      "to": "FOOTBRIDGE_N",
+      "kind": "bridge",
+      "points": [
+        [
+          -858,
+          1376
+        ],
+        [
+          -850,
+          1400
+        ],
+        [
+          -842,
+          1424
+        ]
+      ],
+      "widthM": 2,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "crossingId": "tributary-footbridge",
+      "lengthM": 50.596
+    },
+    {
+      "id": "grove-ford",
+      "from": "WEST_GROVE",
+      "to": "FORD_S",
+      "kind": "path",
+      "points": [
+        [
+          -1000,
+          750
+        ],
+        [
+          -1420,
+          1210
+        ],
+        [
+          -1307,
+          1573
+        ]
+      ],
+      "widthM": 1.1,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1003.078
+    },
+    {
+      "id": "tributary-ford",
+      "from": "FORD_S",
+      "to": "FORD_N",
+      "kind": "ford",
+      "points": [
+        [
+          -1307,
+          1573
+        ],
+        [
+          -1300,
+          1600
+        ],
+        [
+          -1293,
+          1627
+        ]
+      ],
+      "widthM": 2.2,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "crossingId": "tributary-ford",
+      "lengthM": 55.785
+    },
+    {
+      "id": "ford-north-track",
+      "from": "FORD_N",
+      "to": "NW_TRACK",
+      "kind": "path",
+      "points": [
+        [
+          -1293,
+          1627
+        ],
+        [
+          -1180,
+          1840
+        ],
+        [
+          -620,
+          1800
+        ]
+      ],
+      "widthM": 1.1,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 802.545
+    },
+    {
+      "id": "bridge-north-track",
+      "from": "FOOTBRIDGE_N",
+      "to": "NW_TRACK",
+      "kind": "path",
+      "points": [
+        [
+          -842,
+          1424
+        ],
+        [
+          -790,
+          1670
+        ],
+        [
+          -620,
+          1800
+        ]
+      ],
+      "widthM": 1.1,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 465.445
+    },
+    {
+      "id": "north-track-landing",
+      "from": "NW_TRACK",
+      "to": "UPPER_LANDING_W",
+      "kind": "path",
+      "points": [
+        [
+          -620,
+          1800
+        ],
+        [
+          -450,
+          1950
+        ],
+        [
+          -230,
+          1900
+        ]
+      ],
+      "widthM": 1,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 452.326
+    },
+    {
+      "id": "upper-boat",
+      "from": "UPPER_LANDING_W",
+      "to": "UPPER_LANDING_E",
+      "kind": "boat",
+      "points": [
+        [
+          -230,
+          1900
+        ],
+        [
+          -70,
+          1900
+        ]
+      ],
+      "widthM": 0,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "crossingId": "upper-boat",
+      "lengthM": 160
+    },
+    {
+      "id": "upper-east-bank",
+      "from": "UPPER_LANDING_E",
+      "to": "EAST_BANK",
+      "kind": "path",
+      "points": [
+        [
+          -70,
+          1900
+        ],
+        [
+          70,
+          1700
+        ],
+        [
+          120,
+          1380
+        ],
+        [
+          130,
+          1110
+        ],
+        [
+          150,
+          740
+        ]
+      ],
+      "widthM": 1.1,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1208.739
+    },
+    {
+      "id": "shelter-upper",
+      "from": "RANGER_SHELTER",
+      "to": "UPPER_LANDING_E",
+      "kind": "path",
+      "points": [
+        [
+          800,
+          1000
+        ],
+        [
+          530,
+          1510
+        ],
+        [
+          140,
+          1760
+        ],
+        [
+          -70,
+          1900
+        ]
+      ],
+      "widthM": 1.2,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1292.7
+    },
+    {
+      "id": "bridge-bank",
+      "from": "BRIDGE_E",
+      "to": "EAST_BANK",
+      "kind": "path",
+      "points": [
+        [
+          80,
+          19.2
+        ],
+        [
+          180,
+          340
+        ],
+        [
+          150,
+          740
+        ]
+      ],
+      "widthM": 1.5,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 737.148
+    },
+    {
+      "id": "bank-shelter",
+      "from": "EAST_BANK",
+      "to": "RANGER_SHELTER",
+      "kind": "path",
+      "points": [
+        [
+          150,
+          740
+        ],
+        [
+          410,
+          810
+        ],
+        [
+          800,
+          1000
+        ]
+      ],
+      "widthM": 1.3,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 703.078
+    },
+    {
+      "id": "lookout-access",
+      "from": "EAST_JUNCTION",
+      "to": "ROAD_LOOKOUT",
+      "kind": "path",
+      "points": [
+        [
+          500,
+          120
+        ],
+        [
+          690,
+          340
+        ],
+        [
+          950,
+          450
+        ]
+      ],
+      "widthM": 1.4,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 573.001
+    },
+    {
+      "id": "lookout-road",
+      "from": "ROAD_LOOKOUT",
+      "to": "ROAD_E_ENTRY",
+      "kind": "path",
+      "points": [
+        [
+          950,
+          450
+        ],
+        [
+          1100,
+          350
+        ]
+      ],
+      "widthM": 1.5,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 180.278
+    },
+    {
+      "id": "lookout-hollow",
+      "from": "ROAD_LOOKOUT",
+      "to": "HOLLOW",
+      "kind": "path",
+      "points": [
+        [
+          950,
+          450
+        ],
+        [
+          900,
+          690
+        ],
+        [
+          1110,
+          1060
+        ]
+      ],
+      "widthM": 1.1,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 670.594
+    },
+    {
+      "id": "hollow-shelter",
+      "from": "HOLLOW",
+      "to": "RANGER_SHELTER",
+      "kind": "path",
+      "points": [
+        [
+          1110,
+          1060
+        ],
+        [
+          800,
+          1000
+        ]
+      ],
+      "widthM": 1.1,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 315.753
+    },
+    {
+      "id": "lookout-ridge",
+      "from": "ROAD_LOOKOUT",
+      "to": "RIDGE",
+      "kind": "path",
+      "points": [
+        [
+          950,
+          450
+        ],
+        [
+          1330,
+          830
+        ],
+        [
+          1630,
+          1170
+        ],
+        [
+          1550,
+          1590
+        ]
+      ],
+      "widthM": 1.3,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1418.384
+    },
+    {
+      "id": "ridge-shelter",
+      "from": "RIDGE",
+      "to": "RANGER_SHELTER",
+      "kind": "path",
+      "points": [
+        [
+          1550,
+          1590
+        ],
+        [
+          1110,
+          1530
+        ],
+        [
+          800,
+          1000
+        ]
+      ],
+      "widthM": 1.3,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1058.075
+    },
+    {
+      "id": "forest-edge",
+      "from": "ROAD_E_ENTRY",
+      "to": "RIDGE",
+      "kind": "path",
+      "points": [
+        [
+          1100,
+          350
+        ],
+        [
+          1640,
+          830
+        ],
+        [
+          1830,
+          1260
+        ],
+        [
+          1550,
+          1590
+        ]
+      ],
+      "widthM": 1.4,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit"
+      ],
+      "lengthM": 1625.384
+    },
+    {
+      "id": "orchard-access",
+      "from": "BUCKLAND_BRANCH",
+      "to": "BUCKLAND_ORCHARD",
+      "kind": "road",
+      "points": [
+        [
+          775,
+          -800
+        ],
+        [
+          850,
+          -800
+        ]
+      ],
+      "widthM": 3,
+      "bidirectional": true,
+      "profiles": [
+        "ranger",
+        "hobbit",
+        "wagon"
+      ],
+      "lengthM": 75
+    }
+  ]
+}

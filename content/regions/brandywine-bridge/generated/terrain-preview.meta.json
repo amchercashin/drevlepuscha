@@ -1,0 +1,26 @@
+{
+  "status": "DESIGN_PREVIEW_NOT_PRODUCTION_COLLISION",
+  "dtype": "float32",
+  "endianness": "little",
+  "order": "row-major; SOUTH-first; E increases fastest",
+  "originEN": [
+    -1600,
+    -1500
+  ],
+  "stepM": 16,
+  "columns": 251,
+  "rows": 251,
+  "extent": {
+    "minE": -1600,
+    "maxE": 2400,
+    "minN": -1500,
+    "maxN": 2500
+  },
+  "minHeightM": -4.095980604112899,
+  "maxHeightM": 44.77978638621716,
+  "datum": "arbitrary local vertical datum; water at bridge = 0m",
+  "containsBridgeDecks": false,
+  "containsFinalRoadGrading": false,
+  "sha256": "352c923ee36a2d58b8dd0971f2945738d89e0381e8c6309986254d48f10a3a62",
+  "generator": "tools/regions/authoring-core.mjs::previewHeight"
+}
