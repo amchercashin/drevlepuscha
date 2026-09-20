@@ -61,6 +61,10 @@ export class Library {
             new LodDither(baked);
             if(this.wind&&['oak','fork','young','conifer','willow'].includes(id)){new VegetationWind(m,this.wind,'tree',this.origin);new VegetationWind(baked,this.wind,'tree',this.origin);new TreeTone(m,this.origin);new TreeTone(baked,this.origin);}
             const entries = data.variants ?? [data];
+            // The regional woodland needs a closed upper storey; keep roots and trunks unchanged.
+            if(this.data.options.geographyKind==='brandywine'&&['oak','fork','young','conifer','willow'].includes(id))for(const variant of entries)for(const parts of variant.levels)for(const part of parts){
+                for(let i=0;i<part.positions.length;i+=3){const t=Math.max(0,Math.min(1,(part.positions[i+1]-4)/5)),width=1+.28*t*t*(3-2*t);part.positions[i]*=width;part.positions[i+2]*=width;part.normals[i]/=width;part.normals[i+2]/=width;const n=Math.hypot(...part.normals.slice(i,i+3));if(n)for(let j=0;j<3;j++)part.normals[i+j]/=n;}
+            }
             const variants = entries.map((variant: any, vi: number) => variant.levels.map((parts: any[], li: number) => parts.map((part: any, pi: number) => { const mesh = new Mesh(`${id}-${vi}-${li}-${pi}`, this.scene), v = new VertexData(); Object.assign(v, part); v.applyToMesh(mesh); mesh.sideOrientation = 1; mesh.material = li >= (variant.bakedColorFromLevel ?? Infinity) ? baked : m; mesh.setEnabled(false); mesh.isPickable = false; mesh.receiveShadows = true; return mesh; })));
             await textureReady;
             // Compile shared regular and instanced programs before the family can replace its fallback.

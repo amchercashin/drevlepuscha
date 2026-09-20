@@ -15,7 +15,7 @@ import {CoverFade} from '../runtime/cover-fade.ts';
 import {VegetationWind,expandWindBounds} from '../runtime/vegetation-wind.ts';
 import foliageURL from '../../assets/floor/foliage.png';
 
-class ShrubPassage extends MaterialPluginBase {
+export class ShrubPassage extends MaterialPluginBase {
  constructor(m:StandardMaterial){super(m,'ShrubPassage',221,{},true,false);this._enable(true);}
  override isCompatible(l:ShaderLanguage){return l===ShaderLanguage.WGSL;}
  override getCustomCode(type:string){return type==='fragment'?{CUSTOM_FRAGMENT_MAIN_BEGIN:`

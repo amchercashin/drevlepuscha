@@ -39,7 +39,7 @@ export class Terrain {
         for (let y = 0; y < g.rows - 1; y += 32)
             for (let x = 0; x < g.columns - 1; x += 32) {
                 const cols = Math.min(32, g.columns - 1 - x) + 1, rows = Math.min(32, g.rows - 1 - y) + 1;
-                for (let layer = 0; layer < 2; layer++) {
+                for (let layer = 0; layer < (this.data.options.geographyKind==='brandywine'?1:2); layer++) {
                     const positions: number[] = [], indices: number[] = [], colors: number[] = [], normals: number[] = [];
                     for (let j = 0; j < rows; j++)
                         for (let i = 0; i < cols; i++) {

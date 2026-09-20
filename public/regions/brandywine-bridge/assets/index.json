@@ -1,0 +1,337 @@
+{
+  "grass-short": {
+    "data": "grass-short-e84e5ec5f568.json.pack",
+    "triangles": [
+      155
+    ],
+    "dimensions": [
+      0.20113,
+      0.42,
+      0.2321
+    ],
+    "sourceHash": "6957b50622c9e26e7296c1b47ea8653bc0d957e0a547de444e2ed96f0075a21a",
+    "source": "Quaternius Stylized Nature MegaKit Standard (CC0 1.0)"
+  },
+  "grass-tall": {
+    "data": "grass-tall-a57cbf4e528d.json.pack",
+    "triangles": [
+      622
+    ],
+    "dimensions": [
+      0.6909,
+      0.75,
+      0.71497
+    ],
+    "sourceHash": "a05e3ac05e43abbdb89c5b61134e367c7d33e285ff8d2a6e0a40180cb335af0b",
+    "source": "Quaternius Stylized Nature MegaKit Standard (CC0 1.0)"
+  },
+  "flowers-cream": {
+    "data": "flowers-cream-6fc0463e20f2.json.pack",
+    "triangles": [
+      755
+    ],
+    "dimensions": [
+      0.39841,
+      0.55,
+      0.42588
+    ],
+    "sourceHash": "4df1612371982c543f930d6b213967372e0d459622d7eff7fc2ed1ddbfaa3b6c",
+    "source": "Quaternius Stylized Nature MegaKit Standard (CC0 1.0)"
+  },
+  "flowers-blue": {
+    "data": "flowers-blue-4cf49ed2e394.json.pack",
+    "triangles": [
+      1690
+    ],
+    "dimensions": [
+      0.3222,
+      0.45,
+      0.24746
+    ],
+    "sourceHash": "69ead56b36b50f06a0cf18380797fce7434302e9b2da7bf68a85014b993c6134",
+    "source": "Quaternius Stylized Nature MegaKit Standard (CC0 1.0)"
+  },
+  "fern": {
+    "data": "fern-1dbdf4359414.json.pack",
+    "triangles": [
+      288
+    ],
+    "dimensions": [
+      2.69154,
+      0.8,
+      2.52529
+    ],
+    "sourceHash": "d41915cffe9dbbde1ae88be381eb9c60f7caa2274511436cc78fe4de627468ab",
+    "source": "Quaternius Stylized Nature MegaKit Standard (CC0 1.0)"
+  },
+  "bridge-span": {
+    "data": "bridge-span-eb118e5d40dd.json.pack",
+    "triangles": [
+      9917,
+      3966,
+      2776
+    ],
+    "dimensions": [
+      18.0,
+      8.0,
+      6.0
+    ],
+    "sourceHash": "8a04a80f51e2f4313ddadc7115344d4e1ef6290251fbdfd7b776c09c1956efd4",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "bridge-parapet": {
+    "data": "bridge-parapet-4a6b2e574c17.json.pack",
+    "triangles": [
+      6105,
+      1709,
+      457
+    ],
+    "dimensions": [
+      9.0,
+      1.1,
+      0.4
+    ],
+    "sourceHash": "59ba7191ff15b9c3595ae7251c0e5cb605c21cf8bdcf851a2dc17319f1f76f9a",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "inn": {
+    "data": "inn-ed5bcee53e75.json.pack",
+    "triangles": [
+      13626,
+      3814,
+      1021
+    ],
+    "dimensions": [
+      17.0,
+      6.0,
+      11.0
+    ],
+    "sourceHash": "93bac0cea92c9435370846923a58f776f2142d69152ab18c4739d563031ccdab",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "gate-leaf": {
+    "data": "gate-leaf-87ae7a72944e.json.pack",
+    "triangles": [
+      5601,
+      1568,
+      420
+    ],
+    "dimensions": [
+      7.0,
+      2.5,
+      0.28
+    ],
+    "sourceHash": "33accd87bfecdf2b4907698518902fe26a784e6a0aba11858b79f13fa6ff78ce",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "rowboat": {
+    "data": "rowboat-e829fbcaa680.json.pack",
+    "triangles": [
+      5816,
+      1628,
+      436
+    ],
+    "dimensions": [
+      1.3,
+      0.7,
+      3.5
+    ],
+    "sourceHash": "f2e80b57dda7384538dabadccb0f91b644cb0a993601fbed349aa07d4a70f5fd",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "bridge-abutment": {
+    "data": "bridge-abutment-1cbfc5441b28.json.pack",
+    "triangles": [
+      6152,
+      1722,
+      461
+    ],
+    "dimensions": [
+      4.0,
+      6.0,
+      6.0
+    ],
+    "sourceHash": "6f9704e81c72c92032f220536c199874db9ee514d1f8303ed05bac8b31c34b0b",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "gate-post": {
+    "data": "gate-post-2821502f1b8e.json.pack",
+    "triangles": [
+      5722,
+      1602,
+      429
+    ],
+    "dimensions": [
+      0.5,
+      3.2,
+      0.5
+    ],
+    "sourceHash": "97bb6525c24b3648f473c78629fab324f4849131117527d90cc09eca115e55ea",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "shelter": {
+    "data": "shelter-5bb603b91b46.json.pack",
+    "triangles": [
+      4657,
+      1303,
+      349
+    ],
+    "dimensions": [
+      5.0,
+      2.5,
+      4.0
+    ],
+    "sourceHash": "e7d8449a08d5bdfe92af6b5a37855ffd775ea82fe80dbde9d089dd1e3357e154",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "hazel": {
+    "data": "hazel-cb304df6d094.json.pack",
+    "triangles": [
+      3599,
+      1007,
+      269
+    ],
+    "dimensions": [
+      2.99369,
+      3.0,
+      1.79469
+    ],
+    "sourceHash": "1cd361c330ded1dc35c09221620c1692d9d5e6605185817465354d0b9cf1a489",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "stable": {
+    "data": "stable-c4af3b7816af.json.pack",
+    "triangles": [
+      12645,
+      3540,
+      948
+    ],
+    "dimensions": [
+      12.0,
+      4.0,
+      7.0
+    ],
+    "sourceHash": "ff8d1da55efed181bd3979b9b2aa2ec7535eae2612d7c5313a24c45c52dc51ac",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "fishing-kit": {
+    "data": "fishing-kit-ff3267c2547d.json.pack",
+    "triangles": [
+      4206,
+      1177,
+      315
+    ],
+    "dimensions": [
+      1.6,
+      1.0,
+      1.2
+    ],
+    "sourceHash": "7d5d64644f41da29d00de9465a31521b6ada6764df262dea3203c0dd3ffc784c",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "signpost": {
+    "data": "signpost-b3426da50641.json.pack",
+    "triangles": [
+      5103,
+      1428,
+      382
+    ],
+    "dimensions": [
+      0.9,
+      2.4,
+      0.2
+    ],
+    "sourceHash": "c0832bc31b8206ca4db287f849c376c369889535c3d926a5a827522641d42ee8",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "fallen-willow": {
+    "data": "fallen-willow-f16be8590ac7.json.pack",
+    "triangles": [
+      5223,
+      1462,
+      391
+    ],
+    "dimensions": [
+      5.0,
+      1.3,
+      1.8
+    ],
+    "sourceHash": "75e8032acafedf230e81d8462cde84ecc9e91c7af6de7561320f25d7bd1166f3",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "oak": {
+    "data": "oak-2da562760361.json.pack",
+    "triangles": [
+      8665,
+      2426,
+      649
+    ],
+    "dimensions": [
+      22.74494,
+      21.0,
+      15.8115
+    ],
+    "sourceHash": "e93333505e84328b27f7146c537a6a692b0afcf5693c16f609faa10e861f1f7a",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "dogrose": {
+    "data": "dogrose-aa970ccf7d2d.json.pack",
+    "triangles": [
+      4147,
+      1161,
+      311
+    ],
+    "dimensions": [
+      1.74729,
+      1.5,
+      0.18395
+    ],
+    "sourceHash": "5b9a0d4dcc8236c48d3ca62ed7d2644f44eea90e6037487aa8990db8225abbe9",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "alder": {
+    "data": "alder-f306393a9e44.json.pack",
+    "triangles": [
+      7243,
+      2028,
+      543
+    ],
+    "dimensions": [
+      13.7785,
+      15.0,
+      9.71198
+    ],
+    "sourceHash": "27bed22fff20a20e83988b065c5847e48526444c70b524f456a2418928faa1d4",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "willow": {
+    "data": "willow-207430a5604e.json.pack",
+    "triangles": [
+      7220,
+      2021,
+      541
+    ],
+    "dimensions": [
+      11.10203,
+      13.0,
+      7.14829
+    ],
+    "sourceHash": "53c10ce9f64b81985ac42397249ddfc01de861387f2ac64e15d85a7092556ffd",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  },
+  "birch": {
+    "data": "birch-17c179a32bef.json.pack",
+    "triangles": [
+      4588,
+      1284,
+      344
+    ],
+    "dimensions": [
+      5.35547,
+      12.0,
+      6.20543
+    ],
+    "sourceHash": "98967c661c275ee282a593a1b7879ad1e4cb6be316ba0f43d7e485477bb35ea3",
+    "source": "Meshy 7; task provenance in meshy-jobs.json"
+  }
+}

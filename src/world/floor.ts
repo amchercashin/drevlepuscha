@@ -28,7 +28,7 @@ export class Floor {
   grass.emissiveColor=new Color3(.045,.075,.025);leaves.emissiveColor=new Color3(.12,.17,.065);
   const texture=new Texture(foliageURL,scene);texture.hasAlpha=true;texture.wrapU=texture.wrapV=Texture.CLAMP_ADDRESSMODE;
   leaves.diffuseTexture=texture;leaves.useAlphaFromDiffuseTexture=true;leaves.transparencyMode=Material.MATERIAL_ALPHATEST;leaves.alphaCutOff=.45;
-  this.fades=this.materials.map(m=>new CoverFade(m,data.options.geographyKind==='brandywine'?38:19,data.options.geographyKind==='brandywine'?48:26));
+  this.fades=this.materials.map(m=>new CoverFade(m,data.options.geographyKind==='brandywine'?62:19,data.options.geographyKind==='brandywine'?78:26));
   if(wind){new VegetationWind(grass,wind,'grass');new VegetationWind(leaves,wind,'fern');}
  }
  request(job:Job){
@@ -59,7 +59,7 @@ export class Floor {
   const key=tileKey(p.e,p.n,8);
   if(key!==this.last){
    this.last=key;this.queue=[];this.wanted.clear();const e=Math.floor(p.e/8)*8,n=Math.floor(p.n/8)*8;
-   const radius=this.data.options.geographyKind==='brandywine'?6:3;
+   const radius=this.data.options.geographyKind==='brandywine'?10:3;
    for(let y=-radius;y<=radius;y++)for(let x=-radius;x<=radius;x++){
     const ee=e+x*8,nn=n+y*8,id=tileKey(ee,nn,8);this.wanted.add(id);
     if(!this.cells.has(id)&&this.inflight?.id!==id&&this.completed?.job.id!==id)this.queue.push({e:ee,n:nn,id});
@@ -70,7 +70,7 @@ export class Floor {
   if(this.completed)budget.run(()=>{const {job,geometry}=this.completed!;this.completed=undefined;if(this.wanted.has(job.id))this.build(job,geometry);});
   if(!this.inflight&&!this.completed){const next=this.queue[0];if(next&&this.data.ready(next.e,next.n)&&this.data.ready(next.e+8,next.n+8)){this.queue.shift();this.request(next);}}
   for(const fade of this.fades)fade.feet={x:p.e-this.origin.e,y:0,z:this.origin.n-p.n};
-  for(const meshes of this.cells.values())for(const m of meshes)m.setEnabled(Math.hypot(m.metadata.e+4-p.e,m.metadata.n+4-p.n)<(this.data.options.geographyKind==='brandywine'?57:32));
+  for(const meshes of this.cells.values())for(const m of meshes)m.setEnabled(Math.hypot(m.metadata.e+4-p.e,m.metadata.n+4-p.n)<(this.data.options.geographyKind==='brandywine'?87:32));
  }
  rebase(origin:EN){this.origin=origin;for(const meshes of this.cells.values())for(const m of meshes){m.unfreezeWorldMatrix();m.position.x=m.metadata.e-origin.e;m.position.z=origin.n-m.metadata.n;m.freezeWorldMatrix();}}
 }

@@ -10,6 +10,7 @@ const inputs=['content/regions/brandywine-bridge/region-source.json','src/domain
 const hash=b=>createHash('sha256').update(b).digest('hex');
 inputs.push('src/domain/regions/habitat.mjs','src/domain/regions/traversal.mjs','src/domain/regions/objects.mjs');
 inputs.push('src/domain/regions/session.ts','src/domain/geography.mjs','src/world/worker.ts','src/world/ecology.ts');
+inputs.push('src/world/region-grove-data.ts','src/world/region-canopy-data.ts');
 const signature=hash(inputs.map(f=>readFileSync(f,'utf8').replace(/\r\n/g,'\n')).join('\n'));
 if(existsSync(out+'signature')&&readFileSync(out+'signature','utf8')===signature){console.log('Brandywine pack unchanged');process.exit(0);}
 const source=JSON.parse(readFileSync(inputs[0])),storage=storageInfo(source),g=regionGeography(source),geo=createBrandywineGeography(g);

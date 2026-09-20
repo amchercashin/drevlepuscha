@@ -1,0 +1,111 @@
+{
+  "started": "2026-09-20",
+  "initialBalance": 643,
+  "finalBalance": 0,
+  "spentCredits": 643,
+  "authorized": "User explicitly authorized entire remaining credit balance for this region. No top-up or subscription.",
+  "format": "glb",
+  "conceptModel": "nano-banana-2",
+  "model": "meshy-7",
+  "conceptCost": 6,
+  "texturedModelCost": 30,
+  "assets": [
+    {
+      "id": "bridge-span",
+      "subject": "Single modular medieval stone bridge arch span, length 18 metres, width 6 metres, height 8 metres. One wide open semicircular arch, massive narrow rectangular end piers, flat continuous paved deck on top, NO parapets. Warm weathered grey limestone, moss in joints. Bridge length horizontal left to right. Clean ends for repetition.",
+      "prompt": "Single modular medieval stone bridge arch span, length 18 metres, width 6 metres, height 8 metres. One wide open semicircular arch, massive narrow rectangular end piers, flat continuous paved deck on top, NO parapets. Warm weathered grey limestone, moss in joints. Bridge length horizontal left to right. Clean ends for repetition. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "bridge-abutment",
+      "subject": "Single medieval stone bridge end abutment, a squat rectangular masonry pier 6 metres wide, 4 metres long, 6 metres high. Worn limestone blocks, slightly battered walls, triangular upstream cutwater nose. Flat top. No arch, no bridge, no ground.",
+      "prompt": "Single medieval stone bridge end abutment, a squat rectangular masonry pier 6 metres wide, 4 metres long, 6 metres high. Worn limestone blocks, slightly battered walls, triangular upstream cutwater nose. Flat top. No arch, no bridge, no ground. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "bridge-parapet",
+      "subject": "Single straight low stone bridge parapet wall module, length 9 metres, height 1.1 metres, thickness 0.4 metres. Uneven worn coping stones, warm grey limestone courses, delicate moss in joints, squared ends for repetition. No ground or arch.",
+      "prompt": "Single straight low stone bridge parapet wall module, length 9 metres, height 1.1 metres, thickness 0.4 metres. Uneven worn coping stones, warm grey limestone courses, delicate moss in joints, squared ends for repetition. No ground or arch. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "inn",
+      "subject": "Single welcoming rural medieval riverside inn, rectangular footprint 17 by 11 metres, 6 metres high. Two low storeys, cream limewashed walls with dark oak timber framing, weathered warm reddish brown shingle roof, two chimneys, small green shutters, central wooden door, modest hanging sign, low porch. Restrained Shire countryside architecture, no towers.",
+      "prompt": "Single welcoming rural medieval riverside inn, rectangular footprint 17 by 11 metres, 6 metres high. Two low storeys, cream limewashed walls with dark oak timber framing, weathered warm reddish brown shingle roof, two chimneys, small green shutters, central wooden door, modest hanging sign, low porch. Restrained Shire countryside architecture, no towers. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "stable",
+      "subject": "Single medieval open-front timber stable barn, rectangular 12 by 7 metres, 4 metres high. Heavy dark oak posts, low weathered shingle roof, half-height plank walls, three open stalls, hay beneath eaves. Rural river inn outbuilding, no animals.",
+      "prompt": "Single medieval open-front timber stable barn, rectangular 12 by 7 metres, 4 metres high. Heavy dark oak posts, low weathered shingle roof, half-height plank walls, three open stalls, hay beneath eaves. Rural river inn outbuilding, no animals. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "gate-post",
+      "subject": "Single weathered square oak gatepost with stone foot, height 3.2 metres. Carved sloped wooden cap, iron hinge straps on one side, ivy at foot. Rural Shire boundary gate architecture, modest and handcrafted.",
+      "prompt": "Single weathered square oak gatepost with stone foot, height 3.2 metres. Carved sloped wooden cap, iron hinge straps on one side, ivy at foot. Rural Shire boundary gate architecture, modest and handcrafted. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "gate-leaf",
+      "subject": "One rectangular rustic wooden farm gate leaf, 7 metres wide, 2.5 metres tall, thin construction. Five horizontal oak rails, two diagonal braces, iron hinges at left edge. Weathered warm grey timber. No posts, ground, fence, text or other objects.",
+      "prompt": "One rectangular rustic wooden farm gate leaf, 7 metres wide, 2.5 metres tall, thin construction. Five horizontal oak rails, two diagonal braces, iron hinges at left edge. Weathered warm grey timber. No posts, ground, fence, text or other objects. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "rowboat",
+      "subject": "One small traditional wooden river rowing boat 3.5 metres long, 1.3 metres wide, shallow hull. Open interior, three transverse seats, curved clinker planking, pointed bow and square stern. Two wooden oars stowed INSIDE parallel to the hull. No water, people or stand.",
+      "prompt": "One small traditional wooden river rowing boat 3.5 metres long, 1.3 metres wide, shallow hull. Open interior, three transverse seats, curved clinker planking, pointed bow and square stern. Two wooden oars stowed INSIDE parallel to the hull. No water, people or stand. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "shelter",
+      "subject": "One small rustic woodland lean-to shelter 5 metres wide, 4 metres deep, 2.5 metres tall. Three rough timber posts, sloping roof of weathered wooden shingles and branches, back plank wall, open front and sides. No ground or inhabitants.",
+      "prompt": "One small rustic woodland lean-to shelter 5 metres wide, 4 metres deep, 2.5 metres tall. Three rough timber posts, sloping roof of weathered wooden shingles and branches, back plank wall, open front and sides. No ground or inhabitants. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "fishing-kit",
+      "subject": "One compact riverside fishing supplies arrangement, two wicker fish baskets beside a weathered wooden crate, rolled rope and a folded coarse fishing net on crate. Warm natural muted brown and flax colors. Height 1 metre. No fish, ground, background props.",
+      "prompt": "One compact riverside fishing supplies arrangement, two wicker fish baskets beside a weathered wooden crate, rolled rope and a folded coarse fishing net on crate. Warm natural muted brown and flax colors. Height 1 metre. No fish, ground, background props. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "signpost",
+      "subject": "One crooked weathered oak fingerpost, 2.4 metres tall, two short wooden directional arms at different heights, rusty iron nails, small moss patches near its base. Blank sign faces, no letters, no ground.",
+      "prompt": "One crooked weathered oak fingerpost, 2.4 metres tall, two short wooden directional arms at different heights, rusty iron nails, small moss patches near its base. Blank sign faces, no letters, no ground. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "alder",
+      "subject": "Single mature riverside alder tree, 15 metres tall. Three branching dark trunks, irregular airy crown formed by distinct layered leafy boughs with gaps revealing branches. Fine clustered dull green leaves, asymmetric outline, exposed flared roots. No ground. NOT spherical or solid balloon foliage.",
+      "prompt": "Single mature riverside alder tree, 15 metres tall. Three branching dark trunks, irregular airy crown formed by distinct layered leafy boughs with gaps revealing branches. Fine clustered dull green leaves, asymmetric outline, exposed flared roots. No ground. NOT spherical or solid balloon foliage. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "oak",
+      "subject": "Single old broad English oak tree 21 metres tall, twisted massive trunk, low horizontal gnarled branches, asymmetric spreading layered crown, several visible gaps between boughs, clustered muted olive green leaves. Strong readable branch silhouette. Exposed roots, no ground. NOT a spherical canopy.",
+      "prompt": "Single old broad English oak tree 21 metres tall, twisted massive trunk, low horizontal gnarled branches, asymmetric spreading layered crown, several visible gaps between boughs, clustered muted olive green leaves. Strong readable branch silhouette. Exposed roots, no ground. NOT a spherical canopy. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "willow",
+      "subject": "Single riverside pollarded willow tree 13 metres tall. Leaning rough trunk branches into five heads, narrow arching leafy branches hanging down, irregular fringed canopy with visible gaps, muted sage green foliage. Exposed roots, no ground, no water. NOT a green ball.",
+      "prompt": "Single riverside pollarded willow tree 13 metres tall. Leaning rough trunk branches into five heads, narrow arching leafy branches hanging down, irregular fringed canopy with visible gaps, muted sage green foliage. Exposed roots, no ground, no water. NOT a green ball. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "hazel",
+      "subject": "Single multi-stem hazel bush 3 metres tall, broad irregular open branching shape, visible slender reddish brown stems, clusters of muted yellow green leaves with gaps, asymmetric natural silhouette. No pot, ground, grass or landscape.",
+      "prompt": "Single multi-stem hazel bush 3 metres tall, broad irregular open branching shape, visible slender reddish brown stems, clusters of muted yellow green leaves with gaps, asymmetric natural silhouette. No pot, ground, grass or landscape. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "dogrose",
+      "subject": "Single wild dog rose bramble bush 1.5 metres high, arching thin woody stems, irregular spreading outline, small dark green leaf clusters with gaps, sparse pale pink five-petal flowers and a few red hips. No ground or pot.",
+      "prompt": "Single wild dog rose bramble bush 1.5 metres high, arching thin woody stems, irregular spreading outline, small dark green leaf clusters with gaps, sparse pale pink five-petal flowers and a few red hips. No ground or pot. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    },
+    {
+      "id": "fallen-willow",
+      "subject": "One old fallen riverside willow trunk 5 metres long, partly hollow, twisted bark, a forked broken branch pointing up, pale exposed wood at broken end, sparse moss patches. Low horizontal shape. No ground, grass or foliage.",
+      "prompt": "One old fallen riverside willow trunk 5 metres long, partly hollow, twisted bark, a forked broken branch pointing up, pale exposed wood at broken end, sparse moss patches. Low horizontal shape. No ground, grass or foliage. Painterly fantasy game asset, Tolkien countryside mood, believable proportions, soft matte colors. Isolated on white, three-quarter view, even light, no shadow or text."
+    }
+  ],
+  "birch": {
+    "id": "birch",
+    "stage": "preview",
+    "prompt": "Single mature silver birch tree, 12 metres tall. Two slender white trunks with charcoal bark marks, asymmetrical airy crown, several separate ascending branches with hanging fine twigs, distinct small clusters of soft sage green leaves and generous gaps. Natural flared root base, no ground. Restrained painterly fantasy countryside, believable botanical proportions, matte colors, not toy-like. Game-ready separated branching silhouette, no sphere foliage.",
+    "task_id": "01a0bf87-fdfa-7305-8868-1afd4443c011",
+    "status": "PENDING",
+    "message": "3D generation task created successfully. Task ID: 01a0bf87-fdfa-7305-8868-1afd4443c011",
+    "estimated_time": "2-3 minutes"
+  },
+  "rawDirectory": "references/private/meshy-runs/brandywine-20260920",
+  "preparation": "tools/regions/prepare-visual-assets.py",
+  "runtimeIndex": "public/regions/brandywine-bridge/assets/index.json"
+}

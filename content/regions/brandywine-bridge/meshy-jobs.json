@@ -1,0 +1,354 @@
+[
+  {
+    "id": "bridge-span",
+    "stage": "concept",
+    "task_id": "01a0bf7c-37d0-721b-8173-710ccddc891e",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-37d0-721b-8173-710ccddc891e",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "bridge-abutment",
+    "stage": "concept",
+    "task_id": "01a0bf7c-38ad-7405-958e-e20775ffe1ba",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-38ad-7405-958e-e20775ffe1ba",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "bridge-parapet",
+    "stage": "concept",
+    "task_id": "01a0bf7c-3981-7295-8d78-9f9e08bbd2bf",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-3981-7295-8d78-9f9e08bbd2bf",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "inn",
+    "stage": "concept",
+    "task_id": "01a0bf7c-3a65-7770-ab6f-2f2de7ba207e",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-3a65-7770-ab6f-2f2de7ba207e",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "stable",
+    "stage": "concept",
+    "task_id": "01a0bf7c-8229-768f-b3e4-ec190e1632bd",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-8229-768f-b3e4-ec190e1632bd",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "gate-post",
+    "stage": "concept",
+    "task_id": "01a0bf7c-8303-722c-8cf5-92d4d44f3da9",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-8303-722c-8cf5-92d4d44f3da9",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "gate-leaf",
+    "stage": "concept",
+    "task_id": "01a0bf7c-83db-731d-889a-ad3346c05763",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-83db-731d-889a-ad3346c05763",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "rowboat",
+    "stage": "concept",
+    "task_id": "01a0bf7c-84b6-7284-adcb-2477e61ac87a",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-84b6-7284-adcb-2477e61ac87a",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "shelter",
+    "stage": "concept",
+    "task_id": "01a0bf7c-ff10-7610-af80-0d4f06b3edc3",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-ff10-7610-af80-0d4f06b3edc3",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "fishing-kit",
+    "stage": "concept",
+    "task_id": "01a0bf7c-ffe6-7264-a1c3-cca2918620a0",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7c-ffe6-7264-a1c3-cca2918620a0",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "signpost",
+    "stage": "concept",
+    "task_id": "01a0bf7d-00bc-71e6-a1b7-6a11d2f823ac",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7d-00bc-71e6-a1b7-6a11d2f823ac",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "alder",
+    "stage": "concept",
+    "task_id": "01a0bf7d-0195-7375-bd82-c2af8c63e90b",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7d-0195-7375-bd82-c2af8c63e90b",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "oak",
+    "stage": "concept",
+    "task_id": "01a0bf7d-67cf-70d2-835e-1593c1566460",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7d-67cf-70d2-835e-1593c1566460",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "willow",
+    "stage": "concept",
+    "task_id": "01a0bf7d-68a5-7796-9d2b-8576335863a1",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7d-68a5-7796-9d2b-8576335863a1",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "hazel",
+    "stage": "concept",
+    "task_id": "01a0bf7d-697d-7225-a0aa-e40807c82522",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7d-697d-7225-a0aa-e40807c82522",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "dogrose",
+    "stage": "concept",
+    "task_id": "01a0bf7d-6a54-7455-95e7-6bf2eed069ef",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7d-6a54-7455-95e7-6bf2eed069ef",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "fallen-willow",
+    "stage": "concept",
+    "task_id": "01a0bf7d-6b2c-7036-9a81-81e99e04186f",
+    "status": "SUCCEEDED",
+    "message": "Text-to-image task created successfully. Task ID: 01a0bf7d-6b2c-7036-9a81-81e99e04186f",
+    "estimated_time": "~30 seconds",
+    "consumedCredits": 6
+  },
+  {
+    "id": "bridge-span",
+    "stage": "model",
+    "task_id": "01a0bf7e-3088-7396-b21f-e285c39b998d",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf7e-3088-7396-b21f-e285c39b998d",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "bridge-abutment",
+    "stage": "model",
+    "task_id": "01a0bf7f-9965-72f7-aa55-2e78d46abd30",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf7f-9965-72f7-aa55-2e78d46abd30",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "bridge-parapet",
+    "stage": "model",
+    "task_id": "01a0bf7f-9c80-74d8-9de7-136c90a20e16",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf7f-9c80-74d8-9de7-136c90a20e16",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "inn",
+    "stage": "model",
+    "task_id": "01a0bf7f-9f5b-7712-8b0b-431828f094dc",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf7f-9f5b-7712-8b0b-431828f094dc",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "stable",
+    "stage": "model",
+    "task_id": "01a0bf7f-a24f-70eb-a5de-5f1795f80a6e",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf7f-a24f-70eb-a5de-5f1795f80a6e",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "gate-post",
+    "stage": "model",
+    "task_id": "01a0bf7f-a597-73b4-9569-07451fc92a56",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf7f-a597-73b4-9569-07451fc92a56",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "gate-leaf",
+    "stage": "model",
+    "task_id": "01a0bf7f-a9b9-7650-bfa9-57d7eca8a8f2",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf7f-a9b9-7650-bfa9-57d7eca8a8f2",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "rowboat",
+    "stage": "model",
+    "task_id": "01a0bf7f-ac76-7515-a1bc-6797509d8cc5",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf7f-ac76-7515-a1bc-6797509d8cc5",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "shelter",
+    "stage": "model",
+    "task_id": "01a0bf81-45a1-77bf-8466-1133dfd72d55",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf81-45a1-77bf-8466-1133dfd72d55",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "fishing-kit",
+    "stage": "model",
+    "task_id": "01a0bf81-488c-76f1-9f0b-371fe3ff21be",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf81-488c-76f1-9f0b-371fe3ff21be",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "signpost",
+    "stage": "model",
+    "task_id": "01a0bf84-fee3-7352-8a19-31995350c2cb",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf84-fee3-7352-8a19-31995350c2cb",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "alder",
+    "stage": "model",
+    "task_id": "01a0bf85-022b-74da-aa8f-209ac02df1cf",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf85-022b-74da-aa8f-209ac02df1cf",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "oak",
+    "stage": "model",
+    "task_id": "01a0bf85-061a-7331-b78e-2c0acb03eadf",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf85-061a-7331-b78e-2c0acb03eadf",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "willow",
+    "stage": "model",
+    "task_id": "01a0bf85-0a07-75de-9e8e-78fcee31b28c",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf85-0a07-75de-9e8e-78fcee31b28c",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "hazel",
+    "stage": "model",
+    "task_id": "01a0bf85-0ce7-778e-99db-78526e2a7e79",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf85-0ce7-778e-99db-78526e2a7e79",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "dogrose",
+    "stage": "model",
+    "task_id": "01a0bf87-4263-75c3-91f1-4050a4f54210",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf87-4263-75c3-91f1-4050a4f54210",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "fallen-willow",
+    "stage": "model",
+    "task_id": "01a0bf87-6414-72eb-9867-9da9627ea0c9",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf87-6414-72eb-9867-9da9627ea0c9",
+    "estimated_time": "2-3 minutes",
+    "downloaded": true,
+    "consumedCredits": 30
+  },
+  {
+    "id": "birch",
+    "stage": "preview",
+    "prompt": "Single mature silver birch tree, 12 metres tall. Two slender white trunks with charcoal bark marks, asymmetrical airy crown, several separate ascending branches with hanging fine twigs, distinct small clusters of soft sage green leaves and generous gaps. Natural flared root base, no ground. Restrained painterly fantasy countryside, believable botanical proportions, matte colors, not toy-like. Game-ready separated branching silhouette, no sphere foliage.",
+    "task_id": "01a0bf87-fdfa-7305-8868-1afd4443c011",
+    "status": "SUCCEEDED",
+    "message": "3D generation task created successfully. Task ID: 01a0bf87-fdfa-7305-8868-1afd4443c011",
+    "estimated_time": "2-3 minutes",
+    "consumedCredits": 20
+  },
+  {
+    "id": "birch",
+    "stage": "refine",
+    "task_id": "01a0bf8f-05dd-7286-b02c-7b5e061ea11f",
+    "status": "SUCCEEDED",
+    "message": "Text-to-3D refine task created successfully. Task ID: 01a0bf8f-05dd-7286-b02c-7b5e061ea11f",
+    "estimated_time": "2-3 minutes",
+    "consumedCredits": 10
+  },
+  {
+    "id": "birch",
+    "stage": "resize",
+    "task_id": "01a0bf93-37ec-70b8-9451-00a09d15f0b6",
+    "status": "SUCCEEDED",
+    "message": "Resize task created for task \"01a0bf8f-05dd-7286-b02c-7b5e061ea11f\" (12 m tall). Cost: 1 credit.",
+    "estimated_time": "10-30 seconds",
+    "downloaded": true,
+    "consumedCredits": 1
+  }
+]

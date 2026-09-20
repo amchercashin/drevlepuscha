@@ -1,4 +1,6 @@
 import { groveMatrices } from './grove-data.ts';
+import {regionGroveMatrices} from './region-grove-data.ts';
+import {regionCanopyGeometry} from './region-canopy-data.ts';
 import {makeFloorPatch} from '../domain/floor-patch.ts';
 import {VertexData} from '@babylonjs/core/Meshes/mesh.vertexData.js';
 import { habitatWeights, speciesMix, pickSpecies } from './ecology.ts';
@@ -53,6 +55,14 @@ scope.onmessage = async ({ data: m }) => {
             scope.postMessage({ request: m.request, result }, [result.matrices.buffer]);
             return;
         }
+        if(m.type==='region-groves'){
+            const result=regionGroveMatrices(m.p,m.origin,coarse,geo);
+            scope.postMessage({request:m.request,result},Object.values(result).map(a=>a.buffer));return;
+        }
+        if(m.type==='region-canopy'){
+            const result=regionCanopyGeometry(coarse,geo);
+            scope.postMessage({request:m.request,result},Object.values(result).map(a=>a.buffer));return;
+        }
         if (m.type === 'patch') {
             const result = makePatch(m.e, m.n, m.grid, geo, g, trailAt);
             scope.postMessage({ request: m.request, result }, Object.values(result).map(v => v.buffer));
@@ -73,7 +83,7 @@ scope.onmessage = async ({ data: m }) => {
                         if (!zone)
                             continue;
                         const zi = g.zones.indexOf(zone), s = placementSeed(g.worldSeed, g.regionSource?g.regionSource.regionId+'-'+zone.id:zone.id, cx, cy, i), r = zone.rules;
-                        const density = (r.treeDensityPerM2[0] + r.treeDensityPerM2[1]) * .5;
+                        const density = (r.treeDensityPerM2[0] + r.treeDensityPerM2[1]) * .5 * (g.regionSource&&zone.id!=='fields'&&zone.id!=='orchard'?1.65:1);
                         if (hash01(s, 3) > density * 64 || hash01(Math.floor(e / 96), Math.floor(n / 96), 73) < .1)
                             continue;
                         const hk = Math.floor(e / 64) + ',' + Math.floor(n / 64);
