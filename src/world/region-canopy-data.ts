@@ -4,7 +4,7 @@ import type {Grid} from './schema.ts';
 
 /** A connected forest cover, with a ragged edge dropping into the understorey. Not crown spheres. */
 export function regionCanopyGeometry(grid:Grid,geo:any){
- const step=20,cols=Math.floor((grid.columns-1)*grid.stepM/step),rows=Math.floor((grid.rows-1)*grid.stepM/step);
+ const step=10,cols=Math.floor((grid.columns-1)*grid.stepM/step),rows=Math.floor((grid.rows-1)*grid.stepM/step);
  const positions:number[]=[],colors:number[]=[],indices:number[]=[],vertices=new Map<string,number>();
  const excluded=new Map<string,boolean>();
  const blocked=(x:number,y:number)=>{const id=x+','+y;if(!excluded.has(id))excluded.set(id,geo.exclusion(grid.origin[0]+x*step,grid.origin[1]+y*step));return excluded.get(id);};
@@ -14,9 +14,9 @@ export function regionCanopyGeometry(grid:Grid,geo:any){
  function vertex(x:number,y:number,bottom=false){const key=x+','+y+','+bottom;if(vertices.has(key))return vertices.get(key)!;
   const e=grid.origin[0]+x*step,n=grid.origin[1]+y*step,ground=triangleHeight(grid,e,n);
   const edge=[filled(x,y),filled(x-1,y),filled(x,y-1),filled(x-1,y-1)].filter(Boolean).length<4;
-  const canopy=bottom?-.5:(edge?10:16)+Math.sin(e*.043+n*.023)*2+Math.sin(n*.078-e*.029)*1.4+hash01(x,y,231)*3;
+  const canopy=bottom?-.5:(edge?4:14)+Math.sin(e*.043+n*.023)*2+Math.sin(n*.078-e*.029)*1.4+hash01(x,y,231)*(edge?6:8);
   const k=positions.length/3;vertices.set(key,k);positions.push(e,ground+canopy,-n);
-  const tone=.88+hash01(x,y,235)*.18,light=bottom?.48:edge?.84:1;colors.push(.25*tone*light,.36*tone*light,.18*tone*light,1);return k;
+  const tone=.76+hash01(x,y,235)*.36,light=bottom?.48:edge?.84:1;colors.push(.25*tone*light,.36*tone*light,.18*tone*light,1);return k;
  }
  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(filled(x,y)){
   const a=vertex(x,y),b=vertex(x+1,y),c=vertex(x,y+1),d=vertex(x+1,y+1);indices.push(a,b,c,b,d,c);
