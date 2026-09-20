@@ -24,7 +24,7 @@ export function makePatch(e: number, n: number, grid: Grid, geo: any, g: any, tr
         for (let i = 0; i < 3; i++) {
             const weights = habitatWeights(e + i * 64, n + j * 64, geo.zoneAt), c = [0, 0, 0];
             for (const [id, w] of weights) {
-                const tint = palette[g.zones.findIndex((z: any) => z.id === id)] ?? [.57, .55, .36];
+                const tint = g.zones.find((z:any)=>z.id===id)?.tint ?? palette[g.zones.findIndex((z: any) => z.id === id)] ?? [.57, .55, .36];
                 for (let q = 0; q < 3; q++)
                     c[q] += tint[q] * w;
             }

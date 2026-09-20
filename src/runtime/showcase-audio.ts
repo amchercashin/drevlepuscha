@@ -27,6 +27,7 @@ export class ShowcaseAudio {
  private due=new Map<string,number>();
  private abort=new AbortController();
  private trees:Point3[];
+ setTreePositions(trees:Point3[]){this.trees=trees;this.anchorTime=0;}
  private nearby:Point3[]=[];
  private anchorTime=0;
  private elapsed=0;
@@ -46,6 +47,15 @@ export class ShowcaseAudio {
  private wildlifeEventsPlayed=0;
  private lastWildlifeDelayMs:number|null=null;
  private visibleWildlife=false;
+ private environment:{forest:number;river:number}|null=null;
+ private riverLoop:{source:AudioBufferSourceNode;gain:GainNode}|null=null;
+ setEnvironment(forest:number,river:number){this.environment={forest:Math.max(0,Math.min(1,forest)),river:Math.max(0,Math.min(1,river))};}
+ private updateRiver(){
+  const ctx=this.context;if(!ctx||!this.environment)return;
+  if(!this.riverLoop){const buffer=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate),out=buffer.getChannelData(0);let seed=30170919,low=0;for(let i=0;i<out.length;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;low=.96*low+.04*(seed/4294967296*2-1);out[i]=low;}
+   const source=ctx.createBufferSource(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=1400;source.buffer=buffer;source.loop=true;gain.gain.value=0;source.connect(filter);filter.connect(gain);gain.connect(this.master!);source.start();this.riverLoop={source,gain};
+  }this.riverLoop.gain.gain.setTargetAtTime(this.environment.river*.32,ctx.currentTime,.6);
+ }
  private cueCounts:Record<string,number>={};
  private suppression:{position:Point3;until:number}[]=[];
  setWildlifeEventsEnabled(enabled:boolean){this.visibleWildlife=enabled;}
@@ -151,6 +161,7 @@ export class ShowcaseAudio {
   this.weather=ambientRain(precipitation);
   this.suppression=this.suppression.filter(s=>s.until>performance.now());
   const ctx=this.context;if(!ctx||this.disposed)return;
+  this.updateRiver();
   this.wildlife!.gain.setTargetAtTime(this.weather.wildlife,ctx.currentTime,.4);
   this.lastHour=hour;
   const listener=ctx.listener;
@@ -178,6 +189,7 @@ export class ShowcaseAudio {
     let level=(rain?(asset.id==='R01'?this.weather.R01:this.weather.R02):
      (levels[asset.id]!==undefined?levels[asset.id]*this.weather.wind:.32*cricketGain))*phase*asset.trim;
     if(asset.id==='W06'&&!loop.anchor)level=0;
+    if(this.environment&&asset.group==='canopy')level*=this.environment.forest;
     // Gusts already have the vegetation's smooth envelope; only de-click the audio gain.
     this.gains[asset.id]=level;loop.gain.gain.setTargetAtTime(level,ctx.currentTime,rain?.25:asset.id==='I01'?1.5:.06);
    }else if(asset.kind!=='loop'&&this.active()&&this.elapsed>=(this.due.get(asset.id)??Infinity)){
@@ -196,6 +208,7 @@ export class ShowcaseAudio {
  dispose(){
   this.disposed=true;this.abort.abort();document.removeEventListener('visibilitychange',this.visibility);this.panel.remove();
   for(const {source,gain,pan} of this.loops.values()){source.stop();source.disconnect();gain.disconnect();pan?.disconnect();}
+  this.riverLoop?.source.stop();this.riverLoop?.source.disconnect();this.riverLoop?.gain.disconnect();this.riverLoop=null;
   for(const source of this.voices)source.stop();
   this.loops.clear();this.buffers.clear();this.wildlife?.disconnect();this.master?.disconnect();void this.context?.close().catch(()=>{});
  }

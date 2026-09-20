@@ -1,6 +1,7 @@
 {
-  "content/regions/brandywine-bridge/region-source.json": "50ca0586ffae8bcdb0da9f36cf0d926057d7ada838232222e2462eac36ea68f0",
-  "tools/regions/authoring-core.mjs": "63a8d5100f5d820145eb4d517ec1c16127f084f3a1ee4454f434c75294227ceb",
+  "content/regions/brandywine-bridge/region-source.json": "e90fa4ce44f65a1c1db2f2af259626c5e957d9403014877b70cf6051d9613db2",
+  "src/domain/regions/authoring-core.mjs": "a8974c1c5b73130103a71a2c1d35d3ae5d54a1359105ef8dbfd30d323ed5b0d7",
+  "tools/regions/authoring-core.mjs": "ed358b0eefd4c037601c189594c9c8abde6f8ed1bef0c9270f4607f8d0ebd1c5",
   "tools/regions/terrain-review.mjs": "e3e66cca4b14cf7de582d2efb574f191275a0c9ad98c0e8823b854b99c8693e1",
-  "tools/regions/build-brandywine-preview.mjs": "54cbadef87515ae2b75aa274491bd27d65cabfad3afb3a2860a4d6939ddb54d7"
+  "tools/regions/build-brandywine-preview.mjs": "304c36c9c771cb99742084d6b32f48afd37fd3c05a7cb765b3b0219a7bcc5620"
 }

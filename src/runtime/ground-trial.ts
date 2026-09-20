@@ -18,15 +18,15 @@ import './ground-trial.css';
 
 export type GroundTrialMode=0|1|2;
 /** Four small shared maps; the height march reads both material heights in one fetch. */
-class GroundRelief extends MaterialPluginBase {
+export class GroundRelief extends MaterialPluginBase {
  mode:GroundTrialMode=2;
- constructor(material:StandardMaterial,private maps:Texture[]){super(material,'GroundRelief',225,{},true,false);this._enable(true);}
+ constructor(material:StandardMaterial,private maps:Texture[],private origin=()=>({e:0,n:0})){super(material,'GroundRelief',225,{},true,false);this._enable(true);}
  override isCompatible(language:ShaderLanguage){return language===ShaderLanguage.WGSL;}
  override getSamplers(s:string[]){s.push('trialHeight','trialNormal','trialSoil','trialLitter');}
  override getActiveTextures(active:Texture[]){active.push(...this.maps);}
  override hasTexture(texture:Texture){return this.maps.includes(texture);}
- override getUniforms(){return {ubo:[{name:'trialMode',size:1,type:'float'}]};}
- override bindForSubMesh(u:UniformBuffer){u.updateFloat('trialMode',this.mode);['trialHeight','trialNormal','trialSoil','trialLitter'].forEach((name,i)=>u.setTexture(name,this.maps[i]));}
+ override getUniforms(){return {ubo:[{name:'trialMode',size:1,type:'float'},{name:'trialOrigin',size:2,type:'vec2'}]};}
+ override bindForSubMesh(u:UniformBuffer){u.updateFloat('trialMode',this.mode);const o=this.origin();u.updateFloat2('trialOrigin',o.e,o.n);['trialHeight','trialNormal','trialSoil','trialLitter'].forEach((name,i)=>u.setTexture(name,this.maps[i]));}
  override getCustomCode(type:string):Record<string,string>|null{
   if(type!=='fragment')return null;
   return {
@@ -42,7 +42,7 @@ class GroundRelief extends MaterialPluginBase {
     }
    `,
    CUSTOM_FRAGMENT_UPDATE_DIFFUSE:`
-    let trialEN=vec2f(fragmentInputs.vPositionW.x,-fragmentInputs.vPositionW.z);
+    let trialEN=vec2f(fragmentInputs.vPositionW.x,-fragmentInputs.vPositionW.z)+uniforms.trialOrigin;
     let trialMask=1.0;
     let trialDistance=distance(scene.vEyePosition.xyz,fragmentInputs.vPositionW);
     // Continuous world warp breaks the repetition without multiplying texture reads in POM.

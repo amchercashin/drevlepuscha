@@ -14,7 +14,7 @@ import {windFieldWGSL,treeWindWGSL,coverWindWGSL} from './wind.wgsl.ts';
 
 export class VegetationWind extends MaterialPluginBase {
  private unsubscribe:()=>void;
- constructor(material:Material,private wind:WindSystem,private kind:'tree'|'grass'|'fern'|'far'){
+ constructor(material:Material,private wind:WindSystem,private kind:'tree'|'grass'|'fern'|'far',private origin:()=>{e:number;n:number}=()=>({e:0,n:0})){
   super(material,'VegetationWind',200,{VEGETATION_WIND:true,WIND_DETAIL:true},true,false);
   this.registerForExtraEvents=true;this._enable(true);
   let enabled=wind.enabled,detail=wind.detail;
@@ -26,7 +26,7 @@ export class VegetationWind extends MaterialPluginBase {
  override getUniforms(){return {ubo:[
   {name:'windDirection',size:2,type:'vec2'},{name:'windWeather',size:4,type:'vec4'},
   {name:'windPhases',size:3,type:'vec3'},{name:'windMotion',size:2,type:'vec2'},
-  {name:'windPlant',size:2,type:'vec2'},{name:'windResponse',size:2,type:'vec2'},{name:'windEye',size:3,type:'vec3'},
+  {name:'windPlant',size:2,type:'vec2'},{name:'windResponse',size:2,type:'vec2'},{name:'windEye',size:3,type:'vec3'},{name:'windOrigin',size:2,type:'vec2'},
  ]};}
  override hardBindForSubMesh(ubo:UniformBuffer,_scene:Scene,_engine:AbstractEngine,subMesh:SubMesh){
   const w=this.wind,s=w.snapshot,p=subMesh.getRenderingMesh().metadata?.windTree??[20,1];
@@ -35,13 +35,14 @@ export class VegetationWind extends MaterialPluginBase {
   ubo.updateFloat2('windPlant',this.kind==='tree'?p[0]:this.kind==='grass'?.16:.10,p[1]);
   ubo.updateFloat2('windResponse',w.canopyBend,w.coverBend);
   ubo.updateFloat3('windEye',w.eye.x,w.eye.y,w.eye.z);
+  const origin=this.origin();ubo.updateFloat2('windOrigin',origin.e,-origin.n);
  }
  override getCustomCode(type:string):Record<string,string>|null{
   if(type!=='vertex')return null;
   const cover=this.kind!=='tree';
   return {
    CUSTOM_VERTEX_DEFINITIONS:`${cover?'attribute plantWind: vec4f;\nvarying vWindRestW: vec3f;':''}\n#ifdef VEGETATION_WIND\n${windFieldWGSL}\n#endif`,
-   CUSTOM_VERTEX_UPDATE_WORLDPOS:`${cover?'vertexOutputs.vWindRestW=worldPos.xyz;':''}\n#ifdef VEGETATION_WIND\n${cover?coverWindWGSL:treeWindWGSL}\n#endif`,
+   CUSTOM_VERTEX_UPDATE_WORLDPOS:`${cover?'vertexOutputs.vWindRestW=worldPos.xyz;':''}\n#ifdef VEGETATION_WIND\n${cover?coverWindWGSL:treeWindWGSL.replace('let windRoot=finalWorld[3].xz;','let windRoot=finalWorld[3].xz+uniforms.windOrigin;')}\n#endif`,
   };
  }
  override dispose(){this.unsubscribe();}

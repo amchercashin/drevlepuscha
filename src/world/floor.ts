@@ -12,19 +12,24 @@ import type {Terrain} from './terrain.ts';
 import {tileKey} from './math.ts';
 import {CoverFade} from '../runtime/cover-fade.ts';
 import foliageURL from '../../assets/floor/foliage.png';
+import {VegetationWind} from '../runtime/vegetation-wind.ts';
+import type {WindSystem} from '../runtime/wind.ts';
 type Job={e:number;n:number;id:string};
 /** Showcase foliage, prepared by the existing world worker on the streamed height surface. */
 export class Floor {
  cells=new Map<string,Mesh[]>();queue:Job[]=[];last='';origin:EN={e:0,n:0};
  wanted=new Set<string>();inflight:Job|undefined;completed:{job:Job;geometry:any}|undefined;
  materials:StandardMaterial[];fades:CoverFade[];failures=0;
- constructor(public scene:Scene,public data:WorldData,public terrain:Terrain,public blocked:(e:number,n:number)=>boolean){
+ generation=0;
+ invalidate(){this.generation++;this.last='';for(const meshes of this.cells.values())meshes.forEach(m=>m.dispose());this.cells.clear();this.completed=undefined;}
+ constructor(public scene:Scene,public data:WorldData,public terrain:Terrain,public blocked:(e:number,n:number)=>boolean,wind?:WindSystem){
   const grass=new StandardMaterial('grass',scene),leaves=new StandardMaterial('floor-leaves',scene);
   this.materials=[grass,leaves];for(const m of this.materials){m.diffuseColor=Color3.White();m.specularColor=Color3.Black();m.backFaceCulling=false;m.twoSidedLighting=true;}
   grass.emissiveColor=new Color3(.045,.075,.025);leaves.emissiveColor=new Color3(.12,.17,.065);
   const texture=new Texture(foliageURL,scene);texture.hasAlpha=true;texture.wrapU=texture.wrapV=Texture.CLAMP_ADDRESSMODE;
   leaves.diffuseTexture=texture;leaves.useAlphaFromDiffuseTexture=true;leaves.transparencyMode=Material.MATERIAL_ALPHATEST;leaves.alphaCutOff=.45;
   this.fades=this.materials.map(m=>new CoverFade(m,19,26));
+  if(wind){new VegetationWind(grass,wind,'grass');new VegetationWind(leaves,wind,'fern');}
  }
  request(job:Job){
   const {e,n}=job,values=new Float32Array(13*13),blocked=new Uint8Array(17*17);
@@ -36,15 +41,16 @@ export class Floor {
    blocked[y*17+x]=Number(!zone||cover<.05||this.blocked(E,N)||this.data.waterDepth(E,N)>.03);
   }
   this.inflight=job;
-  void this.data.call('floor',{e,n,grid:{origin:[e-2,n-2],stepM:1,columns:13,rows:13,values},blocked},[values.buffer,blocked.buffer],1).then(geometry=>{
-   if(this.wanted.has(job.id))this.completed={job,geometry};
+  const generation=this.generation;
+  void this.data.call('floor',{e,n,lush:this.data.options.geographyKind!=='brandywine'||cover>.4,grid:{origin:[e-2,n-2],stepM:1,columns:13,rows:13,values},blocked},[values.buffer,blocked.buffer],1).then(geometry=>{
+   if(generation===this.generation&&this.wanted.has(job.id))this.completed={job,geometry};
   }).catch(()=>{this.failures++;if(this.wanted.has(job.id))this.queue.push(job);}).finally(()=>{this.inflight=undefined;});
  }
  build(job:Job,geometry:any){
   const meshes:Mesh[]=[];
   for(const [i,key]of ['grass','leaves'].entries()){
    const g=geometry[key];if(!g.indices.length)continue;
-   const m=new Mesh('understory-'+key+'-'+job.id,this.scene),v=new VertexData();Object.assign(v,g);v.applyToMesh(m);m.material=this.materials[i];
+   const m=new Mesh('understory-'+key+'-'+job.id,this.scene),v=new VertexData();Object.assign(v,g);v.applyToMesh(m);if(g.wind?.length)m.setVerticesData('plantWind',g.wind,false,4);m.material=this.materials[i];
    m.position.set(job.e-this.origin.e,0,this.origin.n-job.n);m.metadata={e:job.e,n:job.n};m.isPickable=false;m.receiveShadows=true;m.freezeWorldMatrix();meshes.push(m);
   }
   this.cells.set(job.id,meshes);

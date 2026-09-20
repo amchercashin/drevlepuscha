@@ -2138,8 +2138,8 @@
     "Вспомогательные узлы снаружи/внутри ворот спроецированы на дорогу. Сад связан отдельным подъездом с развилкой; его POI не перемещён."
   ],
   "terrainRefinement": {
-    "version": "0.1.1",
-    "status": "candidate-for-map-review",
+    "version": "0.1.2",
+    "status": "direction-accepted-terrain-refined",
     "note": "Authored mesorelief candidate; preserves v0.1 POIs, river axes, road lines, graph and seed. Not production collision or completed road grading.",
     "forms": [
       {
@@ -2211,6 +2211,48 @@
         ],
         "amplitudeM": 3,
         "rotationDeg": -15
+      },
+      {
+        "id": "water-north-hill",
+        "name": "Северный холм долины притока",
+        "center": [
+          -1000,
+          1930
+        ],
+        "radiusM": [
+          310,
+          230
+        ],
+        "amplitudeM": 8,
+        "rotationDeg": 10
+      },
+      {
+        "id": "water-south-shoulder",
+        "name": "Лесистое плечо над притоком",
+        "center": [
+          -720,
+          1130
+        ],
+        "radiusM": [
+          340,
+          180
+        ],
+        "amplitudeM": 7,
+        "rotationDeg": -15
+      },
+      {
+        "id": "mouth-north-shoulder",
+        "name": "Невысокая грива у устья",
+        "center": [
+          -450,
+          1750
+        ],
+        "radiusM": [
+          180,
+          120
+        ],
+        "amplitudeM": 3.5,
+        "rotationDeg": -25
       }
     ],
     "bankProfiles": [
@@ -2330,6 +2372,18 @@
         "radiusM": 100,
         "heightM": 0.95,
         "widthM": 32
+      },
+      {
+        "id": "lower-landing-screen",
+        "riverId": "brandywine",
+        "side": "right",
+        "center": [
+          87,
+          -520
+        ],
+        "radiusM": 75,
+        "heightM": 9,
+        "widthM": 24
       }
     ],
     "sections": [
@@ -2408,6 +2462,124 @@
             1250
           ]
         ]
+      },
+      {
+        "id": "riverbank-longitudinal",
+        "name": "Вдоль восточного берега: подъёмы и спуски",
+        "points": [
+          [
+            10,
+            2300
+          ],
+          [
+            0,
+            1900
+          ],
+          [
+            0,
+            1550
+          ],
+          [
+            100,
+            1000
+          ],
+          [
+            30,
+            550
+          ],
+          [
+            150,
+            0
+          ],
+          [
+            250,
+            -600
+          ],
+          [
+            170,
+            -1000
+          ],
+          [
+            330,
+            -1450
+          ]
+        ]
+      },
+      {
+        "id": "tributary-valley",
+        "name": "Холм — ложбина притока — лесистое плечо",
+        "points": [
+          [
+            -1000,
+            2150
+          ],
+          [
+            -1000,
+            1930
+          ],
+          [
+            -1000,
+            1450
+          ],
+          [
+            -900,
+            1150
+          ],
+          [
+            -1000,
+            900
+          ]
+        ]
+      }
+    ],
+    "rollingGround": {
+      "layers": [
+        {
+          "scaleM": 420,
+          "amplitudeM": 4
+        },
+        {
+          "scaleM": 170,
+          "amplitudeM": 1.4
+        }
+      ],
+      "meadows": [
+        {
+          "id": "buckland-meadow",
+          "center": [
+            550,
+            -1050
+          ],
+          "radiusM": 380
+        },
+        {
+          "id": "upper-meadow",
+          "center": [
+            -440,
+            2050
+          ],
+          "radiusM": 250
+        }
+      ]
+    },
+    "riverValleys": [
+      {
+        "riverId": "brandywine",
+        "scaleM": 360,
+        "meanHeightM": 3.1,
+        "heightAmplitudeM": 1.6,
+        "meanWidthM": 24,
+        "floodplainHalfWidthM": 160,
+        "blendM": 190
+      },
+      {
+        "riverId": "the-water",
+        "scaleM": 220,
+        "meanHeightM": 1.8,
+        "heightAmplitudeM": 0.8,
+        "meanWidthM": 24,
+        "floodplainHalfWidthM": 48,
+        "blendM": 220
       }
     ]
   }

@@ -10,12 +10,13 @@ import { ShaderLanguage } from '@babylonjs/core/Materials/shaderLanguage.js';
 /** One shared material: instance attributes for batches, a uniform for fading copies. */
 export class TreeTone extends MaterialPluginBase {
  strength=1;
- constructor(material:Material){super(material,'TreeTone',210,{},true,false);this.registerForExtraEvents=true;this._enable(true);}
+ constructor(material:Material,private origin?:(()=>{e:number;n:number})){super(material,'TreeTone',210,{},true,false);this.registerForExtraEvents=true;this._enable(true);}
  override isCompatible(language: ShaderLanguage) { return language === ShaderLanguage.WGSL; }
- override getAttributes(attributes:string[],_scene:Scene,mesh:AbstractMesh){if(mesh.hasThinInstances||mesh.instancedBuffers?.treeTone)attributes.push('treeTone');}
- override getUniforms(){return {ubo:[{name:'treeToneFallback',size:3,type:'vec3'},{name:'treeToneStrength',size:1,type:'float'}]};}
- override hardBindForSubMesh(ubo:UniformBuffer,_scene:Scene,_engine:AbstractEngine,subMesh:SubMesh){const t=subMesh.getRenderingMesh().metadata?.treeTone;ubo.updateFloat3('treeToneFallback',t?.x??0,t?.y??0,t?.z??0);ubo.updateFloat('treeToneStrength',this.strength);}
+ override getAttributes(attributes:string[],_scene:Scene,mesh:AbstractMesh){if(!this.origin&&(mesh.hasThinInstances||mesh.instancedBuffers?.treeTone))attributes.push('treeTone');}
+ override getUniforms(){return {ubo:[{name:'treeToneFallback',size:3,type:'vec3'},{name:'treeToneStrength',size:1,type:'float'},...(this.origin?[{name:'treeToneOrigin',size:2,type:'vec2'}]:[])]};}
+ override hardBindForSubMesh(ubo:UniformBuffer,_scene:Scene,_engine:AbstractEngine,subMesh:SubMesh){const t=subMesh.getRenderingMesh().metadata?.treeTone;ubo.updateFloat3('treeToneFallback',t?.x??0,t?.y??0,t?.z??0);ubo.updateFloat('treeToneStrength',this.strength);if(this.origin){const o=this.origin();ubo.updateFloat2('treeToneOrigin',o.e,-o.n);}}
  override getCustomCode(type: string):Record<string,string>|null{
+  if(type==='vertex'&&this.origin)return {CUSTOM_VERTEX_DEFINITIONS:'varying vTreeTone:vec3f;',CUSTOM_VERTEX_MAIN_END:'let toneRoot=finalWorld[3].xz+uniforms.treeToneOrigin;vertexOutputs.vTreeTone=vec3f(sin(dot(toneRoot,vec2f(0.73,1.19)))*0.15,sin(dot(toneRoot,vec2f(0.47,0.91)))*0.13,sin(dot(toneRoot,vec2f(1.57,0.35)))*0.12);'};
   if(type==='vertex')return {
    CUSTOM_VERTEX_DEFINITIONS:'#ifdef INSTANCES\nattribute treeTone: vec3f;\n#endif\nvarying vTreeTone: vec3f;',
    CUSTOM_VERTEX_MAIN_END:'#ifdef INSTANCES\nvertexOutputs.vTreeTone=vertexInputs.treeTone;\n#else\nvertexOutputs.vTreeTone=uniforms.treeToneFallback;\n#endif',

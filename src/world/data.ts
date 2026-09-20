@@ -1,6 +1,8 @@
 import type { WorldManifest, Grid, EN, TilePayload, Trail, MapData } from './schema.ts';
 import { tileKey, triangleHeight } from './math.ts';
 import { createWorldGeography } from '../domain/world-geography.mjs';
+import {createBrandywineGeography} from '../domain/regions/brandywine.mjs';
+export interface WorldDataOptions {baseUrl?:string;cacheNamespace?:string;geographyKind?:'old-forest'|'brandywine'}
 export class WorldData {
     workers = [new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' }), new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })];
     requests = new Map<number, {
@@ -31,7 +33,7 @@ export class WorldData {
     cache: Cache | undefined;
     cacheBytes = 0;
     cacheEntries = new Map<string, number>();
-    constructor() { for (const worker of this.workers) {
+    constructor(public options:WorldDataOptions = {}) { for (const worker of this.workers) {
         worker.onmessage = ({ data: m }) => { const p = this.requests.get(m.request); if (p) {
             this.requests.delete(m.request);
             m.error ? p.reject(new Error(m.error)) : p.resolve(m.result);
@@ -40,8 +42,8 @@ export class WorldData {
             p.reject(new Error(e.message)); this.requests.clear(); };
     } }
     async call(type: string, data: any, transfer: Transferable[] = [], workerIndex = type === 'patch' || type === 'groves' ? 1 : 0) { const request = ++this.serial; return new Promise<any>((resolve, reject) => { this.requests.set(request, { resolve, reject }); this.workers[workerIndex].postMessage({ type, request, ...data }, transfer); }); }
-    async bytes(file: string, signal?: AbortSignal, bypassCache = false) {
-        const url = new URL(import.meta.env.BASE_URL + 'world/' + file, location.origin).href + (this.manifest ? '?v=' + this.manifest.version : '');
+    async bytes(file: string, signal?: AbortSignal, bypassCache = false, baseUrl=this.options.baseUrl??'world/') {
+        const url = new URL(import.meta.env.BASE_URL + baseUrl + file, location.origin).href + (this.manifest ? '?v=' + this.manifest.version : '');
         if (bypassCache) {
             await this.cache?.delete(url);
             this.cacheBytes -= this.cacheEntries.get(url) ?? 0;
@@ -74,13 +76,14 @@ export class WorldData {
         }
         return b;
     }
-    async json(file: string) { const buffer = await this.bytes(file); return this.call('json', { buffer }, [buffer]); }
+    async json(file: string, baseUrl?:string) { const buffer = await this.bytes(file,undefined,false,baseUrl); return this.call('json', { buffer }, [buffer]); }
     async init() {
         this.manifest = await this.json('manifest.json.pack');
         try {
-            const name = 'old-forest-' + this.manifest.version;
+            const namespace=this.options.cacheNamespace??'old-forest-';
+            const name = namespace + this.manifest.version;
             for (const key of await caches.keys())
-                if (key.startsWith('old-forest-') && key !== name)
+                if (key.startsWith(namespace) && key !== name)
                     await caches.delete(key);
             this.cache = await caches.open(name);
             for (const req of await this.cache.keys()) {
@@ -93,9 +96,9 @@ export class WorldData {
         const [coarse, g, trails] = await Promise.all([this.json(this.manifest.coarse), this.json(this.manifest.geography), this.json(this.manifest.trails)]);
         this.coarse = { ...coarse, values: new Float32Array(coarse.values) };
         this.geography = g;
-        this.geo = createWorldGeography(g);
+        this.geo = this.options.geographyKind==='brandywine'?createBrandywineGeography(g):createWorldGeography(g);
         this.trails = trails;
-        await Promise.all(this.workers.map((_, i) => this.call('init', { geography: g, trails, coarse: this.coarse }, [], i)));
+        await Promise.all(this.workers.map((_, i) => this.call('init', { geography: g, geographyKind:this.options.geographyKind, trails, coarse: this.coarse }, [], i)));
         return this;
     }
     load(id: string, signal?: AbortSignal): Promise<TilePayload> {

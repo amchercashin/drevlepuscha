@@ -5,6 +5,7 @@ import { habitatWeights, speciesMix, pickSpecies } from './ecology.ts';
 import { makePatch } from './patch-data.ts';
 import { placementSeed, hash01 } from '../domain/geography.mjs';
 import { createWorldGeography } from '../domain/world-geography.mjs';
+import {createBrandywineGeography} from '../domain/regions/brandywine.mjs';
 import { triangleHeight, trailIndex } from './math.ts';
 import type { Grid, Trail, TreeRecord } from './schema.ts';
 let coarse: any;
@@ -19,7 +20,7 @@ scope.onmessage = async ({ data: m }) => {
         if (m.type === 'init') {
             g = m.geography;
             coarse = m.coarse;
-            geo = createWorldGeography(g);
+            geo = m.geographyKind==='brandywine'?createBrandywineGeography(g):createWorldGeography(g);
             trailAt = trailIndex(m.trails);
             scope.postMessage({ request: m.request, result: true });
             return;
@@ -37,12 +38,12 @@ scope.onmessage = async ({ data: m }) => {
                 const trail=trailAt(e,n);
                 return trail.distance>Math.max(.7,trail.width/2)+r+.4;
             };
-            const patch=makeFloorPatch(m.e/8,m.n/8,[],height,true,allowed);
+            const patch=makeFloorPatch(m.e/8,m.n/8,[],height,m.lush??true,allowed);
             const result=Object.fromEntries(Object.entries(patch).map(([key,g])=>{
                 const normals:number[]=[];VertexData.ComputeNormals(g.positions,g.indices,normals);
                 for(let i=0;i<normals.length;i+=3){normals[i+1]=Math.max(.65,Math.abs(normals[i+1]));const l=Math.hypot(normals[i],normals[i+1],normals[i+2]);for(let j=0;j<3;j++)normals[i+j]/=l;}
                 for(let i=0;i<g.positions.length;i+=3){g.positions[i]-=m.e;g.positions[i+2]+=m.n;}
-                return [key,{positions:new Float32Array(g.positions),indices:new Uint32Array(g.indices),colors:new Float32Array(g.colors),uvs:new Float32Array(g.uvs),normals:new Float32Array(normals)}];
+                return [key,{positions:new Float32Array(g.positions),indices:new Uint32Array(g.indices),colors:new Float32Array(g.colors),uvs:new Float32Array(g.uvs),normals:new Float32Array(normals),wind:new Float32Array(g.wind)}];
             }));
             scope.postMessage({request:m.request,result},Object.values(result).flatMap(g=>Object.values(g).map(a=>a.buffer)));
             return;
@@ -62,7 +63,7 @@ scope.onmessage = async ({ data: m }) => {
             if (values.length !== columns * columns)
                 throw Error('Invalid tile size ' + m.id);
             const grid: Grid = { origin: [x * 512, y * 512], stepM: step, columns, rows: columns, values }, trees: TreeRecord[] = [];
-            const h = (e: number, n: number) => triangleHeight(grid, e, n);
+            const h = (e: number, n: number) => geo.surfaceHeight&&(e<grid.origin[0]||e>grid.origin[0]+512||n<grid.origin[1]||n>grid.origin[1]+512)?geo.surfaceHeight(e,n):triangleHeight(grid, e, n);
             const habitats = new Map<string, number[]>();
             for (let cy = y * 16; cy < (y + 1) * 16; cy++)
                 for (let cx = x * 16; cx < (x + 1) * 16; cx++)
@@ -71,7 +72,7 @@ scope.onmessage = async ({ data: m }) => {
                         const zone = geo.zoneAt(e, n);
                         if (!zone)
                             continue;
-                        const zi = g.zones.indexOf(zone), s = placementSeed(g.worldSeed, zone.id, cx, cy, i), r = zone.rules;
+                        const zi = g.zones.indexOf(zone), s = placementSeed(g.worldSeed, g.regionSource?g.regionSource.regionId+'-'+zone.id:zone.id, cx, cy, i), r = zone.rules;
                         const density = (r.treeDensityPerM2[0] + r.treeDensityPerM2[1]) * .5;
                         if (hash01(s, 3) > density * 64 || hash01(Math.floor(e / 96), Math.floor(n / 96), 73) < .1)
                             continue;
@@ -79,7 +80,7 @@ scope.onmessage = async ({ data: m }) => {
                         let mix = habitats.get(hk);
                         if (!mix) {
                             const wet = geo.nearbyWater(e, n).some((p: any) => p.distance < p.feature.water.floodplainHalfWidthM + 80);
-                            mix = speciesMix(habitatWeights(Math.floor(e / 64) * 64 + 32, Math.floor(n / 64) * 64 + 32, geo.zoneAt), wet);
+                            mix = (zone.speciesWeights as number[] | undefined) ?? speciesMix(habitatWeights(Math.floor(e / 64) * 64 + 32, Math.floor(n / 64) * 64 + 32, geo.zoneAt), wet);
                             habitats.set(hk, mix);
                         }
                         const family = pickSpecies(mix, hash01(s, 8));

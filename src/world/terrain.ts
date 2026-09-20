@@ -11,6 +11,8 @@ import type { EN } from './schema.ts';
 import { WorldGround } from './ground.ts';
 import { triangleHeight, tileKey, trailIndex } from './math.ts';
 import { hash01 } from '../domain/geography.mjs';
+import type {FrameWorkBudget} from '../runtime/startup.ts';
+import {regionGround} from '../regions/ground.ts';
 const palette = [[.37, .42, .27], [.43, .48, .3], [.28, .37, .31], [.33, .43, .33], [.37, .42, .29], [.39, .40, .28], [.57, .55, .36], [.43, .44, .28], [.43, .39, .29]];
 export class Terrain {
     focus: EN = { e: 0, n: 0 };
@@ -43,8 +45,8 @@ export class Terrain {
                         for (let i = 0; i < cols; i++) {
                             const k = (y + j) * g.columns + x + i, e = g.origin[0] + (x + i) * 128, n = g.origin[1] + (y + j) * 128, zone = g.zones[k], forest = !!g.forestMask[k];
                             positions.push(i * 128, g.values[k] + (layer && forest ? 14 + hash01(x + i, y + j, 127) * 8 : 0), -j * 128);
-                            const c = palette[zone] ?? [.53, .54, .36], shade = .85 + hash01(x + i, y + j, 129) * .2;
-                            colors.push(...c.map(v => v * shade * (layer ? .76 : 1)), 1);
+                            const c = this.data.geography.zones[zone]?.tint ?? palette[zone] ?? [.53, .54, .36], shade = .85 + hash01(x + i, y + j, 129) * .2;
+                            colors.push(...c.map((v:number) => v * shade * (layer ? .76 : 1)), 1);
                             if (i < cols - 1 && j < rows - 1) {
                                 const a = j * cols + i;
                                 if (!layer || [k, k + 1, k + g.columns, k + g.columns + 1].every(v => g.forestMask[v]))
@@ -82,6 +84,7 @@ export class Terrain {
         Object.assign(v, { positions, normals, indices, uvs });
         v.applyToMesh(m);
         const mat = this.material('soil-' + id);
+        if(this.data.options.geographyKind==='brandywine')regionGround(mat,()=>this.origin,this.data.geo);
         mat.diffuseTexture = texture;
         m.material = mat;
         m.position.set(e - this.origin.e, .012, this.origin.n - n);
@@ -107,7 +110,7 @@ export class Terrain {
         e: number;
         n: number;
         h: number;
-    }, heroH: number) {
+    }, heroH: number, budget?:FrameWorkBudget) {
         this.focus = { ...p };
         const cut = { e: Math.floor(p.e / 128) * 128 - 2048, n: Math.floor(p.n / 128) * 128 - 2048 };
         if (cut.e !== this.cutOrigin.e || cut.n !== this.cutOrigin.n) {
@@ -121,12 +124,13 @@ export class Terrain {
             plugin.heroH = heroH;
             plugin.cutOrigin = this.cutOrigin;
         }
-        if (this.jobs.length) {
+        const buildOne=()=>{if (this.jobs.length) {
             const start = performance.now();
             this.jobs.shift()!();
             this.lastBuildMs = performance.now() - start;
             this.maxBuildMs = Math.max(this.maxBuildMs, this.lastBuildMs);
-        }
+        }};
+        if(this.jobs.length){if(budget)budget.run(buildOne);else buildOne();}
         let activated = false;
         for (const m of this.patches.values())
             if (!m.metadata.ready && m.isReady(true)) {

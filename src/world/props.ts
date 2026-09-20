@@ -6,6 +6,7 @@ import type { Terrain } from './terrain.ts';
 import type { EN } from './schema.ts';
 import { tileKey } from './math.ts';
 import { hash01 } from '../domain/geography.mjs';
+import type {FrameWorkBudget} from '../runtime/startup.ts';
 export class Props {
     origin: EN = { e: 0, n: 0 };
     cells = new Map<string, {
@@ -25,8 +26,9 @@ export class Props {
     last = '';
     wanted = new Set<string>();
     loading = false;
+    completed:(()=>void)|undefined;
     constructor(public scene: Scene, public data: WorldData, public library: Library, public terrain: Terrain) { }
-    update(p: EN) {
+    update(p: EN,budget?:FrameWorkBudget) {
         const key = tileKey(p.e, p.n, 32);
         if (key !== this.last) {
             this.last = key;
@@ -54,14 +56,15 @@ export class Props {
                     this.cells.delete(id);
                 }
         }
+        if(this.completed){const upload=()=>{const work=this.completed!;this.completed=undefined;work();};if(budget)budget.run(upload);else upload();}
         const next = this.queue.shift();
-        if (next && !this.loading) {
+        if (next && !this.loading&&!this.completed) {
             this.loading = true;
-            void this.library.load(next.asset).then(f => { if (!this.wanted.has(next.id))
+            void this.library.load(next.asset).then(f => {const build=()=>{ if (!this.wanted.has(next.id))
                 return; const vi = Math.abs(Math.floor(next.e / 32) + Math.floor(next.n / 32)) % f.variants.length, source = f.variants[vi][0], meshes = source.map((s, i) => { const m = new Mesh('forest-prop-' + next.id + '-' + i, this.scene); s.geometry!.applyToMesh(m); m.material = s.material; m.sideOrientation = 1; m.scaling.setAll(next.scale); m.rotation.y = hash01(next.e, next.n, 775) * 6.28; let h = this.data.height(next.e, next.n); for (let i = 0; i < 8; i++) {
                 const a = i * Math.PI / 4;
                 h = Math.min(h, this.data.height(next.e + Math.cos(a) * 2, next.n + Math.sin(a) * 2));
-            } m.position.set(next.e - this.origin.e, h - .1, this.origin.n - next.n); m.receiveShadows = true; m.isPickable = false; m.freezeWorldMatrix(); return m; }); const box = meshes[0].getBoundingInfo().boundingBox; this.cells.set(next.id, { meshes, e: next.e, n: next.n, w: box.maximumWorld.x - box.minimumWorld.x, d: box.maximumWorld.z - box.minimumWorld.z }); }).catch(() => { }).finally(() => { this.loading = false; });
+            } m.position.set(next.e - this.origin.e, h - .1, this.origin.n - next.n); m.receiveShadows = true; m.isPickable = false; m.freezeWorldMatrix(); return m; }); const box = meshes[0].getBoundingInfo().boundingBox; this.cells.set(next.id, { meshes, e: next.e, n: next.n, w: box.maximumWorld.x - box.minimumWorld.x, d: box.maximumWorld.z - box.minimumWorld.z });};if(budget)this.completed=build;else build(); }).catch(() => { }).finally(() => { this.loading = false; });
         }
         else if (next)
             this.queue.unshift(next);

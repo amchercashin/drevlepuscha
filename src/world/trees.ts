@@ -7,6 +7,8 @@ import type { WorldData } from './data.ts';
 import type { Library } from './library.ts';
 import type { EN, TreeRecord } from './schema.ts';
 import { tileKey } from './math.ts';
+import type {FrameWorkBudget} from '../runtime/startup.ts';
+import {expandWindBounds} from '../runtime/vegetation-wind.ts';
 import { fadeOpacity, occludesTraveller } from '../domain/harness.ts';
 import {PLAYER_RADIUS,PLAYER_HEIGHT} from '../domain/harness.ts';
 import {meshCollider,meshBlocksCylinder} from '../domain/mesh-collision.ts';
@@ -129,6 +131,7 @@ export class Trees {
                 m.thinInstanceCount = records.length;
                 m.thinInstanceBufferUpdated('matrix');
                 m.thinInstanceRefreshBoundingInfo();
+                if(this.library.wind)expandWindBounds(m,.8);
             }
         }
     }
@@ -136,8 +139,9 @@ export class Trees {
         const f = this.library.tree(t.family), level = NEAR_BAND_LOD, source = f.variants[t.variant % f.variants.length][level] ?? f.variants[0][0];
         const meshes = source.map((s, i) => { const m = new Mesh(t.id + '-' + i, this.scene); s.geometry!.applyToMesh(m); m.material = s.material; m.sideOrientation = 1; m.isPickable = false; m.receiveShadows = true; m.position.set(t.e - this.origin.e, t.h - (t.family === 0 ? .8 : .25) * t.scale, this.origin.n - t.n); m.scaling.set(t.width, t.scale, t.width); m.rotation.y = t.yaw; m.freezeWorldMatrix(treeMatrix(t,this.origin)); return m; });
         this.near.set(t.id, { t, meshes, level, opacity: 1 });
+        if(this.library.wind)for(const m of meshes)expandWindBounds(m,.8);
     }
-    update(p: EN, eye: Vector3, h: number, dt: number) {
+    update(p: EN, eye: Vector3, h: number, dt: number, budget?:FrameWorkBudget) {
         const key = tileKey(p.e, p.n, 16) + '/' + this.data.tiles.size + '/' + this.library.families.size;
         if (key !== this.lastCell) {
             this.lastCell = key;
@@ -149,6 +153,7 @@ export class Trees {
         let made = false;
         const start = performance.now();
         while (this.nearQueue.length && performance.now() - start < .6) {
+            if(budget){budget.run(()=>{this.create(this.nearQueue.shift()!,p);made=true;});break;}
             this.create(this.nearQueue.shift()!, p);
             made = true;
         }
@@ -156,6 +161,7 @@ export class Trees {
             this.rebuildBatches(p);
         const batchStart = performance.now();
         while (this.batchQueue.size && performance.now() - batchStart < .6) {
+            if(budget){budget.run(()=>{const [id,records]=this.batchQueue.entries().next().value!;this.batchQueue.delete(id);this.updateBatch(id,records);});break;}
             const [id, records] = this.batchQueue.entries().next().value!;
             this.batchQueue.delete(id);
             this.updateBatch(id, records);

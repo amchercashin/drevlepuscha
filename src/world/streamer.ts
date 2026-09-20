@@ -1,3 +1,4 @@
+import {requestLandscapeAround} from './request-around.ts';
 import { resourceEstimate } from './resources.ts';
 import { Hedge } from './hedge.ts';
 import { Props } from './props.ts';
@@ -32,24 +33,8 @@ export class WorldStreamer {
     rebases = 0;
     constructor(public scene: Scene, public data: WorldData, public library: Library) { this.terrain = new Terrain(scene, data); this.terrain.createFar(); this.trees = new Trees(scene, data, library); this.horizon = new Horizon(scene, data); this.dressing = new Dressing(scene, data, library); this.floor = new Floor(scene, data, this.terrain, (e, n) => this.blocked(e, n)); this.water = createWater(scene, data); this.props = new Props(scene, data, library, this.terrain); this.hedge = new Hedge(scene, data); }
     static async create(scene: Scene, sun: DirectionalLight) { const data = await new WorldData().init(), library = await new Library(scene, data, sun).init(); return new WorldStreamer(scene, data, library); }
-    requestAround(p: EN) {
-        const list: EN[] = [];
-        for (let y = -3; y <= 3; y++)
-            for (let x = -3; x <= 3; x++)
-                list.push({ e: Math.floor(p.e / 128) * 128 + x * 128, n: Math.floor(p.n / 128) * 128 + y * 128 });
-        list.sort((a, b) => Math.hypot(a.e + 64 - p.e, a.n + 64 - p.n) - Math.hypot(b.e + 64 - p.e, b.n + 64 - p.n));
-        for (const point of list)
-            if (this.data.manifest.tiles[tileKey(point.e, point.n)])
-                this.terrain.request(point.e, point.n);
-        const tiles: EN[] = [];
-        for (let y = -1; y <= 1; y++)
-            for (let x = -1; x <= 1; x++)
-                tiles.push({ e: Math.floor(p.e / 512) * 512 + x * 512, n: Math.floor(p.n / 512) * 512 + y * 512 });
-        tiles.sort((a, b) => Math.hypot(a.e + 256 - p.e, a.n + 256 - p.n) - Math.hypot(b.e + 256 - p.e, b.n + 256 - p.n));
-        for (const t of tiles)
-            if (this.data.manifest.tiles[tileKey(t.e, t.n)])
-                void this.data.load(tileKey(t.e, t.n)).catch(() => { });
-    }
+    requestAround(p:EN) { requestLandscapeAround(this.data,this.terrain,p); }
+
     update(p: EN, eye: {
         e: number;
         n: number;

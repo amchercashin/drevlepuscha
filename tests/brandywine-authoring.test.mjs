@@ -84,9 +84,26 @@ test('landing refinements lower dry approaches and give gentle bank profiles', (
 });
 test('candidate creates a lower saddle between the lookout and ridge',()=>{
   const h=previewHeight(source,1230,825);
-  assert.ok(h<previewHeight(source,1230,825,false)-5);
+  const withoutSaddle=structuredClone(source);
+  withoutSaddle.terrainRefinement.forms=withoutSaddle.terrainRefinement.forms.filter(f=>f.id!=='east-saddle');
+  assert.ok(h<previewHeight(withoutSaddle,1230,825)-5);
   assert.ok(h<previewHeight(source,950,450));
   assert.ok(h<previewHeight(source,1450,1250));
+});
+test('bank crests rise and fall along both rivers and tributary sits between hills',()=>{
+  for(const river of source.rivers){
+    const heights=[];
+    for(const {point} of sampleLine(river.stations.map(p=>p.slice(0,2)),24)){
+      const q=nearestStation(...point,river.stations);
+      heights.push(bankProfile(source,river,q,point[0]+50,point[1]).heightM);
+    }
+    assert.ok(Math.max(...heights)-Math.min(...heights)>.8,river.id);
+    assert.ok(heights.some((h,i)=>i&&h>heights[i-1]+.01));
+    assert.ok(heights.some((h,i)=>i&&h<heights[i-1]-.01));
+  }
+  const bed=previewHeight(source,-1000,1450);
+  assert.ok(previewHeight(source,-1000,1930)>bed+8);
+  assert.ok(previewHeight(source,-900,1150)>bed+6);
 });
 test('terrain review exposes ungraded bridge steps rather than calling them walkable',()=>{
   const review=terrainReview(source);

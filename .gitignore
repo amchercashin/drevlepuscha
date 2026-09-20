@@ -23,6 +23,7 @@ tools/wildlife/blender/__pycache__/
 
 # Reproducible streaming pack from versioned authoring data.
 public/world/
+public/regions/brandywine-bridge/world/
 
 # Worktree links are files, so also match without a trailing slash.
 node_modules

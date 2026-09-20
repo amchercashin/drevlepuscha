@@ -10,6 +10,9 @@ import { LeafTransmission } from '../runtime/leaf-transmission.ts';
 import type { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
 import {collisionGeometry} from '../domain/mesh-collision.ts';
 import type {CollisionGeometry} from '../domain/mesh-collision.ts';
+import type {WindSystem} from '../runtime/wind.ts';
+import {VegetationWind} from '../runtime/vegetation-wind.ts';
+import {TreeTone} from '../runtime/tree-tone.ts';
 export interface Family {
     id: string;
     variants: Mesh[][][];
@@ -26,7 +29,7 @@ export class Library {
     }> = {};
     families = new Map<string, Family>();
     pending = new Map<string, Promise<Family>>();
-    constructor(public scene: Scene, public data: WorldData, public sun: DirectionalLight) { }
+    constructor(public scene: Scene, public data: WorldData, public sun: DirectionalLight, public wind?:WindSystem,public origin=()=>({e:0,n:0})) { }
     async init() { const r = await fetch(import.meta.env.BASE_URL + 'world/library.json', {cache:'no-cache'}); if (!r.ok)
         throw Error('Библиотека недоступна'); this.index = await r.json(); await Promise.all(['oak', 'fork', 'young'].map(id => this.load(id))); return this; }
     load(id: string): Promise<Family> {
@@ -40,7 +43,7 @@ export class Library {
         if (!spec)
             return this.load(id === 'conifer' ? 'young' : 'fork');
         const task = (async () => {
-            const dataRequest = this.data.json(spec.data);
+            const dataRequest = this.data.json(spec.data,'world/');
             let texture!: Texture;
             const textureReady = new Promise<void>((resolve, reject) => { texture = new Texture(import.meta.env.BASE_URL + 'world/' + spec.texture, this.scene, false, false, Texture.TRILINEAR_SAMPLINGMODE, resolve, () => reject(Error('Texture ' + id))); });
             // Start geometry and texture together; family readiness still gates collisions.
@@ -56,6 +59,7 @@ export class Library {
             baked.specularColor = Color3.Black();
             baked.backFaceCulling = m.backFaceCulling;
             new LodDither(baked);
+            if(this.wind&&['oak','fork','young','conifer','willow'].includes(id)){new VegetationWind(m,this.wind,'tree',this.origin);new VegetationWind(baked,this.wind,'tree',this.origin);new TreeTone(m,this.origin);new TreeTone(baked,this.origin);}
             const entries = data.variants ?? [data];
             const variants = entries.map((variant: any, vi: number) => variant.levels.map((parts: any[], li: number) => parts.map((part: any, pi: number) => { const mesh = new Mesh(`${id}-${vi}-${li}-${pi}`, this.scene), v = new VertexData(); Object.assign(v, part); v.applyToMesh(mesh); mesh.sideOrientation = 1; mesh.material = li >= (variant.bakedColorFromLevel ?? Infinity) ? baked : m; mesh.setEnabled(false); mesh.isPickable = false; mesh.receiveShadows = true; return mesh; })));
             await textureReady;

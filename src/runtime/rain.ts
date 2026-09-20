@@ -12,7 +12,7 @@ import {rainVertex,rainFragment} from './rain.wgsl.ts';
 
 ShaderStore.ShadersStoreWGSL.showcaseRainVertexShader=rainVertex;
 ShaderStore.ShadersStoreWGSL.showcaseRainPixelShader=rainFragment;
-type RainSurface={groundHeightAt:(x:number,z:number)=>number;shelterHeightAt?:(x:number,z:number)=>number|null};
+type RainSurface={groundHeightAt:(x:number,z:number)=>number;shelterHeightAt?:(x:number,z:number)=>number|null;origin?:()=>{x:number;z:number}};
 export function createRain(scene:Scene,surface:RainSurface){
  const mesh=new Mesh('showcase-rain',scene),data=new VertexData();
  data.positions=[-.5,-.5,0,.5,-.5,0,.5,.5,0,-.5,.5,0];data.indices=[0,1,2,0,2,3];data.applyToMesh(mesh);
@@ -26,8 +26,8 @@ export function createRain(scene:Scene,surface:RainSurface){
   const matrices=new Float32Array(instances*16),columns=new Float32Array(instances*4),motions=new Float32Array(instances*4);
   let i=0;
   for(const [tx,tz] of tiles)for(const index of indices){
-   const d=rainDrop(tx,tz,index),ground=surface.groundHeightAt(d.x,d.z),shelter=surface.shelterHeightAt?.(d.x,d.z);
-   columns.set([d.x,d.z,ground,Math.max(ground+.02,shelter??ground)],i*4);motions.set([d.phase,d.harmonic,d.length,d.threshold],i*4);
+   const d=rainDrop(tx,tz,index),o=surface.origin?.()??{x:0,z:0},x=d.x-o.x,z=d.z-o.z,ground=surface.groundHeightAt(x,z),shelter=surface.shelterHeightAt?.(x,z);
+   columns.set([x,z,ground,Math.max(ground+.02,shelter??ground)],i*4);motions.set([d.phase,d.harmonic,d.length,d.threshold],i*4);
    matrices[i*16]=matrices[i*16+5]=matrices[i*16+10]=matrices[i*16+15]=1;
    i++;
   }
@@ -38,8 +38,9 @@ export function createRain(scene:Scene,surface:RainSurface){
   seconds=(seconds+(Number.isFinite(dt)&&dt>0?Math.min(dt,.05):0))%RAIN_PERIOD;
   precipitation=Number.isFinite(amount)?Math.max(0,Math.min(1,amount)):0;
   mesh.setEnabled(precipitation>0.0001);if(!mesh.isEnabled())return;
-  const tile=`${Math.floor(cameraPosition.x/RAIN_TILE_SIZE)},${Math.floor(cameraPosition.z/RAIN_TILE_SIZE)},${quality}`;
-  if(tile!==lastTile){rebuild(cameraPosition.x,cameraPosition.z);lastTile=tile;}
+  const o=surface.origin?.()??{x:0,z:0},absoluteX=cameraPosition.x+o.x,absoluteZ=cameraPosition.z+o.z;
+  const tile=`${Math.floor(absoluteX/RAIN_TILE_SIZE)},${Math.floor(absoluteZ/RAIN_TILE_SIZE)},${quality},${o.x},${o.z}`;
+  if(tile!==lastTile){rebuild(absoluteX,absoluteZ);lastTile=tile;}
   const camera=scene.activeCamera!;camera.getViewMatrix().invertToRef(inverseView);
   // Camera's world right remains finite when looking straight up; only billboards rotate.
   Vector3.TransformNormalToRef(Vector3.RightReadOnly,inverseView,right);right.normalize();
