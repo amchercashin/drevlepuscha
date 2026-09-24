@@ -24,7 +24,6 @@ import forkTexture from '../../assets/optimized/showcase/fork.webp';
 import youngUrl from '../../assets/trees/young-tree/variants.json?url';
 import youngTexture from '../../assets/optimized/showcase/young.webp';
 import rangerUrl from '../../assets/characters/ranger/runtime.glb?url';
-import foliageUrl from '../../assets/optimized/showcase/foliage.webp';
 import soilUrl from '../../assets/optimized/showcase/soil.webp';
 import patchesUrl from '../../assets/floor/trial/patches.png';
 import heightsUrl from '../../assets/floor/trial/heights.png';
@@ -45,7 +44,7 @@ import {crownLeafGeometry,detailTerrainGeometry,rangerGeometry,terrainGeometry,t
 import type {MeshData} from './geometry.ts';
 import {POST_WGSL,RAIN_WGSL,SCENE_WGSL} from './shaders.ts';
 import {packRegionVisuals,REGION_VISUAL_FLOATS} from './region-visuals.ts';
-import type {NativeRegionVisuals} from './region-visuals.ts';
+import type {NativeRegionVisuals,SurfaceFinish} from './region-visuals.ts';
 
 interface GpuMesh {vertex:GPUBuffer;index:GPUBuffer;count:number}
 interface GpuMaterial {group:GPUBindGroup;uniform:GPUBuffer}
@@ -129,9 +128,9 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const contactTexture=device.createTexture({size:[512,640],format:'r8unorm',usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
 
  let groundMaps:GPUTexture[]=[],moonTexture:GPUTexture;
- function makeMaterial(texture:GPUTexture,kind:number,tint:[number,number,number]=[1,1,1]):GpuMaterial {
+ function makeMaterial(texture:GPUTexture,kind:number,finish:SurfaceFinish,tint:[number,number,number]=[1,1,1],lod=-1):GpuMaterial {
   const uniform=device.createBuffer({size:32,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
-  device.queue.writeBuffer(uniform,0,new Float32Array([kind,1,0,0,...tint,1]));
+  device.queue.writeBuffer(uniform,0,new Float32Array([kind,1,finish.roughness,finish.translucency,...tint,lod]));
   const group=device.createBindGroup({layout:materialLayout,entries:[
    {binding:0,resource:texture.createView()},{binding:1,resource:textureSampler},{binding:2,resource:{buffer:uniform}},
    ...groundMaps.map((map,index)=>({binding:index+3,resource:map.createView()})),
@@ -158,7 +157,8 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const cloudPixels=createCloudPixels();
  const cloudTexture=device.createTexture({size:[SKY_TEXTURE_SIZE,SKY_TEXTURE_SIZE],format:'rgba8unorm',usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
  device.queue.writeTexture({texture:cloudTexture},cloudPixels,{bytesPerRow:SKY_TEXTURE_SIZE*4},[SKY_TEXTURE_SIZE,SKY_TEXTURE_SIZE]);
- const skyMaterial=makeMaterial(cloudTexture,0),groundMaterial=makeMaterial(await urlTexture(soilUrl),0),grassMaterial=makeMaterial(white,3,[.31,.48,.32]),crownMaterial=makeMaterial(white,5,[.22,.38,.24]);
+ const finish=visuals.finishes,foliageTexture=await urlTexture(visuals.foliageAtlasUrl);
+ const skyMaterial=makeMaterial(cloudTexture,0,finish.terrain),groundMaterial=makeMaterial(await urlTexture(soilUrl),0,finish.terrain),grassMaterial=makeMaterial(white,3,finish.foliage,[.31,.48,.32]),crownMaterial=makeMaterial(foliageTexture,5,finish.foliage,[...visuals.crownLeaves.tint],0);
 
  const shader=device.createShaderModule({code:SCENE_WGSL,label:'native-showcase-scene'}),postShader=device.createShaderModule({code:POST_WGSL,label:'native-showcase-tonemap'}),rainShader=device.createShaderModule({code:RAIN_WGSL,label:'native-showcase-rain'});
  const issues=[...(await shader.getCompilationInfo()).messages,...(await rainShader.getCompilationInfo()).messages].filter(m=>m.type==='error');
@@ -225,8 +225,8 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const textureForFamily=assetFamilies.map((_,i)=>i===0?oakTex:i<=3?forkTex:youngTex);
  const families:Family[]=assetFamilies.map((data,i)=>({
   data,levels:data.levels.map(level=>makeMesh(device,treeGeometry(level[0]))),
-  leaves:makeMesh(device,crownLeafGeometry(data.levels[0][0],0x9e3779b9^(i*0x85ebca6b))),
-  materials:data.levels.map((_,level)=>makeMaterial(level>=(data.bakedColorFromLevel??Infinity)?white:textureForFamily[i],1)),
+  leaves:makeMesh(device,crownLeafGeometry(data.levels[0][0],0x9e3779b9^(i*0x85ebca6b),visuals.crownLeaves,visuals.crownLeaves.atlasQuadrants[i%visuals.crownLeaves.atlasQuadrants.length])),
+  materials:data.levels.map((_,level)=>makeMaterial(level>=(data.bakedColorFromLevel??Infinity)?white:textureForFamily[i],1,finish.trunk,[1,1,1],level)),
   collision:collisionGeometry(data.levels[0]),
  }));
  const rangerMesh=makeMesh(device,ranger.mesh),rangerTex=await imageTexture(ranger.image),rangerInstance=device.createBuffer({size:80,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST});
@@ -234,7 +234,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const skinGroup=device.createBindGroup({layout:skinLayout,entries:[{binding:0,resource:{buffer:skinBuffer}}]});
  const localAvatar:AvatarGpu={instance:rangerInstance,skinBuffer,skinGroup};
  const remoteAvatars=new Map<string,AvatarGpu>(),cloakMaterials=new Map<string,GpuMaterial>();
- function materialForCloak(color:string){let material=cloakMaterials.get(color);if(!material){material=makeMaterial(rangerTex,2,cloakTone(color));cloakMaterials.set(color,material);}return material;}
+ function materialForCloak(color:string){let material=cloakMaterials.get(color);if(!material){material=makeMaterial(rangerTex,2,finish.cloth,cloakTone(color));cloakMaterials.set(color,material);}return material;}
  function createAvatar():AvatarGpu{
   const instance=device.createBuffer({size:80,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST});
   const skinBuffer=device.createBuffer({size:ranger.jointCount*64,usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST});
@@ -268,14 +268,14 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  device.queue.writeTexture({texture:contactTexture},contactPixels,{bytesPerRow:512},[512,640]);
  const props:Prop[]=[];
  const propDefinitions=[
-  {url:rockUrl,texture:rockTextureUrl,places:[[-2.7,5,.75,.3],[3.4,12,1.2,1.5],[-3.2,18,.85,2.4],[4.3,24,1.1,.8],[-4,35,.9,2.9],[3.7,43,.7,1.2],[-3.3,51,1.15,2]]},
-  {url:slabUrl,texture:slabTextureUrl,places:[[-3.3,10,.9,.2],[4.2,20,1.1,1.8],[-5.2,40,.85,2.3],[4.5,55,1.1,.6]]},
-  {url:stumpUrl,texture:stumpTextureUrl,places:[[-4,14,.9,.3],[4.8,31,1.05,2.1],[-4.8,50,.85,1.4]]},
-  {url:logUrl,texture:logTextureUrl,places:[[-4.7,9,1,.3],[4.8,30,1.15,-.4],[-5.5,49,.9,.7],[7,57,1.2,.2]]},
+  {url:rockUrl,texture:rockTextureUrl,finish:finish.stone,places:[[-2.7,5,.75,.3],[3.4,12,1.2,1.5],[-3.2,18,.85,2.4],[4.3,24,1.1,.8],[-4,35,.9,2.9],[3.7,43,.7,1.2],[-3.3,51,1.15,2]]},
+  {url:slabUrl,texture:slabTextureUrl,finish:finish.stone,places:[[-3.3,10,.9,.2],[4.2,20,1.1,1.8],[-5.2,40,.85,2.3],[4.5,55,1.1,.6]]},
+  {url:stumpUrl,texture:stumpTextureUrl,finish:finish.timber,places:[[-4,14,.9,.3],[4.8,31,1.05,2.1],[-4.8,50,.85,1.4]]},
+  {url:logUrl,texture:logTextureUrl,finish:finish.timber,places:[[-4.7,9,1,.3],[4.8,30,1.15,-.4],[-5.5,49,.9,.7],[7,57,1.2,.2]]},
  ];
  const propSources=await Promise.all(propDefinitions.map(async definition=>({
   data:await json<{variants:{levels:TreeAssetData['levels']}[]}>(definition.url),
-  material:makeMaterial(await urlTexture(definition.texture),4),definition,
+  material:makeMaterial(await urlTexture(definition.texture),4,definition.finish),definition,
  })));
  for(const {data,material,definition} of propSources){
   const meshes=data.variants.map(variant=>makeMesh(device,treeGeometry(variant.levels[0][0])));
@@ -303,7 +303,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  }));
 
  progress?.('Готовим папоротники и лесной покров…');
- const foliageMaterial=makeMaterial(await urlTexture(foliageUrl),3);
+ const foliageMaterial=makeMaterial(foliageTexture,3,finish.foliage);
  const foliageWorker=new Worker(new URL('./foliage.worker.ts',import.meta.url),{type:'module'});
  foliageWorker.postMessage({type:'init',boxes:collisionBoxes.map(box=>({id:box.id,min:box.min,max:box.max}))});
  let foliage:FoliageMeshes|undefined,foliageCenter={e:0,n:0},foliagePending=false,foliageId=0;
@@ -342,7 +342,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  resize(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight));
  let visibleTrees=0,drawCalls=0,triangles=0,shadowTriangles=0;
  let rainCount=0,rainCell='',lightTransmission=1;
- const shadowsAt=58,drawDistance=190;
+ const shadowsAt=58,drawDistance=visuals.treeLod.drawDistance;
  function updateRain(frame:NativeFrame){
   if(frame.weather.precipitation<=.0001){rainCount=0;return;}
   const cell=`${Math.floor(frame.eye[0]/RAIN_TILE_SIZE)}:${Math.floor(frame.eye[2]/RAIN_TILE_SIZE)}:${frame.skyQuality}`;
@@ -358,11 +358,12 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  function updateTrees(eye:Vec3,feet:Point3,forward:Vec3,dt:number,quality:SkyQuality){
   visibleTrees=0;
  for(const row of buckets)for(const bucket of row){bucket.near.length=0;bucket.far.length=0;bucket.fadedNear.length=0;bucket.fadedFar.length=0;bucket.count=0;bucket.shadowCount=0;bucket.fadedCount=0;bucket.fadedShadowCount=0;}
-  const detailedDistance=quality===2?115:quality===1?85:65;
+  const lodRange=quality===2?visuals.treeLod.high:quality===1?visuals.treeLod.balanced:visuals.treeLod.performance;
   for(const tree of trees){
    const p=tree.placement,dx=p.e-eye[0],dz=-p.n-eye[2],distance=Math.hypot(dx,dz);
    if(distance>drawDistance||distance>22&&dx*forward[0]+dz*forward[2]<-distance*.25)continue;
-   const lod=distance<23?0:distance<detailedDistance?1:2;
+   const halfBlend=lodRange.blend*.5;
+   const lods=distance<lodRange.near-halfBlend?[0]:distance<lodRange.near+halfBlend?[0,1]:distance<lodRange.far-halfBlend?[1]:distance<lodRange.far+halfBlend?[1,2]:[2];
    const close=distance<shadowsAt;
    if(distance<15){
     const blocked=occludesTraveller({x:eye[0],y:eye[1],z:eye[2]},feet,tree.visualBox,tree.opacity<.99,
@@ -370,8 +371,11 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
     tree.opacity=fadeOpacity(tree.opacity,blocked?.14:1,dt,blocked?.12:.23);
    }else if(tree.opacity<1)tree.opacity=fadeOpacity(tree.opacity,1,dt,.23);
    tree.packed[19]=tree.opacity;
-   const bucket=buckets[tree.family][lod];
-   (tree.opacity<.999?(close?bucket.fadedNear:bucket.fadedFar):(close?bucket.near:bucket.far)).push(tree);visibleTrees++;
+   for(const lod of lods){
+    const bucket=buckets[tree.family][lod];
+    (tree.opacity<.999?(close?bucket.fadedNear:bucket.fadedFar):(close?bucket.near:bucket.far)).push(tree);
+   }
+   visibleTrees++;
   }
   for(const row of buckets)for(const bucket of row){
    let k=0;for(const tree of bucket.near){bucket.data.set(tree.packed,k);k+=20;}
@@ -428,6 +432,8 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   frameData.set([frame.sky.moon.halo,frame.sky.moon.limbShade,frame.daylight.moonPhase,frame.daylight.moonIllumination],120);
   vec(124,basisMoon.right);vec(128,basisMoon.up);
   frameData.set([frame.weather.precipitation,Number(frame.rays)*frame.weather.raysScale,frame.weather.ambientScale,lightTransmission],132);
+  const lod=frame.skyQuality===2?visuals.treeLod.high:frame.skyQuality===1?visuals.treeLod.balanced:visuals.treeLod.performance;
+  frameData.set([lod.near,lod.far,lod.blend,drawDistance],156);
   device.queue.writeBuffer(frameBuffer,0,frameData);
   return basis;
  }

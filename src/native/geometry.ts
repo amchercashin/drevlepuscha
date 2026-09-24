@@ -63,7 +63,8 @@ export function treeGeometry(part:TreePart):MeshData {
 }
 
 /** Small leaf silhouettes follow the authored crown surface and share its tree instances. */
-export function crownLeafGeometry(part:TreePart,seed:number,count=180):MeshData {
+export function crownLeafGeometry(part:TreePart,seed:number,style:{count:number;scale:number;lift:number},quadrant:number):MeshData {
+ const {count,scale,lift}=style;
  const p=part.positions,triangles=part.indices,maxY=p.reduce((h,v,i)=>i%3===1?Math.max(h,v):h,-Infinity);
  const candidates:{a:number;b:number;c:number;sum:number;normal:[number,number,number]}[]=[];
  let areaSum=0;
@@ -84,19 +85,20 @@ export function crownLeafGeometry(part:TreePart,seed:number,count=180):MeshData 
   while(lo<hi){const mid=(lo+hi)>>>1;if(candidates[mid].sum<pick)lo=mid+1;else hi=mid;}
   const {a,b,c,normal:n}=candidates[lo];
   const root=Math.sqrt(random()),u=1-root,v=root*(1-random()),w=1-u-v;
-  const center:[number,number,number]=[0,1,2].map(k=>p[a+k]*u+p[b+k]*v+p[c+k]*w+n[k]*.025) as [number,number,number];
+  const height=.025+random()*lift;
+  const center:[number,number,number]=[0,1,2].map(k=>p[a+k]*u+p[b+k]*v+p[c+k]*w+n[k]*height) as [number,number,number];
   const reference=Math.abs(n[1])>.9?[1,0,0]:[0,1,0];
   const first=[reference[1]*n[2]-reference[2]*n[1],reference[2]*n[0]-reference[0]*n[2],reference[0]*n[1]-reference[1]*n[0]];
   const firstLength=Math.hypot(...first);for(let k=0;k<3;k++)first[k]/=firstLength;
   const second=[n[1]*first[2]-n[2]*first[1],n[2]*first[0]-n[0]*first[2],n[0]*first[1]-n[1]*first[0]];
   const angle=random()*Math.PI*2,cos=Math.cos(angle),sin=Math.sin(angle);
   const across=first.map((value,k)=>value*cos+second[k]*sin),along=first.map((value,k)=>-value*sin+second[k]*cos);
-  const length=.28+random()*.22,width=length*(.38+random()*.12),tint=.72+random()*.46;
-  const corners:[number,number,number][]=[[-.5,0,0],[0,-.5,0],[.5,0,0],[0,.5,0]];
-  const uvs:[[number,number],[number,number],[number,number],[number,number]]=[[.5,0],[0,.5],[.5,1],[1,.5]];
+  const length=(.38+random()*.28)*scale,width=length*(.68+random()*.18),tint=.78+random()*.34;
+  const corners:[number,number][]=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
+  const atlasX=(quadrant%2)*.5+.012,atlasY=Math.floor(quadrant/2)*.5+.012;
   for(let j=0;j<4;j++){
-   const x=corners[j][0]*length,y=corners[j][1]*width,position=center.map((value,k)=>value+along[k]*x+across[k]*y);
-   vertices.set([...position,...n,...uvs[j],tint*(.81+j*.025),tint,tint*(.72+j*.018),1],(i*4+j)*12);
+   const [x,y]=corners[j],position=center.map((value,k)=>value+along[k]*y*length+across[k]*x*width);
+   vertices.set([...position,...n,atlasX+(x+.5)*.476,atlasY+(y+.5)*.476,tint,tint,tint,1],(i*4+j)*12);
   }
   indices.set([i*4,i*4+1,i*4+2,i*4,i*4+2,i*4+3],i*6);
  }

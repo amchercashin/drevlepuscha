@@ -32,12 +32,13 @@ struct Frame {
  weather:vec4f,
  rayBases:array<vec4f,4>,
  regionStyle:vec4f,      // shaft gain, active shaft count, fog distance scale
+ treeLod:vec4f,          // full-to-middle, middle-to-far, dither band, draw distance
 };
 @group(0) @binding(0) var<uniform> frame:Frame;
 `;
 
 export const SCENE_WGSL = /* wgsl */ `${TRAIL_EDGE_WGSL}${FRAME_WGSL}
-struct Material { kindOpacity:vec4f, tint:vec4f };
+struct Material { kindOpacity:vec4f, tint:vec4f }; // kind, opacity, roughness, translucency
 @group(0) @binding(1) var shadowMap:texture_depth_2d;
 @group(0) @binding(2) var shadowSampler:sampler_comparison;
 @group(1) @binding(0) var albedo:texture_2d<f32>;
@@ -97,6 +98,7 @@ struct VertexOut {
  @location(1) normal:vec3f,
  @location(2) uv:vec2f,
  @location(3) tone:vec4f,
+ @location(4) origin:vec3f,
 };
 struct SkinnedIn {
  @location(0) position:vec3f,
@@ -138,6 +140,7 @@ fn worldVertex(input:VertexIn)->VertexOut {
  out.normal=normalize((model*vec4f(input.normal,0.0)).xyz);
  out.uv=input.uv;
  out.tone=input.tone*input.color;
+ out.origin=input.m3.xyz;
  out.clip=frame.viewProj*world;
  return out;
 }
@@ -190,11 +193,24 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
  }}
  return 0.17+0.83*sum/9.0;
 }
+fn dielectricSpecular(normal:vec3f,view:vec3f,light:vec3f,roughness:f32)->f32 {
+ let nl=max(dot(normal,light),0.0);let nv=max(dot(normal,view),0.0);
+ if(nl<=0.0||nv<=0.0){return 0.0;}
+ let halfVector=normalize(view+light);
+ let nh=max(dot(normal,halfVector),0.0);let vh=max(dot(view,halfVector),0.0);
+ let alpha=roughness*roughness;let alpha2=alpha*alpha;
+ let denominator=nh*nh*(alpha2-1.0)+1.0;
+ let distribution=alpha2/(3.14159265*denominator*denominator);
+ let k=(roughness+1.0)*(roughness+1.0)*0.125;
+ let geometry=(nl/(nl*(1.0-k)+k))*(nv/(nv*(1.0-k)+k));
+ let fresnel=0.04+0.96*pow(1.0-vh,5.0);
+ return distribution*geometry*fresnel/(4.0*max(nv,0.001));
+}
 fn shadeScene(input:VertexOut,coverage:bool)->vec4f {
  let kind=material.kindOpacity.x;
  let texel=textureSample(albedo,albedoSampler,input.uv);
  let opacity=material.kindOpacity.y*input.tone.w;
- if(kind>2.5&&kind<3.5&&texel.a<0.46&&!coverage){discard;}
+ if(((kind>2.5&&kind<3.5)||(kind>4.5&&kind<5.5))&&texel.a<0.46&&!coverage){discard;}
  var base:vec3f;
  var n=normalize(input.normal);
  if(kind<0.5){
@@ -271,9 +287,13 @@ fn shadeScene(input:VertexOut,coverage:bool)->vec4f {
  var lit=ambient+frame.sunColor.rgb*(ndotl+wrap)*shade;
  if(kind>1.5&&kind<2.5){lit+=vec3f(0.19,0.21,0.18);}
  if(kind>2.5&&kind<3.5){lit+=vec3f(.12,.17,.08);}
+ let view=normalize(frame.camera.xyz-input.world);
+ let specular=dielectricSpecular(n,view,frame.lightDir.xyz,material.kindOpacity.z);
+ let backlit=max(dot(-n,frame.lightDir.xyz),0.0)*pow(max(dot(-view,frame.lightDir.xyz),0.0),2.0);
+ let transmission=base*material.kindOpacity.w*backlit*.65;
  let dist=distance(input.world,frame.camera.xyz);
  let fog=1.0-exp(-pow(dist*frame.params.w*frame.regionStyle.z,2.0));
- var color=mix(base*lit,frame.fogColor.rgb,fog);
+ var color=mix(base*lit+frame.sunColor.rgb*shade*(specular+transmission),frame.fogColor.rgb,fog);
  if(frame.weather.y>0.001){
   let viewRay=normalize(input.world-frame.camera.xyz);
   let alignment=pow(max(dot(viewRay,normalize(frame.sunDir.xyz)),0.0),12.0);
@@ -284,8 +304,20 @@ fn shadeScene(input:VertexOut,coverage:bool)->vec4f {
  return vec4f(color,select(opacity,smoothstep(.24,.50,texel.a),coverage&&kind>2.5&&kind<3.5));
 }
 @fragment fn fs(input:VertexOut)->@location(0) vec4f {
+ let lod=material.tint.w;
+ if(lod>=0.0){
+  let dist=length(input.origin.xz-frame.camera.xz);
+  let halfBand=frame.treeLod.z*.5;
+  let h=hash(floor(input.clip.xy));
+  if(lod<.5){
+   if(dist>frame.treeLod.x-halfBand&&h<smoothstep(frame.treeLod.x-halfBand,frame.treeLod.x+halfBand,dist)){discard;}
+  }else if(lod<1.5){
+   if(dist<frame.treeLod.x+halfBand&&h>=smoothstep(frame.treeLod.x-halfBand,frame.treeLod.x+halfBand,dist)){discard;}
+   if(dist>frame.treeLod.y-halfBand&&h<smoothstep(frame.treeLod.y-halfBand,frame.treeLod.y+halfBand,dist)){discard;}
+  }else if(dist<frame.treeLod.y+halfBand&&h>=smoothstep(frame.treeLod.y-halfBand,frame.treeLod.y+halfBand,dist)){discard;}
+ }
  let shaded=shadeScene(input,false);
- if(shaded.a<0.999&&hash(floor(input.clip.xy))>shaded.a){discard;}
+ if(shaded.a<0.999&&hash(floor(input.clip.xy)+vec2f(37.0,91.0))>shaded.a){discard;}
  return vec4f(shaded.rgb,1.0);
 }
 @fragment fn fsCoverage(input:VertexOut)->@location(0) vec4f {
