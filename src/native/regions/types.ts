@@ -13,7 +13,7 @@ export interface RegionVisualProfile {
  riverFlowXZ:readonly [number,number];riverClarityM:number;riverRippleStrength:number;
  terrainTint:Color3;foliageTint:Color3;
  windStrength:number;cloudCoverage:number;
- fogDistanceM:number;nearTerrainM:number;nearTreesM:number;farTreesM:number;structureM:number;fineFloorM:number;
+ fogDistanceM:number;nearTerrainM:number;nearTreesM:number;midTreesM:number;farTreesM:number;structureM:number;fineFloorM:number;
 }
 
 export interface NativeRegionSource {
@@ -27,6 +27,7 @@ export interface NativeRegionActor {id:string;e:number;n:number;h:number;yaw:num
 export interface NativeRegionFrame {
  eye:readonly [number,number,number];target:readonly [number,number,number];
  player:{e:number;n:number};time:number;actors:readonly NativeRegionActor[];
+ active:boolean;
  boats:readonly {id:string;e:number;n:number;heading:number;occupied:boolean}[];
  weapon:'bow'|'sword';
  gateOpen:boolean;waterOffsetM:number;

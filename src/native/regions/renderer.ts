@@ -36,7 +36,9 @@ function instance(e:number,h:number,n:number,yaw=0,sx=1,sy=1,sz=1,tint:[number,n
 export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source:NativeRegionSource,onLost:(message:string)=>void){
  if(!navigator.gpu)throw Error('Для этого региона нужен WebGPU и включённое аппаратное ускорение.');
  const adapter=await navigator.gpu.requestAdapter({powerPreference:'high-performance'});if(!adapter)throw Error('Не найден адаптер WebGPU.');
- const device=await adapter.requestDevice();const context=canvas.getContext('webgpu');if(!context)throw Error('Не удалось открыть холст WebGPU.');
+ const gpuTimingAvailable=adapter.features.has('timestamp-query');
+ const device=await adapter.requestDevice(gpuTimingAvailable?{requiredFeatures:['timestamp-query']}:undefined);
+ const context=canvas.getContext('webgpu');if(!context)throw Error('Не удалось открыть холст WebGPU.');
  const gpuContext=context,format=navigator.gpu.getPreferredCanvasFormat();gpuContext.configure({device,format,alphaMode:'opaque',usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.COPY_DST});
  void device.lost.then(info=>onLost('Устройство WebGPU потеряно: '+(info.message||info.reason)));
  const module=device.createShaderModule({code:REGION_WGSL,label:'region-shared-wgsl'});
@@ -65,6 +67,30 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
  const sceneSampler=device.createSampler({magFilter:'linear',minFilter:'linear',addressModeU:'clamp-to-edge',addressModeV:'clamp-to-edge'});
  const shadowTexture=device.createTexture({size:[1536,1536],format:'depth32float',usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING});
  const shadowView=shadowTexture.createView(),shadowSampler=device.createSampler({compare:'less-equal',magFilter:'linear',minFilter:'linear'});
+ const timing=gpuTimingAvailable?{
+  queries:device.createQuerySet({type:'timestamp',count:4}),
+  resolved:device.createBuffer({size:32,usage:GPUBufferUsage.QUERY_RESOLVE|GPUBufferUsage.COPY_SRC}),
+  readback:device.createBuffer({size:32,usage:GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ}),
+ }:undefined;
+ const gpuSamples:{total:number;shadow:number;opaque:number;river:number}[]=[];
+ let timingPending=false,timingError='',frameNumber=0,samplesSeen=0;
+ // Cap the native pixel count before adapting. This protects high-DPI and touch screens.
+ const maxPixels=matchMedia('(pointer: coarse)').matches?900_000:1_500_000;
+ let pixelScale=1,floorTier=0,lastDrawAt=0;const frameIntervals:number[]=[];
+ function setDetailTier(tier:number){if(tier===floorTier)return;floorTier=tier;treeDirty=true;meadowDirty=true;}
+ function tuneQuality(){
+  const recent=gpuSamples.slice(-30).map(s=>s.total).sort((a,b)=>a-b);
+  if(recent.length<30)return;
+  const p95=recent[28];
+  if(p95>13.5){
+   if(pixelScale>.82)pixelScale=Math.max(.82,pixelScale*Math.max(.86,Math.sqrt(12.5/p95)));
+   else if(floorTier<2)setDetailTier(floorTier+1);
+   else pixelScale=Math.max(.62,pixelScale*Math.max(.86,Math.sqrt(12.5/p95)));
+  }else if(p95<10.5){
+   if(pixelScale<1)pixelScale=Math.min(1,pixelScale*1.04);
+   else if(floorTier>0)setDetailTier(floorTier-1);
+  }
+ }
  const shadowFrameGroup=device.createBindGroup({layout:shadowFrameLayout,entries:[{binding:0,resource:{buffer:frameBuffer}}]});
  const white=device.createTexture({size:[1,1],format:'rgba8unorm',usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
  device.queue.writeTexture({texture:white},new Uint8Array([255,255,255,255]),{bytesPerRow:4},[1,1]);
@@ -122,7 +148,10 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
  const skinnedShadowPipeline=await device.createRenderPipelineAsync({layout:device.createPipelineLayout({bindGroupLayouts:[shadowFrameLayout,materialLayout,skinLayout]}),vertex:{module,entryPoint:'skinnedShadowVertex',buffers:skinnedVertexBuffers},fragment:{module,entryPoint:'shadowFragment',targets:[]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less',depthBias:2,depthBiasSlopeScale:1.5}});
  const skyPipeline=await device.createRenderPipelineAsync({layout:device.createPipelineLayout({bindGroupLayouts:[frameLayout]}),vertex:{module,entryPoint:'skyVertex'},fragment:{module,entryPoint:'skyFragment',targets:[{format}]},primitive:{topology:'triangle-list'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'always'}});
  let depth:GPUTexture|undefined,opaqueScene:GPUTexture|undefined,waterFrameGroup:GPUBindGroup|undefined,width=0,height=0,origin={e:0,n:0};
- function resize(){const w=Math.max(1,Math.min(2560,Math.floor(canvas.clientWidth*devicePixelRatio))),h=Math.max(1,Math.min(1600,Math.floor(canvas.clientHeight*devicePixelRatio)));
+ function resize(){
+  const cssW=Math.max(1,canvas.clientWidth),cssH=Math.max(1,canvas.clientHeight);
+  const dpr=Math.min(devicePixelRatio,Math.sqrt(maxPixels/(cssW*cssH)))*pixelScale;
+  const w=Math.max(1,Math.min(2560,Math.floor(cssW*dpr))),h=Math.max(1,Math.min(1600,Math.floor(cssH*dpr)));
   if(w===width&&h===height)return;width=w;height=h;canvas.width=w;canvas.height=h;depth?.destroy();opaqueScene?.destroy();
   depth=device.createTexture({size:[w,h],format:'depth32float',usage:GPUTextureUsage.RENDER_ATTACHMENT});
   opaqueScene=device.createTexture({size:[w,h],format,usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_SRC});
@@ -151,16 +180,21 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
  const boxBatches=Object.fromEntries(Object.keys(boxColors).map(kind=>[kind,createBatch(cube,makeMaterial(white,2),128)])) as Record<string,Batch>;
  const patchBatches=new Map<string,Batch>(),patchPending=new Set<string>();let patchFailures=0;
  const floorChunks=new Map<string,Batch[]>();let floorQueue:{e:number;n:number;id:string}[]=[],floorPending=false,floorKey='',floorFailures=0,floorWater=NaN,floorVersion=0;
+ const activeFloorRange=()=>visuals.fineFloorM*(floorTier===0?1:floorTier===1?.78:.58);
+ const activeNearTreeRange=()=>visuals.nearTreesM*(floorTier===0?1:floorTier===1?.82:.68);
+ const activeMidTreeRange=()=>visuals.midTreesM*(floorTier===0?1:floorTier===1?.85:.7);
  function removeFloorChunk(chunks:Batch[]){for(const batch of chunks){batch.instances.destroy();batch.mesh.vertex.destroy();batch.mesh.index.destroy();batches.splice(batches.indexOf(batch),1);meshes.splice(meshes.indexOf(batch.mesh),1);}}
  function updateFineFloor(frame:NativeRegionFrame){
-  const p=frame.player,e=Math.floor(p.e/32)*32,n=Math.floor(p.n/32)*32,key=`${e},${n},${frame.waterOffsetM}`;
+  const p=frame.player,e=Math.floor(p.e/32)*32,n=Math.floor(p.n/32)*32;
+  const floorRange=activeFloorRange();
+  const key=`${e},${n},${frame.waterOffsetM},${floorTier}`;
   if(floorWater!==frame.waterOffsetM){floorWater=frame.waterOffsetM;floorVersion++;floorKey='';for(const chunks of floorChunks.values())removeFloorChunk(chunks);floorChunks.clear();}
   if(key!==floorKey){
    floorKey=key;const wanted=new Set<string>();floorQueue=[];
-   const radius=Math.ceil(visuals.fineFloorM/32);
+   const radius=Math.ceil(floorRange/32);
    for(let y=-radius;y<=radius;y++)for(let x=-radius;x<=radius;x++){
     const E=e+x*32,N=n+y*32,id=`${E},${N}`;
-    if(Math.hypot(E+16-p.e,N+16-p.n)>visuals.fineFloorM+23)continue;
+    if(Math.hypot(E+16-p.e,N+16-p.n)>floorRange+23)continue;
     wanted.add(id);if(!floorChunks.has(id))floorQueue.push({e:E,n:N,id});
    }
    floorQueue.sort((a,b)=>Math.hypot(a.e+16-p.e,a.n+16-p.n)-Math.hypot(b.e+16-p.e,b.n+16-p.n));
@@ -168,10 +202,11 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
   }
   while(floorQueue.length&&floorChunks.has(floorQueue[0].id))floorQueue.shift();
   if(floorPending||!floorQueue.length)return;
-  const next=floorQueue.shift()!,version=floorVersion;floorPending=true;
+  const next=floorQueue.shift()!,version=floorVersion,requestedTier=floorTier;floorPending=true;
   void source.data.call('region-floor',{e:next.e,n:next.n,water:frame.waterOffsetM>0?'high':frame.waterOffsetM<0?'low':'normal'},[],1)
    .then((parts:{grass:MeshData;leaves:MeshData})=>{
-    if(version!==floorVersion||Math.hypot(next.e+16-frame.player.e,next.n+16-frame.player.n)>visuals.fineFloorM+55)return;
+    const margin=requestedTier===floorTier?55:23;
+    if(version!==floorVersion||Math.hypot(next.e+16-frame.player.e,next.n+16-frame.player.n)>activeFloorRange()+margin)return;
     const chunks:Batch[]=[];
     for(const [kind,data]of Object.entries(parts) as [keyof typeof parts,MeshData][]){if(!data.indices.length)continue;
      const batch=createBatch(mesh(data),kind==='grass'?floorGrassMaterial:floorLeavesMaterial);
@@ -212,15 +247,21 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
    }catch(error){treeFailures++;console.warn('Regional tree',familyIds[family],error);}
   }
  }).catch(error=>console.warn('Tree library',error));
- let trees:TreeRecord[]=[],treeDirty=true,lastTreeE=Infinity,lastTreeN=Infinity;
- function updateTrees(player:{e:number;n:number}){
-  if(!treeDirty&&Math.hypot(player.e-lastTreeE,player.n-lastTreeN)<8)return;
-  treeDirty=false;lastTreeE=player.e;lastTreeN=player.n;
+ let trees:TreeRecord[]=[],treeDirty=true,lastTreeE=Infinity,lastTreeN=Infinity,lastFacingE=0,lastFacingN=0,visibleTrees=0,treeLods=[0,0,0];
+ function updateTrees(frame:NativeRegionFrame){
+  const player=frame.player,forwardE=frame.target[0]-frame.eye[0],forwardN=frame.eye[2]-frame.target[2];
+  const forwardLength=Math.hypot(forwardE,forwardN)||1,dirE=forwardE/forwardLength,dirN=forwardN/forwardLength;
+  if(!treeDirty&&Math.hypot(player.e-lastTreeE,player.n-lastTreeN)<8&&dirE*lastFacingE+dirN*lastFacingN>.985)return;
+  treeDirty=false;lastTreeE=player.e;lastTreeN=player.n;lastFacingE=dirE;lastFacingN=dirN;
   trees=[...source.data.tiles.values()].flatMap(tile=>tile.trees);
-  const groups=new Map<string,number[]>();
+  const groups=new Map<string,number[]>(),cosLimit=Math.cos(Math.min(Math.PI/2,Math.atan(Math.tan(Math.PI/6)*width/height)+.35));
+  visibleTrees=0;treeLods=[0,0,0];
   for(const tree of trees){const distance=Math.hypot(tree.e-player.e,tree.n-player.n);if(distance>visuals.farTreesM)continue;
+   if(distance>activeNearTreeRange()){const e=tree.e-frame.eye[0],n=tree.n+frame.eye[2],len=Math.hypot(e,n)||1;if((e*dirE+n*dirN)/len<cosLimit)continue;}
    const family=families.get(tree.family);if(!family)continue;
-   const variant=tree.variant%family.variants.length,level=distance<visuals.nearTreesM?0:1,key=`${tree.family}:${variant}:${level}`;
+   visibleTrees++;
+   const variant=tree.variant%family.variants.length,level=distance<activeNearTreeRange()?0:distance<activeMidTreeRange()?1:2,key=`${tree.family}:${variant}:${level}`;
+   treeLods[level]++;
    const values=groups.get(key)??[];values.push(...instance(tree.e,tree.h,tree.n,tree.yaw,tree.scale*tree.width,tree.scale,tree.scale*tree.width));groups.set(key,values);
   }
   for(const batch of treeBatches.values())batch.count=0;
@@ -235,8 +276,8 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
   void source.data.call('region-groves',{p:player,origin:{e:0,n:0}}).then((groups:Record<string,Float32Array>)=>{
    if(generation!==groveGeneration)return;for(const batch of farTreeBatches.values())batch.count=0;farTreeCount=0;
    for(const [id,matrixData]of Object.entries(groups)){
-    const [familyId,variantId,lod]=id.split('/').map(Number),family=families.get(familyId);if(!family)continue;
-    const variant=family.variants[variantId%family.variants.length],level=variant.levels[Math.min(lod,variant.levels.length-1)];
+    const [familyId,variantId]=id.split('/').map(Number),family=families.get(familyId);if(!family)continue;
+    const variant=family.variants[variantId%family.variants.length],level=variant.levels[Math.min(2,variant.levels.length-1)];
     const values=new Float32Array(matrixData.length/16*20);for(let i=0;i<matrixData.length/16;i++){values.set(matrixData.subarray(i*16,i*16+16),i*20);values.set([1,1,1,1],i*20+16);}
     farTreeCount+=matrixData.length/16;
     level.forEach(({mesh:shape,material},part)=>{const partKey=id+':'+part;let batch=farTreeBatches.get(partKey);
@@ -303,20 +344,23 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
   for(let cy=-5;cy<=5;cy++)for(let cx=-5;cx<=5;cx++){
    const e=centerE+cx*32,n=centerN+cy*32;if(Math.hypot(e+16-p.e,n+16-p.n)>190)continue;
    for(let i=0;i<42;i++){
-    const E=e+hash01(e,n,i+1101)*32,N=n+hash01(e,n,i+1301)*32;
-    if(Math.hypot(E-p.e,N-p.n)>175||geo.coverExclusion(E,N)||trailAt(E,N).distance<2.2||(geo.waterAt(E,N,frame.waterOffsetM>0?'high':'normal')?.depth??0)>.01)continue;
+   const E=e+hash01(e,n,i+1101)*32,N=n+hash01(e,n,i+1301)*32;
+    const distance=Math.hypot(E-p.e,N-p.n);
+    if(distance>175||geo.coverExclusion(E,N)||trailAt(E,N).distance<2.2||(geo.waterAt(E,N,frame.waterOffsetM>0?'high':'normal')?.depth??0)>.01)continue;
     const forest=geo.forestAt(E,N);if(forest&&hash01(e,n,i+1401)>.34)continue;
     const r=hash01(e,n,i+1501),species=forest?(r<.65?'fern':r<.88?'hazel':'grass-short'):r<.65?'grass-short':r<.85?'grass-tall':r<.925?'flowers-cream':r<.97?'flowers-blue':'dogrose';
+    const shrub=species==='hazel'||species==='dogrose';if(!shrub&&distance>(floorTier===0?100:floorTier===1?82:68))continue;
     if(!assetFamilies.has(species))continue;
     const height=geo.surfaceHeight(E,N),scale=.7+hash01(e,n,i+1701)*.6;
     if(Math.abs(geo.surfaceHeight(E+1,N)-height)>.65)continue;
-    const values=groups.get(species)??[];values.push(...instance(E,height-.035,N,hash01(e,n,i+1801)*Math.PI*2,scale,scale,scale));groups.set(species,values);
+    const lod=shrub?distance<45?0:distance<100?1:2:0,key=`${species}:${lod}`;
+    const values=groups.get(key)??[];values.push(...instance(E,height-.035,N,hash01(e,n,i+1801)*Math.PI*2,scale,scale,scale));groups.set(key,values);
    }
   }
   for(const batch of meadowBatches.values())batch.count=0;
-  for(const [species,values]of groups){const family=assetFamilies.get(species)!;
-   for(const [part,{mesh:shape,material}]of family.levels[0].entries()){
-    const key=species+':'+part;let batch=meadowBatches.get(key);
+  for(const [group,values]of groups){const [species,lodText]=group.split(':'),family=assetFamilies.get(species)!;
+   for(const [part,{mesh:shape,material}]of family.levels[Math.min(Number(lodText),family.levels.length-1)].entries()){
+    const key=group+':'+part;let batch=meadowBatches.get(key);
     if(!batch){batch=createBatch(shape,material,values.length/20);meadowBatches.set(key,batch);}
     setInstances(batch,new Float32Array(values));
    }
@@ -362,9 +406,17 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
  let lastTerrainE=Infinity,lastTerrainN=Infinity,drawCalls=0;
  let lastWake:{id:string;e:number;n:number;time:number}|undefined;
  function draw(frame:NativeRegionFrame){
+  if(!timing&&frame.active){
+   const now=performance.now();if(lastDrawAt){frameIntervals.push(now-lastDrawAt);if(frameIntervals.length===120){
+    const missed=frameIntervals.filter(ms=>ms>20).length;
+    if(missed>12){if(pixelScale>.82)pixelScale=Math.max(.82,pixelScale*.9);else if(floorTier<2)setDetailTier(floorTier+1);else pixelScale=Math.max(.62,pixelScale*.9);}
+    else if(missed<4){if(pixelScale<1)pixelScale=Math.min(1,pixelScale*1.04);else if(floorTier>0)setDetailTier(floorTier-1);}
+    frameIntervals.length=0;
+   }}lastDrawAt=now;
+  }else if(!frame.active)lastDrawAt=0;
   resize();origin={e:Math.round(frame.player.e/1024)*1024,n:Math.round(frame.player.n/1024)*1024};
   if(Math.hypot(frame.player.e-lastTerrainE,frame.player.n-lastTerrainN)>48){lastTerrainE=frame.player.e;lastTerrainN=frame.player.n;updateNearTerrain(frame.player);}
-  updateTrees(frame.player);updateGroves(frame.player);updateStructures(frame);updateBoats(frame);updateMeadow(frame);updateFineFloor(frame);updateActors(frame);
+  updateTrees(frame);updateGroves(frame.player);updateStructures(frame);updateBoats(frame);updateMeadow(frame);updateFineFloor(frame);updateActors(frame);
   const eye:[number,number,number]=[frame.eye[0]-origin.e,frame.eye[1],frame.eye[2]+origin.n];
   const target:[number,number,number]=[frame.target[0]-origin.e,frame.target[1],frame.target[2]+origin.n];
   const matrix=multiply(perspective(Math.PI/3,width/height,.12,visuals.fogDistanceM*2),lookAt(eye,target));
@@ -388,11 +440,18 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
   }else lastWake=undefined;
   device.queue.writeBuffer(frameBuffer,0,values);
   const encoder=device.createCommandEncoder();
-  const shadowPass=encoder.beginRenderPass({colorAttachments:[],depthStencilAttachment:{view:shadowView,depthLoadOp:'clear',depthStoreOp:'store',depthClearValue:1}});
+  const measure=!!timing&&frame.active&&!timingPending&&frameNumber++%12===0;
+  if(measure)timingPending=true;
+  const shadowPass=encoder.beginRenderPass({colorAttachments:[],depthStencilAttachment:{view:shadowView,depthLoadOp:'clear',depthStoreOp:'store',depthClearValue:1},...(measure?{timestampWrites:{querySet:timing!.queries,beginningOfPassWriteIndex:0,endOfPassWriteIndex:1}}:{})});
   shadowPass.setPipeline(shadowPipeline);shadowPass.setBindGroup(0,shadowFrameGroup);
-  for(const batch of [...treeBatches.values(),...assetBatches.values(),...boatBatches.values(),...Object.values(boxBatches),wolfBatch,ravenBatch,weaponBatch]){
-   if(!batch.count)continue;shadowPass.setBindGroup(1,batch.material.group);shadowPass.setVertexBuffer(0,batch.mesh.vertex);shadowPass.setVertexBuffer(1,batch.instances);shadowPass.setIndexBuffer(batch.mesh.index,'uint32');shadowPass.drawIndexed(batch.mesh.count,batch.count);
-  }
+  const castShadow=(batch:Batch)=>{
+   if(!batch.count)return;
+   shadowPass.setBindGroup(1,batch.material.group);shadowPass.setVertexBuffer(0,batch.mesh.vertex);shadowPass.setVertexBuffer(1,batch.instances);shadowPass.setIndexBuffer(batch.mesh.index,'uint32');shadowPass.drawIndexed(batch.mesh.count,batch.count);
+  };
+  // The light frustum covers 78 m. Distant LODs cannot contribute to it.
+  for(const [key,batch]of treeBatches)if(key.split(':')[2]==='0')castShadow(batch);
+  for(const [key,batch]of assetBatches)if(key.split(':')[1]==='0')castShadow(batch);
+  for(const batch of [...boatBatches.values(),...Object.values(boxBatches),wolfBatch,ravenBatch,weaponBatch])castShadow(batch);
   shadowPass.setPipeline(skinnedShadowPipeline);
   for(const actor of skinnedActors){const batch=actor.batch;if(!batch.count)continue;shadowPass.setBindGroup(1,batch.material.group);shadowPass.setBindGroup(2,actor.group);shadowPass.setVertexBuffer(0,batch.mesh.vertex);shadowPass.setVertexBuffer(1,batch.instances);shadowPass.setIndexBuffer(batch.mesh.index,'uint32');shadowPass.drawIndexed(batch.mesh.count,batch.count);}
   shadowPass.end();
@@ -400,6 +459,7 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
   const pass=encoder.beginRenderPass({
    colorAttachments:[{view:opaqueScene!.createView(),loadOp:'clear',storeOp:'store',clearValue:{r:.3,g:.4,b:.4,a:1}}],
    depthStencilAttachment:{view:depth!.createView(),depthLoadOp:'clear',depthStoreOp:'store',depthClearValue:1},
+   ...(measure?{timestampWrites:{querySet:timing!.queries,endOfPassWriteIndex:2}}:{}),
   });
   pass.setPipeline(skyPipeline);pass.setBindGroup(0,frameGroup);pass.draw(3);
   pass.setPipeline(scenePipeline);pass.setBindGroup(0,frameGroup);drawCalls=0;
@@ -411,12 +471,24 @@ export async function createNativeRegionRenderer(canvas:HTMLCanvasElement,source
   const riverPass=encoder.beginRenderPass({
    colorAttachments:[{view:canvasTexture.createView(),loadOp:'load',storeOp:'store'}],
    depthStencilAttachment:{view:depth!.createView(),depthLoadOp:'load',depthStoreOp:'store'},
+   ...(measure?{timestampWrites:{querySet:timing!.queries,endOfPassWriteIndex:3}}:{}),
   });
   riverPass.setPipeline(scenePipeline);riverPass.setBindGroup(0,waterFrameGroup!);
   for(const {batch} of waterBatches){if(!batch.count)continue;riverPass.setBindGroup(1,batch.material.group);riverPass.setVertexBuffer(0,batch.mesh.vertex);riverPass.setVertexBuffer(1,batch.instances);riverPass.setIndexBuffer(batch.mesh.index,'uint32');riverPass.drawIndexed(batch.mesh.count,batch.count);drawCalls++;}
-  riverPass.end();device.queue.submit([encoder.finish()]);
+  riverPass.end();
+  if(measure){
+   encoder.resolveQuerySet(timing!.queries,0,4,timing!.resolved,0);
+   encoder.copyBufferToBuffer(timing!.resolved,0,timing!.readback,0,32);
+  }
+  device.queue.submit([encoder.finish()]);
+  if(measure)void timing!.readback.mapAsync(GPUMapMode.READ).then(()=>{
+   const stamps=new BigUint64Array(timing!.readback.getMappedRange());
+   const ms=(a:number,b:number)=>Number(stamps[b]-stamps[a])/1e6;
+   const sample={total:ms(0,3),shadow:ms(0,1),opaque:ms(1,2),river:ms(2,3)};
+   timing!.readback.unmap();if(Number.isFinite(sample.total)&&sample.total>=0&&sample.total<1000){gpuSamples.push(sample);if(gpuSamples.length>120)gpuSamples.shift();if(++samplesSeen%30===0)tuneQuality();}
+  }).catch(error=>{timingError=String(error);}).finally(()=>{timingPending=false;});
  }
- function dispose(){depth?.destroy();opaqueScene?.destroy();shadowTexture.destroy();frameBuffer.destroy();for(const batch of batches)batch.instances.destroy();for(const actor of skinnedActors){actor.batch.instances.destroy();actor.skin.destroy();}for(const item of meshes){item.vertex.destroy();item.index.destroy();}for(const item of materials)item.uniform.destroy();for(const item of ownedTextures)item.destroy();source.data.dispose();}
+ function dispose(){depth?.destroy();opaqueScene?.destroy();shadowTexture.destroy();frameBuffer.destroy();timing?.queries.destroy();timing?.resolved.destroy();timing?.readback.destroy();for(const batch of batches)batch.instances.destroy();for(const actor of skinnedActors){actor.batch.instances.destroy();actor.skin.destroy();}for(const item of meshes){item.vertex.destroy();item.index.destroy();}for(const item of materials)item.uniform.destroy();for(const item of ownedTextures)item.destroy();source.data.dispose();}
  await requestPatch(source.entry.e,source.entry.n);
-  return {draw,dispose,stats:()=>({renderer:'direct-webgpu',drawCalls,patches:patchBatches.size,floorChunks:floorChunks.size,trees:trees.length,farTrees:farTreeCount,canopyReady,treeFamilies:families.size,assets:assetFamilies.size,boats:boatBatches.size,water:waterBatches.length,patchFailures,floorFailures,treeFailures,assetFailures}),ready:()=>patchBatches.size>0};
+  return {draw,dispose,stats:()=>{const percentile=(key:keyof typeof gpuSamples[number],p:number)=>{const values=gpuSamples.map(s=>s[key]).sort((a,b)=>a-b);return values[Math.floor(values.length*p)]??null;};const triangles=(items:Iterable<Batch>)=>Array.from(items).reduce((sum,b)=>sum+b.mesh.count/3*b.count,0);return {renderer:'direct-webgpu',drawCalls,resolution:[width,height],pixelScale,floorRangeM:activeFloorRange(),patches:patchBatches.size,floorChunks:floorChunks.size,trees:trees.length,visibleTrees,treeLods,farTrees:farTreeCount,triangles:{trees:triangles(treeBatches.values()),farTrees:triangles(farTreeBatches.values()),floor:triangles([...floorChunks.values()].flat()),meadow:triangles(meadowBatches.values())},canopyReady,treeFamilies:families.size,assets:assetFamilies.size,boats:boatBatches.size,water:waterBatches.length,patchFailures,floorFailures,treeFailures,assetFailures,gpuMs:{available:gpuTimingAvailable,samples:gpuSamples.length,median:percentile('total',.5),p95:percentile('total',.95),shadowP95:percentile('shadow',.95),opaqueP95:percentile('opaque',.95),riverP95:percentile('river',.95),error:timingError}};},ready:()=>patchBatches.size>0};
 }

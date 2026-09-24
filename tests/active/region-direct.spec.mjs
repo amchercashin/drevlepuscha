@@ -5,7 +5,7 @@ test('direct WebGPU region keeps tracking and combat playable',async({page})=>{
  const errors=[];
  page.on('pageerror',error=>errors.push(error.message));
  page.on('console',message=>{if(/GPUValidationError|WebGPU uncaptured error|Error while parsing|Invalid CommandBuffer/i.test(message.text()))errors.push(message.text());});
- await page.goto('/?scene=region&region=brandywine-bridge&renderer=direct&debug=1');
+ await page.goto('/?scene=region&region=brandywine-bridge&debug=1');
  await page.waitForFunction(()=>window.__region?.state().ready);
  await page.locator('#resume').click();
  await page.waitForFunction(()=>window.__region.state().graphics.treeFamilies>=3);

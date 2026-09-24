@@ -3,7 +3,7 @@ import {test,expect} from '@playwright/test';
 function errorsOn(page){const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(/GPUValidationError|WebGPU uncaptured error|Error while parsing|shader.*error/i.test(m.text())&&errors.length<12)errors.push(m.text());});return errors;}
 test('regional walk: clues, traveller, gate, boat, rebase, rain and save reload',async({page})=>{
  test.setTimeout(120000);const errors=errorsOn(page);
- await page.goto('/?scene=region&region=brandywine-bridge&debug=1');await page.waitForFunction(()=>window.__region?.state().ready);
+ await page.goto('/?scene=region&region=brandywine-bridge&renderer=babylon&debug=1');await page.waitForFunction(()=>window.__region?.state().ready);
  await page.locator('#resume').click();await page.keyboard.press('KeyE');
  expect(await page.evaluate(()=>__region.state().encounter.clues)).toContain('testimony');
  const before=await page.evaluate(()=>__region.state().player);await page.keyboard.down('KeyW');await page.waitForTimeout(500);await page.keyboard.up('KeyW');

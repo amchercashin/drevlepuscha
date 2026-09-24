@@ -10,5 +10,5 @@ export const brandywineVisuals:RegionVisualProfile={
  riverFlowXZ:[.18,.98],riverClarityM:2.2,riverRippleStrength:1,
  terrainTint:[.93,1.04,.89],foliageTint:[.91,1.04,.78],
  windStrength:1,cloudCoverage:.4,
- fogDistanceM:1800,nearTerrainM:300,nearTreesM:85,farTreesM:390,structureM:900,fineFloorM:65,
+ fogDistanceM:1800,nearTerrainM:300,nearTreesM:65,midTreesM:160,farTreesM:390,structureM:900,fineFloorM:65,
 };

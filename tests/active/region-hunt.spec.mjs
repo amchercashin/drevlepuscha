@@ -3,7 +3,7 @@ import {test,expect} from '@playwright/test';
 test('regional hunt: inspect a trail, use both weapons and restore progress',async({page})=>{
  test.setTimeout(90000);
  const errors=[];page.on('pageerror',error=>errors.push(error.message));page.on('console',message=>{if(/GPUValidationError|WebGPU uncaptured error|Error while parsing/i.test(message.text()))errors.push(message.text());});
- await page.goto('/?scene=region&region=brandywine-bridge&debug=1');
+ await page.goto('/?scene=region&region=brandywine-bridge&renderer=babylon&debug=1');
  await page.waitForFunction(()=>window.__region?.state().ready);
  await page.locator('#resume').click();
  const clue=await page.evaluate(()=>__region.hunt.nextClue);
