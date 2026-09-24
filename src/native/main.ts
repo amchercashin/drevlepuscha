@@ -1,4 +1,3 @@
-import {daylightAt,normalizeHour,CYCLE_SECONDS} from '../domain/daylight.ts';
 import {terrainCameraLift,showcaseHeight,showcasePath} from '../domain/showcase.ts';
 import {FOREST_BOUNDS} from '../domain/forest.ts';
 import {groundHeight,moveWalker,walkerIsClear} from '../domain/harness.ts';
@@ -13,8 +12,8 @@ import {createWindControls} from '../runtime/wind-controls.ts';
 import {ShowcaseAudio} from '../runtime/showcase-audio.ts';
 import {createNativeRenderer} from './renderer.ts';
 import {createNativeMultiplayer} from './multiplayer.ts';
-import {clockHour} from '../network/persistent-protocol.ts';
-import type {WorldClock} from '../network/persistent-protocol.ts';
+import {createNativeAtmosphere} from './atmosphere.ts';
+import {SKY_DEFAULTS} from '../domain/sky.ts';
 import config from '../../config/camera-presets.json';
 import targets from '../../config/render-targets.json';
 import '../runtime/daylight.css';
@@ -34,40 +33,6 @@ function fail(error:unknown){
  resume.textContent='Перезагрузить';resume.disabled=false;resume.onclick=()=>location.reload();
  release?.();
 }
-function daylightControls(){
- let hours=12,automatic=true,fogDensity=.003,current=daylightAt(hours),sharedClock:WorldClock|null=null;
- let previous:{hours:number;automatic:boolean}|null=null;
- const panel=document.createElement('section');panel.className='daylight-controls';panel.setAttribute('aria-label','Время суток');
- panel.innerHTML=`<div class="daylight-heading"><strong>Свет и небо</strong><output id="day-time-value">12:00</output></div>
- <div class="daylight-presets"><button type="button" data-hour="7.5">Утро</button><button type="button" data-hour="12">День</button><button type="button" data-hour="17.5">Закат</button><button type="button" data-hour="0">Ночь</button></div>
- <label for="day-time">Время суток</label><input id="day-time" type="range" min="0" max="24" step="0.05" value="12">
- <label><input id="day-auto" type="checkbox" checked> Смена суток · 20 минут</label>
- <label for="fog-density">Туман <output id="fog-density-value">0.003</output></label><input id="fog-density" type="range" min="0" max="0.04" step="0.001" value="0.003">`;
- document.querySelector('#diagnostics')!.insertBefore(panel,metrics);
- const range=panel.querySelector<HTMLInputElement>('#day-time')!,auto=panel.querySelector<HTMLInputElement>('#day-auto')!,fog=panel.querySelector<HTMLInputElement>('#fog-density')!;
- function sync(){
-  const minutes=Math.round(hours*60)%1440,label=`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;
-  panel.querySelector<HTMLOutputElement>('#day-time-value')!.value=label;range.value=String(hours);range.setAttribute('aria-valuetext',label);
-  panel.querySelector<HTMLOutputElement>('#fog-density-value')!.value=fogDensity.toFixed(3);
-  for(const button of panel.querySelectorAll<HTMLButtonElement>('button[data-hour]'))button.setAttribute('aria-pressed',String(Math.abs(Number(button.dataset.hour)-hours)<.03));
- }
- function setTime(hour:number){if(sharedClock)return;hours=normalizeHour(hour);automatic=false;auto.checked=false;current=daylightAt(hours);sync();}
- function setAutomatic(value:boolean){if(sharedClock)return;automatic=value;auto.checked=value;}
- function setFog(value:number){fogDensity=Math.max(0,Math.min(.04,value));fog.value=String(fogDensity);sync();}
- function setClock(clock:WorldClock|null){
-  if(!!clock!==!!sharedClock){
-   if(clock)previous={hours,automatic};else if(previous){hours=previous.hours;automatic=previous.automatic;previous=null;}
-   range.disabled=auto.disabled=!!clock;
-   for(const button of panel.querySelectorAll<HTMLButtonElement>('button[data-hour]'))button.disabled=!!clock;
-   panel.title=clock?'Время задаётся постоянной комнатой':'';
-  }
-  sharedClock=clock;
- }
- function update(dt:number){if(sharedClock)hours=clockHour(sharedClock);else if(automatic&&dt>0)hours=normalizeHour(hours+Math.min(dt,.05)*24/CYCLE_SECONDS);current=daylightAt(hours);if(document.querySelector<HTMLDetailsElement>('#diagnostics')!.open)sync();}
- for(const button of panel.querySelectorAll<HTMLButtonElement>('button[data-hour]'))button.onclick=()=>setTime(Number(button.dataset.hour));
- range.oninput=()=>setTime(Number(range.value));auto.onchange=()=>setAutomatic(auto.checked);fog.oninput=()=>setFog(Number(fog.value));
- sync();return {update,setTime,setAutomatic,setClock,setFog,hour:()=>hours,light:()=>current,fog:()=>fogDensity,stats:()=>({...current,automatic,sharedClock:!!sharedClock,fogDensity,cycleSeconds:CYCLE_SECONDS,shadowMaps:1,skyDraws:1})};
-}
 
 try{
  const renderer=await startup.stage('Запускаем WebGPU и готовим лес…',()=>createNativeRenderer(canvas,message=>fail(message),label=>startup.progress(label)));
@@ -75,7 +40,7 @@ try{
  const nearbyColliders=collisionGrid(renderer.boxes);
  const wind=new WindSystem(),ambient=new ShowcaseAudio(wind,renderer.boxes);
  const disposeWindControls=createWindControls(wind);
- const daylight=daylightControls();
+ const daylight=createNativeAtmosphere();
  document.body.classList.add('showcase');document.title='Древлепуща — лесные ложбины';
  document.querySelector('.badge')!.textContent='Древлепуща · WebGPU';
  document.querySelector('.muted')!.textContent='Шоукейс · 512 × 640 м · прямой WebGPU.';
@@ -125,8 +90,10 @@ try{
  type Quality='performance'|'balanced'|'high'|'native';let quality:Quality='high';
  try{const saved=localStorage.getItem('native-showcase-quality');if(saved&&['performance','balanced','high','native'].includes(saved))quality=saved as Quality;}catch{}
  qualitySelect.value=quality;
+ const skyQuality=()=>quality==='performance'?0:quality==='balanced'?1:2;
+ daylight.setQuality(skyQuality());
  function resize(){const size=showcaseResolution(canvas.clientWidth,canvas.clientHeight,devicePixelRatio,quality,8192);renderer.resize(size.width,size.height);}
- qualitySelect.onchange=()=>{quality=qualitySelect.value as Quality;try{localStorage.setItem('native-showcase-quality',quality);}catch{}resize();};
+ qualitySelect.onchange=()=>{quality=qualitySelect.value as Quality;daylight.setQuality(skyQuality());try{localStorage.setItem('native-showcase-quality',quality);}catch{}resize();};
  window.addEventListener('resize',resize);resize();
  function state(){
   const h=groundHeight(player.e,player.n),anchor={x:player.e,y:h+config.travel.targetHeightM,z:-player.n},offset=cameraOffset(yaw+180,Math.max(0,pitch),distance),rs=renderer.stats();
@@ -134,11 +101,12 @@ try{
    camera:{...camera,yaw,pitch,distance,currentDistance:Math.hypot(camera.x-anchor.x,camera.y-anchor.y,camera.z-anchor.z),followError:Math.hypot(camera.x-anchor.x-offset.x,camera.y-anchor.y-offset.y-cameraLift,camera.z-anchor.z-offset.z),terrainLift:cameraLift,clearance:camera.y-groundHeight(camera.x,-camera.z)},
    mapOpen:atlas.isOpen(),playerClear:walkerIsClear(player,renderer.boxes),
    render:{width:canvas.width,height:canvas.height,backend:'webgpu',pipeline:'direct',triangles:rs.triangles,shadowTriangles:rs.shadowTriangles,mainTriangles:rs.triangles-rs.shadowTriangles,drawCalls:rs.drawCalls,meshes:rs.visibleTrees+3,gpu:rs.device,gpuTiming:false,devicePixelRatio,internalDpr:canvas.height/Math.max(1,canvas.clientHeight),resolutionQuality:quality},
-   errors:[...errors],seed:targets.fixedSeed,sceneVersion:'ravine-native-webgpu-v1',demo,forest:{trees:rs.trees,activeTrees:rs.visibleTrees,assetLabel:'Нативный лес WebGPU'},floor:{grass:true},wind:wind.stats(),ambient:ambient.stats(),multiplayer:multiplayer.state(),lighting:{daylight:daylight.stats(),mapSize:1024},
+   errors:[...errors],seed:targets.fixedSeed,sceneVersion:'ravine-native-webgpu-v1',demo,forest:{trees:rs.trees,activeTrees:rs.visibleTrees,assetLabel:'Нативный лес WebGPU'},floor:{grass:true},wind:wind.stats(),ambient:ambient.stats(),multiplayer:multiplayer.state(),lighting:{daylight:daylight.stats(),mapSize:1024},rain:{enabled:daylight.precipitation()>.0001,instances:rs.rainInstances,precipitation:daylight.precipitation()},
   };
  }
  if(new URLSearchParams(location.search).get('debug')==='1')Object.assign(window,{m0:{state,reset,preset,setPaused,
-  setTime:daylight.setTime,setAutomatic:daylight.setAutomatic,setFog:daylight.setFog,
+  setTime:daylight.setTime,setGameDay:daylight.setGameDay,setAutomatic:daylight.setAutomatic,setFog:daylight.setFog,setRays:daylight.setRays,
+  setMoon:daylight.setMoon,setWeather:daylight.setWeather,setWeatherTime:daylight.setWeatherTime,setSky:daylight.setSky,setSkyAnimationTime:daylight.setSkyAnimationTime,resetSky:()=>daylight.setSky(SKY_DEFAULTS),
   beginMeasurement:()=>{samples.length=0;frameCosts.length=0;collect=true;},endMeasurement:()=>{collect=false;return [...samples];},frameCosts:()=>[...frameCosts],
   teleport:(e:number,n:number,heading=0)=>{if(![e,n,heading].every(Number.isFinite)||e<FOREST_BOUNDS.minE+1||e>FOREST_BOUNDS.maxE-1||n<FOREST_BOUNDS.minN+1||n>FOREST_BOUNDS.maxN-1||!walkerIsClear({e,n},renderer.boxes))throw new Error('Недоступная точка');player.e=e;player.n=n;player.heading=heading;keys.clear();},
   setCamera:(a:number,b:number,c:number)=>{yawTarget=normalizeAzimuth(a);pitch=clamp(b,-70,config.travel.pitchMaxDeg);distance=clamp(c,config.travel.distanceMinM,config.travel.distanceMaxM);},
@@ -173,8 +141,9 @@ try{
    const target={x:anchor.x,y:anchor.y+lookUp,z:anchor.z};
    multiplayer.update(dt,paused?0:speed,!paused&&running,camera,target,canvas.width,canvas.height);
    wind.update(paused?0:dt,camera);
-   ambient.update(paused?0:dt,daylight.hour(),camera,{x:target.x-camera.x,y:target.y-camera.y,z:target.z-camera.z});
-   renderer.render({eye:[camera.x,camera.y,camera.z],target:[target.x,target.y,target.z],player,daylight:daylight.light(),dt:paused?0:dt,speed,seconds,fogDensity:daylight.fog(),wind,cloakColor:multiplayer.cloakColor(),remotes:multiplayer.remotes()});
+   ambient.update(paused?0:dt,daylight.hour(),camera,{x:target.x-camera.x,y:target.y-camera.y,z:target.z-camera.z},daylight.precipitation());
+   const sky=daylight.sky();
+   renderer.render({eye:[camera.x,camera.y,camera.z],target:[target.x,target.y,target.z],player,daylight:daylight.light(),dt:paused?0:dt,speed,seconds,fogDensity:daylight.fog(),weather:daylight.weather(),sky:sky.settings,skySeconds:sky.seconds,skyQuality:sky.quality,rays:daylight.rays(),wind,cloakColor:multiplayer.cloakColor(),remotes:multiplayer.remotes()});
    frameCount++;
    if(collect&&!paused&&frameCosts.length<18000)frameCosts.push({cpuMs:performance.now()-now,gpuMs:null});
    if(now-uiAt>400){uiAt=now;document.querySelector('#fps')!.textContent=`${Math.round(1000/Math.max(1,rawDt))} FPS`;
@@ -185,5 +154,5 @@ try{
  }
  requestAnimationFrame(tick);
  await startup.reveal(()=>frameCount>2,focusScene);
- window.addEventListener('pagehide',()=>{multiplayer.dispose();ambient.dispose();disposeWindControls();wind.dispose();release?.();release=undefined;stopped=true;},{once:true});
+ window.addEventListener('pagehide',()=>{multiplayer.dispose();ambient.dispose();daylight.dispose();disposeWindControls();wind.dispose();release?.();release=undefined;stopped=true;},{once:true});
 }catch(error){fail(error);}

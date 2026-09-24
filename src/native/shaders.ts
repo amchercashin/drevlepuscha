@@ -1,6 +1,6 @@
 import {TRAIL_EDGE_WGSL} from '../runtime/trail-edge.wgsl.ts';
 
-export const SCENE_WGSL = /* wgsl */ `${TRAIL_EDGE_WGSL}
+export const FRAME_WGSL = /* wgsl */ `
 struct Frame {
  viewProj:mat4x4f,
  lightViewProj:mat4x4f,
@@ -19,9 +19,23 @@ struct Frame {
  ambient:vec4f,
  lightDir:vec4f,
  wind:vec4f,              // direction x/z, canopy and cover amplitude
+ skyLowShape:vec4f,
+ skyHighShape:vec4f,
+ skyLowScaleOffset:vec4f,
+ skyHighScaleOffset:vec4f,
+ skyDetailOffsets:vec4f,
+ skyWarpTimeQuality:vec4f,
+ skyOptions:vec4f,
+ moonOptions:vec4f,
+ moonRight:vec4f,
+ moonUp:vec4f,
+ weather:vec4f,
 };
-struct Material { kindOpacity:vec4f, tint:vec4f };
 @group(0) @binding(0) var<uniform> frame:Frame;
+`;
+
+export const SCENE_WGSL = /* wgsl */ `${TRAIL_EDGE_WGSL}${FRAME_WGSL}
+struct Material { kindOpacity:vec4f, tint:vec4f };
 @group(0) @binding(1) var shadowMap:texture_depth_2d;
 @group(0) @binding(2) var shadowSampler:sampler_comparison;
 @group(1) @binding(0) var albedo:texture_2d<f32>;
@@ -32,6 +46,8 @@ struct Material { kindOpacity:vec4f, tint:vec4f };
 @group(1) @binding(5) var groundNormals:texture_2d<f32>;
 @group(1) @binding(6) var groundSoil:texture_2d<f32>;
 @group(1) @binding(7) var groundLitter:texture_2d<f32>;
+@group(1) @binding(8) var moonMap:texture_2d<f32>;
+@group(1) @binding(9) var moonSampler:sampler;
 @group(2) @binding(0) var<storage,read> bones:array<mat4x4f>;
 
 struct VertexIn {
@@ -225,7 +241,13 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
  if(kind>2.5&&kind<3.5){lit+=vec3f(.12,.17,.08);}
  let dist=distance(input.world,frame.camera.xyz);
  let fog=1.0-exp(-pow(dist*frame.params.w*1.4,2.0));
- let color=mix(base*lit,frame.fogColor.rgb,fog);
+ var color=mix(base*lit,frame.fogColor.rgb,fog);
+ if(frame.weather.y>0.5){
+  let viewRay=normalize(input.world-frame.camera.xyz);
+  let alignment=pow(max(dot(viewRay,normalize(frame.sunDir.xyz)),0.0),12.0);
+  let glow=frame.weather.z*frame.params.y*alignment*(1.0-exp(-dist*.012))*(.35+.65*shade)*.16;
+  color+=vec3f(.75,.68,.48)*glow;
+ }
  return vec4f(color,1.0);
 }
 
@@ -236,36 +258,68 @@ struct ScreenOut { @builtin(position) clip:vec4f, @location(0) uv:vec2f };
  out.uv=p;out.clip=vec4f(p*vec2f(2.0,-2.0)+vec2f(-1.0,1.0),0.0,1.0);
  return out;
 }
+fn cloudMask(density:f32,coverage:f32)->f32 {
+ let threshold=1.06-1.12*coverage;
+ return smoothstep(threshold-.06,threshold+.06,density);
+}
+fn cloudTransmission(density:f32,mask:f32,depth:f32)->f32 {
+ return max(0.0,(exp(-depth*mask*(.5+.5*density))-.001)/.999);
+}
+fn cloudColor(density:f32,mask:f32,ray:vec3f,sunDistance:f32)->vec3f {
+ let daylight=frame.params.y;let sunset=frame.params.z;
+ let body=mix(vec3f(.028,.042,.072),vec3f(.42,.52,.60),daylight);
+ let top=mix(vec3f(.12,.17,.25),vec3f(1.0,.97,.88),daylight);
+ let warm=mix(top,vec3f(1.0,.48,.24),sunset*.7);
+ let sculpt=smoothstep(.48,.72,density);
+ var color=mix(body,warm,sculpt);
+ let edge=pow(max(0.0,1.0-abs(mask-.45)*2.0),3.0);
+ color+=mix(vec3f(.4,.54,.8),vec3f(1.0,.91,.66),daylight)*edge*exp(-sunDistance*sunDistance/.12)*.3;
+ return mix(frame.skyHorizon.rgb,color,smoothstep(-.06,.10,ray.y));
+}
 @fragment fn skyFs(input:ScreenOut)->@location(0) vec4f {
  let ndc=vec2f(input.uv.x*2.0-1.0,1.0-input.uv.y*2.0);
  let ray=normalize(frame.cameraForward.xyz+frame.cameraRight.xyz*ndc.x*frame.viewport.z*frame.viewport.w+frame.cameraUp.xyz*ndc.y*frame.viewport.z);
- let h=max(ray.y,0.0);
- let sunDir=normalize(frame.sunDir.xyz);
- let sunD=length(ray-sunDir);
- let moonD=length(ray-normalize(frame.moonDir.xyz));
+ let up=max(ray.y,0.0);let sunDir=normalize(frame.sunDir.xyz);let moonDir=normalize(frame.moonDir.xyz);
+ let sunD=length(ray-sunDir);let moonD=length(ray-moonDir);let sunVisible=smoothstep(-.085,.005,sunDir.y)*smoothstep(-.035,.015,ray.y);
  let sunset=frame.params.z;
- var color=mix(frame.skyHorizon.rgb,frame.skyTop.rgb,pow(h,0.52));
- let sunward=pow(max(dot(ray,sunDir),0.0),8.0);
- color+=vec3f(0.56,0.14,0.035)*exp(-h*8.0)*sunward*sunset;
- color=mix(color,vec3f(0.61,0.25,0.38),exp(-pow((h-0.18)/0.15,2.0))*sunset*0.22);
- let cloudUV=ray.xz/(max(ray.y,0.0)+0.23)*0.38+vec2f(frame.params.x*0.00005,frame.params.x*0.000019);
- let cloud=textureSample(albedo,albedoSampler,cloudUV).r;
- let cloud2=textureSample(albedo,albedoSampler,cloudUV*2.7+0.13).r;
- let density=cloud*0.78+cloud2*0.22;
- let cover=smoothstep(0.48,0.66,density)*smoothstep(-0.01,0.12,ray.y);
- let warm=mix(vec3f(0.68,0.75,0.78),vec3f(1.25,0.60,0.32),sunset*(0.3+0.7*sunward));
- var cloudColor=mix(vec3f(0.19,0.26,0.31),warm,smoothstep(0.48,0.72,density));
- cloudColor+=vec3f(0.8,0.43,0.16)*exp(-sunD*sunD/0.08)*cover*sunset*0.4;
- color=mix(color,cloudColor,cover*0.95);
- let sunVisible=smoothstep(-0.08,0.02,sunDir.y)*smoothstep(-0.03,0.02,ray.y);
- let disc=1.0-smoothstep(0.026,0.033,sunD);
- color+=vec3f(1.8,1.37,0.83)*(disc*sunVisible+0.30*exp(-sunD*sunD/0.003)*sunVisible);
- let moonVisible=smoothstep(-0.06,0.02,frame.moonDir.y)*smoothstep(-0.03,0.02,ray.y);
- color+=vec3f(0.6,0.75,1.0)*(1.0-smoothstep(0.027,0.035,moonD))*moonVisible;
+ var color=mix(frame.skyHorizon.rgb,frame.skyTop.rgb,pow(up,.48));
+ let sunward=pow(max(dot(ray,sunDir),0.0),4.0);
+ color+=vec3f(.43,.12,.035)*exp(-up*7.0)*sunward*sunset;
+ color=mix(color,vec3f(.53,.20,.36),exp(-pow((up-.18)/.15,2.0))*sunset*(.12+.25*sunward));
+ let sunRadius=mix(.031,.048,1.0-smoothstep(0.0,.32,abs(sunDir.y)));
+ let sunDisc=1.0-smoothstep(sunRadius-.002,sunRadius+.002,sunD);
+ let sunTint=mix(vec3f(1.0,.91,.66),vec3f(1.0,.29,.09),sunset);
+ color+=sunTint*(exp(-sunD*sunD/.055)*.23+exp(-sunD*sunD/.005)*.48)*sunVisible;
+ color=mix(color,mix(vec3f(1.65,1.52,1.2),vec3f(1.0,.38,.15),sunset),sunDisc*sunVisible);
+ let moonRadius=.045*frame.skyOptions.z;
+ let noEclipse=smoothstep(sunRadius+moonRadius,(sunRadius+moonRadius)*1.6,length(moonDir-sunDir));
+ let moonVisible=smoothstep(-.085,.005,moonDir.y)*smoothstep(-.035,.015,ray.y)*noEclipse;
+ let moonDisc=1.0-smoothstep(moonRadius-.002,moonRadius+.002,moonD);
+ let moonXY=vec2f(dot(ray,frame.moonRight.xyz),dot(ray,frame.moonUp.xyz))/max(.001,moonRadius);
+ let lunar=textureSample(moonMap,moonSampler,moonXY*vec2f(.5,-.5)+.5).rgb;
+ let relief=sqrt(max(0.0,1.0-dot(moonXY,moonXY)));
+ let moonLight=vec3f(dot(sunDir,frame.moonRight.xyz),dot(sunDir,frame.moonUp.xyz),-dot(sunDir,moonDir));
+ let lit=smoothstep(-.015,.015,dot(vec3f(moonXY,relief),moonLight));
+ let lunarColor=mix(mix(lunar*.025,color,frame.params.y),lunar*frame.skyOptions.w*(1.0-frame.moonOptions.y*(1.0-relief)),lit);
+ color+=vec3f(.6,.72,1.0)*exp(-moonD*moonD/.003)*frame.moonOptions.x*frame.moonOptions.w*moonVisible*.2;
+ color=mix(color,lunarColor,moonDisc*moonVisible);
  let starCell=floor(vec2f(atan2(ray.z,ray.x)*57.3,acos(clamp(ray.y,-1.0,1.0))*57.3));
- let star=hash(starCell);
- let starSpot=length(fract(vec2f(atan2(ray.z,ray.x),acos(clamp(ray.y,-1.0,1.0)))*57.3)-vec2f(hash(starCell+1.0),hash(starCell+9.0)));
- color+=vec3f(0.8,0.86,1.0)*step(0.994,star)*(1.0-smoothstep(0.025,0.055,starSpot))*(1.0-frame.params.y)*smoothstep(0.0,0.15,ray.y);
+ let star=hash(starCell);let starSpot=length(fract(vec2f(atan2(ray.z,ray.x),acos(clamp(ray.y,-1.0,1.0)))*57.3)-vec2f(hash(starCell+1.0),hash(starCell+9.0)));
+ let twinkle=1.0+frame.skyOptions.y*sin(frame.skyWarpTimeQuality.z*11.0+star*21.0);
+ color+=vec3f(.8,.86,1.0)*step(.994,star)*(1.0-smoothstep(.025,.055,starSpot))*frame.skyOptions.x*twinkle*(1.0-frame.params.y)*smoothstep(0.0,.15,ray.y);
+ let p=ray.xz/(up+.18);
+ let warp=textureSample(albedo,albedoSampler,p*.19+frame.skyWarpTimeQuality.xy).ba-.5;
+ let lowUV=p*frame.skyLowScaleOffset.xy+frame.skyLowScaleOffset.zw+warp*frame.skyLowShape.w;
+ let lowDetailUV=p*frame.skyLowScaleOffset.xy*frame.skyLowShape.z+frame.skyDetailOffsets.xy+warp*frame.skyLowShape.w*frame.skyLowShape.z;
+ let highP=vec2f(p.x*.8-p.y*.6,p.x*.6+p.y*.8);let highWarp=vec2f(-warp.y,warp.x)*frame.skyHighShape.w;
+ let highUV=highP*frame.skyHighScaleOffset.xy+frame.skyHighScaleOffset.zw+highWarp;
+ let highDetailUV=highP*frame.skyHighScaleOffset.xy*frame.skyHighShape.z+frame.skyDetailOffsets.zw+highWarp*frame.skyHighShape.z;
+ let lowDensity=textureSample(albedo,albedoSampler,lowUV).r*.83+textureSample(albedo,albedoSampler,lowDetailUV).r*.17;
+ let highDensity=textureSample(albedo,albedoSampler,highUV).g*.88+textureSample(albedo,albedoSampler,highDetailUV).g*.12;
+ let lowMask=cloudMask(lowDensity,frame.skyLowShape.x);let highMask=cloudMask(highDensity,frame.skyHighShape.x);
+ let lowT=cloudTransmission(lowDensity,lowMask,frame.skyLowShape.y);let highT=cloudTransmission(highDensity,highMask,frame.skyHighShape.y);
+ color=color*highT+cloudColor(highDensity,highMask,ray,sunD)*(1.0-highT);
+ color=color*lowT+cloudColor(lowDensity,lowMask,ray,sunD)*(1.0-lowT);
  return vec4f(color,1.0);
 }
 `;
@@ -283,5 +337,38 @@ struct Out { @builtin(position) clip:vec4f, @location(0) uv:vec2f };
  let a=2.51;let b=0.03;let d=0.59;let e=0.14;
  let mapped=clamp((c*(a*c+b))/(c*(2.43*c+d)+e),vec3f(0.0),vec3f(1.0));
  return vec4f(pow(mapped,vec3f(1.0/2.2)),1.0);
+}
+`;
+
+export const RAIN_WGSL = /* wgsl */ `${FRAME_WGSL}
+struct Drop { column:vec4f, motion:vec4f };
+@group(1) @binding(0) var<storage,read> drops:array<Drop>;
+struct RainOut {
+ @builtin(position) clip:vec4f,
+ @location(0) uv:vec2f,
+ @location(1) world:vec3f,
+ @location(2) floor:f32,
+ @location(3) alpha:f32,
+};
+@vertex fn rainVs(@builtin(vertex_index) id:u32,@builtin(instance_index) instance:u32)->RainOut {
+ let drop=drops[instance];let column=drop.column;let motion=drop.motion;
+ let corner=vec2f(select(-.5,.5,id==1u||id==2u||id==4u),select(-.5,.5,id==2u||id==4u||id==5u));
+ let phase=fract(frame.params.x*motion.y/256.0+motion.x);
+ let heavy=smoothstep(.4,1.0,frame.weather.x);
+ let y=column.z+(1.0-phase)*24.0;
+ let world=vec3f(column.x,y,column.y)+frame.cameraRight.xyz*corner.x*(.026+.004*heavy)+vec3f(0.0,corner.y*motion.z*(1.0+.55*heavy),0.0);
+ let radial=1.0-smoothstep(12.0,16.0,length(world.xz-frame.camera.xz));
+ let respawn=smoothstep(0.0,.055,phase)*(1.0-smoothstep(.92,1.0,phase));
+ let amount=smoothstep(motion.w,motion.w+.08,frame.weather.x);
+ var out:RainOut;out.clip=frame.viewProj*vec4f(world,1.0);out.uv=corner+.5;out.world=world;out.floor=column.w;
+ out.alpha=radial*respawn*amount*(1.0+.23*heavy);return out;
+}
+@fragment fn rainFs(input:RainOut)->@location(0) vec4f {
+ if(input.world.y<input.floor){discard;}
+ let width=1.0-smoothstep(.12,.5,abs(input.uv.x-.5));
+ let ends=smoothstep(0.0,.15,input.uv.y)*(1.0-smoothstep(.7,1.0,input.uv.y));
+ let haze=exp(-frame.params.w*distance(input.world,frame.camera.xyz));
+ let color=vec3f(.22+frame.params.y*.48,.29+frame.params.y*.47,.39+frame.params.y*.45);
+ return vec4f(color,width*ends*input.alpha*haze*.32);
 }
 `;

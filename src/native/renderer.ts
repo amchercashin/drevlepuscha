@@ -10,6 +10,11 @@ import type {Box,Point3} from '../domain/harness.ts';
 import {collisionGeometry,meshBlocksSegment,meshCollider} from '../domain/mesh-collision.ts';
 import type {CollisionGeometry} from '../domain/mesh-collision.ts';
 import {createCloudPixels,SKY_TEXTURE_SIZE} from '../domain/sky-textures.ts';
+import {cloudOffsets,moonBasis,sourceTransmission} from '../domain/sky.ts';
+import type {SkyQuality,SkySettings} from '../domain/sky.ts';
+import type {WeatherState} from '../domain/weather.ts';
+import {rainDrop,rainDropIndices,rainTiles,RAIN_TILE_SIZE} from '../domain/rain.ts';
+import {moonAlbedoUrl} from '../runtime/sky-assets.ts';
 import type {TreeAssetData} from '../runtime/tree-assets.ts';
 import type {WindSystem} from '../runtime/wind.ts';
 import oakUrl from '../../assets/trees/meshy-a/tree.json?url';
@@ -38,7 +43,7 @@ import {cameraBasis,inverseAffine,lookAt,modelMatrix,multiply,normalize,orthogra
 import type {Vec3} from './math.ts';
 import {detailTerrainGeometry,rangerGeometry,terrainGeometry,treeGeometry} from './geometry.ts';
 import type {MeshData} from './geometry.ts';
-import {POST_WGSL,SCENE_WGSL} from './shaders.ts';
+import {POST_WGSL,RAIN_WGSL,SCENE_WGSL} from './shaders.ts';
 
 interface GpuMesh {vertex:GPUBuffer;index:GPUBuffer;count:number}
 interface GpuMaterial {group:GPUBindGroup;uniform:GPUBuffer}
@@ -53,6 +58,7 @@ export interface NativeRemote {id:string;e:number;n:number;heading:number;speed:
 export interface NativeFrame {
  eye:Vec3;target:Vec3;player:{e:number;n:number;heading:number};
  daylight:Daylight;dt:number;speed:number;seconds:number;fogDensity:number;wind:WindSystem;cloakColor?:string;remotes?:NativeRemote[];
+ weather:WeatherState;sky:SkySettings;skySeconds:number;skyQuality:SkyQuality;rays:boolean;
 }
 
 function cloakTone(hex:string):[number,number,number]{
@@ -84,8 +90,8 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  context.configure({device,format:swapFormat,alphaMode:'opaque'});
  void device.lost.then(info=>onLost(`Графическое устройство потеряно: ${info.message || info.reason}. Перезагрузите стенд.`));
 
- const frameBuffer=device.createBuffer({size:368,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
- const frameData=new Float32Array(92);
+ const frameBuffer=device.createBuffer({size:544,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
+ const frameData=new Float32Array(136);
  const shadowTexture=device.createTexture({size:[1024,1024],format:'depth32float',usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING});
  const shadowView=shadowTexture.createView();
  const shadowSampler=device.createSampler({compare:'less-equal',magFilter:'linear',minFilter:'linear'});
@@ -102,6 +108,8 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   {binding:1,visibility:GPUShaderStage.FRAGMENT,sampler:{type:'filtering'}},
   {binding:2,visibility:GPUShaderStage.VERTEX|GPUShaderStage.FRAGMENT,buffer:{type:'uniform'}},
   ...[3,4,5,6,7].map(binding=>({binding,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:'float' as const}})),
+  {binding:8,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:'float'}},
+  {binding:9,visibility:GPUShaderStage.FRAGMENT,sampler:{type:'filtering'}},
  ]});
  const skinLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX,buffer:{type:'read-only-storage'}}]});
  const frameGroup=device.createBindGroup({layout:frameLayout,entries:[
@@ -109,16 +117,18 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  ]});
  const shadowFrameGroup=device.createBindGroup({layout:shadowFrameLayout,entries:[{binding:0,resource:{buffer:frameBuffer}}]});
  const textureSampler=device.createSampler({magFilter:'linear',minFilter:'linear',mipmapFilter:'linear',addressModeU:'repeat',addressModeV:'repeat',maxAnisotropy:4});
+ const moonSampler=device.createSampler({magFilter:'linear',minFilter:'linear',mipmapFilter:'linear',addressModeU:'clamp-to-edge',addressModeV:'clamp-to-edge'});
  const white=device.createTexture({size:[1,1],format:'rgba8unorm-srgb',usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
  device.queue.writeTexture({texture:white},new Uint8Array([255,255,255,255]),{bytesPerRow:4},[1,1]);
 
- let groundMaps:GPUTexture[]=[];
+ let groundMaps:GPUTexture[]=[],moonTexture:GPUTexture;
  function makeMaterial(texture:GPUTexture,kind:number,tint:[number,number,number]=[1,1,1]):GpuMaterial {
   const uniform=device.createBuffer({size:32,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
   device.queue.writeBuffer(uniform,0,new Float32Array([kind,1,0,0,...tint,1]));
   const group=device.createBindGroup({layout:materialLayout,entries:[
    {binding:0,resource:texture.createView()},{binding:1,resource:textureSampler},{binding:2,resource:{buffer:uniform}},
    ...groundMaps.map((map,index)=>({binding:index+3,resource:map.createView()})),
+   {binding:8,resource:moonTexture.createView()},{binding:9,resource:moonSampler},
   ]});
   return {group,uniform};
  }
@@ -136,13 +146,15 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  }
  async function urlTexture(url:string,linear=false):Promise<GPUTexture>{const r=await fetch(url);if(!r.ok)throw new Error(`Текстура леса: HTTP ${r.status}`);return imageTexture(await r.blob(),linear);}
  groundMaps=await Promise.all([urlTexture(patchesUrl,true),urlTexture(heightsUrl,true),urlTexture(normalsUrl,true),urlTexture(reliefSoilUrl),urlTexture(litterUrl)]);
+ if(!moonAlbedoUrl)throw new Error('Не найдена текстура Луны.');
+ moonTexture=await urlTexture(moonAlbedoUrl,true);
  const cloudPixels=createCloudPixels();
  const cloudTexture=device.createTexture({size:[SKY_TEXTURE_SIZE,SKY_TEXTURE_SIZE],format:'rgba8unorm',usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
  device.queue.writeTexture({texture:cloudTexture},cloudPixels,{bytesPerRow:SKY_TEXTURE_SIZE*4},[SKY_TEXTURE_SIZE,SKY_TEXTURE_SIZE]);
  const skyMaterial=makeMaterial(cloudTexture,0),groundMaterial=makeMaterial(await urlTexture(soilUrl),0),grassMaterial=makeMaterial(white,3,[.31,.48,.32]);
 
- const shader=device.createShaderModule({code:SCENE_WGSL,label:'native-showcase-scene'}),postShader=device.createShaderModule({code:POST_WGSL,label:'native-showcase-tonemap'});
- const issues=(await shader.getCompilationInfo()).messages.filter(m=>m.type==='error');
+ const shader=device.createShaderModule({code:SCENE_WGSL,label:'native-showcase-scene'}),postShader=device.createShaderModule({code:POST_WGSL,label:'native-showcase-tonemap'}),rainShader=device.createShaderModule({code:RAIN_WGSL,label:'native-showcase-rain'});
+ const issues=[...(await shader.getCompilationInfo()).messages,...(await rainShader.getCompilationInfo()).messages].filter(m=>m.type==='error');
  if(issues.length)throw new Error(`WGSL: ${issues.map(m=>`${m.lineNum}:${m.linePos} ${m.message}`).join('; ')}`);
  const sceneLayout=device.createPipelineLayout({bindGroupLayouts:[frameLayout,materialLayout]});
  const shadowLayout=device.createPipelineLayout({bindGroupLayouts:[shadowFrameLayout,materialLayout]});
@@ -173,6 +185,10 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const postLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:'float'}},{binding:1,visibility:GPUShaderStage.FRAGMENT,sampler:{type:'filtering'}}]});
  const postPipeline=await device.createRenderPipelineAsync({layout:device.createPipelineLayout({bindGroupLayouts:[postLayout]}),vertex:{module:postShader,entryPoint:'vs'},fragment:{module:postShader,entryPoint:'fs',targets:[{format:swapFormat}]},primitive:{topology:'triangle-list'}});
  const postSampler=device.createSampler({magFilter:'linear',minFilter:'linear'});
+ const rainLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX,buffer:{type:'read-only-storage'}}]});
+ const rainPipeline=await device.createRenderPipelineAsync({layout:device.createPipelineLayout({bindGroupLayouts:[frameLayout,rainLayout]}),vertex:{module:rainShader,entryPoint:'rainVs'},fragment:{module:rainShader,entryPoint:'rainFs',targets:[{format:'rgba16float',blend:{color:{srcFactor:'src-alpha',dstFactor:'one-minus-src-alpha',operation:'add'},alpha:{srcFactor:'one',dstFactor:'one-minus-src-alpha',operation:'add'}}}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'less-equal'}});
+ const rainBuffer=device.createBuffer({size:9*256*8*4,usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST});
+ const rainGroup=device.createBindGroup({layout:rainLayout,entries:[{binding:0,resource:{buffer:rainBuffer}}]});
 
  progress?.('Готовим рельеф…');
  const terrain=makeMesh(device,terrainGeometry()),detailData=detailTerrainGeometry(0,0),detail=makeMesh(device,detailData);
@@ -295,14 +311,28 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  }
  resize(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight));
  let visibleTrees=0,drawCalls=0,triangles=0,shadowTriangles=0;
+ let rainCount=0,rainCell='',lightTransmission=1;
  const shadowsAt=58,drawDistance=190;
- function updateTrees(eye:Vec3,feet:Point3,forward:Vec3,dt:number){
+ function updateRain(frame:NativeFrame){
+  if(frame.weather.precipitation<=.0001){rainCount=0;return;}
+  const cell=`${Math.floor(frame.eye[0]/RAIN_TILE_SIZE)}:${Math.floor(frame.eye[2]/RAIN_TILE_SIZE)}:${frame.skyQuality}`;
+  if(cell===rainCell)return;rainCell=cell;
+  const indices=rainDropIndices(frame.skyQuality),values=new Float32Array(9*indices.length*8);
+  let k=0;
+  for(const [tileX,tileZ] of rainTiles(frame.eye[0],frame.eye[2]))for(const index of indices){
+   const drop=rainDrop(tileX,tileZ,index),ground=showcaseHeight(drop.x,-drop.z);
+   values.set([drop.x,drop.z,ground,ground+.02,drop.phase,drop.harmonic,drop.length,drop.threshold],k);k+=8;
+  }
+  rainCount=k/8;device.queue.writeBuffer(rainBuffer,0,values);
+ }
+ function updateTrees(eye:Vec3,feet:Point3,forward:Vec3,dt:number,quality:SkyQuality){
   visibleTrees=0;
-  for(const row of buckets)for(const bucket of row){bucket.near.length=0;bucket.far.length=0;bucket.count=0;bucket.shadowCount=0;}
+ for(const row of buckets)for(const bucket of row){bucket.near.length=0;bucket.far.length=0;bucket.count=0;bucket.shadowCount=0;}
+  const detailedDistance=quality===2?115:quality===1?85:65;
   for(const tree of trees){
    const p=tree.placement,dx=p.e-eye[0],dz=-p.n-eye[2],distance=Math.hypot(dx,dz);
    if(distance>drawDistance||distance>22&&dx*forward[0]+dz*forward[2]<-distance*.25)continue;
-   const lod=distance<23?0:distance<65?1:2;
+   const lod=distance<23?0:distance<detailedDistance?1:2;
    const close=distance<shadowsAt;
    if(distance<15){
     const blocked=occludesTraveller({x:eye[0],y:eye[1],z:eye[2]},feet,tree.box,tree.opacity<.99,
@@ -338,23 +368,38 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   const vec=(offset:number,a:readonly number[],w=0)=>frameData.set([a[0],a[1],a[2],w],offset);
   vec(32,eye,1);vec(36,frame.daylight.towardSun,0);
   vec(40,frame.daylight.mainColor,frame.daylight.mainIntensity);
-  for(let i=0;i<3;i++)frameData[40+i]*=frame.daylight.mainIntensity*.68;
+  const offsets=cloudOffsets(frame.skySeconds,frame.sky),source=frame.daylight.source==='sun'?frame.daylight.towardSun:frame.daylight.towardMoon;
+  const targetTransmission=sourceTransmission(cloudPixels,SKY_TEXTURE_SIZE,source,frame.sky,offsets);
+  lightTransmission+=(targetTransmission-lightTransmission)*(1-Math.exp(-Math.max(frame.dt,.016)/.7));
+  for(let i=0;i<3;i++)frameData[40+i]*=frame.daylight.mainIntensity*.68*lightTransmission;
   vec(44,frame.daylight.zenith,0);vec(48,frame.daylight.horizon,0);vec(52,frame.daylight.fogColor,0);
   frameData.set([frame.seconds,frame.daylight.daylight,frame.daylight.sunset,frame.fogDensity],56);
   vec(60,frame.daylight.towardMoon,0);
   frameData.set([width,height,Math.tan(fov/2),aspect],64);
   vec(68,basis.right);vec(72,basis.up);vec(76,basis.forward);
-  vec(80,frame.daylight.fillColor.map(c=>c*frame.daylight.fillIntensity*.38+.035),0);
+  vec(80,frame.daylight.fillColor.map(c=>c*frame.daylight.fillIntensity*frame.weather.ambientScale*.38+.035),0);
   vec(84,light);
   const wind=frame.wind,amplitude=Math.min(2,wind.intensity/3.5)*(.7+wind.snapshot.gust*.7);
   frameData.set([wind.snapshot.directionToXZ[0],wind.snapshot.directionToXZ[1],wind.canopyBend*amplitude,wind.coverBend*amplitude],88);
+  const low=frame.sky.low,high=frame.sky.high,basisMoon=moonBasis(frame.daylight.towardMoon);
+  frameData.set([low.coverage,low.opticalDepth,low.detailScale,low.warpStrength],92);
+  frameData.set([high.coverage,high.opticalDepth,high.detailScale,high.warpStrength],96);
+  frameData.set([...low.scale,...offsets.lowBase],100);
+  frameData.set([...high.scale,...offsets.highBase],104);
+  frameData.set([...offsets.lowDetail,...offsets.highDetail],108);
+  frameData.set([...offsets.warp,frame.skySeconds,frame.skyQuality],112);
+  frameData.set([frame.sky.stars.brightness,frame.sky.stars.twinkle,frame.sky.moon.sizeScale,frame.sky.moon.brightness],116);
+  frameData.set([frame.sky.moon.halo,frame.sky.moon.limbShade,frame.daylight.moonPhase,frame.daylight.moonIllumination],120);
+  vec(124,basisMoon.right);vec(128,basisMoon.up);
+  frameData.set([frame.weather.precipitation,Number(frame.rays),frame.weather.ambientScale,lightTransmission],132);
   device.queue.writeBuffer(frameBuffer,0,frameData);
   return basis;
  }
  function render(frame:NativeFrame){
   if(!hdr||!depth||!postGroup)return;
   const basis=setFrame(frame),feet={x:frame.player.e,y:showcaseHeight(frame.player.e,frame.player.n),z:-frame.player.n};
-  updateTrees(frame.eye,feet,basis.forward,frame.dt);
+  updateRain(frame);
+  updateTrees(frame.eye,feet,basis.forward,frame.dt,frame.skyQuality);
   for(const prop of props){
    const blocked=occludesTraveller({x:frame.eye[0],y:frame.eye[1],z:frame.eye[2]},feet,prop.box,prop.opacity<.99);
    const next=fadeOpacity(prop.opacity,blocked?.16:1,frame.dt,blocked?.08:.25);
@@ -415,11 +460,12 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   }
   main.setPipeline(skinnedPipeline);
   for(const avatar of avatars){main.setBindGroup(1,avatar.material.group);main.setBindGroup(2,avatar.gpu.skinGroup);drawMesh(main,rangerMesh,avatar.gpu.instance,1);}
+  if(rainCount){main.setPipeline(rainPipeline);main.setBindGroup(0,frameGroup);main.setBindGroup(1,rainGroup);main.draw(6,rainCount);drawCalls++;triangles+=2*rainCount;}
   main.end();
   const post=encoder.beginRenderPass({colorAttachments:[{view:gpuContext.getCurrentTexture().createView(),loadOp:'clear',clearValue:[0,0,0,1],storeOp:'store'}]});
   post.setPipeline(postPipeline);post.setBindGroup(0,postGroup);post.draw(3);post.end();drawCalls++;
   device.queue.submit([encoder.finish()]);
  }
- return {render,resize,boxes:collisionBoxes,stats:()=>({visibleTrees,trees:trees.length,props:props.length,remotes:remoteAvatars.size,drawCalls,triangles,shadowTriangles,device:adapter.info,backend:'native-webgpu' as const}),
-  dispose:()=>{foliageWorker.terminate();for(const gpu of remoteAvatars.values()){gpu.instance.destroy();gpu.skinBuffer.destroy();}hdr?.destroy();depth?.destroy();shadowTexture.destroy();frameBuffer.destroy();device.destroy();}};
+ return {render,resize,boxes:collisionBoxes,stats:()=>({visibleTrees,trees:trees.length,props:props.length,remotes:remoteAvatars.size,rainInstances:rainCount,drawCalls,triangles,shadowTriangles,device:adapter.info,backend:'native-webgpu' as const}),
+  dispose:()=>{foliageWorker.terminate();for(const gpu of remoteAvatars.values()){gpu.instance.destroy();gpu.skinBuffer.destroy();}hdr?.destroy();depth?.destroy();shadowTexture.destroy();rainBuffer.destroy();frameBuffer.destroy();device.destroy();}};
 }
