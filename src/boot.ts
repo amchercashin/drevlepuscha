@@ -21,10 +21,13 @@ if(params.get('engine')==='lite'){
    const invite=parseInvitation(location.hash);
    if(invite)await (await import('./network/showcase-entrance.ts')).enterShowcase(invite);
   }else document.body.classList.remove('showcase');
-  // Queue the renderer's code before bulk image transfers, still after joining.
-  const main=import('./main.ts');
-  if(scene!=='m0'&&scene!=='m1')preloadShowcase(params);
-  await main;
+  if(scene==='m0'||scene==='m1')await import('./main.ts');
+  else{
+   // The playable showcase owns its WebGPU device, pipelines and WGSL passes.
+   const main=import('./native/main.ts');
+   preloadShowcase(params);
+   await main;
+  }
  }
 }
 
