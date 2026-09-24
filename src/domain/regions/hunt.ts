@@ -3,6 +3,7 @@ import {alongRoute} from './session.ts';
 
 export type Weapon='bow'|'sword';
 export type ScoutMode='patrol'|'search'|'pursuit'|'down';
+export type EnemyKind='southerner'|'goblin'|'orc';
 export interface HuntPlayer {e:number;n:number;height:number;mode:'walk'|'boat';speed:number;crouching:boolean;}
 export interface ScoutState {id:string;routeId:string;distanceM:number;direction:1|-1;e:number;n:number;heading:number;health:number;alert:number;mode:ScoutMode;attackAt:number;lastSeenAt:number;}
 export interface TrackClue {id:string;e:number;n:number;label:string;message:string;}
@@ -11,9 +12,9 @@ export interface HuntSave {schema:1;regionId:string;contentVersion:string;seed:n
 export interface HuntWorld {height:(e:number,n:number)=>number;visible:(from:{e:number;n:number;height:number},to:{e:number;n:number;height:number})=>boolean;blocked:(e:number,n:number)=>boolean;}
 
 const SCOUTS=[
- {id:'scout-lookout',routeId:'lookout-access',center:410,span:85},
- {id:'scout-hollow',routeId:'lookout-hollow',center:365,span:135},
- {id:'scout-ridge',routeId:'lookout-ridge',center:930,span:170},
+ {id:'scout-lookout',routeId:'lookout-access',center:410,span:85,kind:'southerner',damage:17,speed:2.8,armor:1},
+ {id:'scout-hollow',routeId:'lookout-hollow',center:365,span:135,kind:'goblin',damage:21,speed:3.3,armor:.85},
+ {id:'scout-ridge',routeId:'lookout-ridge',center:930,span:170,kind:'orc',damage:28,speed:2.6,armor:.62},
 ] as const;
 const TRACKS=[
  {id:'bridge-tracks',routeId:'east-approach',distanceM:58,label:'Следы у восточного подхода',message:'Трое сошли с дороги после моста. Отпечатки ведут к обзорному плечу.'},
@@ -50,6 +51,10 @@ export class RegionHunt {
  get nextClue(){return this.clues.find(clue=>!this.state.tracks.includes(clue.id))??null;}
  get downCount(){return this.state.scouts.filter(s=>s.mode==='down').length;}
  get activeScouts(){return this.state.scouts.filter(s=>s.mode!=='down');}
+ kindOf(id:string):EnemyKind{return SCOUTS.find(s=>s.id===id)?.kind??'southerner';}
+ alertAt(e:number,n:number,amount=.35){for(const scout of this.activeScouts)if(Math.hypot(scout.e-e,scout.n-n)<65){scout.alert=Math.max(scout.alert,amount);scout.mode='search';}this.state.revision++;}
+ takeDamage(damage:number,message:string){this.state.health=Math.max(0,this.state.health-damage);this.state.revision++;this.events.push(message);
+  if(this.state.health){return null;}this.state.health=100;this.state.arrows=12;this.events.push('Вы очнулись у постоялого двора. Лазутчики ещё в лесу.');return 'respawn' as const;}
  select(weapon:Weapon){if(this.state.weapon===weapon)return;this.state.weapon=weapon;this.state.revision++;}
  nearbyClue(player:{e:number;n:number}){const clue=this.nextClue;return clue&&Math.hypot(clue.e-player.e,clue.n-player.n)<6?clue:null;}
  inspect(player:{e:number;n:number}){const clue=this.nearbyClue(player);if(!clue)return null;this.state.tracks.push(clue.id);this.state.revision++;this.events.push(clue.message);return clue;}
@@ -71,7 +76,8 @@ export class RegionHunt {
   return true;
  }
  private hit(scout:ScoutState,damage:number){
-  scout.health=Math.max(0,scout.health-damage);scout.alert=1;scout.lastSeenAt=this.state.clock;
+  const spec=SCOUTS.find(s=>s.id===scout.id)!;
+  scout.health=Math.max(0,scout.health-Math.round(damage*spec.armor));scout.alert=1;scout.lastSeenAt=this.state.clock;
   if(scout.health===0){scout.mode='down';this.events.push('Лазутчик обезврежен.');}
   else {scout.mode='pursuit';this.events.push('Попадание! Лазутчик заметил вас.');}
   if(this.downCount===this.state.scouts.length){this.state.completed=true;this.events.push('Все лазутчики остановлены. Дозор у Брендивинского моста завершён.');}
@@ -104,12 +110,12 @@ export class RegionHunt {
    else if(scout.alert<=.15&&scout.mode==='search')scout.mode='patrol';
    if(scout.mode==='pursuit'&&this.state.clock-scout.lastSeenAt>12&&distance>35){scout.mode='search';scout.alert=.5;}
    if(scout.mode==='pursuit'&&distance<2.2&&player.mode==='walk'&&this.state.clock>=scout.attackAt){
-    scout.attackAt=this.state.clock+1.5;this.state.health=Math.max(0,this.state.health-17);this.state.revision++;this.events.push('Удар лазутчика!');
-    if(this.state.health===0){this.state.health=100;this.state.arrows=12;this.events.push('Вы очнулись у постоялого двора. Лазутчики ещё в лесу.');return 'respawn' as const;}
+    const spec=SCOUTS.find(s=>s.id===scout.id)!;
+    scout.attackAt=this.state.clock+1.5;if(this.takeDamage(spec.damage,'Удар лазутчика!')==='respawn')return 'respawn' as const;
    }
    const previous={e:scout.e,n:scout.n};
    if(scout.mode==='pursuit'&&distance>1.7&&distance<100){
-    const speed=2.8,move=Math.min(distance-1.5,speed*step),de=(player.e-scout.e)/distance*move,dn=(player.n-scout.n)/distance*move;
+    const speed=SCOUTS.find(s=>s.id===scout.id)!.speed,move=Math.min(distance-1.5,speed*step),de=(player.e-scout.e)/distance*move,dn=(player.n-scout.n)/distance*move;
     const candidate={e:scout.e+de,n:scout.n+dn};
     if(this.walkable(scout,candidate,world)){scout.e=candidate.e;scout.n=candidate.n;}
     else for(const side of [-1,1]){const flank={e:scout.e+dn*side,n:scout.n-de*side};if(this.walkable(scout,flank,world)){scout.e=flank.e;scout.n=flank.n;break;}}

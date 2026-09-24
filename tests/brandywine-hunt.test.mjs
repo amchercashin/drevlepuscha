@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {RegionHunt} from '../src/domain/regions/hunt.ts';
+import {RegionVisitors} from '../src/domain/regions/visitors.ts';
 
 const source=JSON.parse(readFileSync(new URL('../content/regions/brandywine-bridge/region-source.json',import.meta.url)));
 const make=()=>new RegionHunt(source,'test-version');
@@ -32,11 +33,12 @@ test('running in sight raises alarm; crouching delays discovery; patrols move wi
 
 test('bow travels through the world, sword needs reach and facing, and victory is persistent',()=>{
  const hunt=make();for(const scout of hunt.state.scouts){
-  const player=walker(scout.e,scout.n-10),heading=0;
-  assert.ok(hunt.fireBow(player,heading,0));
-  for(let i=0;i<10;i++)hunt.update(.05,player,world);
+  for(let shot=0;shot<3&&scout.mode!=='down';shot++){
+   const player=walker(scout.e,scout.n-10),heading=0;
+   assert.ok(hunt.fireBow(player,heading,0));
+   for(let i=0;i<12;i++)hunt.update(.05,player,world);
+  }
   assert.equal(scout.mode,'down');
-  for(let i=0;i<12;i++)hunt.update(.05,walker(-220,-105),world);
  }
  assert.equal(hunt.state.completed,true);assert.equal(hunt.downCount,3);
  const copy=make();copy.restore(hunt.snapshot());assert.equal(copy.state.completed,true);
@@ -46,4 +48,16 @@ test('bow travels through the world, sword needs reach and facing, and victory i
  assert.ok(sword.swing(behind,180,world));assert.equal(scout.health,45);
  for(let i=0;i<16;i++)sword.update(.05,walker(-220,-105),world);
  assert.ok(sword.swing(behind,180,world));assert.equal(scout.mode,'down');
+});
+
+test('southron, goblin and orc escalate while rare forest visitors remain seeded',()=>{
+ const hunt=make();assert.deepEqual(hunt.state.scouts.map(s=>hunt.kindOf(s.id)),['southerner','goblin','orc']);
+ const first=walker(hunt.state.scouts[0].e,hunt.state.scouts[0].n-1.5),last=walker(hunt.state.scouts[2].e,hunt.state.scouts[2].n-1.5);
+ const sword=make();sword.select('sword');assert.ok(sword.swing(first,0,world));assert.equal(sword.state.scouts[0].health,45);
+ for(let i=0;i<16;i++)sword.update(.05,walker(-220,-105),world);
+ assert.ok(sword.swing(last,0,world));assert.equal(sword.state.scouts[2].health,66);
+ const forest={height:()=>0,blocked:()=>false,forestAt:()=>true},a=new RegionVisitors(source.worldSeed),b=new RegionVisitors(source.worldSeed),p={e:500,n:500,mode:'walk'};
+ for(let i=0;i<16000&&!a.visitor;i++){a.update(.05,p,forest);b.update(.05,p,forest);}
+ assert.ok(a.visitor,'an occasional visitor arrives');assert.deepEqual(a.visitor,b.visitor);
+ assert.ok(['wolf','raven'].includes(a.visitor.kind));
 });

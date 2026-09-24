@@ -6,7 +6,8 @@ import {fadeOpacity,occludesTraveller} from '../domain/harness.ts';
 import type {RegionWorld} from './world.ts';
 import type {FrameWorkBudget} from '../runtime/startup.ts';
 import type {EN} from '../world/schema.ts';
-export type AssetPlacement={id:string;asset:string;e:number;n:number;y:number;yaw?:number;scale?:[number,number,number];replace?:string[];gate?:boolean;solid?:boolean};
+import type {RegionAssetPlacement} from '../domain/regions/structure-layout.ts';
+export type AssetPlacement=RegionAssetPlacement;
 export function placedAssets(world:RegionWorld,placements:AssetPlacement[],meshes:Mesh[],onReady:(p:AssetPlacement)=>void){
  const requested=new Set<string>(),loaded=new Map<string,Mesh[][]>(),queue:(()=>void)[]=[];
  const shapes=new Map<string,CollisionGeometry>(),colliders:MeshCollider[]=[];

@@ -10,7 +10,7 @@ if(params.get('engine')==='lite'){
  await import('./lite/main.ts');
 }else{
  const scene=params.get('scene');
- if(scene==='region'){if(params.get('region')!=='brandywine-bridge')throw Error('Неизвестная область');document.body.classList.remove('showcase');await import('./regions/game.ts');}
+ if(scene==='region'){if(params.get('region')!=='brandywine-bridge')throw Error('Неизвестная область');document.body.classList.remove('showcase');if(params.get('renderer')==='direct')await import('./native/regions/brandywine-main.ts');else await import('./regions/game.ts');}
  else if(scene==='world'){document.body.classList.remove('showcase');document.title='Древлепуща — прогулка по карте';document.querySelector('h1')!.textContent='Древлепуща';document.querySelector('#pause-title')!.textContent='За Высокой Изгородью';await import('./world/game.ts');}
  else{
   if(scene!=='m0'&&scene!=='m1'){
