@@ -161,11 +161,11 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
  }}
  return 0.17+0.83*sum/9.0;
 }
-fn shadeScene(input:VertexOut)->vec4f {
+fn shadeScene(input:VertexOut,coverage:bool)->vec4f {
  let kind=material.kindOpacity.x;
  let texel=textureSample(albedo,albedoSampler,input.uv);
  let opacity=material.kindOpacity.y*input.tone.w;
- if(kind>2.5&&kind<3.5&&texel.a<0.46){discard;}
+ if(kind>2.5&&kind<3.5&&texel.a<0.46&&!coverage){discard;}
  var base:vec3f;
  var n=normalize(input.normal);
  if(kind<0.5){
@@ -251,15 +251,18 @@ fn shadeScene(input:VertexOut)->vec4f {
   let glow=frame.weather.z*frame.params.y*alignment*(1.0-exp(-dist*.012))*(.35+.65*shade)*.16;
   color+=vec3f(.75,.68,.48)*glow;
  }
- return vec4f(color,opacity);
+ return vec4f(color,select(opacity,smoothstep(.24,.50,texel.a),coverage&&kind>2.5&&kind<3.5));
 }
 @fragment fn fs(input:VertexOut)->@location(0) vec4f {
- let shaded=shadeScene(input);
+ let shaded=shadeScene(input,false);
  if(shaded.a<0.999&&hash(floor(input.clip.xy))>shaded.a){discard;}
  return vec4f(shaded.rgb,1.0);
 }
+@fragment fn fsCoverage(input:VertexOut)->@location(0) vec4f {
+ return shadeScene(input,true);
+}
 @fragment fn fsBlend(input:VertexOut)->@location(0) vec4f {
- return shadeScene(input);
+ return shadeScene(input,false);
 }
 
 struct ScreenOut { @builtin(position) clip:vec4f, @location(0) uv:vec2f };

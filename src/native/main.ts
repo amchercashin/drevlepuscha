@@ -92,7 +92,13 @@ try{
  qualitySelect.value=quality;
  const skyQuality=()=>quality==='performance'?0:quality==='balanced'?1:2;
  daylight.setQuality(skyQuality());
- function resize(){const size=showcaseResolution(canvas.clientWidth,canvas.clientHeight,devicePixelRatio,quality,8192);renderer.resize(size.width,size.height);}
+ function resize(){
+  const size=showcaseResolution(canvas.clientWidth,canvas.clientHeight,devicePixelRatio,quality,8192);
+  // Dense display pixels already smooth silhouettes; 4× MSAA serves lower-density high-quality views.
+  const msaaDisabled=new URLSearchParams(location.search).get('debug')==='1'&&new URLSearchParams(location.search).get('msaa')==='0';
+  const samples:1|4=!msaaDisabled&&(quality==='high'||quality==='native')&&size.scale<1.5?4:1;
+  renderer.resize(size.width,size.height,samples);
+ }
  qualitySelect.onchange=()=>{quality=qualitySelect.value as Quality;daylight.setQuality(skyQuality());try{localStorage.setItem('native-showcase-quality',quality);}catch{}resize();};
  window.addEventListener('resize',resize);resize();
  function state(){
@@ -100,7 +106,7 @@ try{
   return {ready:startup.readyAt!==null,loading:startup.stats(),frameCount,paused,player:{...player,h},
    camera:{...camera,yaw,pitch,distance,currentDistance:Math.hypot(camera.x-anchor.x,camera.y-anchor.y,camera.z-anchor.z),followError:Math.hypot(camera.x-anchor.x-offset.x,camera.y-anchor.y-offset.y-cameraLift,camera.z-anchor.z-offset.z),terrainLift:cameraLift,clearance:camera.y-groundHeight(camera.x,-camera.z)},
    mapOpen:atlas.isOpen(),playerClear:walkerIsClear(player,renderer.boxes),
-   render:{width:canvas.width,height:canvas.height,backend:'webgpu',pipeline:'direct',triangles:rs.triangles,shadowTriangles:rs.shadowTriangles,mainTriangles:rs.triangles-rs.shadowTriangles,drawCalls:rs.drawCalls,meshes:rs.visibleTrees+3,gpu:rs.device,gpuTiming:false,devicePixelRatio,internalDpr:canvas.height/Math.max(1,canvas.clientHeight),resolutionQuality:quality},
+   render:{width:canvas.width,height:canvas.height,backend:'webgpu',pipeline:'direct',triangles:rs.triangles,shadowTriangles:rs.shadowTriangles,mainTriangles:rs.triangles-rs.shadowTriangles,drawCalls:rs.drawCalls,meshes:rs.visibleTrees+3,gpu:rs.device,gpuTiming:false,msaaSamples:rs.sampleCount,devicePixelRatio,internalDpr:canvas.height/Math.max(1,canvas.clientHeight),resolutionQuality:quality},
    errors:[...errors],seed:targets.fixedSeed,sceneVersion:'ravine-native-webgpu-v1',demo,forest:{trees:rs.trees,activeTrees:rs.visibleTrees,assetLabel:'Нативный лес WebGPU'},floor:{grass:true},wind:wind.stats(),ambient:ambient.stats(),multiplayer:multiplayer.state(),lighting:{daylight:daylight.stats(),mapSize:1024},rain:{enabled:daylight.precipitation()>.0001,instances:rs.rainInstances,precipitation:daylight.precipitation()},
   };
  }

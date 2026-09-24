@@ -179,18 +179,26 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  ];
  const skinnedSceneLayout=device.createPipelineLayout({bindGroupLayouts:[frameLayout,materialLayout,skinLayout]});
  const skinnedShadowLayout=device.createPipelineLayout({bindGroupLayouts:[shadowFrameLayout,materialLayout,skinLayout]});
- const mainPipeline=await device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vs',buffers:vertexBuffers},fragment:{module:shader,entryPoint:'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'}});
- const fadedTreePipeline=await device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vs',buffers:vertexBuffers},fragment:{module:shader,entryPoint:'fsBlend',targets:[{format:'rgba16float',blend:{color:{srcFactor:'src-alpha',dstFactor:'one-minus-src-alpha',operation:'add'},alpha:{srcFactor:'one',dstFactor:'one-minus-src-alpha',operation:'add'}}}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'less-equal'}});
  const shadowPipeline=await device.createRenderPipelineAsync({layout:shadowLayout,vertex:{module:shader,entryPoint:'vsShadow',buffers:vertexBuffers},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less'}});
- const skinnedPipeline=await device.createRenderPipelineAsync({layout:skinnedSceneLayout,vertex:{module:shader,entryPoint:'vsSkinned',buffers:skinnedVertexBuffers},fragment:{module:shader,entryPoint:'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'}});
- const foliagePipeline=await device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vsFoliage',buffers:foliageVertexBuffers},fragment:{module:shader,entryPoint:'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'}});
  const skinnedShadowPipeline=await device.createRenderPipelineAsync({layout:skinnedShadowLayout,vertex:{module:shader,entryPoint:'vsSkinnedShadow',buffers:skinnedVertexBuffers},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less'}});
- const skyPipeline=await device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'screenVs'},fragment:{module:shader,entryPoint:'skyFs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'always'}});
+ const rainLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX,buffer:{type:'read-only-storage'}}]});
+ const rainBlend:GPUBlendState={color:{srcFactor:'src-alpha',dstFactor:'one-minus-src-alpha',operation:'add'},alpha:{srcFactor:'one',dstFactor:'one-minus-src-alpha',operation:'add'}};
+ async function createScenePipelines(count:1|4){
+  const multisample={count};
+  const [main,faded,skinned,foliage,sky,rain]=await Promise.all([
+   device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vs',buffers:vertexBuffers},fragment:{module:shader,entryPoint:'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'},multisample}),
+   device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vs',buffers:vertexBuffers},fragment:{module:shader,entryPoint:'fsBlend',targets:[{format:'rgba16float',blend:rainBlend}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'less-equal'},multisample}),
+   device.createRenderPipelineAsync({layout:skinnedSceneLayout,vertex:{module:shader,entryPoint:'vsSkinned',buffers:skinnedVertexBuffers},fragment:{module:shader,entryPoint:'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'},multisample}),
+   device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vsFoliage',buffers:foliageVertexBuffers},fragment:{module:shader,entryPoint:count===4?'fsCoverage':'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'},multisample:{count,alphaToCoverageEnabled:count===4}}),
+   device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'screenVs'},fragment:{module:shader,entryPoint:'skyFs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'always'},multisample}),
+   device.createRenderPipelineAsync({layout:device.createPipelineLayout({bindGroupLayouts:[frameLayout,rainLayout]}),vertex:{module:rainShader,entryPoint:'rainVs'},fragment:{module:rainShader,entryPoint:'rainFs',targets:[{format:'rgba16float',blend:rainBlend}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'less-equal'},multisample}),
+  ]);
+  return {main,faded,skinned,foliage,sky,rain};
+ }
+ const singleSample=await createScenePipelines(1),fourSamples=await createScenePipelines(4);
  const postLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:'float'}},{binding:1,visibility:GPUShaderStage.FRAGMENT,sampler:{type:'filtering'}}]});
  const postPipeline=await device.createRenderPipelineAsync({layout:device.createPipelineLayout({bindGroupLayouts:[postLayout]}),vertex:{module:postShader,entryPoint:'vs'},fragment:{module:postShader,entryPoint:'fs',targets:[{format:swapFormat}]},primitive:{topology:'triangle-list'}});
  const postSampler=device.createSampler({magFilter:'linear',minFilter:'linear'});
- const rainLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX,buffer:{type:'read-only-storage'}}]});
- const rainPipeline=await device.createRenderPipelineAsync({layout:device.createPipelineLayout({bindGroupLayouts:[frameLayout,rainLayout]}),vertex:{module:rainShader,entryPoint:'rainVs'},fragment:{module:rainShader,entryPoint:'rainFs',targets:[{format:'rgba16float',blend:{color:{srcFactor:'src-alpha',dstFactor:'one-minus-src-alpha',operation:'add'},alpha:{srcFactor:'one',dstFactor:'one-minus-src-alpha',operation:'add'}}}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'less-equal'}});
  const rainBuffer=device.createBuffer({size:9*256*8*4,usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST});
  const rainGroup=device.createBindGroup({layout:rainLayout,entries:[{binding:0,resource:{buffer:rainBuffer}}]});
 
@@ -315,15 +323,16 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   foliagePending=true;foliageWorker.postMessage({type:'build',id:++foliageId,e:0,n:0});
  });
 
- let width=0,height=0,hdr:GPUTexture|undefined,depth:GPUTexture|undefined,postGroup:GPUBindGroup|undefined;
- function resize(nextWidth:number,nextHeight:number){
+ let width=0,height=0,sampleCount:1|4=1,hdr:GPUTexture|undefined,multisampledHdr:GPUTexture|undefined,depth:GPUTexture|undefined,postGroup:GPUBindGroup|undefined;
+ function resize(nextWidth:number,nextHeight:number,nextSamples:1|4=1){
   nextWidth=Math.max(1,Math.min(device.limits.maxTextureDimension2D,Math.floor(nextWidth)));
   nextHeight=Math.max(1,Math.min(device.limits.maxTextureDimension2D,Math.floor(nextHeight)));
-  if(nextWidth===width&&nextHeight===height)return;
-  width=nextWidth;height=nextHeight;canvas.width=width;canvas.height=height;
-  hdr?.destroy();depth?.destroy();
+  if(nextWidth===width&&nextHeight===height&&nextSamples===sampleCount)return;
+  width=nextWidth;height=nextHeight;sampleCount=nextSamples;canvas.width=width;canvas.height=height;
+  hdr?.destroy();multisampledHdr?.destroy();depth?.destroy();
   hdr=device.createTexture({size:[width,height],format:'rgba16float',usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING});
-  depth=device.createTexture({size:[width,height],format:'depth32float',usage:GPUTextureUsage.RENDER_ATTACHMENT});
+  multisampledHdr=sampleCount===4?device.createTexture({size:[width,height],sampleCount,format:'rgba16float',usage:GPUTextureUsage.RENDER_ATTACHMENT}):undefined;
+  depth=device.createTexture({size:[width,height],sampleCount,format:'depth32float',usage:GPUTextureUsage.RENDER_ATTACHMENT});
   postGroup=device.createBindGroup({layout:postLayout,entries:[{binding:0,resource:hdr.createView()},{binding:1,resource:postSampler}]});
  }
  resize(Math.max(1,canvas.clientWidth),Math.max(1,canvas.clientHeight));
@@ -420,6 +429,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  }
  function render(frame:NativeFrame){
   if(!hdr||!depth||!postGroup)return;
+  const pipelines=sampleCount===4?fourSamples:singleSample;
   const basis=setFrame(frame),feet={x:frame.player.e,y:showcaseHeight(frame.player.e,frame.player.n),z:-frame.player.n};
   updateRain(frame);
   updateTrees(frame.eye,feet,basis.forward,frame.dt,frame.skyQuality);
@@ -468,10 +478,10 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
    drawMesh(shadow,families[family].levels[lod],bucket.fadedBuffer,bucket.fadedShadowCount);
   }
   shadow.end();shadowTriangles=triangles;
-  const main=encoder.beginRenderPass({colorAttachments:[{view:hdr.createView(),loadOp:'clear',clearValue:[0,0,0,1],storeOp:'store'}],depthStencilAttachment:{view:depth.createView(),depthLoadOp:'clear',depthClearValue:1,depthStoreOp:'store'}});
+  const main=encoder.beginRenderPass({colorAttachments:[{view:(multisampledHdr??hdr).createView(),...(multisampledHdr?{resolveTarget:hdr.createView()}:{}),loadOp:'clear',clearValue:[0,0,0,1],storeOp:multisampledHdr?'discard':'store'}],depthStencilAttachment:{view:depth.createView(),depthLoadOp:'clear',depthClearValue:1,depthStoreOp:'store'}});
   main.setBindGroup(0,frameGroup);
-  main.setPipeline(skyPipeline);main.setBindGroup(1,skyMaterial.group);main.draw(3);drawCalls++;
-  main.setPipeline(mainPipeline);
+  main.setPipeline(pipelines.sky);main.setBindGroup(1,skyMaterial.group);main.draw(3);drawCalls++;
+  main.setPipeline(pipelines.main);
   main.setBindGroup(1,groundMaterial.group);drawMesh(main,terrain,identity,1);drawMesh(main,detail,identity,1);
   for(const prop of props){main.setBindGroup(1,prop.material.group);drawMesh(main,prop.mesh,prop.instance,1);}
   for(let family=0;family<families.length;family++)for(let lod=0;lod<3;lod++){
@@ -483,13 +493,13 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
    main.setBindGroup(1,crownMaterial.group);drawMesh(main,families[family].leaves,bucket.buffer,bucket.count);
   }
   if(foliage){
-   main.setPipeline(foliagePipeline);
+   main.setPipeline(pipelines.foliage);
    main.setBindGroup(1,grassMaterial.group);drawMesh(main,foliage.grass,identity,1);
    main.setBindGroup(1,foliageMaterial.group);drawMesh(main,foliage.leaves,identity,1);drawMesh(main,foliage.cover,identity,1);
   }
-  main.setPipeline(skinnedPipeline);
+  main.setPipeline(pipelines.skinned);
   for(const avatar of avatars){main.setBindGroup(1,avatar.material.group);main.setBindGroup(2,avatar.gpu.skinGroup);drawMesh(main,rangerMesh,avatar.gpu.instance,1);}
-  main.setPipeline(fadedTreePipeline);
+  main.setPipeline(pipelines.faded);
   for(let family=0;family<families.length;family++)for(let lod=0;lod<3;lod++){
    const bucket=buckets[family][lod];if(!bucket.fadedCount)continue;
    main.setBindGroup(1,families[family].materials[lod].group);drawMesh(main,families[family].levels[lod],bucket.fadedBuffer,bucket.fadedCount);
@@ -498,12 +508,12 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
    const bucket=buckets[family][0];if(!bucket.fadedCount)continue;
    main.setBindGroup(1,crownMaterial.group);drawMesh(main,families[family].leaves,bucket.fadedBuffer,bucket.fadedCount);
   }
-  if(rainCount){main.setPipeline(rainPipeline);main.setBindGroup(0,frameGroup);main.setBindGroup(1,rainGroup);main.draw(6,rainCount);drawCalls++;triangles+=2*rainCount;}
+  if(rainCount){main.setPipeline(pipelines.rain);main.setBindGroup(0,frameGroup);main.setBindGroup(1,rainGroup);main.draw(6,rainCount);drawCalls++;triangles+=2*rainCount;}
   main.end();
   const post=encoder.beginRenderPass({colorAttachments:[{view:gpuContext.getCurrentTexture().createView(),loadOp:'clear',clearValue:[0,0,0,1],storeOp:'store'}]});
   post.setPipeline(postPipeline);post.setBindGroup(0,postGroup);post.draw(3);post.end();drawCalls++;
   device.queue.submit([encoder.finish()]);
  }
- return {render,resize,boxes:collisionBoxes,stats:()=>({visibleTrees,trees:trees.length,props:props.length,remotes:remoteAvatars.size,rainInstances:rainCount,drawCalls,triangles,shadowTriangles,device:adapter.info,backend:'native-webgpu' as const}),
-  dispose:()=>{foliageWorker.terminate();for(const gpu of remoteAvatars.values()){gpu.instance.destroy();gpu.skinBuffer.destroy();}hdr?.destroy();depth?.destroy();shadowTexture.destroy();rainBuffer.destroy();frameBuffer.destroy();device.destroy();}};
+ return {render,resize,boxes:collisionBoxes,stats:()=>({visibleTrees,trees:trees.length,props:props.length,remotes:remoteAvatars.size,rainInstances:rainCount,drawCalls,triangles,shadowTriangles,sampleCount,device:adapter.info,backend:'native-webgpu' as const}),
+  dispose:()=>{foliageWorker.terminate();for(const gpu of remoteAvatars.values()){gpu.instance.destroy();gpu.skinBuffer.destroy();}hdr?.destroy();multisampledHdr?.destroy();depth?.destroy();shadowTexture.destroy();rainBuffer.destroy();frameBuffer.destroy();device.destroy();}};
 }
