@@ -372,7 +372,8 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   const targetTransmission=sourceTransmission(cloudPixels,SKY_TEXTURE_SIZE,source,frame.sky,offsets);
   lightTransmission+=(targetTransmission-lightTransmission)*(1-Math.exp(-Math.max(frame.dt,.016)/.7));
   for(let i=0;i<3;i++)frameData[40+i]*=frame.daylight.mainIntensity*.68*lightTransmission;
-  vec(44,frame.daylight.zenith,0);vec(48,frame.daylight.horizon,0);vec(52,frame.daylight.fogColor,0);
+  const toLinear=(color:readonly number[])=>color.map(value=>value<=.04045?value/12.92:((value+.055)/1.055)**2.4);
+  vec(44,toLinear(frame.daylight.zenith),0);vec(48,toLinear(frame.daylight.horizon),0);vec(52,toLinear(frame.daylight.fogColor),0);
   frameData.set([frame.seconds,frame.daylight.daylight,frame.daylight.sunset,frame.fogDensity],56);
   vec(60,frame.daylight.towardMoon,0);
   frameData.set([width,height,Math.tan(fov/2),aspect],64);

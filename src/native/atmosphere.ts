@@ -17,7 +17,7 @@ interface Saved {
 
 /** Scene-independent clock, weather and sky controls for the direct WebGPU showcase. */
 export function createNativeAtmosphere(){
- let totalHours=12,hours=12,automatic=true,baseFog=.0045,rays=false,moon=moonSettings();
+ let totalHours=12,hours=12,automatic=true,baseFog=.011,rays=false,moon=moonSettings();
  let weatherMode:WeatherMode='clear',weatherSeconds=0,weather={...WEATHER_PRESETS.clear},transition:WeatherTransition|null=null,weatherPreset='clear';
  let sky=skySettings(SKY_DEFAULTS,{low:{coverage:weather.lowCoverage,opticalDepth:weather.lowOpticalDepth},high:{coverage:weather.highCoverage,opticalDepth:weather.highOpticalDepth}});
  let skySeconds=0,quality:SkyQuality=2,sharedClock:WorldClock|null=null,saved:Saved|null=null,current=daylightAt(hours,moonAtTotalHours(totalHours,moon));
@@ -27,7 +27,7 @@ export function createNativeAtmosphere(){
  <label for="day-time">Время суток</label><input id="day-time" type="range" min="0" max="24" step="0.05" value="12">
  <label><input id="day-auto" type="checkbox" checked> Смена суток · 20 минут</label>
  <label><input id="day-rays" type="checkbox"> Художественные лучи</label>
- <label for="fog-density">Туман <output id="fog-density-value">0.0045</output></label><input id="fog-density" type="range" min="0" max="0.04" step="0.0005" value="0.0045">
+ <label for="fog-density">Туман <output id="fog-density-value">0.011</output></label><input id="fog-density" type="range" min="0" max="0.04" step="0.001" value="0.011">
  <label for="sky-weather">Погода</label><select id="sky-weather"><option value="auto">Автоматически</option>${Object.entries(WEATHER_LABELS).map(([key,label])=>`<option value="${key}">${label}</option>`).join('')}<option value="custom" disabled>Свои облака</option></select><small id="sky-weather-status"></small>
  <label for="moon-mode">Луна</label><select id="moon-mode"><option value="cycle">Лунный цикл · 28 суток</option><option value="full">Постоянное полнолуние</option><option value="fixed" disabled>Фиксированная фаза</option></select><small id="moon-phase-value"></small>`;
  document.querySelector('#diagnostics')!.insertBefore(panel,document.querySelector('#metrics'));

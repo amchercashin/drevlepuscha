@@ -179,7 +179,7 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
   let cover=forest*(0.12+0.88*field.r)*(1.0-0.65*moss);
   let farSoil=mix(vec3f(0.50,0.435,0.325),vec3f(0.41,0.355,0.25),cover);
   let farColor=mix(farSoil,vec3f(0.27,0.36,0.19),moss*(1.0-0.7*cover));
-  base=farColor*(0.94+0.12*dot(texel.rgb,vec3f(.30,.59,.11)));
+  base=pow(farColor,vec3f(2.2))*(0.94+0.12*dot(texel.rgb,vec3f(.30,.59,.11)));
   let distanceToEye=distance(input.world,frame.camera.xyz);
   let uv=vec2f(0.8660254*en.x-0.5*en.y,0.5*en.x+0.8660254*en.y)/3.2+(field.ba-0.5)*0.9;
   let uvDx=dpdx(uv);let uvDy=dpdy(uv);
