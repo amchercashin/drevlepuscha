@@ -48,6 +48,7 @@ struct Material { kindOpacity:vec4f, tint:vec4f };
 @group(1) @binding(7) var groundLitter:texture_2d<f32>;
 @group(1) @binding(8) var moonMap:texture_2d<f32>;
 @group(1) @binding(9) var moonSampler:sampler;
+@group(1) @binding(10) var groundContact:texture_2d<f32>;
 @group(2) @binding(0) var<storage,read> bones:array<mat4x4f>;
 
 struct VertexIn {
@@ -96,7 +97,7 @@ fn worldVertex(input:VertexIn)->VertexOut {
  var out:VertexOut;
  let model=mat4x4f(input.m0,input.m1,input.m2,input.m3);
  var local=input.position;
- if(material.kindOpacity.x>0.5 && material.kindOpacity.x<1.5) {
+ if((material.kindOpacity.x>0.5 && material.kindOpacity.x<1.5)||(material.kindOpacity.x>4.5&&material.kindOpacity.x<5.5)) {
   let bend=pow(clamp(local.y/8.0,0.0,1.0),1.65);
   let gust=sin(frame.params.x*0.94+input.m3.x*0.043+input.m3.z*0.056+local.y*0.22);
   let movement=bend*(0.10*sin(frame.params.x*0.62+input.m3.z*0.07)+0.14*gust)*frame.wind.z;
@@ -160,15 +161,11 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
  }}
  return 0.17+0.83*sum/9.0;
 }
-@fragment fn fs(input:VertexOut)->@location(0) vec4f {
+fn shadeScene(input:VertexOut)->vec4f {
  let kind=material.kindOpacity.x;
  let texel=textureSample(albedo,albedoSampler,input.uv);
  let opacity=material.kindOpacity.y*input.tone.w;
  if(kind>2.5&&kind<3.5&&texel.a<0.46){discard;}
- if(opacity<0.999){
-  let dither=hash(floor(input.clip.xy));
-  if(dither>opacity){discard;}
- }
  var base:vec3f;
  var n=normalize(input.normal);
  if(kind<0.5){
@@ -181,10 +178,11 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
   let farColor=mix(farSoil,vec3f(0.27,0.36,0.19),moss*(1.0-0.7*cover));
   base=pow(farColor,vec3f(2.2))*(0.94+0.12*dot(texel.rgb,vec3f(.30,.59,.11)));
   let distanceToEye=distance(input.world,frame.camera.xyz);
+  let detailRange=select(select(26.0,56.0,frame.skyWarpTimeQuality.w>0.5),80.0,frame.skyWarpTimeQuality.w>1.5);
   let uv=vec2f(0.8660254*en.x-0.5*en.y,0.5*en.x+0.8660254*en.y)/3.2+(field.ba-0.5)*0.9;
   let uvDx=dpdx(uv);let uvDy=dpdy(uv);
   let enDx=dpdx(en);let enDy=dpdy(en);
-  if(distanceToEye<26.0){
+  if(distanceToEye<detailRange){
    let determinant=enDx.x*enDy.y-enDx.y*enDy.x;
    let safeDet=select(-max(abs(determinant),.0000001),max(abs(determinant),.0000001),determinant>=0.0);
    let jacE=(uvDx*enDy.y-uvDy*enDx.y)/safeDet;
@@ -214,7 +212,7 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
    let cavity=mix(heights.b,heights.a,blend);
    let fineMoss=moss*(1.0-.9*blend)*smoothstep(0.0,.75,soil.a+moss*.25);
    let reliefColor=mix(mix(soil.rgb,litter,blend),vec3f(.25,.33,.17)*(.83+.34*soil.a),fineMoss)*(.88+.12*cavity);
-   let detail=1.0-smoothstep(17.0,26.0,distanceToEye);
+   let detail=1.0-smoothstep(detailRange*.6,detailRange,distanceToEye);
    base=mix(base,reliefColor,detail);
    let normalMap=textureSampleGrad(groundNormals,albedoSampler,sampleUV,uvDx,uvDy)*2.0-1.0;
    let slopes=mix(normalMap.rg,normalMap.ba,blend);
@@ -233,9 +231,14 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
  }
  else {base=texel.rgb*material.tint.rgb*input.tone.rgb;}
  let ndotl=max(dot(n,frame.lightDir.xyz),0.0);
- let wrap=select(0.0,max(dot(-n,frame.lightDir.xyz),0.0)*0.25,(kind>0.5&&kind<1.5)||(kind>2.5&&kind<3.5));
+ let wrap=select(0.0,max(dot(-n,frame.lightDir.xyz),0.0)*0.25,(kind>0.5&&kind<1.5)||(kind>2.5&&kind<3.5)||(kind>4.5&&kind<5.5));
  let shade=shadowFactor(input.world,n);
- let ambient=frame.ambient.rgb*(0.70+0.30*max(n.y,0.0));
+ var ambient=frame.ambient.rgb*(0.70+0.30*max(n.y,0.0));
+ if(kind<0.5){
+  let en=vec2f(input.world.x,-input.world.z);
+  let contact=textureSample(groundContact,albedoSampler,(en+vec2f(256.0))/vec2f(512.0,640.0)).r;
+  ambient*=1.0-.43*contact;
+ }
  var lit=ambient+frame.sunColor.rgb*(ndotl+wrap)*shade;
  if(kind>1.5&&kind<2.5){lit+=vec3f(0.19,0.21,0.18);}
  if(kind>2.5&&kind<3.5){lit+=vec3f(.12,.17,.08);}
@@ -248,7 +251,15 @@ fn shadowFactor(world:vec3f,normal:vec3f)->f32 {
   let glow=frame.weather.z*frame.params.y*alignment*(1.0-exp(-dist*.012))*(.35+.65*shade)*.16;
   color+=vec3f(.75,.68,.48)*glow;
  }
- return vec4f(color,1.0);
+ return vec4f(color,opacity);
+}
+@fragment fn fs(input:VertexOut)->@location(0) vec4f {
+ let shaded=shadeScene(input);
+ if(shaded.a<0.999&&hash(floor(input.clip.xy))>shaded.a){discard;}
+ return vec4f(shaded.rgb,1.0);
+}
+@fragment fn fsBlend(input:VertexOut)->@location(0) vec4f {
+ return shadeScene(input);
 }
 
 struct ScreenOut { @builtin(position) clip:vec4f, @location(0) uv:vec2f };

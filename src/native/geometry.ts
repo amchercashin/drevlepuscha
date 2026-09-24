@@ -62,6 +62,47 @@ export function treeGeometry(part:TreePart):MeshData {
  return {vertices,indices:new Uint32Array(part.indices)};
 }
 
+/** Small leaf silhouettes follow the authored crown surface and share its tree instances. */
+export function crownLeafGeometry(part:TreePart,seed:number,count=180):MeshData {
+ const p=part.positions,triangles=part.indices,maxY=p.reduce((h,v,i)=>i%3===1?Math.max(h,v):h,-Infinity);
+ const candidates:{a:number;b:number;c:number;sum:number;normal:[number,number,number]}[]=[];
+ let areaSum=0;
+ for(let i=0;i<triangles.length;i+=3){
+  const a=triangles[i]*3,b=triangles[i+1]*3,c=triangles[i+2]*3;
+  if((p[a+1]+p[b+1]+p[c+1])/3<maxY*.42)continue;
+  const ab=[p[b]-p[a],p[b+1]-p[a+1],p[b+2]-p[a+2]],ac=[p[c]-p[a],p[c+1]-p[a+1],p[c+2]-p[a+2]];
+  const cross:[number,number,number]=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
+  const length=Math.hypot(...cross);if(length<.015)continue;
+  areaSum+=length*.5;candidates.push({a,b,c,sum:areaSum,normal:cross.map(v=>v/length) as [number,number,number]});
+ }
+ const vertices=new Float32Array(count*4*12),indices=new Uint32Array(count*6);
+ if(!candidates.length)return {vertices:new Float32Array(),indices:new Uint32Array()};
+ let state=seed>>>0;const random=()=>{state^=state<<13;state^=state>>>17;state^=state<<5;return (state>>>0)/4294967296;};
+ for(let i=0;i<count;i++){
+  const pick=random()*areaSum;
+  let lo=0,hi=candidates.length-1;
+  while(lo<hi){const mid=(lo+hi)>>>1;if(candidates[mid].sum<pick)lo=mid+1;else hi=mid;}
+  const {a,b,c,normal:n}=candidates[lo];
+  const root=Math.sqrt(random()),u=1-root,v=root*(1-random()),w=1-u-v;
+  const center:[number,number,number]=[0,1,2].map(k=>p[a+k]*u+p[b+k]*v+p[c+k]*w+n[k]*.025) as [number,number,number];
+  const reference=Math.abs(n[1])>.9?[1,0,0]:[0,1,0];
+  const first=[reference[1]*n[2]-reference[2]*n[1],reference[2]*n[0]-reference[0]*n[2],reference[0]*n[1]-reference[1]*n[0]];
+  const firstLength=Math.hypot(...first);for(let k=0;k<3;k++)first[k]/=firstLength;
+  const second=[n[1]*first[2]-n[2]*first[1],n[2]*first[0]-n[0]*first[2],n[0]*first[1]-n[1]*first[0]];
+  const angle=random()*Math.PI*2,cos=Math.cos(angle),sin=Math.sin(angle);
+  const across=first.map((value,k)=>value*cos+second[k]*sin),along=first.map((value,k)=>-value*sin+second[k]*cos);
+  const length=.28+random()*.22,width=length*(.38+random()*.12),tint=.72+random()*.46;
+  const corners:[number,number,number][]=[[-.5,0,0],[0,-.5,0],[.5,0,0],[0,.5,0]];
+  const uvs:[[number,number],[number,number],[number,number],[number,number]]=[[.5,0],[0,.5],[.5,1],[1,.5]];
+  for(let j=0;j<4;j++){
+   const x=corners[j][0]*length,y=corners[j][1]*width,position=center.map((value,k)=>value+along[k]*x+across[k]*y);
+   vertices.set([...position,...n,...uvs[j],tint*(.81+j*.025),tint,tint*(.72+j*.018),1],(i*4+j)*12);
+  }
+  indices.set([i*4,i*4+1,i*4+2,i*4,i*4+2,i*4+3],i*6);
+ }
+ return {vertices,indices};
+}
+
 interface GltfAccessor {bufferView:number;byteOffset?:number;componentType:number;count:number;type:string}
 interface GltfView {byteOffset?:number;byteLength:number;byteStride?:number}
 interface GltfNode {name?:string;children?:number[];translation?:number[];rotation?:number[];scale?:number[]}

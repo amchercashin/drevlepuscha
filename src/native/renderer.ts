@@ -1,7 +1,7 @@
 import type {Daylight} from '../domain/daylight.ts';
 import {forestPlacements,treeCollider} from '../domain/forest.ts';
+import {finalizeForestPlacements} from '../domain/forest-records.ts';
 import type {TreePlacement} from '../domain/forest.ts';
-import {treeFamilySlot} from '../domain/tree-family.ts';
 import {treeTone} from '../domain/tree-tone.ts';
 import {CLOAK_COLORS} from '../domain/cloak-colors.ts';
 import {showcaseHeight} from '../domain/showcase.ts';
@@ -41,15 +41,16 @@ import logUrl from '../../assets/props/fallen-log/variants.json?url';
 import logTextureUrl from '../../assets/optimized/showcase/log.webp';
 import {cameraBasis,inverseAffine,lookAt,modelMatrix,multiply,normalize,orthographic,perspective} from './math.ts';
 import type {Vec3} from './math.ts';
-import {detailTerrainGeometry,rangerGeometry,terrainGeometry,treeGeometry} from './geometry.ts';
+import {crownLeafGeometry,detailTerrainGeometry,rangerGeometry,terrainGeometry,treeGeometry} from './geometry.ts';
 import type {MeshData} from './geometry.ts';
 import {POST_WGSL,RAIN_WGSL,SCENE_WGSL} from './shaders.ts';
 
 interface GpuMesh {vertex:GPUBuffer;index:GPUBuffer;count:number}
 interface GpuMaterial {group:GPUBindGroup;uniform:GPUBuffer}
-interface Family {levels:GpuMesh[];materials:GpuMaterial[];data:TreeAssetData;collision:CollisionGeometry}
-interface Tree {placement:TreePlacement;family:number;packed:Float32Array;opacity:number;box:Box}
-interface Bucket {buffer:GPUBuffer;data:Float32Array;near:Tree[];far:Tree[];count:number;shadowCount:number}
+interface Family {levels:GpuMesh[];leaves:GpuMesh;materials:GpuMaterial[];data:TreeAssetData;collision:CollisionGeometry}
+interface Tree {placement:TreePlacement;family:number;packed:Float32Array;opacity:number;box:Box;visualBox:Box}
+interface Bucket {buffer:GPUBuffer;data:Float32Array;near:Tree[];far:Tree[];count:number;shadowCount:number;
+ fadedBuffer:GPUBuffer;fadedData:Float32Array;fadedNear:Tree[];fadedFar:Tree[];fadedCount:number;fadedShadowCount:number}
 interface FoliageMeshes {grass:GpuMesh;leaves:GpuMesh;cover:GpuMesh}
 interface FoliageReply {type:'built';id:number;center:{e:number;n:number};grass:MeshData;leaves:MeshData;cover:MeshData}
 interface Prop {mesh:GpuMesh;material:GpuMaterial;instance:GPUBuffer;packed:Float32Array;opacity:number;box:Box}
@@ -110,6 +111,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   ...[3,4,5,6,7].map(binding=>({binding,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:'float' as const}})),
   {binding:8,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:'float'}},
   {binding:9,visibility:GPUShaderStage.FRAGMENT,sampler:{type:'filtering'}},
+  {binding:10,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:'float'}},
  ]});
  const skinLayout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX,buffer:{type:'read-only-storage'}}]});
  const frameGroup=device.createBindGroup({layout:frameLayout,entries:[
@@ -120,6 +122,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const moonSampler=device.createSampler({magFilter:'linear',minFilter:'linear',mipmapFilter:'linear',addressModeU:'clamp-to-edge',addressModeV:'clamp-to-edge'});
  const white=device.createTexture({size:[1,1],format:'rgba8unorm-srgb',usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
  device.queue.writeTexture({texture:white},new Uint8Array([255,255,255,255]),{bytesPerRow:4},[1,1]);
+ const contactTexture=device.createTexture({size:[512,640],format:'r8unorm',usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
 
  let groundMaps:GPUTexture[]=[],moonTexture:GPUTexture;
  function makeMaterial(texture:GPUTexture,kind:number,tint:[number,number,number]=[1,1,1]):GpuMaterial {
@@ -128,7 +131,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   const group=device.createBindGroup({layout:materialLayout,entries:[
    {binding:0,resource:texture.createView()},{binding:1,resource:textureSampler},{binding:2,resource:{buffer:uniform}},
    ...groundMaps.map((map,index)=>({binding:index+3,resource:map.createView()})),
-   {binding:8,resource:moonTexture.createView()},{binding:9,resource:moonSampler},
+   {binding:8,resource:moonTexture.createView()},{binding:9,resource:moonSampler},{binding:10,resource:contactTexture.createView()},
   ]});
   return {group,uniform};
  }
@@ -151,7 +154,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const cloudPixels=createCloudPixels();
  const cloudTexture=device.createTexture({size:[SKY_TEXTURE_SIZE,SKY_TEXTURE_SIZE],format:'rgba8unorm',usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});
  device.queue.writeTexture({texture:cloudTexture},cloudPixels,{bytesPerRow:SKY_TEXTURE_SIZE*4},[SKY_TEXTURE_SIZE,SKY_TEXTURE_SIZE]);
- const skyMaterial=makeMaterial(cloudTexture,0),groundMaterial=makeMaterial(await urlTexture(soilUrl),0),grassMaterial=makeMaterial(white,3,[.31,.48,.32]);
+ const skyMaterial=makeMaterial(cloudTexture,0),groundMaterial=makeMaterial(await urlTexture(soilUrl),0),grassMaterial=makeMaterial(white,3,[.31,.48,.32]),crownMaterial=makeMaterial(white,5,[.22,.38,.24]);
 
  const shader=device.createShaderModule({code:SCENE_WGSL,label:'native-showcase-scene'}),postShader=device.createShaderModule({code:POST_WGSL,label:'native-showcase-tonemap'}),rainShader=device.createShaderModule({code:RAIN_WGSL,label:'native-showcase-rain'});
  const issues=[...(await shader.getCompilationInfo()).messages,...(await rainShader.getCompilationInfo()).messages].filter(m=>m.type==='error');
@@ -177,6 +180,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const skinnedSceneLayout=device.createPipelineLayout({bindGroupLayouts:[frameLayout,materialLayout,skinLayout]});
  const skinnedShadowLayout=device.createPipelineLayout({bindGroupLayouts:[shadowFrameLayout,materialLayout,skinLayout]});
  const mainPipeline=await device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vs',buffers:vertexBuffers},fragment:{module:shader,entryPoint:'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'}});
+ const fadedTreePipeline=await device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vs',buffers:vertexBuffers},fragment:{module:shader,entryPoint:'fsBlend',targets:[{format:'rgba16float',blend:{color:{srcFactor:'src-alpha',dstFactor:'one-minus-src-alpha',operation:'add'},alpha:{srcFactor:'one',dstFactor:'one-minus-src-alpha',operation:'add'}}}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:false,depthCompare:'less-equal'}});
  const shadowPipeline=await device.createRenderPipelineAsync({layout:shadowLayout,vertex:{module:shader,entryPoint:'vsShadow',buffers:vertexBuffers},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less'}});
  const skinnedPipeline=await device.createRenderPipelineAsync({layout:skinnedSceneLayout,vertex:{module:shader,entryPoint:'vsSkinned',buffers:skinnedVertexBuffers},fragment:{module:shader,entryPoint:'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'}});
  const foliagePipeline=await device.createRenderPipelineAsync({layout:sceneLayout,vertex:{module:shader,entryPoint:'vsFoliage',buffers:foliageVertexBuffers},fragment:{module:shader,entryPoint:'fs',targets:[{format:'rgba16float'}]},primitive:{topology:'triangle-list',cullMode:'none'},depthStencil:{format:'depth32float',depthWriteEnabled:true,depthCompare:'less-equal'}});
@@ -209,6 +213,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const textureForFamily=assetFamilies.map((_,i)=>i===0?oakTex:i<=3?forkTex:youngTex);
  const families:Family[]=assetFamilies.map((data,i)=>({
   data,levels:data.levels.map(level=>makeMesh(device,treeGeometry(level[0]))),
+  leaves:makeMesh(device,crownLeafGeometry(data.levels[0][0],0x9e3779b9^(i*0x85ebca6b))),
   materials:data.levels.map((_,level)=>makeMaterial(level>=(data.bakedColorFromLevel??Infinity)?white:textureForFamily[i],1)),
   collision:collisionGeometry(data.levels[0]),
  }));
@@ -223,21 +228,32 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   const skinBuffer=device.createBuffer({size:ranger.jointCount*64,usage:GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST});
   return {instance,skinBuffer,skinGroup:device.createBindGroup({layout:skinLayout,entries:[{binding:0,resource:{buffer:skinBuffer}}]})};
  }
- const placements=forestPlacements(oak.rootRadius,oak.placement),slotCounts:[number,number]=[fork?.variants.length??0,young?.variants.length??0];
- const trees:Tree[]=placements.map(p=>{
-  const family=variety?treeFamilySlot(p,slotCounts):0;
+ const slotCounts:[number,number]=[fork?.variants.length??0,young?.variants.length??0];
+ const placements=finalizeForestPlacements(forestPlacements(oak.rootRadius,oak.placement),
+  assetFamilies.map((data,i)=>({id:`family-${i}`,version:data.version??'',rootRadius:data.rootRadius,sink:i===0?.85:i<=slotCounts[0]?.35:.16})),
+  slotCounts,showcaseHeight,variety,true);
+ const trees:Tree[]=placements.map(({placement:p,slot:family})=>{
   const selected=families[family].data;
-  if(family>0){
-   const radius=(selected.rootRadius??3.8)*Math.max(p.width,p.depth);
-   let y=showcaseHeight(p.e,p.n);
-   for(let i=0;i<16;i++){const a=i*Math.PI/8;y=Math.min(y,showcaseHeight(p.e+Math.cos(a)*radius,p.n+Math.sin(a)*radius));}
-   p.y=y-.08-(family<=3?.35:.16)*p.height-radius*Math.hypot(p.leanX,p.leanZ);
-  }
   const matrix=modelMatrix(p.e,p.y,-p.n,p.yaw,p.leanX,p.leanZ,p.width,p.height,p.depth);
   const packed=new Float32Array(20);packed.set(matrix);
   const tone=treeTone(p.id,p.e,p.n);packed.set([1+tone[0],1+tone[1],1+tone[2],1],16);
-  return {placement:p,family,packed,opacity:1,box:{...treeCollider(p,selected.trunkRadius??1.18),collision:meshCollider(families[family].collision,matrix,inverseAffine(matrix))}};
+  const collision=meshCollider(families[family].collision,matrix,inverseAffine(matrix));
+  return {placement:p,family,packed,opacity:1,
+   box:{...treeCollider(p,selected.trunkRadius??1.18),collision},
+   visualBox:{id:p.id,min:collision.min,max:collision.max}};
  });
+ const contactPixels=new Uint8Array(512*640);
+ for(const tree of trees){
+  const p=tree.placement,radius=(families[tree.family].data.trunkRadius??1.18)*Math.max(p.width,p.depth)+2.2;
+  const minX=Math.max(0,Math.floor(p.e+256-radius)),maxX=Math.min(511,Math.ceil(p.e+256+radius));
+  const minY=Math.max(0,Math.floor(p.n+256-radius)),maxY=Math.min(639,Math.ceil(p.n+256+radius));
+  for(let y=minY;y<=maxY;y++)for(let x=minX;x<=maxX;x++){
+   const d=Math.hypot(x+.5-256-p.e,y+.5-256-p.n),weight=Math.max(0,1-d/radius);
+   const value=Math.round(240*weight*weight),index=y*512+x;
+   if(value>contactPixels[index])contactPixels[index]=value;
+  }
+ }
+ device.queue.writeTexture({texture:contactTexture},contactPixels,{bytesPerRow:512},[512,640]);
  const props:Prop[]=[];
  const propDefinitions=[
   {url:rockUrl,texture:rockTextureUrl,places:[[-2.7,5,.75,.3],[3.4,12,1.2,1.5],[-3.2,18,.85,2.4],[4.3,24,1.1,.8],[-4,35,.9,2.9],[3.7,43,.7,1.2],[-3.3,51,1.15,2]]},
@@ -270,7 +286,8 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  const familyCounts=families.map((_,i)=>trees.filter(t=>t.family===i).length);
  const buckets:Bucket[][]=families.map((_,i)=>[0,1,2].map(()=>{
   const size=Math.max(80,familyCounts[i]*80);
-  return {buffer:device.createBuffer({size,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST}),data:new Float32Array(size/4),near:[],far:[],count:0,shadowCount:0};
+  return {buffer:device.createBuffer({size,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST}),data:new Float32Array(size/4),near:[],far:[],count:0,shadowCount:0,
+   fadedBuffer:device.createBuffer({size,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST}),fadedData:new Float32Array(size/4),fadedNear:[],fadedFar:[],fadedCount:0,fadedShadowCount:0};
  }));
 
  progress?.('Готовим папоротники и лесной покров…');
@@ -327,7 +344,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  }
  function updateTrees(eye:Vec3,feet:Point3,forward:Vec3,dt:number,quality:SkyQuality){
   visibleTrees=0;
- for(const row of buckets)for(const bucket of row){bucket.near.length=0;bucket.far.length=0;bucket.count=0;bucket.shadowCount=0;}
+ for(const row of buckets)for(const bucket of row){bucket.near.length=0;bucket.far.length=0;bucket.fadedNear.length=0;bucket.fadedFar.length=0;bucket.count=0;bucket.shadowCount=0;bucket.fadedCount=0;bucket.fadedShadowCount=0;}
   const detailedDistance=quality===2?115:quality===1?85:65;
   for(const tree of trees){
    const p=tree.placement,dx=p.e-eye[0],dz=-p.n-eye[2],distance=Math.hypot(dx,dz);
@@ -335,13 +352,13 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
    const lod=distance<23?0:distance<detailedDistance?1:2;
    const close=distance<shadowsAt;
    if(distance<15){
-    const blocked=occludesTraveller({x:eye[0],y:eye[1],z:eye[2]},feet,tree.box,tree.opacity<.99,
+    const blocked=occludesTraveller({x:eye[0],y:eye[1],z:eye[2]},feet,tree.visualBox,tree.opacity<.99,
      tree.box.collision?(start,end)=>meshBlocksSegment(tree.box.collision!,start,end):undefined);
     tree.opacity=fadeOpacity(tree.opacity,blocked?.14:1,dt,blocked?.12:.23);
    }else if(tree.opacity<1)tree.opacity=fadeOpacity(tree.opacity,1,dt,.23);
    tree.packed[19]=tree.opacity;
    const bucket=buckets[tree.family][lod];
-   (close?bucket.near:bucket.far).push(tree);visibleTrees++;
+   (tree.opacity<.999?(close?bucket.fadedNear:bucket.fadedFar):(close?bucket.near:bucket.far)).push(tree);visibleTrees++;
   }
   for(const row of buckets)for(const bucket of row){
    let k=0;for(const tree of bucket.near){bucket.data.set(tree.packed,k);k+=20;}
@@ -349,6 +366,11 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
    for(const tree of bucket.far){bucket.data.set(tree.packed,k);k+=20;}
    bucket.count=k/20;
    if(k)device.queue.writeBuffer(bucket.buffer,0,bucket.data,0,k);
+   k=0;for(const tree of bucket.fadedNear){bucket.fadedData.set(tree.packed,k);k+=20;}
+   bucket.fadedShadowCount=bucket.fadedNear.length;
+   for(const tree of bucket.fadedFar){bucket.fadedData.set(tree.packed,k);k+=20;}
+   bucket.fadedCount=k/20;
+   if(k)device.queue.writeBuffer(bucket.fadedBuffer,0,bucket.fadedData,0,k);
   }
  }
  function drawMesh(pass:GPURenderPassEncoder,mesh:GpuMesh,instances:GPUBuffer,count:number){
@@ -440,8 +462,10 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   shadow.setPipeline(shadowPipeline);
   for(const prop of props){shadow.setBindGroup(1,prop.material.group);drawMesh(shadow,prop.mesh,prop.instance,1);}
   for(let family=0;family<families.length;family++)for(let lod=0;lod<3;lod++){
-   const bucket=buckets[family][lod];if(!bucket.shadowCount)continue;
-   shadow.setBindGroup(1,families[family].materials[lod].group);drawMesh(shadow,families[family].levels[lod],bucket.buffer,bucket.shadowCount);
+   const bucket=buckets[family][lod];if(!bucket.shadowCount&&!bucket.fadedShadowCount)continue;
+   shadow.setBindGroup(1,families[family].materials[lod].group);
+   drawMesh(shadow,families[family].levels[lod],bucket.buffer,bucket.shadowCount);
+   drawMesh(shadow,families[family].levels[lod],bucket.fadedBuffer,bucket.fadedShadowCount);
   }
   shadow.end();shadowTriangles=triangles;
   const main=encoder.beginRenderPass({colorAttachments:[{view:hdr.createView(),loadOp:'clear',clearValue:[0,0,0,1],storeOp:'store'}],depthStencilAttachment:{view:depth.createView(),depthLoadOp:'clear',depthClearValue:1,depthStoreOp:'store'}});
@@ -454,6 +478,10 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
    const bucket=buckets[family][lod];if(!bucket.count)continue;
    main.setBindGroup(1,families[family].materials[lod].group);drawMesh(main,families[family].levels[lod],bucket.buffer,bucket.count);
   }
+  if(frame.skyQuality>=2)for(let family=0;family<families.length;family++){
+   const bucket=buckets[family][0];if(!bucket.count)continue;
+   main.setBindGroup(1,crownMaterial.group);drawMesh(main,families[family].leaves,bucket.buffer,bucket.count);
+  }
   if(foliage){
    main.setPipeline(foliagePipeline);
    main.setBindGroup(1,grassMaterial.group);drawMesh(main,foliage.grass,identity,1);
@@ -461,6 +489,15 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   }
   main.setPipeline(skinnedPipeline);
   for(const avatar of avatars){main.setBindGroup(1,avatar.material.group);main.setBindGroup(2,avatar.gpu.skinGroup);drawMesh(main,rangerMesh,avatar.gpu.instance,1);}
+  main.setPipeline(fadedTreePipeline);
+  for(let family=0;family<families.length;family++)for(let lod=0;lod<3;lod++){
+   const bucket=buckets[family][lod];if(!bucket.fadedCount)continue;
+   main.setBindGroup(1,families[family].materials[lod].group);drawMesh(main,families[family].levels[lod],bucket.fadedBuffer,bucket.fadedCount);
+  }
+  if(frame.skyQuality>=2)for(let family=0;family<families.length;family++){
+   const bucket=buckets[family][0];if(!bucket.fadedCount)continue;
+   main.setBindGroup(1,crownMaterial.group);drawMesh(main,families[family].leaves,bucket.fadedBuffer,bucket.fadedCount);
+  }
   if(rainCount){main.setPipeline(rainPipeline);main.setBindGroup(0,frameGroup);main.setBindGroup(1,rainGroup);main.draw(6,rainCount);drawCalls++;triangles+=2*rainCount;}
   main.end();
   const post=encoder.beginRenderPass({colorAttachments:[{view:gpuContext.getCurrentTexture().createView(),loadOp:'clear',clearValue:[0,0,0,1],storeOp:'store'}]});

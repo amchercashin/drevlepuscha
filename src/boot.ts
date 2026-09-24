@@ -21,7 +21,7 @@ if(params.get('engine')==='lite'){
    const invite=parseInvitation(location.hash);
    if(invite)await (await import('./network/showcase-entrance.ts')).enterShowcase(invite);
   }else document.body.classList.remove('showcase');
-  if(scene==='m0'||scene==='m1'||(params.get('debug')==='1'&&params.get('wildlife')==='1'))await import('./main.ts');
+  if(scene==='m0'||scene==='m1'||(params.get('debug')==='1'&&(params.get('wildlife')==='1'||params.get('renderer')==='babylon')))await import('./main.ts');
   else{
    // The playable showcase owns its WebGPU device, pipelines and WGSL passes.
    const main=import('./native/main.ts');
