@@ -1,7 +1,27 @@
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import {build} from './build.mjs';
+import {isDeepStrictEqual} from 'node:util';
+import {compile} from './build.mjs';
 import {inspectGlb} from './glb.mjs';
+function validateContent(){
+ const {data,hashes}=compile();
+ const stored=readFileSync(new URL('../../public/wildlife/content/showcase/bird.json',import.meta.url),'utf8');
+ const manifest=JSON.parse(readFileSync(new URL('../../public/wildlife/content/manifest.json',import.meta.url),'utf8'));
+ const digest=createHash('sha256').update(stored).digest('hex');
+ const expectedManifest={v:1,status:'test-content',...data.identity,file:'showcase/bird.json',sha256:digest,sourceHashes:hashes};
+ if(!isDeepStrictEqual(manifest,expectedManifest))throw Error('Stale wildlife content manifest; run npm run wildlife:build');
+ // Obstacle heights can differ by a few floating-point ULPs across platforms.
+ function compare(saved,compiled,path=''){
+  if(typeof saved==='number'&&typeof compiled==='number'){
+   if(saved===compiled||/^\.cells\[\d+\]\.obstacles\[\d+\]\.(min|max)\.h$/.test(path)&&Math.abs(saved-compiled)<=4e-15)return;
+   throw Error(`Stale wildlife content at ${path}`);
+  }
+  if(Array.isArray(saved)&&Array.isArray(compiled)&&saved.length===compiled.length){saved.forEach((value,i)=>compare(value,compiled[i],`${path}[${i}]`));return;}
+  if(saved&&compiled&&typeof saved==='object'&&typeof compiled==='object'&&isDeepStrictEqual(Object.keys(saved).sort(),Object.keys(compiled).sort())){for(const key of Object.keys(saved))compare(saved[key],compiled[key],`${path}.${key}`);return;}
+  if(!isDeepStrictEqual(saved,compiled))throw Error(`Stale wildlife content at ${path}`);
+ }
+ compare(JSON.parse(stored),data);
+}
 export function validateAssets(manifest,production=false){
  if(production&&(manifest.status!=='accepted'||![...manifest.species??[],...manifest.decorative??[]].every(s=>s.review==='accepted')))throw Error('No accepted wildlife assets. Candidate and test models are not production assets.');
  if(manifest.status==='test-only')return [];
@@ -21,7 +41,7 @@ export function validateAssets(manifest,production=false){
  });});
 }
 if(process.argv[1]?.replaceAll('\\','/').endsWith('/validate-assets.mjs')){
- build(true);const manifest=JSON.parse(readFileSync(new URL('../../public/wildlife/assets.json',import.meta.url),'utf8'));
+ validateContent();const manifest=JSON.parse(readFileSync(new URL('../../public/wildlife/assets.json',import.meta.url),'utf8'));
  validateAudio(JSON.parse(readFileSync(new URL('../../config/wildlife/audio.json',import.meta.url),'utf8')),process.argv.includes('--production'));
  console.log(JSON.stringify({status:manifest.status,assets:validateAssets(manifest,process.argv.includes('--production')),visualAcceptance:manifest.status==='accepted'}));
 }
