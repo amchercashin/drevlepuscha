@@ -44,6 +44,8 @@ import type {Vec3} from './math.ts';
 import {crownLeafGeometry,detailTerrainGeometry,rangerGeometry,terrainGeometry,treeGeometry} from './geometry.ts';
 import type {MeshData} from './geometry.ts';
 import {POST_WGSL,RAIN_WGSL,SCENE_WGSL} from './shaders.ts';
+import {packRegionVisuals,REGION_VISUAL_FLOATS} from './region-visuals.ts';
+import type {NativeRegionVisuals} from './region-visuals.ts';
 
 interface GpuMesh {vertex:GPUBuffer;index:GPUBuffer;count:number}
 interface GpuMaterial {group:GPUBindGroup;uniform:GPUBuffer}
@@ -80,7 +82,8 @@ function identityInstance():Float32Array {
 }
 async function json<T>(url:string):Promise<T>{const r=await fetch(url);if(!r.ok)throw new Error(`Лес: HTTP ${r.status}`);return r.json() as Promise<T>;}
 
-export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(message:string)=>void,progress?:(label:string)=>void){
+export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(message:string)=>void,visuals:NativeRegionVisuals,progress?:(label:string)=>void){
+ const visualData=packRegionVisuals(visuals);
  if(!navigator.gpu)throw new Error('Для прогулки нужен WebGPU. Обновите браузер и включите аппаратное ускорение.');
  const adapter=await navigator.gpu.requestAdapter({powerPreference:'high-performance'});
  if(!adapter)throw new Error('WebGPU не нашёл подходящий графический адаптер.');
@@ -91,8 +94,9 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
  context.configure({device,format:swapFormat,alphaMode:'opaque'});
  void device.lost.then(info=>onLost(`Графическое устройство потеряно: ${info.message || info.reason}. Перезагрузите стенд.`));
 
- const frameBuffer=device.createBuffer({size:544,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
- const frameData=new Float32Array(136);
+ const frameData=new Float32Array(136+REGION_VISUAL_FLOATS);
+ frameData.set(visualData,136);
+ const frameBuffer=device.createBuffer({size:frameData.byteLength,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
  const shadowTexture=device.createTexture({size:[1024,1024],format:'depth32float',usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING});
  const shadowView=shadowTexture.createView();
  const shadowSampler=device.createSampler({compare:'less-equal',magFilter:'linear',minFilter:'linear'});
@@ -423,7 +427,7 @@ export async function createNativeRenderer(canvas:HTMLCanvasElement,onLost:(mess
   frameData.set([frame.sky.stars.brightness,frame.sky.stars.twinkle,frame.sky.moon.sizeScale,frame.sky.moon.brightness],116);
   frameData.set([frame.sky.moon.halo,frame.sky.moon.limbShade,frame.daylight.moonPhase,frame.daylight.moonIllumination],120);
   vec(124,basisMoon.right);vec(128,basisMoon.up);
-  frameData.set([frame.weather.precipitation,Number(frame.rays),frame.weather.ambientScale,lightTransmission],132);
+  frameData.set([frame.weather.precipitation,Number(frame.rays)*frame.weather.raysScale,frame.weather.ambientScale,lightTransmission],132);
   device.queue.writeBuffer(frameBuffer,0,frameData);
   return basis;
  }

@@ -11,6 +11,7 @@ import {WindSystem} from '../runtime/wind.ts';
 import {createWindControls} from '../runtime/wind-controls.ts';
 import {ShowcaseAudio} from '../runtime/showcase-audio.ts';
 import {createNativeRenderer} from './renderer.ts';
+import {showcaseVisuals} from './showcase-visuals.ts';
 import {createNativeMultiplayer} from './multiplayer.ts';
 import {createNativeAtmosphere} from './atmosphere.ts';
 import {SKY_DEFAULTS} from '../domain/sky.ts';
@@ -35,7 +36,7 @@ function fail(error:unknown){
 }
 
 try{
- const renderer=await startup.stage('Запускаем WebGPU и готовим лес…',()=>createNativeRenderer(canvas,message=>fail(message),label=>startup.progress(label)));
+ const renderer=await startup.stage('Запускаем WebGPU и готовим лес…',()=>createNativeRenderer(canvas,message=>fail(message),showcaseVisuals,label=>startup.progress(label)));
  release=renderer.dispose;
  const nearbyColliders=collisionGrid(renderer.boxes);
  const wind=new WindSystem(),ambient=new ShowcaseAudio(wind,renderer.boxes);

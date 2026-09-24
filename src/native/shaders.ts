@@ -30,6 +30,8 @@ struct Frame {
  moonRight:vec4f,
  moonUp:vec4f,
  weather:vec4f,
+ rayBases:array<vec4f,4>,
+ regionStyle:vec4f,      // shaft gain, active shaft count, fog distance scale
 };
 @group(0) @binding(0) var<uniform> frame:Frame;
 `;
@@ -50,6 +52,33 @@ struct Material { kindOpacity:vec4f, tint:vec4f };
 @group(1) @binding(9) var moonSampler:sampler;
 @group(1) @binding(10) var groundContact:texture_2d<f32>;
 @group(2) @binding(0) var<storage,read> bones:array<mat4x4f>;
+
+fn lightShafts(direction:vec3f,rayLength:f32)->vec3f {
+ if(frame.weather.y<=0.001||frame.regionStyle.y<0.5||frame.params.w<=0.001||frame.params.y<=0.05||frame.sunDir.y<=0.10){return vec3f(0.0);}
+ var shafts=0.0;
+ let axis=normalize(frame.sunDir.xyz);
+ for(var beam:i32=0;beam<4;beam++){
+  if(f32(beam)>=frame.regionStyle.y){break;}
+  let base=frame.rayBases[beam];
+  let relative=frame.camera.xyz-base.xyz;
+  let ad=dot(direction,axis);let ao=dot(relative,axis);
+  let perp=direction-axis*ad;let offset=relative-axis*ao;
+  let qa=max(dot(perp,perp),0.0001);
+  let centre=-dot(perp,offset)/qa;
+  let radial=dot(offset+perp*centre,offset+perp*centre);
+  let halfChord=sqrt(max(0.0,base.w*base.w-radial)/qa);
+  var lo=max(0.0,centre-halfChord);var hi=min(rayLength,centre+halfChord);
+  if(abs(ad)>0.0001){
+   let ta=(0.20-ao)/ad;let tb=(8.0-ao)/ad;
+   lo=max(lo,min(ta,tb));hi=min(hi,max(ta,tb));
+  }else if(ao<0.20||ao>8.0){hi=lo;}
+  let middle=clamp(ao+ad*(lo+hi)*0.5,0.0,8.0);
+  let feather=1.0-smoothstep(0.0,base.w*base.w,radial);
+  shafts+=max(0.0,hi-lo)*feather*smoothstep(0.20,1.4,middle)*(1.0-smoothstep(6.0,8.0,middle));
+ }
+ let phase=0.22+0.78*pow(max(0.0,dot(direction,axis)),5.0);
+ return frame.sunColor.rgb*shafts*frame.regionStyle.x*frame.weather.y*(0.4+0.6*phase);
+}
 
 struct VertexIn {
  @location(0) position:vec3f,
@@ -243,13 +272,14 @@ fn shadeScene(input:VertexOut,coverage:bool)->vec4f {
  if(kind>1.5&&kind<2.5){lit+=vec3f(0.19,0.21,0.18);}
  if(kind>2.5&&kind<3.5){lit+=vec3f(.12,.17,.08);}
  let dist=distance(input.world,frame.camera.xyz);
- let fog=1.0-exp(-pow(dist*frame.params.w*1.4,2.0));
+ let fog=1.0-exp(-pow(dist*frame.params.w*frame.regionStyle.z,2.0));
  var color=mix(base*lit,frame.fogColor.rgb,fog);
- if(frame.weather.y>0.5){
+ if(frame.weather.y>0.001){
   let viewRay=normalize(input.world-frame.camera.xyz);
   let alignment=pow(max(dot(viewRay,normalize(frame.sunDir.xyz)),0.0),12.0);
-  let glow=frame.weather.z*frame.params.y*alignment*(1.0-exp(-dist*.012))*(.35+.65*shade)*.16;
+  let glow=frame.weather.y*frame.weather.z*frame.params.y*alignment*(1.0-exp(-dist*.012))*(.35+.65*shade)*.16;
   color+=vec3f(.75,.68,.48)*glow;
+  color+=lightShafts(viewRay,min(dist,32.0));
  }
  return vec4f(color,select(opacity,smoothstep(.24,.50,texel.a),coverage&&kind>2.5&&kind<3.5));
 }
@@ -334,6 +364,7 @@ fn cloudColor(density:f32,mask:f32,ray:vec3f,sunDistance:f32)->vec3f {
  let lowT=cloudTransmission(lowDensity,lowMask,frame.skyLowShape.y);let highT=cloudTransmission(highDensity,highMask,frame.skyHighShape.y);
  color=color*highT+cloudColor(highDensity,highMask,ray,sunD)*(1.0-highT);
  color=color*lowT+cloudColor(lowDensity,lowMask,ray,sunD)*(1.0-lowT);
+ color+=lightShafts(ray,32.0);
  return vec4f(color,1.0);
 }
 `;
